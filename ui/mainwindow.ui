@@ -128,11 +128,17 @@
     <addaction name="separator"/>
     <addaction name="actionRIC_NU_Knee"/>
    </widget>
+   <widget class="QMenu" name="menuGL">
+    <property name="title">
+     <string>GL</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuControl"/>
    <addaction name="menuUser"/>
    <addaction name="menuTools"/>
+   <addaction name="menuGL"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -265,7 +271,22 @@
    <property name="text">
     <string>Event Flag</string>
    </property>
+  </action>    
+  <!--action name="actionGL_Graph">
+   <property name="text">
+    <string>GL Graph</string>
+   </property>
   </action>
+  <action name="actionGL_Event_Log">
+   <property name="text">
+    <string>GL Event Log</string>
+   </property>
+  </action>
+  <action name="actionGL_Stats">
+   <property name="text">
+    <string>GL Stats</string>
+   </property>
+  </action-->
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

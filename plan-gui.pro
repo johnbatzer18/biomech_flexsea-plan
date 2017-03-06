@@ -102,7 +102,15 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_incontrol.cpp \
 	flexsea-system/src/flexsea_cmd_in_control.c \
 	src/MDIWinObjects/w_event.cpp \
-    flexsea-system/src/flexsea_cmd_stream.c
+    flexsea-system/src/flexsea_cmd_stream.c \
+    src/MDIWinObjects/w_glplot.cpp \
+    src/chartcontroller.cpp \
+    src/chartdata.cpp \
+    src/customchartview.cpp \
+    src/dataprovider.cpp \
+    src/passthroughprovider.cpp \
+    src/sineprovider3.cpp \
+    src/quantdata.cpp \
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -174,7 +182,15 @@ HEADERS  += inc/main.h \
 	inc/MDIWinObjects/w_incontrol.h \
 	flexsea-system/inc/flexsea_cmd_in_control.h \
 	inc/MDIWinObjects/w_event.h \
-    flexsea-system/inc/flexsea_cmd_stream.h
+    flexsea-system/inc/flexsea_cmd_stream.h \
+    inc/MDIWinObjects/w_glplot.h \
+    inc/chartcontroller.h \
+    inc/chartdata.h \
+    inc/customchartview.h \
+    inc/dataprovider.h \
+    inc/passthroughprovider.h \
+    inc/sineprovider3.h \
+    inc/quantdata.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -195,7 +211,8 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_commtest.ui \
 	ui/w_testbench.ui \
 	ui/w_incontrol.ui \
-	ui/w_event.ui
+        ui/w_event.ui \
+    ui/w_glplot.ui
 
 RESOURCES += \
 	misc/icons.qrc

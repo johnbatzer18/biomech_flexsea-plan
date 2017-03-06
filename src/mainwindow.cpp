@@ -40,6 +40,9 @@
 #include <QString>
 #include <QFileDialog>
 #include "main.h"
+#include <passthroughprovider.h>
+#include <sineprovider3.h>
+
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -137,6 +140,15 @@ MainWindow::MainWindow(QWidget *parent) :
 			this, SLOT(setStatusBar(QString)));
 
 	comPortStatus = false;
+
+	initializeDataProviders();
+	chartController = new ChartController(this);
+	for(int i = 0; i < dataProviders.size(); i++)
+	{
+		chartController->addDataProvider(dataProviders.at(i));
+	}
+
+	ui->menuGL->addAction("Add Chart Window", this, &MainWindow::triggerChartView);
 }
 
 MainWindow::~MainWindow()
@@ -154,6 +166,21 @@ MainWindow::~MainWindow()
 	{
 		delete myView2DPlot[i];
 	}
+}
+
+void MainWindow::initializeDataProviders()
+{
+	dataProviders.append(new SineProvider3(90));
+	dataProviders.append(new SineProvider3());
+	dataProviders.append(new SineProvider3(180));
+
+	PassThroughProvider* ptp = new PassThroughProvider(33);
+	ptp->setDataPointer(&(manag1.accel.x));
+	ptp->dataSignSize = PassThroughProvider::S_16;
+	ptp->setLabel("Manage X Accel");
+	//connect(serialDriver, &SerialDriver::newDataReady, ptp, &PassThroughProvider::handleNewDataRecieved);
+
+	dataProviders.append(ptp);
 }
 
 void MainWindow::initFlexSeaDeviceObject(void)
@@ -353,6 +380,7 @@ void MainWindow::createViewExecute(void)
 								   W_Execute::getMaxWindow());
 	}
 }
+void MainWindow::triggerChartView() {	chartController->createChartView(ui->mdiArea);	}
 
 void MainWindow::closeViewExecute(void)
 {

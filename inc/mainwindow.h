@@ -58,6 +58,8 @@
 #include "w_testbench.h"
 #include "w_commtest.h"
 #include <streammanager.h>
+#include <chartcontroller.h>
+#include <dataprovider.h>
 
 #include "main.h"
 
@@ -101,6 +103,7 @@ private:
 	void initFlexSeaDeviceObject(void);
 	void initFlexSeaDeviceLog(void);
 	void initSerialComm(SerialDriver*, StreamManager*);
+	void initializeDataProviders(void);
 
 	Ui::MainWindow *ui;
 
@@ -123,6 +126,8 @@ private:
 	QList<FlexseaDevice*>	ricnuFlexList;
 	QList<FlexseaDevice*>	ankle2DofFlexList;
 	QList<FlexseaDevice*>	testBenchFlexList;
+
+	QList<DataProvider*> dataProviders;
 
 	// Global Flexsea List
 	QList<FlexseaDevice*> flexseaPtrlist;
@@ -164,6 +169,7 @@ private:
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
 
 	// Objects
+	ChartController *chartController;
 	SerialDriver *mySerialDriver;
 	QThread* serialThread;
 
@@ -177,6 +183,7 @@ signals:
 	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 
 public slots:
+	void triggerChartView();
 
 	void saveComPortStatus(bool status);
 	void translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr);
