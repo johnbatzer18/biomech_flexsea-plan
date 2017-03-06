@@ -12,5 +12,5 @@
 	branch = dev
 [submodule "flexsea-user"]
 	path = flexsea-user
-	url = https://github.com/JFDuval/flexsea-user.git
+	url = https://github.com/DephyInc/flexsea-user.git
 	branch = dev
