@@ -21,73 +21,85 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_manage.h: Manage View Window
+	[This file] w_event.h: Event Flagger Window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
-	* 2016-09-15 | jfduval | New code
+	* 2017-03-13 | jfduval | Initial GPL-3.0 release
 	*
 ****************************************************************************/
 
-#ifndef W_MANAGE_H
-#define W_MANAGE_H
+#ifndef W_EVENT_H
+#define W_EVENT_H
 
 //****************************************************************************
 // Include(s)
 //****************************************************************************
 
 #include <QWidget>
+#include <QTimer>
+#include <QPushButton>
 #include "counter.h"
-#include "flexsea_generic.h"
-#include "manageDevice.h"
-#include "define.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
 
+#define NUM_OF_BUTTONS		4
+
 namespace Ui {
-class W_Manage;
+class W_Event;
 }
 
-class W_Manage : public QWidget, public Counter<W_Manage>
+class W_Event : public QWidget, public Counter<W_Event>
 {
 	Q_OBJECT
 
 public:
 	//Constructor & Destructor:
-	explicit W_Manage(QWidget *parent = 0,
-					  ManageDevice *deviceLogPtr = nullptr,
-					  DisplayMode mode = DisplayLiveData,
-					  QList<ManageDevice> *deviceListPtr = nullptr);
-	~W_Manage();
+	explicit W_Event(QWidget *parent = 0);
+	~W_Event();
 
-	//Function(s):
-
-public slots:
-	void refreshDisplay(void);
-	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
-	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
+	static QString flagText;
+	static int flagCode;
+	static QString getEventFlags(void);
+	static int getEventCode(void);
 
 signals:
 	void windowClosed(void);
 
+private slots:
+
+	void on_horizontalSlider_valueChanged(int value);
+	void on_pushButtonA_clicked();
+	void on_pushButtonB_clicked();
+	void on_pushButtonC_clicked();
+	void on_pushButtonD_clicked();
+
+	void pushButtonEvent(int pb);
+
+	void timeoutEvent(int pb);
+	void timerPb0(void);
+	void timerPb1(void);
+	void timerPb2(void);
+	void timerPb3(void);
+
 private:
 	//Variables & Objects:
-	Ui::W_Manage *ui;
-
-	DisplayMode displayMode;
-
-	QList<ManageDevice> *deviceList;
-	ManageDevice *deviceLog;
+	Ui::W_Event *ui;
+	int delayValue;
+	QTimer *timerPb[NUM_OF_BUTTONS];
+	int flag[NUM_OF_BUTTONS];
 
 	//Function(s):
-	void initLive(void);
-	void initLog(void);
-	void display(ManageDevice *devicePtr, int index);
+	void init(void);
+	QString buildList(void);
+	int buildCode(void);
+	QPushButton *buttons[NUM_OF_BUTTONS];
 };
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#endif // W_MANAGE_H
+
+#endif // W_EVENT_H

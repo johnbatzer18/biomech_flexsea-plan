@@ -51,6 +51,8 @@
 #include "w_strain.h"
 #include "w_gossip.h"
 #include "w_converter.h"
+#include "w_incontrol.h"
+#include "w_event.h"
 
 #include "flexseaDevice.h"
 #include "w_testbench.h"
@@ -60,6 +62,7 @@
 #include "main.h"
 
 #include <QList>
+#include <QThread>
 
 namespace Ui {
 class MainWindow;
@@ -83,6 +86,8 @@ class MainWindow;
 #define USERRW_WINDOWS_MAX			1
 #define TESTBENCH_WINDOWS_MAX		1
 #define COMMTEST_WINDOWS_MAX		1
+#define INCONTROL_WINDOWS_MAX		1
+#define EVENT_WINDOWS_MAX			1
 
 class MainWindow : public QMainWindow
 {
@@ -95,6 +100,7 @@ public:
 private:
 	void initFlexSeaDeviceObject(void);
 	void initFlexSeaDeviceLog(void);
+	void initSerialComm(SerialDriver*, StreamManager*);
 
 	Ui::MainWindow *ui;
 
@@ -128,6 +134,12 @@ private:
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
+	Ankle2DofProject ankle2DofLog = Ankle2DofProject();
+	TestBenchProject testBenchLog = TestBenchProject();
+
+	FlexseaDevice* currentFlexLog;
+
+	bool comPortStatus;
 
 
 	// Sub-Windows
@@ -148,21 +160,26 @@ private:
 	W_UserRW *myUserRW[USERRW_WINDOWS_MAX];
 	W_TestBench *myViewTestBench[TESTBENCH_WINDOWS_MAX];
 	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
+	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
+	W_Event *myEvent[EVENT_WINDOWS_MAX];
 
 	// Objects
 	SerialDriver *mySerialDriver;
+	QThread* serialThread;
+
 	DataLogger *myDataLogger;
 	StreamManager* streamManager;
 
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
-	void connectorUpdateDisplayMode(DisplayMode mode);
+	void connectorUpdateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 
 public slots:
 
-	void translatorUpdateDataSourceStatus(DataSource status);
+	void saveComPortStatus(bool status);
+	void translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr);
 	void manageLogKeyPad(DataSource status, FlexseaDevice *);
 
 	//MDI Windows (create):
@@ -183,6 +200,8 @@ public slots:
 	void createUserRW(void);
 	void createViewTestBench(void);
 	void createViewCommTest(void);
+	void createInControl(void);
+	void createToolEvent(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -202,8 +221,9 @@ public slots:
 	void closeUserRW(void);
 	void closeViewTestBench(void);
 	void closeViewCommTest(void);
+	void closeToolEvent(void);
 
-	//Miscelaneous
+	//Miscellaneous
 
 	DisplayMode getDisplayMode(void);
 

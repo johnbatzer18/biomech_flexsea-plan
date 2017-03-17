@@ -96,10 +96,13 @@ SOURCES += src/main.cpp \
 	flexsea-system/src/flexsea_cmd_tools.c \
 	flexsea-system/test/test-flexsea_cmd_tools.c \
 	src/FlexSEADevice/ricnuProject.cpp \
-        flexsea-system/src/fm_block_allocator.c \
 	src/FlexSEADevice/ankle2DofProject.cpp \
-        src/FlexSEADevice/testBenchProject.cpp \
-        src/streammanager.cpp \
+	src/FlexSEADevice/testBenchProject.cpp \
+	src/streammanager.cpp \
+	src/MDIWinObjects/w_incontrol.cpp \
+	flexsea-system/src/flexsea_cmd_in_control.c \
+	src/MDIWinObjects/w_event.cpp \
+    flexsea-system/src/flexsea_cmd_stream.c
 
 HEADERS  += inc/main.h \
 	inc/mainwindow.h \
@@ -115,7 +118,6 @@ HEADERS  += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_calibration.h \
 	flexsea-system/inc/flexsea_system.h \
 	flexsea-system/inc/flexsea_global_structs.h \
-	flexsea-system/inc/fm_block_allocator.h \
 	flexsea-shared/unity/unity.h \
 	flexsea-shared/unity/unity_internals.h \
 	flexsea-system/test/flexsea-system_test-all.h \
@@ -168,8 +170,11 @@ HEADERS  += inc/main.h \
 	inc/FlexSEADevice/ricnuProject.h \
 	inc/FlexSEADevice/ankle2DofProject.h \
 	inc/FlexSEADevice/testBenchProject.h \
-    inc/streammanager.h \
-    flexsea-system/inc/fm_block_allocator.h
+	inc/streammanager.h \
+	inc/MDIWinObjects/w_incontrol.h \
+	flexsea-system/inc/flexsea_cmd_in_control.h \
+	inc/MDIWinObjects/w_event.h \
+    flexsea-system/inc/flexsea_cmd_stream.h
 
 FORMS    += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -188,7 +193,9 @@ FORMS    += ui/mainwindow.ui \
 	ui/w_logkeypad.ui \
 	ui/w_userrw.ui \
 	ui/w_commtest.ui \
-	ui/w_testbench.ui
+	ui/w_testbench.ui \
+	ui/w_incontrol.ui \
+	ui/w_event.ui
 
 RESOURCES += \
 	misc/icons.qrc

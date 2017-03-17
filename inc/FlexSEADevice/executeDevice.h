@@ -90,22 +90,32 @@ class ExecuteDevice : public FlexseaDevice
 public:
 	explicit ExecuteDevice(void);
 	explicit ExecuteDevice(execute_s *devicePtr);
+	virtual ~ExecuteDevice();
 
 	// Interface implementation
 	QString getHeaderStr(void);
+	QStringList getHeaderList(void) {return header;}
+	QStringList getHeaderDecList(void) {return headerDecoded;}
 	QString getLastSerializedStr(void);
+	struct std_variable getSerializedVar(int parameter);
+	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastLine(void);
 	void decodeAllLine(void);
+	int length(void) {return exList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getStatusStr(int index);
+	static QString getStatusStr(struct execute_s *ex);
 
 	QList<struct execute_s*> exList;
+	QList<bool> ownershipList;
+	//QList<int> eventFlags;
+
 	static void decode(struct execute_s *exPtr);
 
 private:
 	static QStringList header;
+	static QStringList headerDecoded;
 };
 
 

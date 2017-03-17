@@ -41,7 +41,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QSplineSeries>
 #include <QDebug>
-#include <QDateTime>
+#include <QElapsedTimer>
 #include "flexsea_generic.h"
 #include "main.h"
 
@@ -51,7 +51,10 @@ QT_CHARTS_USE_NAMESPACE
 // Constructor & Destructor:
 //****************************************************************************
 
-W_2DPlot::W_2DPlot(QWidget *parent) :
+W_2DPlot::W_2DPlot(QWidget *parent,
+				   FlexseaDevice* devLogInit,
+				   DisplayMode mode,
+				   QList<FlexseaDevice*> *devListInit) :
 	QWidget(parent),
 	ui(new Ui::W_2DPlot)
 {
@@ -60,21 +63,30 @@ W_2DPlot::W_2DPlot(QWidget *parent) :
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	liveDevList = devListInit;
+
+	logIndex = 0;
+
 	initFlag = true;
 	initPtr();
-	initStats();
-	initUserInput();
 	initChart();
-	useOpenGL(false);
 
-	//Timers:
-	timerRefreshDisplay = new QDateTime;
-	timerRefreshData = new QDateTime;
+	// Big part of the init have been moved to this function.
+	updateDisplayMode(mode, devLogInit);
+
+	useOpenGL(false);
+	drawingTimer = new QTimer(this);
+	drawingTimer->setTimerType(Qt::CoarseTimer);
+	drawingTimer->setInterval(40);
+	drawingTimer->setSingleShot(false);
+	connect(drawingTimer, &QTimer::timeout, this, &W_2DPlot::refresh2DPlot);
 }
 
 W_2DPlot::~W_2DPlot()
 {
 	emit windowClosed();
+	delete drawingTimer;
+	drawingTimer = nullptr;
 	delete ui;
 }
 
@@ -88,99 +100,158 @@ W_2DPlot::~W_2DPlot()
 
 void W_2DPlot::receiveNewData(void)
 {
-	uint8_t item = 0;
-	int val[6] = {0,0,0,0,0,0};
-
-	dataRate = getRefreshRateData();
-
+	int val;
 	//For every variable:
-	for(item = 0; item < VAR_NUM; item++)
+	for(int row = 0; row < VAR_NUM; row++)
 	{
-		if(vtp[item].decode == false)
+		if(!vtp[row].used) continue;
+
+		if(!vtp[row].decode)
 		{
-			switch(vtp[item].format)
+			if((vtp[row].rawGenPtr) == nullptr)
 			{
-				case FORMAT_32S:
-					val[item] = (*(int32_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_32U:
-					val[item] = (int)(*(uint32_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_16S:
-					val[item] = (int)(*(int16_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_16U:
-					val[item] = (int)(*(uint16_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_8S:
-					val[item] = (int)(*(int8_t*)vtp[item].rawGenPtr);
-					break;
-				case FORMAT_8U:
-					val[item] = (int)(*(uint8_t*)vtp[item].rawGenPtr);
-					break;
-				default:
-					val[item] = 0;
-					break;
+				val = 0;
+			}
+			else
+			{
+				switch(vtp[row].format)
+				{
+					case FORMAT_32S:
+						val = (*(int32_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
+						break;
+					case FORMAT_32U:
+						val = (int)(*(uint32_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
+						break;
+					case FORMAT_16S:
+						val = (int)(*(int16_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
+						break;
+					case FORMAT_16U:
+						val = (int)(*(uint16_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
+						break;
+					case FORMAT_8S:
+						val = (int)(*(int8_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
+						break;
+					case FORMAT_8U:
+						val = (int)(*(uint8_t*)vtp[row].rawGenPtr);
+						scale(row, &val);
+						break;
+					default:
+						val = 0;
+						break;
+				}
 			}
 		}
 		else
 		{
-			val[item] = (*vtp[item].decodedPtr);
+			if((vtp[row].decodedPtr) == nullptr)
+			{
+				val = 0;
+			}
+			else
+			{
+				val = (*vtp[row].decodedPtr);
+			}
 		}
-	}
 
-	saveNewPoints(val);
+		saveNewPoint(row, val);
+	}
+	dataRate = getRefreshRateData();
 }
 
 void W_2DPlot::refresh2DPlot(void)
 {
-	//sub sample the clock we receive, which is at 1kHz. We want 33Hz
-	static double ticks = 0;
-	const double REFRESH_PERIOD = 1000.0 / 33.0;
-	ticks += 1.0;
-	if(ticks > REFRESH_PERIOD)
-	{
-		ticks -= REFRESH_PERIOD;
-	}
-	else
-	{
-		return;
-	}
-
 	uint8_t index = 0;
 
 	//Refresh Stat Bar:
 	refreshStatBar(getRefreshRateDisplay(), dataRate);
 
-
 	//For every variable:
 	for(index = 0; index < VAR_NUM; index++)
 	{
-		if(vtp[index].used == false)
-		{
-			//This channel isn't used, we make it invisible
-			qlsChart[index]->setVisible(false);
-		}
-		else
-		{
-			qlsChart[index]->setVisible(true);
-		}
+		qlsChart[index]->setVisible(vtp[index].used);
 	}
 
 	//And now update the display:
-	if(plotFreezed == false)
+	if(!plotFreezed)
 	{
-		// Apparently, using pointsVector is much faster (see documentation)
-		qlsChart[0]->replace(vDataBuffer[0]);
-		qlsChart[1]->replace(vDataBuffer[1]);
-		qlsChart[2]->replace(vDataBuffer[2]);
-		qlsChart[3]->replace(vDataBuffer[3]);
-		qlsChart[4]->replace(vDataBuffer[4]);
-		qlsChart[5]->replace(vDataBuffer[5]);
-
+		computeStats();
 		computeGlobalMinMax();
-		refreshStats();
 		setChartAxisAutomatic();
+
+		for(int i = 0; i < VAR_NUM; i++)
+		{
+			if(vtp[i].used && !vDataBuffer[i].isEmpty())
+			{
+				int bufLength = vDataBuffer[i].size();
+				for(int j = 0; j < bufLength; j++)
+				{
+					vDataBuffer[i][j].setX(j);
+				}
+
+				qlsChart[i]->replace(vDataBuffer[i]);
+			}
+
+			(*lbMin[i])->setText(QString::number(stats[i][STATS_MIN]));
+			(*lbMax[i])->setText(QString::number(stats[i][STATS_MAX]));
+			(*lbAvg[i])->setText(QString::number(stats[i][STATS_AVG]));
+		}
+	}
+}
+
+void W_2DPlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
+{
+	(void)devPtr;
+	logIndex = index;
+
+	saveNewPointsLog(index);
+	refresh2DPlot();
+}
+
+void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
+{
+	static bool firstTime = true;
+	static DisplayMode prevMode = DisplayLogData;
+	if(mode == prevMode && !firstTime) return;
+	prevMode = mode;
+	firstTime = false;
+
+	displayMode = mode;
+	if(displayMode == DisplayLogData)
+	{
+		logDevList.clear();
+		logDevList.append(devPtr);
+		currentDevList = &logDevList;
+
+		initUserInput();
+		initData();
+
+		ui->pushButtonFreeze->setDisabled(true);
+		ui->radioButtonXA->setChecked(0);
+		ui->radioButtonXM->setChecked(1);
+		ui->radioButtonXA->setDisabled(true);
+		ui->radioButtonXM->setDisabled(true);
+		ui->lineEditXMin->setDisabled(false);
+		ui->lineEditXMax->setDisabled(false);
+	}
+	else
+	{
+		currentDevList = liveDevList;
+
+		initUserInput();
+		initData();
+
+		ui->pushButtonFreeze->setDisabled(false);
+		ui->radioButtonXA->setChecked(1);
+		ui->radioButtonXM->setChecked(0);
+		ui->radioButtonXA->setDisabled(false);
+		ui->radioButtonXM->setDisabled(false);
+		ui->lineEditXMin->setDisabled(true);
+		ui->lineEditXMax->setDisabled(true);
 	}
 }
 
@@ -242,8 +313,6 @@ void W_2DPlot::initPtr(void)
 
 void W_2DPlot::initChart(void)
 {
-	vecLen = 0;
-
 	for(int i = 0; i < VAR_NUM; ++i)
 	{
 		//Data series:
@@ -263,8 +332,8 @@ void W_2DPlot::initChart(void)
 	}
 
 	chart->createDefaultAxes();
-	chart->axisX()->setRange(plot_xmin, plot_xmax);
-	chart->axisY()->setRange(plot_ymin, plot_ymax);
+	chart->axisX()->setRange(INIT_PLOT_XMIN, INIT_PLOT_XMAX);
+	chart->axisY()->setRange(INIT_PLOT_YMIN, INIT_PLOT_YMAX);
 
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
@@ -312,13 +381,11 @@ void W_2DPlot::initChart(void)
 //Fills the fields and combo boxes:
 void W_2DPlot::initUserInput(void)
 {
-	nullVar32s = 0;
-	nullVar16u = 0;
 
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		vtp[i].decodedPtr = &nullVar32s;
-		vtp[i].rawGenPtr = &nullVar32s;
+		vtp[i].decodedPtr = nullptr;
+		vtp[i].rawGenPtr = nullptr;
 		vtp[i].used = false;
 	}
 
@@ -331,8 +398,23 @@ void W_2DPlot::initUserInput(void)
 	plot_ymin = INIT_PLOT_YMIN;
 	plot_ymax = INIT_PLOT_YMAX;
 
-	ui->radioButtonXA->setChecked(1);
-	ui->radioButtonXM->setChecked(0);
+	chart->axisX()->setRange(plot_xmin, plot_xmax);
+	chart->axisY()->setRange(plot_ymin, plot_ymax);
+
+	if(displayMode == DisplayLogData)
+	{
+		ui->radioButtonXA->setChecked(0);
+		ui->radioButtonXM->setChecked(1);
+		ui->lineEditXMin->setDisabled(false);
+		ui->lineEditXMax->setDisabled(false);
+	}
+	else
+	{
+		ui->radioButtonXA->setChecked(1);
+		ui->radioButtonXM->setChecked(0);
+		ui->lineEditXMin->setDisabled(true);
+		ui->lineEditXMax->setDisabled(true);
+	}
 	ui->radioButtonYA->setChecked(1);
 	ui->radioButtonYM->setChecked(0);
 
@@ -340,12 +422,9 @@ void W_2DPlot::initUserInput(void)
 	ui->lineEditXMax->setText(QString::number(plot_xmax));
 	ui->lineEditYMin->setText(QString::number(plot_ymin));
 	ui->lineEditYMax->setText(QString::number(plot_ymax));
-	ui->lineEditXMin->setDisabled(true);
-	ui->lineEditXMax->setDisabled(true);
+
 	ui->lineEditYMin->setDisabled(true);
 	ui->lineEditYMax->setDisabled(true);
-
-	plotting_len = 0;
 
 	ui->comboBoxMargin->clear();
 	var_list_margin.clear();
@@ -367,24 +446,32 @@ void W_2DPlot::initUserInput(void)
 
 	//Note: Color coded labels will be defined based on the chart.
 
+
 	//Slave combo box:
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		FlexSEA_Generic::populateSlaveComboBox((*cbVarSlave[i]), SL_BASE_ALL, \
-												SL_LEN_ALL);
-	}
+		(*cbVarSlave[i])->blockSignals(true);
+		(*cbVarSlave[i])->clear();
 
-	//Variable comboBoxes:
-	saveCurrentSettings();  //Needed for the 1st var_list
+
+		for(int ii = 0; ii < currentDevList->length(); ++ii)
+		{
+			(*cbVarSlave[i])->addItem((*currentDevList)[ii]->slaveName);
+		}
+		(*cbVarSlave[i])->blockSignals(false);
+
+		//Variable comboBoxes:
+		saveCurrentSettings(i);  //Needed for the 1st var_list
+	}
 
 	//Decode Checkbox tooltips:
 	QString ttip = "<html><head/><body><p>Plot data in physical units (instead \
 					of ticks)</p></body></html>";
 
-	for(int i = 0; i < VAR_NUM; i++)
+	for(int item = 0; item < VAR_NUM; item++)
 	{
-		updateVarList(i);
-		(*ckbDecode[i])->setToolTip(ttip);
+		updateVarList(item);
+		(*ckbDecode[item])->setToolTip(ttip);
 	}
 
 	//By default, we track Slave 1:
@@ -412,7 +499,8 @@ void W_2DPlot::initUserInput(void)
 
 	dataRate = 0;
 
-	saveCurrentSettings();
+	//Scaling:
+	initScaling();
 
 	//Init flag:
 	initFlag = false;
@@ -421,7 +509,6 @@ void W_2DPlot::initUserInput(void)
 //Empties all the lists
 void W_2DPlot::initData(void)
 {
-	vecLen = 0;
 	for(int i = 0; i < VAR_NUM; i++)
 	{
 		vDataBuffer[i].clear();
@@ -431,118 +518,208 @@ void W_2DPlot::initData(void)
 	initStats();
 }
 
-//Updates 6 buffers, and compute stats (min/max/avg/...)
-void W_2DPlot::saveNewPoints(int myDataPoints[6])
+//Initialize the scaling boxes (y=mx+b)
+void W_2DPlot::initScaling(void)
 {
-	QPointF min, max;
-	QPointF temp;
-	QPoint tempInt;
-	long long avg = 0;
+	const QValidator *validator = new QIntValidator(-1000000, 1000000, this);
 
-	if(vecLen <= plot_len-1)
+	//Default: unity gain, no offset:
+	ui->lineEditM1->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM2->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM3->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM4->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM5->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditM6->setText(QString::number(SCALE_DEFAULT_M));
+	ui->lineEditB1->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB2->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB3->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB4->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB5->setText(QString::number(SCALE_DEFAULT_B));
+	ui->lineEditB6->setText(QString::number(SCALE_DEFAULT_B));
+
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		scaling[i][0] = SCALE_DEFAULT_M;
+		scaling[i][1] = SCALE_DEFAULT_B;
+	}
+
+	//Numbers only:
+	ui->lineEditB1->setValidator(validator);
+	ui->lineEditB2->setValidator(validator);
+	ui->lineEditB3->setValidator(validator);
+	ui->lineEditB4->setValidator(validator);
+	ui->lineEditB5->setValidator(validator);
+	ui->lineEditB6->setValidator(validator);
+	ui->lineEditM1->setValidator(validator);
+	ui->lineEditM2->setValidator(validator);
+	ui->lineEditM3->setValidator(validator);
+	ui->lineEditM4->setValidator(validator);
+	ui->lineEditM5->setValidator(validator);
+	ui->lineEditM6->setValidator(validator);
+}
+
+//Updates 6 buffers, and compute stats (min/max/avg/...)
+void W_2DPlot::saveNewPoint(int row, int data)
+{
+	if(row < 0 || row >= VAR_NUM || !vtp[row].used) return;
+
+	// add point if plot lenght not reached
+	if(vDataBuffer[row].length() < plot_len)
 	{
 		//First VECLEN points: append
-		//For each variable:
-		for(int i = 0; i < VAR_NUM; i++)
-		{
-			vDataBuffer[i].append(QPointF(vecLen, myDataPoints[i]));
-
-			min.setY(vDataBuffer[i].at(0).y());
-			max.setY(vDataBuffer[i].at(0).y());
-			avg = 0;
-			for(int j = 0; j < vecLen; j++)
-			{
-
-				//Minimum:
-				if(vDataBuffer[i].at(j).y() < min.y())
-				{
-					min.setY(vDataBuffer[i].at(j).y());
-				}
-
-				//Maximum:
-				if(vDataBuffer[i].at(j).y() > max.y())
-				{
-					max.setY(vDataBuffer[i].at(j).y());
-				}
-
-				//Average - sum:
-				tempInt = vDataBuffer[i].at(j).toPoint();
-				avg += tempInt.y();
-
-			}
-
-			if(vecLen > 0)
-			{
-				//Average - result:
-				avg = avg / vecLen;
-
-				//Save:
-				tempInt = min.toPoint();
-				stats[i][STATS_MIN] = tempInt.y();
-				tempInt = max.toPoint();
-				stats[i][STATS_MAX] = tempInt.y();
-				stats[i][STATS_AVG] = (int64_t) avg;
-			}
-		}
-
-		vecLen++;
+		vDataBuffer[row].append(QPointF(vDataBuffer[row].length(), data));
 	}
+	// replace point if max length reached
 	else
 	{
-		//For each variable:
-		for(int i = 0; i < VAR_NUM; i++)
+		vDataBuffer[row].removeFirst();
+		vDataBuffer[row].append(QPointF(plot_len-1, data));
+	}
+}
+
+void W_2DPlot::saveNewPointsLog(int index)
+{
+	struct std_variable varHandle;
+	int point;
+
+	initData();
+
+	for(int item = 0; item < VAR_NUM; item++)
+	{
+		int dataIter = 0;
+		// Manage the starting point for parsing the data
+		if(index > plot_len / 2)
 		{
-			//For each point:
-			min.setY(vDataBuffer[i].at(0).y());
-			max.setY(vDataBuffer[i].at(0).y());
-			avg = 0;
-			int index = 0;
-			for(int j = 1; j < plot_len+1; j++)
+			dataIter = index - (plot_len / 2);
+		}
+		else
+		{
+			dataIter = 0;
+		}
+
+
+		int graphIter = (plot_len / 2) - index;
+
+		if(graphIter < 0)
+		{
+			graphIter = 0;
+		}
+
+		while(dataIter < selectedDevList[item]->length() &&
+			  graphIter < plot_len &&
+			  varIndex[item] > 0)
+		{
+			varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1, dataIter);
+
+			if(vtp[item].decode == false)
 			{
-				index = j-1;
-				//qDebug() << "Index:" << index << "Plot len:" << plot_len;
-
-				//Minimum:
-				if(vDataBuffer[i].at(index).y() < min.y())
+				if(varHandle.rawGenPtr == nullptr)
 				{
-					min.setY(vDataBuffer[i].at(index).y());
+					point = 0;
 				}
-
-				//Maximum:
-				if(vDataBuffer[i].at(index).y() > max.y())
+				else
 				{
-					max.setY(vDataBuffer[i].at(index).y());
+					switch(varHandle.format)
+					{
+						case FORMAT_32S:
+							point = (*(int32_t*)varHandle.rawGenPtr);
+							scale(item, &point);
+							break;
+						case FORMAT_32U:
+							point = (int)(*(uint32_t*)varHandle.rawGenPtr);
+							scale(item, &point);
+							break;
+						case FORMAT_16S:
+							point = (int)(*(int16_t*)varHandle.rawGenPtr);
+							scale(item, &point);
+							break;
+						case FORMAT_16U:
+							point = (int)(*(uint16_t*)varHandle.rawGenPtr);
+							scale(item, &point);
+							break;
+						case FORMAT_8S:
+							point = (int)(*(int8_t*)varHandle.rawGenPtr);
+							scale(item, &point);
+							break;
+						case FORMAT_8U:
+							point = (int)(*(uint8_t*)varHandle.rawGenPtr);
+							scale(item, &point);
+							break;
+						default:
+							point = 0;
+							qDebug() << "Generic pointer format not supported";
+							break;
+					}
 				}
-
-				//Average - sum:
-				tempInt = vDataBuffer[i].at(index).toPoint();
-				avg += tempInt.y();
-
-				//Shift by one position (all but last point):
-				if(j < plot_len)
+			}
+			else
+			{
+				if((varHandle.decodedPtr) == nullptr)
 				{
-					temp = vDataBuffer[i].at(j);
-					vDataBuffer[i].replace(index, QPointF(index, temp.ry()));
+					point = 0;
+				}
+				else
+				{
+					point = (*varHandle.decodedPtr);
 				}
 			}
 
-			//Average - result:
-			avg = avg / vecLen;
-
-			//Save:
-			tempInt = min.toPoint();
-			stats[i][STATS_MIN] = tempInt.y();
-			tempInt = max.toPoint();
-			stats[i][STATS_MAX] = tempInt.y();
-			stats[i][STATS_AVG] = (int64_t) avg;
-
-			//Last (new):
-			vDataBuffer[i].replace(plot_len-1, QPointF(plot_len-1, myDataPoints[i]));
+			// Append the proper value
+			vDataBuffer[item].append(QPointF(graphIter, point));
+			++dataIter;
+			++graphIter;
 		}
 	}
+}
 
-	//qDebug() << "Test, qlsData length =" << qlsDataBuffer[0].count() << "Veclen =" << vecLen;
-	plotting_len = vecLen;
+void W_2DPlot::computeStats(void)
+{
+	qreal min, max;
+	qreal avg = 0;
+
+	// Compute the Stats
+	for(int i = 0; i < VAR_NUM; i++)
+	{
+		if(vDataBuffer[i].length() > 0 && vtp[i].used)
+		{
+			min = vDataBuffer[i].at(0).y();
+			max = vDataBuffer[i].at(0).y();
+			avg = 0;
+
+			for(int j = 0; j < vDataBuffer[i].length(); j++)
+			{
+
+				//Minimum:
+				if(vDataBuffer[i].at(j).y() < min)
+				{
+					min = vDataBuffer[i].at(j).y();
+				}
+
+				//Maximum:
+				if(vDataBuffer[i].at(j).y() > max)
+				{
+					max = vDataBuffer[i].at(j).y();
+				}
+
+				//Average - sum:
+				avg += vDataBuffer[i].at(j).y();
+
+			}
+			//Average - result:
+			avg = avg / vDataBuffer[i].length();
+
+			//Save:
+			stats[i][STATS_MIN] = (int64_t) min;
+			stats[i][STATS_MAX] = (int64_t) max;
+			stats[i][STATS_AVG] = (int64_t) avg;
+		}
+		else
+		{
+			stats[i][STATS_MIN] = 0;
+			stats[i][STATS_MAX] = 0;
+			stats[i][STATS_AVG] = 0;
+		}
+	}
 }
 
 //Get global min & max:
@@ -550,17 +727,18 @@ void W_2DPlot::computeGlobalMinMax(void)
 {
 	//Stats for all channels:
 
-	if(allChannelUnused() == true)
+	if(allChannelUnused())
 	{
 		globalYmin = -10;
 		globalYmax = 10;
 	}
 	else
 	{
+		int i;
 		//First, we use the 1st used channel to initialize the global min/max:
-		for(int i = 0; i < VAR_NUM; i++)
+		for(i = 0; i < VAR_NUM; i++)
 		{
-			if(vtp[i].used == true)
+			if(vtp[i].used)
 			{
 				globalYmin = stats[i][STATS_MIN];
 				globalYmax = stats[i][STATS_MAX];
@@ -568,11 +746,11 @@ void W_2DPlot::computeGlobalMinMax(void)
 			}
 		}
 
-		//Now we can compare:
-		for(int i = 0; i < VAR_NUM; i++)
+		//Now we can compare, starting at the next value of i:
+		for(i = i+1; i < VAR_NUM; i++)
 		{
 			//We only use the 'used' channels for the global min/max:
-			if(vtp[i].used == true)
+			if(vtp[i].used)
 			{
 				//Minimum:
 				if(stats[i][STATS_MIN] < globalYmin)
@@ -594,29 +772,35 @@ void W_2DPlot::computeGlobalMinMax(void)
 //Average of 8 values
 float W_2DPlot::getRefreshRateDisplay(void)
 {
-	static qint64 oldTime = 0;
-	qint64 newTime = 0, diffTime = 0;
+	const int SIZE_AVG = 8;
+
+    static QElapsedTimer timer;
+    if(!timer.isValid())
+    {
+        timer.start();
+        return -1;
+    }
+    int64_t msec = timer.elapsed();
+    timer.restart();
+
 	float t_s = 0.0, f = 0.0, avg = 0.0;
 	static int counter = 0;
-	static float fArray[8] = {0,0,0,0,0,0,0,0};
+	static float fArray[SIZE_AVG] = {0};
 
 	//Actual frequency:
-	newTime = timerRefreshDisplay->currentMSecsSinceEpoch();
-	diffTime = newTime - oldTime;
-	oldTime = newTime;
-	t_s = diffTime/1000.0;
-	f = 1/t_s;
+    t_s = msec;
+    f = 1000.0f/t_s;
 
 	//Average:
-	counter++;
-	counter %=8;
 	fArray[counter] = f;
+	counter++;
+	counter %=SIZE_AVG;
 	avg = 0;
-	for(int i = 0; i < 8; i++)
+	for(int i = 0; i < SIZE_AVG; i++)
 	{
 		avg += fArray[i];
 	}
-	avg = avg / 8;
+	avg = avg / SIZE_AVG;
 
 	return avg;
 }
@@ -626,56 +810,56 @@ float W_2DPlot::getRefreshRateDisplay(void)
 //is fast for a ms timer.
 float W_2DPlot::getRefreshRateData(void)
 {
-	static qint64 oldTime = 0;
-	qint64 newTime = 0, diffTime = 0;
-	float t_s = 0.0, avg = 0.0;
-	static float f = 0.0;
+    const int SIZE_AVG = 8;
 	static int counter = 0;
-	static float fArray[8] = {0,0,0,0,0,0,0,0};
+	static float fArray[SIZE_AVG] = {0};
 	static int callCounter = 0;
 
-	callCounter++;
-	callCounter %= 10;
+    static QElapsedTimer timer;
+    if(!timer.isValid())
+    {
+        timer.start();
+        return -1;
+    }
+
 	if(!callCounter)
 	{
-		newTime = timerRefreshData->currentMSecsSinceEpoch();
-		diffTime = newTime - oldTime;
-		oldTime = newTime;
+        int64_t msec = timer.elapsed();
+        timer.restart();
 
-		t_s = diffTime/10/1000.0;
-		f = 1/t_s;
+        float t_s = 100.0f * msec;
+		float f = 1.0f/t_s;
+
+		//place into frequency array
+		fArray[counter] = f;
+		counter++;
+		counter%=SIZE_AVG;
 	}
+	callCounter++;
+	callCounter%= 10;
 
-	//Average:
-	counter++;
-	counter %=4;
-	fArray[counter] = f;
-	avg = 0;
-	for(int i = 0; i < 4; i++)
+	//compute average
+	float avg = 0;
+	for(int i = 0; i < SIZE_AVG; i++)
 	{
 		avg += fArray[i];
 	}
-	avg = avg / 4;
+	avg = avg / SIZE_AVG;
 
 	return avg;
 }
 
 //Based on the current state of comboBoxes, saves the info in variables
-void W_2DPlot::saveCurrentSettings(void)
+void W_2DPlot::saveCurrentSettings(int item)
 {
-	for(int i = 0; i < VAR_NUM; i++)
-	{
-		//Slave:
-		slaveIndex[i] = (*cbVarSlave[i])->currentIndex();
-		slaveAddr[i] = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, slaveIndex[i]);
-		slaveBType[i] = FlexSEA_Generic::getSlaveBoardType(SL_BASE_ALL, \
-														   slaveIndex[i]);
-		//Variable:
-		varIndex[i] = (*cbVar[i])->currentIndex();
+	//Slave:
+	selectedDevList[item] = (*currentDevList)[(*cbVarSlave[item])->currentIndex()];
 
-		//Decode:
-		vtp[i].decode = (*ckbDecode[i])->isChecked();
-	}
+	//Variable:
+	varIndex[item] = (*cbVar[item])->currentIndex();
+
+	//Decode:
+	vtp[item].decode = (*ckbDecode[item])->isChecked();
 }
 
 //We use a bigger Y scale than the minimum span to make it clearer
@@ -781,20 +965,11 @@ void W_2DPlot::setChartAxis(void)
 			tmpXmax = tmpXmin + 1;
 		}
 
-		//Update displays:
-		ui->lineEditXMin->setText(QString::number(tmpXmin));
-		ui->lineEditXMax->setText(QString::number(tmpXmax));
-
 		//Save values:
 		plot_xmin = tmpXmin;
 		plot_xmax = tmpXmax;
-		plot_len = 1+ plot_xmax - plot_xmin;
 
-		if(plot_len < lastPlotLen)
-		{
-			initData();
-		}
-		lastPlotLen = plot_len;
+
 	}
 	else if(ui->radioButtonXA->isChecked())
 	{
@@ -804,13 +979,26 @@ void W_2DPlot::setChartAxis(void)
 
 		//Auto scale axis
 		plot_xmin = 0;
-		//plot_xmax = plotting_len;	//ToDo remove?
-		plot_xmax = vecLen;
+		plot_xmax = vDataBuffer[0].length();
 
-		//Notify user of value used:
-		ui->lineEditXMin->setText(QString::number(plot_xmin));;
-		ui->lineEditXMax->setText(QString::number(plot_xmax));;
+		// Limit the minimum value
+		if(plot_xmax < 1)
+		{
+			plot_xmax = 1;
+		}
 	}
+
+	//Notify user of value used:
+	ui->lineEditXMin->setText(QString::number(plot_xmin));;
+	ui->lineEditXMax->setText(QString::number(plot_xmax));;
+
+	plot_len = 1+ plot_xmax - plot_xmin;
+
+	if(plot_len < lastPlotLen)
+	{
+		initData();
+	}
+	lastPlotLen = plot_len;
 
 	//Y:
 	if(ui->radioButtonYM->isChecked())
@@ -848,7 +1036,7 @@ void W_2DPlot::setChartAxisAutomatic(void)
 
 		// If the range is going to be equal, or overlapping,
 		// We adjust the axis to some minimum height
-		while(plot_ymin >= plot_ymax)
+		while(plot_ymax <= plot_ymin)
 		{
 			plot_ymin -= 5;
 			plot_ymax += 5;
@@ -858,7 +1046,7 @@ void W_2DPlot::setChartAxisAutomatic(void)
 		addMargins(&plot_ymin, &plot_ymax);
 
 		//Update chart:
-		//chart->axisX()->setRange(plot_xmin, plot_xmax);
+		chart->axisX()->setRange(plot_xmin, plot_xmax);
 		chart->axisY()->setRange(plot_ymin, plot_ymax);
 
 		//Display values used:
@@ -871,7 +1059,7 @@ bool W_2DPlot::allChannelUnused(void)
 {
 	for(int i = 0; i < VAR_NUM; i++)
 	{
-		if(vtp[i].used == true)
+		if(vtp[i].used)
 		{
 			return false;
 		}
@@ -907,758 +1095,65 @@ void W_2DPlot::refreshStatBar(float fDisp, float fData)
 {
 	QString txt, num;
 
-	num = QString::number(fDisp, 'f', 0);
+	num = displayMode == DisplayLogData ? "--" : QString::number(fDisp, 'f', 0);
 	txt = "<font color=#808080>Display: " + num + " Hz </font>";
 	ui->label_refreshRateDisplay->setText(txt);
 
-	num = QString::number(fData, 'f', 0);
+
+	num = displayMode == DisplayLogData ? "--" : QString::number(fData, 'f', 0);
 	txt = "<font color=#808080>Data: " + num + " Hz </font>";
 	ui->label_refreshRateData->setText(txt);
 }
 
 //Each board type has a different variable list.
-//ToDo: those lists should come from the w_BoardName files
 void W_2DPlot::updateVarList(uint8_t item)
 {
-	QStringList var_list, toolTipList;
-
-	uint8_t bType = slaveBType[item];
-
-	//Build the string:
-	switch(bType)
-	{
-		case FLEXSEA_PLAN_BASE:
-			var_list << "****";
-			toolTipList << "";
-			break;
-		case FLEXSEA_MANAGE_BASE:
-			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
-					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Pushbutton" \
-					<< "Digital Inputs" << "Analog[0]" << "Analog[1]" \
-					<< "Analog[2]" << "Analog[3]" << "Analog[4]" \
-					<< "Analog[5]" << "Analog[6]" << "Analog[7]" << "Status";
-			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-						<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
-						<< "Raw Value Only" << "Decoded: mV" << "Decoded: mV" \
-						<< "Decoded: mV" << "Decoded: mV" << "Decoded: mV" \
-						<< "Decoded: mV" << "Decoded: mV" << "Decoded: mV" << "Raw Value Only";
-			break;
-		case FLEXSEA_EXECUTE_BASE:
-			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
-					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Display" \
-					<< "Encoder Control" << "Encoder Commutation" \
-					<< "Motor current" << "Analog[0]" << "Analog[1]" \
-					<< "Strain" << "Battery Voltage" << "Int. voltage" \
-					<< "Temperature" << "Status 1" << "Status 2" \
-					<< "Setpoint (square)" << "Setpoint (trapezoidal)" \
-					<< "Fake Data";
-			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
-					<< "Raw value only" << "Raw value only" \
-					<< "Decoded: mA" << "Decoded: mV" << "Decoded: mV" \
-					<< "Decoded: ±100%" << "Decoded: mV" << "Decoded: mV" \
-					<< "Decoded: 10x C" << "Raw value only" << "Raw value only" \
-					<< "Raw value only" << "Raw value only" \
-					<< "Raw value only";
-			break;
-		case FLEXSEA_BATTERY_BASE:
-			var_list << "**Unused**" << "Battery Voltage" << "Battery Current" \
-					<< "Power" << "Temperature" << "Pushbutton" << "Status";
-			toolTipList << "Unused" << "Decoded: mV" << "Decoded: mA" \
-					<< "Decoded: mW" << "Decoded: 10x C" << "Raw Values Only" \
-					<< "Raw Values Only";
-			break;
-		case FLEXSEA_STRAIN_BASE:
-			var_list << "**Unused**" << "Strain ch[1]" << "Strain ch[2]" \
-					<< "Strain ch[3]" << "Strain ch[4]" << "Strain ch[5]" \
-					<< "Strain ch[6]";
-			toolTipList << "Unused" << "Decoded: ±100%" << "Decoded: ±100%" \
-					<< "Decoded: ±100%" << "Decoded: ±100%" << "Decoded: ±100%" \
-					<< "Decoded: ±100%";
-			break;
-		case FLEXSEA_GOSSIP_BASE:
-			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
-					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Magneto X" \
-					<< "Magneto Y" << "Magneto Z" << "IO[1]" << "IO[2]" \
-					<< "CapSense[1]" << "CapSense[2]" << "CapSense[3]" \
-					<< "CapSense[4]" << "Status";
-			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: uT" \
-					<< "Decoded: uT" << "Decoded: uT" << "Raw Values Only" << "Raw Values Only" \
-					<< "Raw Values Only" << "Raw Values Only" << "Raw Values Only" \
-					<< "Raw Values Only" << "Raw Values Only";
-			break;
-		case FLEXSEA_VIRTUAL_BASE:
-			//TODO: Virtual can be many things. For now we only use it with
-			//RIC/NU. Generalize.
-			var_list << "**Unused**" << "Accel X" << "Accel Y" << "Accel Z" \
-					<< "Gyro X" << "Gyro Y" << "Gyro Z" << "Encoder Motor" \
-					<< "Encoder Joint" << "Motor current" << "Strain[0]" << "Strain[1]" \
-					<< "Strain[2]" << "Strain[3]" << "Strain[4]" << "Strain[5]" \
-					<< "PWM";
-			toolTipList << "Unused" << "Decoded: mg" << "Decoded: mg" << "Decoded: mg" \
-					<< "Decoded: deg/s" << "Decoded: deg/s" << "Decoded: deg/s" << "Raw Value Only" \
-					<< "Raw value only" << "Decoded: mA" << "Decoded: ±100%" << "Decoded: ±100%" \
-					<< "Decoded: ±100%"<< "Decoded: ±100%"<< "Decoded: ±100%"\
-					<< "Decoded: ±100%" << "PWM, -1024 to 1024";
-			break;
-		default:
-			var_list << "Invalid";
-			toolTipList << "Invalid";
-	}
-
-	//var_list & toolTipList need to be the same length:
-	if(var_list.length() != toolTipList.length())
-	{
-		qDebug() << "Error in updateVarList()!";
-	}
-
 	//Fill the comboBox:
 	(*cbVar[item])->clear();
 	(*cbVar[item])->setToolTipDuration(350);
-	for(int index = 0; index < var_list.count(); index++)
+
+	QStringList headerList(selectedDevList[item]->getHeaderList());
+	QStringList headerDecList(selectedDevList[item]->getHeaderDecList());
+
+	(*cbVar[item])->addItem("**Unused**");
+	(*cbVar[item])->setItemData(0, "Unused", Qt::ToolTipRole);
+	for(int i = 2; i < headerList.length(); i++)
 	{
-		(*cbVar[item])->addItem(var_list.at(index));
-		(*cbVar[item])->setItemData(index, toolTipList.at(index), Qt::ToolTipRole);
+		(*cbVar[item])->addItem(headerList[i]);
+		(*cbVar[item])->setItemData(i - 1, headerDecList[i], Qt::ToolTipRole);
 	}
 }
 
 //Assigns a pointer to the desired variable. This function is called whenever
 //we change Slave or Variable. The runtime plotting function will then use the
 //pointer.
-void W_2DPlot::assignVariable(uint8_t var)
+void W_2DPlot::assignVariable(uint8_t item)
 {
-	switch(slaveBType[var])
-	{
-		case FLEXSEA_PLAN_BASE:
-			//ToDo, if needed
-			break;
-		case FLEXSEA_MANAGE_BASE:
-			struct manage_s *mnPtr;
-			FlexSEA_Generic::assignManagePtr(&mnPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableMn(var, mnPtr);
-			break;
-		case FLEXSEA_EXECUTE_BASE:
-			struct execute_s *exPtr;
-			FlexSEA_Generic::assignExecutePtr(&exPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableEx(var, exPtr);
-			break;
-		case FLEXSEA_BATTERY_BASE:
-			struct battery_s *baPtr;
-			FlexSEA_Generic::assignBatteryPtr(&baPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableBa(var, baPtr);
-			break;
-		case FLEXSEA_STRAIN_BASE:
-			struct strain_s *stPtr;
-			FlexSEA_Generic::assignStrainPtr(&stPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableSt(var, stPtr);
-			break;
-		case FLEXSEA_GOSSIP_BASE:
-			struct gossip_s *goPtr;
-			FlexSEA_Generic::assignGossipPtr(&goPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableGo(var, goPtr);
-			break;
-		case FLEXSEA_VIRTUAL_BASE:
-			//TODO Generalize for other projects than RIC/NU
-			struct ricnu_s *myPtr;
-			FlexSEA_Generic::assignRicnuPtr(&myPtr, SL_BASE_ALL, \
-											   slaveIndex[var]);
-			assignVariableRicnu(var, myPtr);
-			break;
-		default:
-			break;
-	}
-}
+		struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
 
-//TODO move this to the w_board files
+		if(varIndex[item] == 0)
+		{
+			vtp[item].used = false;
+			vtp[item].format = NULL_PTR;
+			vtp[item].rawGenPtr = nullptr;
+			vtp[item].decodedPtr = nullptr;
+		}
+		else
+		{
+			vtp[item].used = true;
+			vtp[item].format = varHandle.format;
+			vtp[item].rawGenPtr = varHandle.rawGenPtr;
+			vtp[item].decodedPtr = varHandle.decodedPtr;
+		}
 
-//Assigns a pointer to the desired variable - Execute boards
-void W_2DPlot::assignVariableEx(uint8_t var, struct execute_s *myPtr)
-{
-	//'Used' as default, 'false' when set at Unused
-	vtp[var].used = true;
-	vtp[var].format = FORMAT_32S;
+		if(displayMode == DisplayLogData)
+		{
+			saveNewPointsLog(logIndex);
+			refresh2DPlot();
+		}
 
-	//Assign pointer:
-	switch(varIndex[var])
-	{
-		/*Format: (every Case except Unused)
-		 * Line 1: data format, raw variable
-		 * Line 2: raw variable
-		 * Line 3: decoded variable (always int32),
-					null if not decoded  */
-		case 0: //"**Unused**"
-			vtp[var].used = false;
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 1: //"Accel X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.x;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.x;
-			break;
-		case 2: //"Accel Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.y;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.y;
-			break;
-		case 3: //"Accel Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.z;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.z;
-			break;
-		case 4: //"Gyro X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.x;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.x;
-			break;
-		case 5: //"Gyro Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.y;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.y;
-			break;
-		case 6: //"Gyro Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.z;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.z;
-			break;
-		case 7: //"Encoder Display"
-			vtp[var].format = FORMAT_32S;
-            vtp[var].rawGenPtr = myPtr->enc_ang;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-        case 8: //"Encoder Control"
-            break;
-        case 9: //"Encoder Commutation"
-            break;
-		case 10: //"Motor current"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->current;
-			vtp[var].decodedPtr = &myPtr->decoded.current;
-			break;
-		case 11: //"Analog[0]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[0];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[0];
-			break;
-		case 12: //Analog[1]
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[1];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[1];
-			break;
-		case 13: //"Strain"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->strain;
-			vtp[var].decodedPtr = &myPtr->decoded.strain;
-			break;
-		case 14: //"+VB"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->volt_batt;
-			vtp[var].decodedPtr = &myPtr->decoded.volt_batt;
-			break;
-		case 15: //"+VG"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->volt_int;
-			vtp[var].decodedPtr = &myPtr->decoded.volt_int;
-			break;
-		case 16: //"Temp"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->temp;
-			vtp[var].decodedPtr = &myPtr->decoded.temp;
-			break;
-		case 17: //"Status 1"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->status1;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 18: //"Status 2"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->status2;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 19: //"Setpoint (square)"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;//ctrl_setpoint);   //ToDo Fix
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 20: //"Setpoint (trap)"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;//ctrl_setpoint_trap);  //ToDo Fix
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 21: //"Fake Data"
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &myFakeData;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		default:
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			vtp[var].used = false;
-			break;
-	}
-}
-
-//Assigns a pointer to the desired variable - RINC/NU (Execute) boards
-void W_2DPlot::assignVariableRicnu(uint8_t var, struct ricnu_s *myPtr)
-{
-	//'Used' as default, 'false' when set at Unused
-	vtp[var].used = true;
-	vtp[var].format = FORMAT_32S;
-
-	//Assign pointer:
-	switch(varIndex[var])
-	{
-		/*Format: (every Case except Unused)
-		 * Line 1: data format, raw variable
-		 * Line 2: raw variable
-		 * Line 3: decoded variable (always int32),
-					null if not decoded  */
-		case 0: //"**Unused**"
-			vtp[var].used = false;
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 1: //"Accel X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->ex.accel.x;
-			vtp[var].decodedPtr = &myPtr->ex.decoded.accel.x;
-			break;
-		case 2: //"Accel Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->ex.accel.y;
-			vtp[var].decodedPtr = &myPtr->ex.decoded.accel.y;
-			break;
-		case 3: //"Accel Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->ex.accel.z;
-			vtp[var].decodedPtr = &myPtr->ex.decoded.accel.z;
-			break;
-		case 4: //"Gyro X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->ex.gyro.x;
-			vtp[var].decodedPtr = &myPtr->ex.decoded.gyro.x;
-			break;
-		case 5: //"Gyro Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->ex.gyro.y;
-			vtp[var].decodedPtr = &myPtr->ex.decoded.gyro.y;
-			break;
-		case 6: //"Gyro Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->ex.gyro.z;
-			vtp[var].decodedPtr = &myPtr->ex.decoded.gyro.z;
-			break;
-		case 7: //"Encoder Motor"
-			vtp[var].format = FORMAT_32S;
-            vtp[var].rawGenPtr = &myPtr->enc_motor;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 8: //"Encoder Control"
-			vtp[var].format = FORMAT_32S;
-            vtp[var].rawGenPtr = &myPtr->enc_joint;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 9: //"Motor current"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->ex.current;
-			vtp[var].decodedPtr = &myPtr->ex.decoded.current;
-			break;
-		case 10: //"Strain[0]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->st.ch[0].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[0];
-			break;
-		case 11: //"Strain[1]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->st.ch[1].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[1];
-			break;
-		case 12: //"Strain[2]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->st.ch[2].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[2];
-			break;
-		case 13: //"Strain[3]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->st.ch[3].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[3];
-			break;
-		case 14: //"Strain[4]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->st.ch[4].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[4];
-			break;
-		case 15: //"Strain[5]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->st.ch[5].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.ext_strain[5];
-			break;
-		case 16: //"PWM"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->ex.sine_commut_pwm;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-	}
-}
-
-//Assigns a pointer to the desired variable - Manage boards
-void W_2DPlot::assignVariableMn(uint8_t var, struct manage_s *myPtr)
-{
-	//'Used' as default, 'false' when set at Unused
-	vtp[var].used = true;
-	vtp[var].format = FORMAT_32S;
-
-	//Assign pointer:
-	switch(varIndex[var])
-	{
-		/*Format: (every Case except Unused)
-		 * Line 1: data format, raw variable
-		 * Line 2: raw variable
-		 * Line 3: decoded variable (always int32),
-					null if not decoded  */
-		case 0: //"**Unused**"
-			vtp[var].used = false;
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 1: //"Accel X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.x;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.x;
-			break;
-		case 2: //"Accel Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.y;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.y;
-			break;
-		case 3: //"Accel Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.z;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.z;
-			break;
-		case 4: //"Gyro X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.x;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.x;
-			break;
-		case 5: //"Gyro Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.y;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.y;
-			break;
-		case 6: //"Gyro Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.z;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.z;
-			break;
-		case 7: //"Pushbutton"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->sw1;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 8: //"Digital inputs"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->digitalIn;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 9: //"Analog[0]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[0];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[0];
-			break;
-		case 10: //Analog[1]
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[1];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[1];
-			break;
-		case 11: //"Analog[2]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[2];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[2];
-			break;
-		case 12: //Analog[3]
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[3];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[3];
-			break;
-		case 13: //"Analog[4]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[4];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[4];
-			break;
-		case 14: //Analog[5]
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[5];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[5];
-			break;
-		case 15: //"Analog[6]"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[6];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[6];
-			break;
-		case 16: //Analog[7]
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->analog[7];
-			vtp[var].decodedPtr = &myPtr->decoded.analog[7];
-			break;
-		case 17: //"Status"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->status1;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		default:
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			vtp[var].used = false;
-			break;
-	}
-}
-
-//Assigns a pointer to the desired variable - Gossip boards
-void W_2DPlot::assignVariableGo(uint8_t var, struct gossip_s *myPtr)
-{
-	//'Used' as default, 'false' when set at Unused
-	vtp[var].used = true;
-	vtp[var].format = FORMAT_32S;
-
-	//Assign pointer:
-	switch(varIndex[var])
-	{
-		/*Format: (every Case except Unused)
-		 * Line 1: data format, raw variable
-		 * Line 2: raw variable
-		 * Line 3: decoded variable (always int32),
-					null if not decoded  */
-		case 0: //"**Unused**"
-			vtp[var].used = false;
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 1: //"Accel X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.x;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.x;
-			break;
-		case 2: //"Accel Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.y;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.y;
-			break;
-		case 3: //"Accel Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->accel.z;
-			vtp[var].decodedPtr = &myPtr->decoded.accel.z;
-			break;
-		case 4: //"Gyro X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.x;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.x;
-			break;
-		case 5: //"Gyro Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.y;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.y;
-			break;
-		case 6: //"Gyro Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->gyro.z;
-			vtp[var].decodedPtr = &myPtr->decoded.gyro.z;
-			break;
-		case 7: //"Magneto X"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->magneto.x;
-			vtp[var].decodedPtr = &myPtr->decoded.magneto.x;
-			break;
-		case 8: //"Magneto Y"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->magneto.y;
-			vtp[var].decodedPtr = &myPtr->decoded.magneto.y;
-			break;
-		case 9: //"Magneto Z"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->magneto.z;
-			vtp[var].decodedPtr = &myPtr->decoded.magneto.z;
-			break;
-		case 10: //"IO 1"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->io[0];
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 11: //"IO 2"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->io[1];
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 12: //"Capsense 1"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->capsense[0];
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 13: //"Capsense 2"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->capsense[1];
-			vtp[var].decodedPtr = &nullVar32s;
-		case 14: //"Capsense 3"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->capsense[2];
-			vtp[var].decodedPtr = &nullVar32s;
-		case 15: //"Capsense 4"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->capsense[3];
-			vtp[var].decodedPtr = &nullVar32s;
-		case 16: //"Status"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->status;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		default:
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			vtp[var].used = false;
-			break;
-	}
-}
-
-//Assigns a pointer to the desired variable - Battery boards
-void W_2DPlot::assignVariableBa(uint8_t var, struct battery_s *myPtr)
-{
-	//'Used' as default, 'false' when set at Unused
-	vtp[var].used = true;
-	vtp[var].format = FORMAT_32S;
-
-	//Assign pointer:
-	switch(varIndex[var])
-	{
-		/*Format: (every Case except Unused)
-		 * Line 1: data format, raw variable
-		 * Line 2: raw variable
-		 * Line 3: decoded variable (always int32),
-					null if not decoded  */
-		case 0: //"**Unused**"
-			vtp[var].used = false;
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 1: //"Voltage"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->voltage;
-			vtp[var].decodedPtr = &myPtr->decoded.voltage;
-			break;
-		case 2: //"Current"
-			vtp[var].format = FORMAT_16S;
-			vtp[var].rawGenPtr = &myPtr->current;
-			vtp[var].decodedPtr = &myPtr->decoded.current;
-			break;
-		case 3: //"Power"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &nullVar16u;
-			vtp[var].decodedPtr = &myPtr->decoded.power;
-			break;
-		case 4: //"Temperature"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->temp;
-			vtp[var].decodedPtr = &myPtr->decoded.temp;
-			break;
-		case 5: //"Pushbutton"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->pushbutton;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 6: //"Status"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].rawGenPtr = &myPtr->status;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		default:
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			vtp[var].used = false;
-			break;
-	}
-}
-
-//Assigns a pointer to the desired variable - Strain boards
-void W_2DPlot::assignVariableSt(uint8_t var, struct strain_s *myPtr)
-{
-	//'Used' as default, 'false' when set at Unused
-	vtp[var].used = true;
-	vtp[var].format = FORMAT_32S;
-
-	//Assign pointer:
-	switch(varIndex[var])
-	{
-		/*Format: (every Case except Unused)
-		 * Line 1: data format, raw variable
-		 * Line 2: raw variable
-		 * Line 3: decoded variable (always int32),
-					null if not decoded  */
-
-		case 0: //"**Unused**"
-			vtp[var].used = false;
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			break;
-		case 1: //"Ch 1"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->ch[0].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.strain[0];
-			break;
-		case 2: //"Ch 2"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->ch[1].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.strain[1];
-			break;
-		case 3: //"Ch 3"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->ch[2].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.strain[2];
-			break;
-		case 4: //"Ch 4"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->ch[3].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.strain[3];
-			break;
-		case 5: //"Ch 5"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->ch[4].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.strain[4];
-			break;
-		case 6: //"Ch 6"
-			vtp[var].format = FORMAT_16U;
-			vtp[var].rawGenPtr = &myPtr->ch[5].strain_filtered;
-			vtp[var].decodedPtr = &myPtr->decoded.strain[5];
-			break;
-/*
-		case 7: //"Status"
-			vtp[var].format = FORMAT_8U;
-			vtp[var].gptr = &myPtr->status;
-			vtp[var].ptrD32s = &nullVar32s;
-			break;
-*/
-
-		default:
-			vtp[var].format = FORMAT_32S;
-			vtp[var].rawGenPtr = &nullVar32s;
-			vtp[var].decodedPtr = &nullVar32s;
-			vtp[var].used = false;
-			break;
-	}
+		if(allChannelUnused()) drawingTimer->stop();
+		else if(!drawingTimer->isActive()) drawingTimer->start();
 }
 
 //****************************************************************************
@@ -1743,7 +1238,7 @@ void W_2DPlot::on_cBoxvar1slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(0);
 
 		if(ui->checkBoxTrack->isChecked() == false)
 		{
@@ -1773,7 +1268,7 @@ void W_2DPlot::on_cBoxvar2slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(1);
 		updateVarList(1);
 		assignVariable(1);
 	}
@@ -1785,7 +1280,7 @@ void W_2DPlot::on_cBoxvar3slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(2);
 		updateVarList(2);
 		assignVariable(2);
 	}
@@ -1797,7 +1292,7 @@ void W_2DPlot::on_cBoxvar4slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(3);
 		updateVarList(3);
 		assignVariable(3);
 	}
@@ -1809,7 +1304,7 @@ void W_2DPlot::on_cBoxvar5slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(4);
 		updateVarList(4);
 		assignVariable(4);
 	}
@@ -1821,7 +1316,7 @@ void W_2DPlot::on_cBoxvar6slave_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(5);
 		updateVarList(5);
 		assignVariable(5);
 	}
@@ -1835,7 +1330,7 @@ void W_2DPlot::on_cBoxvar1_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(0);
 		assignVariable(0);
 	}
 }
@@ -1846,7 +1341,7 @@ void W_2DPlot::on_cBoxvar2_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(1);
 		assignVariable(1);
 	}
 }
@@ -1857,7 +1352,7 @@ void W_2DPlot::on_cBoxvar3_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(2);
 		assignVariable(2);
 	}
 }
@@ -1868,7 +1363,7 @@ void W_2DPlot::on_cBoxvar4_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(3);
 		assignVariable(3);
 	}
 }
@@ -1879,7 +1374,7 @@ void W_2DPlot::on_cBoxvar5_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(4);
 		assignVariable(4);
 	}
 }
@@ -1890,7 +1385,7 @@ void W_2DPlot::on_cBoxvar6_currentIndexChanged(int index)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(5);
 		assignVariable(5);
 	}
 }
@@ -1903,7 +1398,7 @@ void W_2DPlot::on_checkBoxD1_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(0);
 		assignVariable(0);
 	}
 }
@@ -1914,7 +1409,7 @@ void W_2DPlot::on_checkBoxD2_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(1);
 		assignVariable(1);
 	}
 }
@@ -1925,7 +1420,7 @@ void W_2DPlot::on_checkBoxD3_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(2);
 		assignVariable(2);
 	}
 }
@@ -1936,7 +1431,7 @@ void W_2DPlot::on_checkBoxD4_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(3);
 		assignVariable(3);
 	}
 }
@@ -1947,7 +1442,7 @@ void W_2DPlot::on_checkBoxD5_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(4);
 		assignVariable(4);
 	}
 }
@@ -1958,7 +1453,7 @@ void W_2DPlot::on_checkBoxD6_stateChanged(int arg1)
 
 	if(initFlag == false)
 	{
-		saveCurrentSettings();
+		saveCurrentSettings(5);
 		assignVariable(5);
 	}
 }
@@ -1980,11 +1475,11 @@ void W_2DPlot::on_pbReset_clicked()
 //Sets all channels to the IMU:
 void W_2DPlot::on_pbIMU_clicked()
 {
-	initUserInput();
 	initStats();
-	for(int item = 0; item < VAR_NUM; ++item)
+
+	for(int item = 0; item < VAR_NUM; item++)
 	{
-		(*cbVar[item])->setCurrentIndex(item + 1);
+		(*cbVar[item])->setCurrentIndex(item + 2);
 	}
 }
 
@@ -2095,4 +1590,87 @@ void W_2DPlot::useOpenGL(bool yesNo)
 	{
 		qDebug() << "OpenGL Disabled";
 	}
+}
+
+//All the scaling lineEdit slots redirect here
+void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
+{
+	int32_t num = txt.toInt();
+
+	if((param > 1) || (var > (VAR_NUM-1)))
+	{
+		qDebug() << "Invalid parameter, scaling unchaged.";
+		return;
+	}
+
+	//qDebug() << "scaling[" << var << "]" << "[" << param << "] =" << num;
+
+	//Change array:
+	scaling[var][param] = num;
+}
+
+//Apply the scaling factors to the variable
+void W_2DPlot::scale(uint8_t item, int *value)
+{
+	(*value) = (*value)*scaling[item][0] + scaling[item][1];
+}
+
+void W_2DPlot::on_lineEditM1_textEdited(const QString &arg1)
+{
+	updateScalingFactors(0, 0, arg1);
+}
+
+void W_2DPlot::on_lineEditM2_textEdited(const QString &arg1)
+{
+	updateScalingFactors(1, 0, arg1);
+}
+
+void W_2DPlot::on_lineEditM3_textEdited(const QString &arg1)
+{
+	updateScalingFactors(2, 0, arg1);
+}
+
+void W_2DPlot::on_lineEditM4_textEdited(const QString &arg1)
+{
+	updateScalingFactors(3, 0, arg1);
+}
+
+void W_2DPlot::on_lineEditM5_textEdited(const QString &arg1)
+{
+	updateScalingFactors(4, 0, arg1);
+}
+
+void W_2DPlot::on_lineEditM6_textEdited(const QString &arg1)
+{
+	updateScalingFactors(5, 0, arg1);
+}
+
+void W_2DPlot::on_lineEditB1_textEdited(const QString &arg1)
+{
+	updateScalingFactors(0, 1, arg1);
+}
+
+void W_2DPlot::on_lineEditB2_textEdited(const QString &arg1)
+{
+	updateScalingFactors(1, 1, arg1);
+}
+
+void W_2DPlot::on_lineEditB3_textEdited(const QString &arg1)
+{
+	updateScalingFactors(2, 1, arg1);
+}
+
+void W_2DPlot::on_lineEditB4_textEdited(const QString &arg1)
+{
+	updateScalingFactors(3, 1, arg1);
+}
+
+void W_2DPlot::on_lineEditB5_textEdited(const QString &arg1)
+{
+	updateScalingFactors(4, 1, arg1);
+}
+
+void W_2DPlot::on_lineEditB6_textEdited(const QString &arg1)
+{
+	updateScalingFactors(5, 1, arg1);
 }

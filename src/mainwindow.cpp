@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow::showMaximized();
 
 	//Header contains timestamp:
-	QString winHeader = "FlexSEA-Plan GUI v2.0 (Alpha) [Last full build: ";
+	QString winHeader = "FlexSEA-Plan GUI v2.1 (Beta) [Last full build: ";
 	winHeader = winHeader + QString(__DATE__) + QString(' ') + QString(__TIME__) \
 				+ QString(']');
 	setWindowTitle(winHeader);
@@ -82,6 +82,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
 	W_TestBench::setMaxWindow(TESTBENCH_WINDOWS_MAX);
 	W_CommTest::setMaxWindow(COMMTEST_WINDOWS_MAX);
+	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
+	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -100,11 +102,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_UserRW::setDescription("User R/W");
 	W_TestBench::setDescription("Test Bench");
 	W_CommTest::setDescription("Communication Test");
+	W_InControl::setDescription("Controller Tuning");
+	W_Event::setDescription("Event Flag");
 
 	initFlexSeaDeviceObject();
-
 	//SerialDriver:
-	mySerialDriver = new SerialDriver(this);
+	mySerialDriver = new SerialDriver();
+	streamManager = new StreamManager(nullptr, mySerialDriver);
 
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
@@ -113,9 +117,12 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &gossipLog,
 								  &batteryLog,
 								  &strainLog,
-								  &ricnuLog);
+								  &ricnuLog,
+								  &ankle2DofLog,
+								  &testBenchLog);
 
-	streamManager = new StreamManager(this, mySerialDriver);
+	initSerialComm(mySerialDriver, streamManager);
+
 
 	//Create default objects:
 	createConfig();
@@ -124,127 +131,141 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Disable options that are not implemented:
 	ui->menuFile->actions().at(3)->setEnabled(false);		//Load configuration
 	ui->menuFile->actions().at(4)->setEnabled(false);		//Save configuration
-	ui->menuControl->actions().at(1)->setEnabled(false);	//In Control
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
 			this, SLOT(setStatusBar(QString)));
 
-	//SerialDriver and MainWindow
-	connect(mySerialDriver, SIGNAL(setStatusBarMessage(QString)), \
-			this, SLOT(setStatusBar(QString)));
+	comPortStatus = false;
 }
 
 MainWindow::~MainWindow()
 {
 	delete ui;
+
+	serialThread->quit();
+	delete mySerialDriver;
+	delete streamManager;
+	delete serialThread;
+
+
+	int num2d = W_2DPlot::howManyInstance();
+	for(int i = 0; i < num2d; i++)
+	{
+		delete myView2DPlot[i];
+	}
 }
 
 void MainWindow::initFlexSeaDeviceObject(void)
 {
-	// TODO Improve :Slave index here a prompt to error when addding new device.
 	executeDevList.append(ExecuteDevice(&exec1));
 	executeDevList.last().slaveName = "Execute 1";
-	executeDevList.last().slaveIndex = 0;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_1;
 	flexseaPtrlist.append(&executeDevList.last());
 	executeFlexList.append(&executeDevList.last());
 
 	executeDevList.append(ExecuteDevice(&exec2));
 	executeDevList.last().slaveName = "Execute 2";
-	executeDevList.last().slaveIndex = 1;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_2;
 	flexseaPtrlist.append(&executeDevList.last());
 	executeFlexList.append(&executeDevList.last());
 
 	executeDevList.append(ExecuteDevice(&exec3));
 	executeDevList.last().slaveName = "Execute 3";
-	executeDevList.last().slaveIndex = 2;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_3;
 	flexseaPtrlist.append(&executeDevList.last());
 	executeFlexList.append(&executeDevList.last());
 
 	executeDevList.append(ExecuteDevice(&exec4));
 	executeDevList.last().slaveName = "Execute 4";
-	executeDevList.last().slaveIndex = 3;
 	executeDevList.last().slaveID = FLEXSEA_EXECUTE_4;
 	flexseaPtrlist.append(&executeDevList.last());
 	executeFlexList.append(&executeDevList.last());
 
 	manageDevList.append(ManageDevice(&manag1));
 	manageDevList.last().slaveName = "Manage 1";
-	manageDevList.last().slaveIndex = 4;
 	manageDevList.last().slaveID = FLEXSEA_MANAGE_1;
 	flexseaPtrlist.append(&manageDevList.last());
 	manageFlexList.append(&manageDevList.last());
 
 	manageDevList.append(ManageDevice(&manag2));
 	manageDevList.last().slaveName = "Manage 2";
-	manageDevList.last().slaveIndex = 5;
 	manageDevList.last().slaveID = FLEXSEA_MANAGE_2;
 	flexseaPtrlist.append(&manageDevList.last());
 	manageFlexList.append(&manageDevList.last());
 
-//	//PLAN? incontrol?
-//	manageDevList.append(new ManageDevice(&manag2));// Todo Not the right way.
-//	flexseaDevicePtrlist.append(manageDevList.last());
-//	manageDevList.last().slaveName = "Plan 1";
-//	manageDevList.last().slaveIndex = 6;
-//	manageDevList.last().slaveID = FLEXSEA_PLAN_1;
-
 	gossipDevList.append(GossipDevice(&gossip1));
 	gossipDevList.last().slaveName = "Gossip 1";
-	gossipDevList.last().slaveIndex = 6;
 	gossipDevList.last().slaveID = FLEXSEA_GOSSIP_1;
 	flexseaPtrlist.append(&gossipDevList.last());
 	gossipFlexList.append(&gossipDevList.last());
 
 	gossipDevList.append(GossipDevice(&gossip2));
 	gossipDevList.last().slaveName = "Gossip 2";
-	gossipDevList.last().slaveIndex = 7;
 	gossipDevList.last().slaveID = FLEXSEA_GOSSIP_2;
 	flexseaPtrlist.append(&gossipDevList.last());
 	gossipFlexList.append(&gossipDevList.last());
 
 	batteryDevList.append(BatteryDevice(&batt1));
 	batteryDevList.last().slaveName = "Battery 1";
-	batteryDevList.last().slaveIndex = 8;
 	batteryDevList.last().slaveID = FLEXSEA_BATTERY_1;
 	flexseaPtrlist.append(&batteryDevList.last());
 	batteryFlexList.append(&batteryDevList.last());
 
 	strainDevList.append(StrainDevice(&strain1));
 	strainDevList.last().slaveName = "Strain 1";
-	strainDevList.last().slaveIndex = 9;
 	strainDevList.last().slaveID = FLEXSEA_STRAIN_1;
 	flexseaPtrlist.append(&strainDevList.last());
 	strainFlexList.append(&strainDevList.last());
 
 	ricnuDevList.append(RicnuProject(&exec1, &strain1));
 	ricnuDevList.last().slaveName = "";
-	ricnuDevList.last().slaveIndex = 10;
-	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_1;
+	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ricnuDevList.last());
 	ricnuFlexList.append(&ricnuDevList.last());
 
 	ankle2DofDevList.append(Ankle2DofProject(&exec1, &exec2));
 	ankle2DofDevList.last().slaveName = "";
-	ankle2DofDevList.last().slaveIndex = 11;
-	ankle2DofDevList.last().slaveID = FLEXSEA_VIRTUAL_1; // TODO: Does it make sens?
+	ankle2DofDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ankle2DofDevList.last());
 	ankle2DofFlexList.append(&ankle2DofDevList.last());
 
 	testBenchDevList.append(TestBenchProject(&exec1, &exec2, &motortb, &batt1));
-	testBenchDevList.last().slaveName = "";
-	testBenchDevList.last().slaveIndex = 11;
+	testBenchDevList.last().slaveName = "Test Bench";
+	testBenchDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	// TODO: Does it make sense?
 	// Answer: It does not make sense to use the same FlexseaDevice type for both:
 	//				a) slaves
 	//				b) projects / experiments
-	testBenchDevList.last().slaveID = FLEXSEA_VIRTUAL_1;
 	flexseaPtrlist.append(&testBenchDevList.last());
 	testBenchFlexList.append(&testBenchDevList.last());
 	return;
+}
+
+void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
+{
+//	serialThread = new QThread(this);
+//	driver->moveToThread(serialThread);
+//	manager->moveToThread(serialThread);
+//	serialThread->start(QThread::HighestPriority);
+
+	connect(driver, &SerialDriver::aboutToClose, manager, &StreamManager::onComPortClosing, Qt::DirectConnection);
+
+	//Link StreamManager/SerialDriver and DataLogger
+	connect(manager, SIGNAL(openRecordingFile(FlexseaDevice *)), \
+			myDataLogger, SLOT(openRecordingFile(FlexseaDevice *)));
+	connect(driver, SIGNAL(writeToLogFile(FlexseaDevice *)), \
+			myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
+	connect(manager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
+			myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
+	connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
+		manager, SLOT(enqueueCommand(uint8_t,uint8_t*)));
+
+	//SerialDriver and MainWindow
+	connect(driver, SIGNAL(setStatusBarMessage(QString)), \
+			this, SLOT(setStatusBar(QString)));
+	connect(driver, SIGNAL(openStatus(bool)), \
+			this, SLOT(saveComPortStatus(bool)));
 }
 
 //****************************************************************************
@@ -255,16 +276,23 @@ void MainWindow::initFlexSeaDeviceObject(void)
 // Public slot(s):
 //****************************************************************************
 
-//Transfer the signal from config to the
-void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
+void MainWindow::saveComPortStatus(bool status)
 {
+	comPortStatus = status;
+}
+
+//Transfer the signal from config to the
+void MainWindow::translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr)
+{
+	currentFlexLog = devPtr;
+
 	if(status == FromLogFile)
 	{
-		emit connectorUpdateDisplayMode(DisplayLogData);
+		emit connectorUpdateDisplayMode(DisplayLogData, devPtr);
 	}
 	else
 	{
-		emit connectorUpdateDisplayMode(DisplayLiveData);
+		emit connectorUpdateDisplayMode(DisplayLiveData, devPtr);
 
 		if(W_LogKeyPad::howManyInstance() > 0)
 		{
@@ -275,8 +303,10 @@ void MainWindow::translatorUpdateDataSourceStatus(DataSource status)
 
 void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
 {
-	(void)status; //Unused for now
-	createLogKeyPad(devPtr);
+	if(status == FromLogFile)
+	{
+		createLogKeyPad(devPtr);
+	}
 }
 
 //Creates a new View Execute window
@@ -288,8 +318,13 @@ void MainWindow::createViewExecute(void)
 	if(objectCount < EX_VIEW_WINDOWS_MAX)
 	{
 		myViewExecute[objectCount] = \
-				new W_Execute(this, &executeLog,
-							  getDisplayMode(), &executeDevList);
+				new W_Execute(this,
+							  currentFlexLog,
+							  &executeLog,
+							  &ankle2DofLog,
+							  &testBenchLog,
+							  getDisplayMode(),
+							  &executeDevList);
 		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
 		myViewExecute[objectCount]->show();
 
@@ -308,8 +343,8 @@ void MainWindow::createViewExecute(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewExecute[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewExecute[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -352,8 +387,8 @@ void MainWindow::createViewManage(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewManage[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewManage[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewManage[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -400,10 +435,9 @@ void MainWindow::createConfig(void)
 				mySerialDriver, SLOT(close()));
 		connect(mySerialDriver, SIGNAL(openProgress(int)), \
 				myViewConfig[0], SLOT(setComProgress(int)));
-
-		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource)),
-				this, SLOT(translatorUpdateDataSourceStatus(DataSource)));
-		connect(myViewConfig[0], SIGNAL(createlogkeypad(DataSource, FlexseaDevice *)),
+		connect(myViewConfig[0], SIGNAL(updateDataSourceStatus(DataSource, FlexseaDevice *)),
+				this, SLOT(translatorUpdateDataSourceStatus(DataSource, FlexseaDevice *)));
+		connect(myViewConfig[0], SIGNAL(createLogKeypad(DataSource, FlexseaDevice *)),
 				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
 	}
 
@@ -468,16 +502,16 @@ void MainWindow::createView2DPlot(void)
 	//Limited number of windows:
 	if(objectCount < (PLOT2D_WINDOWS_MAX))
 	{
-		myView2DPlot[objectCount] = new W_2DPlot(this);
+		myView2DPlot[objectCount] = new W_2DPlot(nullptr,
+												 currentFlexLog,
+												 getDisplayMode(),
+												 &flexseaPtrlist);
+
 		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		myView2DPlot[objectCount]->show();
 
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
-
-		//Fixed rate for the display, and variable rate for the data:
-		connect(mySerialDriver, SIGNAL(timerClocked()), \
-				myView2DPlot[objectCount], SLOT(refresh2DPlot()));
 
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myView2DPlot[objectCount], SLOT(receiveNewData()));
@@ -485,6 +519,13 @@ void MainWindow::createView2DPlot(void)
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeView2DPlot()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myView2DPlot[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myView2DPlot[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -531,25 +572,12 @@ void MainWindow::createSlaveComm(void)
 		//Link SlaveComm and SerialDriver:
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
-
-		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewSlaveComm[0], SLOT(receiveNewDataReady()));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
 				myViewSlaveComm[0], SLOT(displayDataReceived(int, int)));
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
-		//Link StreamManager and DataLogger
-		connect(streamManager, SIGNAL(openRecordingFile(FlexseaDevice *)), \
-				myDataLogger, SLOT(openRecordingFile(FlexseaDevice *)));
-		connect(streamManager, SIGNAL(writeToLogFile(FlexseaDevice *)), \
-				myDataLogger, SLOT(writeToFile(FlexseaDevice *)));
-		connect(streamManager, SIGNAL(closeRecordingFile(FlexseaDevice*)), \
-				myDataLogger, SLOT(closeRecordingFile(FlexseaDevice*)));
 
-
-		connect(this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)), \
-				mySerialDriver, SLOT(enqueueReadWrite(uint8_t,uint8_t*,uint8_t)));
 	}
 
 	else
@@ -591,6 +619,34 @@ void MainWindow::createAnyCommand(void)
 	}
 }
 
+void MainWindow::createInControl(void)
+{
+	int objectCount = W_InControl::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < INCONTROL_WINDOWS_MAX)
+	{
+		myViewInControl[objectCount] = new W_InControl(this);
+		ui->mdiArea->addSubWindow((myViewInControl[objectCount]));
+		myViewInControl[objectCount]->show();
+		QRect currRect = myViewInControl[objectCount]->geometry();
+		currRect.setWidth(619);
+		currRect.setHeight(639);
+		myViewInControl[objectCount]->setGeometry(currRect);
+
+		sendWindowCreatedMsg(W_InControl::getDescription(), objectCount,
+		W_InControl::getMaxWindow() - 1);
+
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewInControl[objectCount], SLOT(updateUIData()));
+	}
+	else
+	{
+		sendWindowCreatedFailedMsg(W_InControl::getDescription(),
+		W_InControl::getMaxWindow());
+	}
+}
+
 void MainWindow::closeAnyCommand(void)
 {
 	sendCloseWindowMsg(W_AnyCommand::getDescription());
@@ -624,8 +680,8 @@ void MainWindow::createViewRicnu(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewRicnu[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewRicnu[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewRicnu[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -691,9 +747,9 @@ void MainWindow::createCalib(void)
 		connect(myViewCalibration[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeCalib()));
 
-        //Link to SlaveComm to send commands:
-        connect(myViewCalibration[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
-                this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
+		//Link to SlaveComm to send commands:
+		connect(myViewCalibration[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
+				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
 	}
 	else
 	{
@@ -772,8 +828,8 @@ void MainWindow::createViewGossip(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewGossip[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewGossip[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewGossip[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -816,8 +872,8 @@ void MainWindow::createViewStrain(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewStrain[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewStrain[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewStrain[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -840,8 +896,12 @@ void MainWindow::createViewBattery(void)
 	//Limited number of windows:
 	if(objectCount < (BATT_WINDOWS_MAX))
 	{
-		myViewBatt[objectCount] = new W_Battery(this, &batteryLog,
-												getDisplayMode(), &batteryDevList);
+		myViewBatt[objectCount] = new W_Battery(this,
+												currentFlexLog,
+												&batteryLog,
+												&testBenchLog,
+												getDisplayMode(),
+												&batteryDevList);
 		ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
 		myViewBatt[objectCount]->show();
 
@@ -860,8 +920,8 @@ void MainWindow::createViewBattery(void)
 		// allow opening of window asynchroniously
 		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
 				myViewBatt[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
-		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode)), \
-				myViewBatt[objectCount], SLOT(updateDisplayMode(DisplayMode)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewBatt[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -935,7 +995,10 @@ void MainWindow::createViewTestBench(void)
 	//Limited number of windows:
 	if(objectCount < (TESTBENCH_WINDOWS_MAX))
 	{
-		myViewTestBench[objectCount] = new W_TestBench(this);
+		myViewTestBench[objectCount] = new W_TestBench(this,
+													   &testBenchLog,
+														getDisplayMode(),
+													   &testBenchDevList);
 		ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
 		myViewTestBench[objectCount]->show();
 
@@ -944,11 +1007,18 @@ void MainWindow::createViewTestBench(void)
 
 		//Link SerialDriver and Battery:
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
-				myViewTestBench[objectCount], SLOT(refreshDisplayTestBench()));
+				myViewTestBench[objectCount], SLOT(refreshDisplay()));
 
 		//Link to MainWindow for the close signal:
 		connect(myViewTestBench[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeViewBattery()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewTestBench[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewTestBench[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
 	}
 
 	else
@@ -971,7 +1041,8 @@ void MainWindow::createViewCommTest(void)
 	//Limited number of windows:
 	if(objectCount < W_CommTest::getMaxWindow())
 	{
-		myViewCommTest[objectCount] = new W_CommTest(this);
+		myViewCommTest[objectCount] = new W_CommTest(this,
+													 comPortStatus);
 		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
 		myViewCommTest[objectCount]->show();
 
@@ -983,6 +1054,9 @@ void MainWindow::createViewCommTest(void)
 				this, SLOT(closeViewCommTest()));
 
 		//Link to SerialDriver to know when we receive data:
+		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
+				myViewCommTest[objectCount], SLOT(receiveComPortStatus(bool)));
+
 		connect(mySerialDriver, SIGNAL(newDataReady()), \
 				myViewCommTest[objectCount], SLOT(receivedData()));
 
@@ -1002,6 +1076,38 @@ void MainWindow::createViewCommTest(void)
 void MainWindow::closeViewCommTest(void)
 {
 	sendCloseWindowMsg(W_CommTest::getDescription());
+}
+
+//Creates a new Event window
+void MainWindow::createToolEvent(void)
+{
+	int objectCount = W_Event::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (EVENT_WINDOWS_MAX))
+	{
+		myEvent[objectCount] = new W_Event(this);
+		ui->mdiArea->addSubWindow(myEvent[objectCount]);
+		myEvent[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Event::getDescription(), objectCount,
+							 W_Event::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myEvent[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeToolEvent()));
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Event::getDescription(),
+								   W_Event::getMaxWindow());
+	}
+}
+
+void MainWindow::closeToolEvent(void)
+{
+	sendCloseWindowMsg(W_Event::getDescription());
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)
@@ -1035,14 +1141,14 @@ void MainWindow::displayAbout()
 	 <b>A</b>rchitecture.</u><br><br>Project originaly developped at the \
 	<a href='http://biomech.media.mit.edu/'>MIT Media Lab Biomechatronics \
 	group</a>, now supported by <a href='http://dephy.com/'>Dephy, Inc.</a>\
-	<br><br><b>Copyright &copy; Dephy, Inc. 2016</b><br><br>Software released \
+	<br><br><b>Copyright &copy; Dephy, Inc. 2017</b><br><br>Software released \
 	under the GNU GPL-3.0 license</center>"));
 }
 
 void MainWindow::displayLicense()
 {
 	QMessageBox::information(this, tr("Software License Information"), \
-	tr("<center><b>Copyright &copy; Dephy, Inc. 2016</b>\
+	tr("<center><b>Copyright &copy; Dephy, Inc. 2017</b>\
 		<br><br>This program is free software: you can redistribute it and/or modify \
 		it under the terms of the GNU General Public License as published by \
 		the Free Software Foundation, either version 3 of the License, or \

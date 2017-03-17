@@ -38,10 +38,14 @@
 #include <QApplication>
 #include <QWidget>
 #include "counter.h"
+#include <QTimer>
 #include <QtCharts>
 #include <QtCharts/QChartView>
 #include "flexsea_generic.h"
+#include "flexseaDevice.h"
 #include <QtCharts/QXYSeries>
+#include "executeDevice.h"
+#include "define.h"
 
 //****************************************************************************
 // Definition(s)
@@ -66,13 +70,9 @@
 #define STATS_AVG					2
 #define STATS_RMS					3
 
-//Variable formats:
-#define FORMAT_32U					0
-#define FORMAT_32S					1
-#define FORMAT_16U					2
-#define FORMAT_16S					3
-#define FORMAT_8U					4
-#define FORMAT_8S					5
+//Scaling:
+#define SCALE_DEFAULT_M				1
+#define SCALE_DEFAULT_B				0
 
 //Test code:
 //#define VECLEN	200
@@ -83,7 +83,8 @@ struct vtp_s
 	void *rawGenPtr;
 	uint8_t format;
 	int32_t *decodedPtr;
-	bool used, decode;
+	bool used;
+	bool decode;
 };
 
 //****************************************************************************
@@ -103,13 +104,18 @@ class W_2DPlot : public QWidget, public Counter<W_2DPlot>
 public:
 
 	//Constructor & Destructor:
-	explicit W_2DPlot(QWidget *parent = 0);
+	explicit W_2DPlot(QWidget *parent = 0,
+					  FlexseaDevice* devLogInit = nullptr,
+					  DisplayMode mode = DisplayLiveData,
+					  QList<FlexseaDevice*> *devListInit = nullptr);
 	~W_2DPlot();
 
 public slots:
 
 	void receiveNewData(void);
 	void refresh2DPlot(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
+	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 
 private slots:
 
@@ -154,14 +160,30 @@ private slots:
 	void myHoverHandlerAll(uint8_t ch, QPointF pt, QPoint cursor, bool state);
 	void on_checkBoxOpenGL_clicked(bool checked);
 
+	void on_lineEditM1_textEdited(const QString &arg1);
+	void on_lineEditM2_textEdited(const QString &arg1);
+	void on_lineEditM3_textEdited(const QString &arg1);
+	void on_lineEditM4_textEdited(const QString &arg1);
+	void on_lineEditM5_textEdited(const QString &arg1);
+	void on_lineEditM6_textEdited(const QString &arg1);
+
+	void on_lineEditB1_textEdited(const QString &arg1);
+	void on_lineEditB2_textEdited(const QString &arg1);
+	void on_lineEditB3_textEdited(const QString &arg1);
+	void on_lineEditB4_textEdited(const QString &arg1);
+	void on_lineEditB5_textEdited(const QString &arg1);
+	void on_lineEditB6_textEdited(const QString &arg1);
+
 signals:
 
 	void windowClosed(void);
 
 private:
+	QTimer* drawingTimer;
+
+	DisplayMode displayMode;
 
 	// GUI Pointer table
-
 	QLabel **lbT[VAR_NUM];
 	QComboBox **cbVar[VAR_NUM];
 	QComboBox **cbVarSlave[VAR_NUM];
@@ -172,6 +194,16 @@ private:
 
 	//Variables & Objects:
 
+	QList<FlexseaDevice*> *liveDevList;
+
+	QList<FlexseaDevice*> logDevList;
+
+	QList<FlexseaDevice*> *currentDevList;
+
+	int logIndex;
+
+	FlexseaDevice* selectedDevList[VAR_NUM];
+
 	Ui::W_2DPlot *ui;
 	QChart *chart;
 	QChartView *chartView;
@@ -180,34 +212,35 @@ private:
 	QDateTime *timerRefreshDisplay, *timerRefreshData;
 	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
 	int globalYmin, globalYmax;
-	int vecLen;
 
-	int plotting_len;
 	QStringList var_list_margin;
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
 
 	struct vtp_s vtp[6];
 	uint8_t varToPlotFormat[6];
-	int32_t nullVar32s;
-	uint16_t nullVar16u;
 
-	uint8_t slaveIndex[VAR_NUM], slaveAddr[VAR_NUM], slaveBType[VAR_NUM];
 	uint8_t varIndex[VAR_NUM];
 	int64_t stats[VAR_NUM][STATS_FIELDS];
 	int32_t myFakeData;
 	float dataRate;
 
+	//Scaling:
+	int32_t scaling[VAR_NUM][2];
+
 	//Function(s):
 
 	void initChart(void);
 	void initUserInput(void);
-	void saveNewPoints(int myDataPoints[6]);
+	void saveNewPoint(int row, int data);
+	void saveNewPointsLog(int index);
+	void computeStats(void);
 	void computeGlobalMinMax(void);
 	float getRefreshRateDisplay(void);
 	float getRefreshRateData(void);
 	void initData(void);
-	void saveCurrentSettings(void);
+	void initScaling(void);
+	void saveCurrentSettings(int item);
 	void addMargins(int *ymin, int *ymax);
 	void setChartAxis(void);
 	void setChartAxisAutomatic(void);
@@ -217,6 +250,8 @@ private:
 	void refreshStats(void);
 	void refreshStatBar(float fDisp, float fData);
 	void useOpenGL(bool yesNo);
+	void updateScalingFactors(uint8_t var, uint8_t param, QString txt);
+	void scale(uint8_t item, int *value);
 
 	void updateVarList(uint8_t var);
 	void assignVariable(uint8_t var);

@@ -33,7 +33,9 @@
 //****************************************************************************
 
 #include "flexseaDevice.h"
+#include <QString>
 #include <QStringList>
+#include <QDate>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -41,8 +43,6 @@
 
 FlexseaDevice::FlexseaDevice()
 {
-	logItem = 0;
-	slaveIndex = 0;
 	slaveID = 0;
 	experimentIndex = 0;
 	frequency = 0;
@@ -56,24 +56,26 @@ void FlexseaDevice::clear(void)
 {
 	shortFileName.clear();
 	fileName.clear();
-	logItem = 0;
-	slaveIndex = 0;
 	slaveID = 0;
 	slaveName.clear();
 	experimentIndex = 0;
 	experimentName.clear();
+	targetSlaveName.clear();
 	frequency = 0;
+	isCurrentlyLogging = false;
 	timeStamp.clear();
 }
 
-QString FlexseaDevice::getIdentifier(void)
+QString FlexseaDevice::getIdentifierStr(void)
+{
+
+	return getIdentifierStrList().join(',');
+}
+
+QStringList FlexseaDevice::getIdentifierStrList(void)
 {
 	QStringList identifier = QStringList()
-							<< "Datalogging Item:"
-							<< QString::number(logItem)
-							<< "Slave Index:"
-							<< QString::number(slaveIndex)
-							<< "Slave Name:"
+							<< "Slave Name (or Project):"
 							<< slaveName
 							<< "Experiment Index:"
 							<< QString::number(experimentIndex)
@@ -82,13 +84,39 @@ QString FlexseaDevice::getIdentifier(void)
 							<< "Acquisition Frequency:"
 							<< QString::number(frequency)
 							<< "Slave type:"
-							<< slaveType;
+							<< slaveTypeName
+							<< "Target Slave Name"
+							<< targetSlaveName;
 
-	return identifier.join(',');
+	return identifier;
 }
 
+QString FlexseaDevice::getSlaveType(QStringList *splitLine)
+{
+	return (*splitLine)[9];
+}
 
+void FlexseaDevice::saveIdentifierStr(QStringList *splitLine)
+{
+	FlexseaDevice::clear();
+	//Check if data line contain the number of data expected
+	QStringList identifier = FlexseaDevice::getIdentifierStrList();
 
+	if(splitLine->length() >= identifier.length())
+	{
+		slaveName		= (*splitLine)[1];
+		experimentIndex	= (*splitLine)[3].toInt();
+		experimentName	= (*splitLine)[5];
+		frequency		= (*splitLine)[7].toInt();
+		targetSlaveName = (*splitLine)[11];
+	}
+}
+
+void FlexseaDevice::applyTimestamp()
+{
+	this->timeStamp.last().date = QDate::currentDate().toString();
+	this->timeStamp.last().ms = (clock() - this->initialClock) * 1000 / CLOCKS_PER_SEC;
+}
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************

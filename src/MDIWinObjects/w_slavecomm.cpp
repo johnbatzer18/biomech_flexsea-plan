@@ -36,6 +36,7 @@
 #include "flexsea_generic.h"
 #include "serialdriver.h"
 #include "ui_w_slavecomm.h"
+#include "flexsea_cmd_in_control.h"
 #include "main.h"
 #include <QDebug>
 #include <QTimer>
@@ -104,23 +105,21 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 	{
 		qDebug() << "COM port was closed";
 
-		//PushButton:
-		ui->pushButton1->setDisabled(true);
+		on_off_pb_ptr[0]->setDisabled(true);
 		managePushButton(0,true);
-		//Data Received indicator:
 		displayDataReceived(0, DATAIN_STATUS_GREY);
-		//Log check box:
-		ui->checkBoxLog1->setDisabled(true);
+		log_cb_ptr[0]->setDisabled(true);
+		auto_checkbox[0]->setDisabled(true);
+
 	}
 	else
 	{
 		qDebug() << "COM port was opened";
 
-		//PushButton:
-		ui->pushButton1->setDisabled(false);
+		on_off_pb_ptr[0]->setDisabled(false);
+		log_cb_ptr[0]->setDisabled(false);
+		auto_checkbox[0]->setDisabled(false);
 
-		//Log check box:
-		ui->checkBoxLog1->setDisabled(false);
 	}
 }
 
@@ -168,6 +167,10 @@ void W_SlaveComm::mapSerializedPointers(void)
 	log_cb_ptr[1] = ui->checkBoxLog2;
 	log_cb_ptr[2] = ui->checkBoxLog3;
 	log_cb_ptr[3] = ui->checkBoxLog4;
+	auto_checkbox[0] = ui->autoCheckBox1;
+	auto_checkbox[1] = ui->autoCheckBox2;
+	auto_checkbox[2] = ui->autoCheckBox3;
+	auto_checkbox[3] = ui->autoCheckBox4;
 	on_off_pb_ptr[0] = ui->pushButton1;
 	on_off_pb_ptr[1] = ui->pushButton2;
 	on_off_pb_ptr[2] = ui->pushButton3;
@@ -180,8 +183,14 @@ void W_SlaveComm::mapSerializedPointers(void)
 
 void W_SlaveComm::initializeMaps()
 {
+	for(int i = 0; i < MAX_EXPERIMENTS; i++)
+	{
+		targetListMap[i] = nullptr;
+		cmdMap[i] = -1;
+	}
+
 	targetListMap[0] = &readAllTargetList;
-	targetListMap[1] = nullptr;
+	targetListMap[1] = &inControlTargetList;
 	targetListMap[2] = &ricnuTargetList;
 	targetListMap[3] = nullptr;
 	targetListMap[4] = &ankle2DofTargetList;
@@ -189,7 +198,7 @@ void W_SlaveComm::initializeMaps()
 	targetListMap[6] = &testBenchTargetList;
 
 	cmdMap[0] = CMD_READ_ALL;
-	cmdMap[1] = -1;
+	cmdMap[1] = CMD_IN_CONTROL;
 	cmdMap[2] = CMD_READ_ALL_RICNU;
 	cmdMap[3] = -1;
 	cmdMap[4] = CMD_A2DOF;
@@ -268,6 +277,9 @@ void W_SlaveComm::initSlaveCom(void)
 		(log_cb_ptr[row])->setEnabled(false);
 		(log_cb_ptr[row])->setToolTip(log_cb_ptr_ttip);
 
+		(auto_checkbox[row])->setChecked(false);
+		(auto_checkbox[row])->setEnabled(false);
+
 		//On/Off Button init:
 		(on_off_pb_ptr[row])->setText(QChar(0x2718));
 		(on_off_pb_ptr[row])->setAutoFillBackground(true);
@@ -318,6 +330,7 @@ void W_SlaveComm::setRowDisabled(int row, bool disabled)
 	(comboBoxRefreshPtr[row])->setDisabled(disabled);
 	(log_cb_ptr[row])->setDisabled(disabled);
 	(labelStatusPtr[row])->setDisabled(disabled);
+	(auto_checkbox[row])->setDisabled(disabled);
 }
 
 // This is a hack, basically just doing what we did before, which is hard coding it
@@ -340,11 +353,9 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 	default:
 		target = (targetListMap[experimentIndex])->at(slaveIndex);
 		break;
-
 	}
 
 	return target;
-
 }
 
 //The 4 PB slots call this function:
@@ -355,6 +366,9 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 	int slaveIndex = comboBoxSlavePtr[row]->currentIndex();
 	int refreshRateIndex = comboBoxRefreshPtr[row]->currentIndex();
 	int cmdCode = cmdMap[experimentIndex];
+
+	if(cmdCode < 0) return;
+
 	int refreshRate = streamManager->getRefreshRates()[refreshRateIndex];
 	FlexseaDevice* target = getTargetDevice(cmdCode, experimentIndex, slaveIndex);
 	int slaveId = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
@@ -372,7 +386,16 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		target->frequency = refreshRate;
 		target->experimentIndex = cmdCode;
 		target->experimentName = comboBoxExpPtr[row]->currentText();
-		streamManager->startStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+
+		if(auto_checkbox[row]->isChecked())
+		{
+			streamManager->startAutoStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+		}
+		else
+		{
+			streamManager->startStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+		}
+
 		setRowDisabled(row, true);
 	}
 	else
@@ -401,6 +424,9 @@ void W_SlaveComm::updateStatusBar(QString txt)
 //"Data Received" Arrows:
 void W_SlaveComm::displayDataReceived(int item, int status)
 {
+	if(!on_off_pb_ptr[item]->isChecked())
+		status = DATAIN_STATUS_GREY;
+
 	switch(status)
 	{
 		case DATAIN_STATUS_GREY:
