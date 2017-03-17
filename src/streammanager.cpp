@@ -332,11 +332,11 @@ void StreamManager::sendCommandTestBench(uint8_t slaveId)
 	static int index = 0;
 
 	//1) Stream
-	motor_dto dto;
-	tx_cmd_motortb_r(TX_N_DEFAULT, index, &dto);
+//	motor_dto dto;
+//	tx_cmd_motortb_r(TX_N_DEFAULT, index, &dto);
 	index++;
 	index %= 3;
-	tryPackAndSend(CMD_MOTORTB, slaveId);
+	//tryPackAndSend(CMD_MOTORTB, slaveId);
 }
 void StreamManager::sendCommandInControl(uint8_t slaveId)
 {
