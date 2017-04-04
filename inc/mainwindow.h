@@ -53,6 +53,7 @@
 #include "w_converter.h"
 #include "w_incontrol.h"
 #include "w_event.h"
+#include "w_ankleTorque.h"
 
 #include "flexseaDevice.h"
 #include "w_testbench.h"
@@ -212,6 +213,7 @@ public slots:
 	void createViewCommTest(void);
 	void createInControl(void);
 	void createToolEvent(void);
+	void createAnkleTorqueTool(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);

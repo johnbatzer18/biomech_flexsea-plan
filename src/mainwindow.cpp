@@ -39,7 +39,6 @@
 #include <QDebug>
 #include <QString>
 #include <QFileDialog>
-//#include "main.h"
 #include <flexsea_system.h>
 #include <passthroughprovider.h>
 #include <sineprovider3.h>
@@ -135,6 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Disable options that are not implemented:
 	ui->menuFile->actions().at(3)->setEnabled(false);		//Load configuration
 	ui->menuFile->actions().at(4)->setEnabled(false);		//Save configuration
+	ui->menuTools->addAction("AnkleTorqueTool", this, &MainWindow::createAnkleTorqueTool);
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
@@ -339,6 +339,19 @@ void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
 	{
 		createLogKeyPad(devPtr);
 	}
+}
+
+
+void MainWindow::createAnkleTorqueTool(void)
+{
+	static int x = 0;
+	if(x) return;
+
+	W_AnkleTorque* w = new W_AnkleTorque(this);
+	ui->mdiArea->addSubWindow(w);
+	w->show();
+
+	x++;
 }
 
 //Creates a new View Execute window
