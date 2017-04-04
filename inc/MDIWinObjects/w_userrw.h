@@ -38,7 +38,8 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
-
+#include <dynamicuserdatamanager.h>
+#include <QListWidgetItem>
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -53,12 +54,15 @@ class W_UserRW : public QWidget, public Counter<W_UserRW>
 
 public:
 	//Constructor & Destructor:
-	explicit W_UserRW(QWidget *parent = 0);
+	explicit W_UserRW(QWidget *parent = 0, DynamicUserDataManager* userDataManager = nullptr);
 	~W_UserRW();
 
-	//Function(s):
+	void setUserCustomRowHidden(int row, bool shouldHide);
 
 public slots:
+	void receiveNewData();
+	void comStatusChanged(bool isOpen);
+	void handlePlanFlagListChange(QListWidgetItem* item);
 
 signals:
 	void windowClosed(void);
@@ -70,17 +74,17 @@ private slots:
 	void on_pushButton_w2_clicked();
 	void on_pushButton_w3_clicked();
 	void on_pushButton_refresh_clicked();
+	void on_pushButton_hide_clicked();
 	void refreshDisplay(void);
 
 	void on_comboBox_slave_currentIndexChanged(int index);
 
 private:
-	// Static Variable
-
 	//Variables & Objects:
 	Ui::W_UserRW *ui;
 	int active_slave, active_slave_index;
 	QTimer *refreshDelayTimer;
+	DynamicUserDataManager* userDataMan;
 
 	//Function(s):
 	void init(void);

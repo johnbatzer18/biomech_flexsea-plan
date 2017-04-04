@@ -37,9 +37,8 @@ extern "C" {
 //****************************************************************************
 
 #include <flexsea_buffers.h>
-#include "flexsea_payload.h"
+#include "../flexsea-comm/inc/flexsea_payload.h"
 #include <flexsea_comm.h>
-#include "main.h"
 #include "peripherals.h"
 
 //****************************************************************************
@@ -59,8 +58,8 @@ void initLocalComm(void)
 {
 	//Default state:
 	initCommPeriph(&commPeriph[PORT_USB], PORT_USB, MASTER, rx_buf_1, \
-			comm_str_1, rx_command_1, &packet[PORT_USB][INBOUND], \
-			&packet[PORT_USB][OUTBOUND]);
+			comm_str_1, rx_command_1, &rx_buf_circ_1, \
+			&packet[PORT_USB][INBOUND], &packet[PORT_USB][OUTBOUND]);
 
 	//Personalize specific fields:
 	//...
@@ -82,7 +81,6 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 	{
 		commPeriph[PORT_USB].rx.unpackedPacketsAvailable = 0;
 		result = payload_parse_str(&packet[PORT_USB][INBOUND]);
-
 		#ifdef USE_PRINTF
 		//printf("[Received a valid comm_str!]\n");
 		ret = 0;
@@ -96,7 +94,9 @@ uint8_t decode_usb_rx(unsigned char *newdata)
 		#endif
 	}
 
-	ret = (result > 0) ? 3 : 4;
+	const int SUCCESS = 3;
+	const int FAILURE = 4;
+	ret = (result == 2) ? SUCCESS : FAILURE;
 
 	return ret;
 }

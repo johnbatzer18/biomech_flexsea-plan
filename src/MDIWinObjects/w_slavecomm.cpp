@@ -43,6 +43,9 @@
 #include <QDateTime>
 #include <QString>
 #include <flexsea_comm.h>
+#include <flexsea_sys_def.h>
+#include "../flexsea-user/inc/flexsea_cmd_user.h"
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -93,6 +96,15 @@ W_SlaveComm::~W_SlaveComm()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
+void W_SlaveComm::addExperiment(QList<FlexseaDevice *> *deviceList, int cmdCode)
+{
+	if(numExperiments >= MAX_EXPERIMENTS) return;
+
+	targetListMap[numExperiments] = deviceList;
+	cmdMap[numExperiments] = cmdCode;
+
+	numExperiments++;
+}
 
 //****************************************************************************
 // Public slot(s):
@@ -110,7 +122,6 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		displayDataReceived(0, DATAIN_STATUS_GREY);
 		log_cb_ptr[0]->setDisabled(true);
 		auto_checkbox[0]->setDisabled(true);
-
 	}
 	else
 	{
@@ -119,7 +130,6 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		on_off_pb_ptr[0]->setDisabled(false);
 		log_cb_ptr[0]->setDisabled(false);
 		auto_checkbox[0]->setDisabled(false);
-
 	}
 }
 
@@ -132,7 +142,6 @@ void W_SlaveComm::initExperimentList(void)
 	readAllTargetList.append(*executeDevList);
 	readAllTargetList.append(*manageDevList);
 	readAllTargetList.append(*gossipDevList);
-	readAllTargetList.append(*batteryDevList);
 	readAllTargetList.append(*strainDevList);
 
 	inControlTargetList.append(*executeDevList);
@@ -204,6 +213,8 @@ void W_SlaveComm::initializeMaps()
 	cmdMap[4] = CMD_A2DOF;
 	cmdMap[5] = CMD_BATT;
 	cmdMap[6] = CMD_MOTORTB;
+
+	numExperiments = 7;
 }
 
 void W_SlaveComm::populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected)
@@ -269,7 +280,7 @@ void W_SlaveComm::initSlaveCom(void)
 			int selectedExperimentIndex = comboBoxExpPtr[row]->currentIndex();
 			this->populateSlaveComboBox(comboBoxSlavePtr[row], selectedExperimentIndex);
 			comboBoxRefreshPtr[row]->addItems(refreshRateStrings);
-			comboBoxRefreshPtr[row]->setCurrentIndex(4);
+			comboBoxRefreshPtr[row]->setCurrentIndex(6);	//100Hz
 		}
 
 		//Log checkboxes:
@@ -288,7 +299,9 @@ void W_SlaveComm::initSlaveCom(void)
 		(on_off_pb_ptr[row])->setToolTip(on_off_pb_ttip);
 		(on_off_pb_ptr[row])->setDisabled(true);
 
-		(labelStatusPtr[row])->setText(QChar(0x2B07));
+		// Label int:
+		// Whites space are to allow balanced scale-up between on-off and label.
+		(labelStatusPtr[row])->setText("      " + QString(QChar(0x2B07)) + "      ");
 		(labelStatusPtr[row])->setAlignment(Qt::AlignCenter);
 		(labelStatusPtr[row])->setFont(font);
 		(labelStatusPtr[row])->setToolTip(labelStatusttip);

@@ -38,7 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
-
+#include <serialdriver.h>
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -57,7 +57,7 @@ public:
 						bool comStatusInit = false);
 	~W_CommTest();
 
-	//Function(s):
+	SerialDriver* serialDriver;
 
 public slots:
 	void receiveComPortStatus(bool status);
@@ -73,6 +73,7 @@ private slots:
 	void on_comboBox_slave_currentIndexChanged(int index);
 	void on_pushButtonStartStop_clicked();
 	void on_pushButtonReset_clicked();
+	void on_tabWidget_currentChanged(int index);
 
 private:
 	// Static Variable
@@ -86,17 +87,23 @@ private:
 	int32_t receivedPackets;
 	int32_t experimentTimerFreq;
 	float measuredRefreshSend, measuredRefreshReceive;
-
 	bool sc_comPortOpen;
+	int currentTab;
+	uint8_t slaveListCount;
+	uint8_t slaveList[4];
 
 	//Function(s):
 	void init(void);
+	void initCommon(void);
 	void initTab1(void);
 	void initTab2(void);
+	void initTab3(void);
 	void initTimers(void);
 	float getRefreshRateSend(void);
 	float getRefreshRateReceive(void);
 	void startStopComTest(bool forceStop);
+	void latchManyExTab(void);
+	void releaseManyExTab(void);
 };
 
 //****************************************************************************
@@ -106,5 +113,10 @@ private:
 #define TIM_FREQ_TO_P(f)				(1000/f)	//f in Hz, return in ms
 #define DISPLAY_TIMER					25	//Hz
 #define DEFAULT_EXPERIMENT_TIMER_FREQ	250
+
+//Tab names:
+#define TAB_DEVICE						0
+#define TAB_MANAGE_EX					1
+#define TAB_MANY_EX						2
 
 #endif // W_COMMTEST_H

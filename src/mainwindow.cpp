@@ -39,7 +39,8 @@
 #include <QDebug>
 #include <QString>
 #include <QFileDialog>
-#include "main.h"
+//#include "main.h"
+#include <flexsea_system.h>
 #include <passthroughprovider.h>
 #include <sineprovider3.h>
 
@@ -112,7 +113,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	//SerialDriver:
 	mySerialDriver = new SerialDriver();
 	streamManager = new StreamManager(nullptr, mySerialDriver);
-
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
 								  &executeLog,
@@ -125,7 +125,8 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &testBenchLog);
 
 	initSerialComm(mySerialDriver, streamManager);
-
+	userDataManager = new DynamicUserDataManager(this);
+	connect(mySerialDriver, &SerialDriver::newDataReady, userDataManager, &DynamicUserDataManager::handleNewMessage);
 
 	//Create default objects:
 	createConfig();
@@ -155,10 +156,10 @@ MainWindow::~MainWindow()
 {
 	delete ui;
 
-	serialThread->quit();
+//	serialThread->quit();
 	delete mySerialDriver;
 	delete streamManager;
-	delete serialThread;
+//	delete serialThread;
 
 
 	int num2d = W_2DPlot::howManyInstance();
@@ -246,13 +247,13 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	strainFlexList.append(&strainDevList.last());
 
 	ricnuDevList.append(RicnuProject(&exec1, &strain1));
-	ricnuDevList.last().slaveName = "";
+	ricnuDevList.last().slaveName = "RIC/NU";
 	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ricnuDevList.last());
 	ricnuFlexList.append(&ricnuDevList.last());
 
 	ankle2DofDevList.append(Ankle2DofProject(&exec1, &exec2));
-	ankle2DofDevList.last().slaveName = "";
+	ankle2DofDevList.last().slaveName = "Ankle 2 DoF";
 	ankle2DofDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ankle2DofDevList.last());
 	ankle2DofFlexList.append(&ankle2DofDevList.last());
@@ -266,6 +267,10 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	//				b) projects / experiments
 	flexseaPtrlist.append(&testBenchDevList.last());
 	testBenchFlexList.append(&testBenchDevList.last());
+
+	dynamicDeviceList.append(userDataManager->getDevice());
+	flexseaPtrlist.append(userDataManager->getDevice());
+
 	return;
 }
 
@@ -568,7 +573,6 @@ void MainWindow::closeView2DPlot(void)
 	sendCloseWindowMsg(W_2DPlot::getDescription());
 }
 
-//Creates a new Slave Comm window
 void MainWindow::createSlaveComm(void)
 {
 	int objectCount = W_SlaveComm::howManyInstance();
@@ -593,11 +597,9 @@ void MainWindow::createSlaveComm(void)
 		sendWindowCreatedMsg(W_SlaveComm::getDescription(), objectCount,
 							 W_SlaveComm::getMaxWindow() - 1);
 
-		//Link to MainWindow for the close signal:
 		connect(myViewSlaveComm[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeSlaveComm()));
 
-		//Link SlaveComm and SerialDriver:
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
@@ -605,7 +607,7 @@ void MainWindow::createSlaveComm(void)
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
-
+		myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
 	}
 
 	else
@@ -799,7 +801,8 @@ void MainWindow::createUserRW(void)
 	//Limited number of windows:
 	if(objectCount < W_UserRW::getMaxWindow())
 	{
-		myUserRW[objectCount] = new W_UserRW(this);
+		W_UserRW* userRW = new W_UserRW(this, userDataManager);
+		myUserRW[objectCount] = userRW;
 		ui->mdiArea->addSubWindow(myUserRW[objectCount]);
 		myUserRW[objectCount]->show();
 
@@ -814,6 +817,9 @@ void MainWindow::createUserRW(void)
 		connect(myUserRW[objectCount], SIGNAL(writeCommand(uint8_t,\
 				uint8_t*,uint8_t)), this, SIGNAL(connectorWriteCommand(uint8_t,\
 				uint8_t*, uint8_t)));
+
+		connect(userDataManager, &DynamicUserDataManager::writeCommand, this, &MainWindow::connectorWriteCommand);
+		connect(mySerialDriver, &SerialDriver::openStatus, userRW, &W_UserRW::comStatusChanged);
 	}
 
 	else
@@ -1071,6 +1077,9 @@ void MainWindow::createViewCommTest(void)
 	{
 		myViewCommTest[objectCount] = new W_CommTest(this,
 													 comPortStatus);
+
+		myViewCommTest[objectCount]->serialDriver = mySerialDriver;
+
 		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
 		myViewCommTest[objectCount]->show();
 
@@ -1159,7 +1168,8 @@ void MainWindow::sendCloseWindowMsg(QString windowName)
 {
 	QString msg = "View '" + windowName + "' window closed.";
 	qDebug() << msg;
-	ui->statusBar->showMessage(msg);
+	if(ui && ui->statusBar)
+		ui->statusBar->showMessage(msg);
 }
 
 void MainWindow::displayAbout()

@@ -20,9 +20,9 @@ public:
 	void setDataPointer(void* d) { data = d; }
 	void setLabel(QString s) { label = s; }
 
-	virtual QuantData getNewestData(){}
+	virtual QuantData getNewestData() {return QuantData(); }
 	virtual QList<QuantData> getXMostRecent(int x);
-	virtual QList<QuantData> getDataRange(int rangeStart, int rangeEnd){}
+	virtual QList<QuantData> getDataRange(int rangeStart, int rangeEnd){ (void)rangeStart; (void)rangeEnd; return QList<QuantData>(); }
 	virtual QString getLabel() { return label; }
 
 	DATA_SIGNSIZE dataSignSize;
