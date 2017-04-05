@@ -117,7 +117,8 @@ SOURCES += src/main.cpp \
                 flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
                 flexsea-user/src/user-ex.c \
                 flexsea-user/src/user-mn.c \
-                flexsea-user/src/dynamic_user_structs_common.c
+                flexsea-user/src/dynamic_user_structs_common.c \
+    flexsea-user/src/flexsea_cmd_angle_torque_profile.c
 
 HEADERS += inc/main.h \
                 inc/mainwindow.h \
@@ -196,7 +197,8 @@ HEADERS += inc/main.h \
                 flexsea-system/inc/flexsea_cmd_tools.h \
                 flexsea-system/inc/flexsea_cmd_in_control.h \
                 flexsea-system/inc/flexsea_cmd_stream.h \
-                flexsea-system/test/flexsea-system_test-all.h
+                flexsea-system/test/flexsea-system_test-all.h \
+    flexsea-user/inc/flexsea_cmd_angle_torque_profile.h
 
 FORMS += ui/mainwindow.ui \
                 ui/w_execute.ui \

@@ -348,6 +348,22 @@ void MainWindow::createAnkleTorqueTool(void)
 	if(x) return;
 
 	W_AnkleTorque* w = new W_AnkleTorque(this);
+
+	int slaveCommCount = W_SlaveComm::howManyInstance();
+	if(slaveCommCount)
+	{
+		connect(w,									&W_AnkleTorque::getSlaveId,
+				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getSlaveId);
+	}
+	else
+	{
+		qDebug() << "Unable to connect ankletorque to slave comm, ankletorque won't work";
+		delete w;
+		return;
+	}
+
+	connect(w, &W_AnkleTorque::writeCommand, this, &MainWindow::connectorWriteCommand);
+
 	ui->mdiArea->addSubWindow(w);
 	w->show();
 

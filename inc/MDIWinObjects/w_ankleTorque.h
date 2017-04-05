@@ -84,8 +84,10 @@ QT_CHARTS_USE_NAMESPACE
 class AnkleTorqueChartView : public QChartView
 {
 		Q_OBJECT
+
 #define ATCV_NUMPOINTS 6
 #define ATCV_ABS(x) ( (x) > 0 ? (x) : -(x) )
+
 public:
 	explicit AnkleTorqueChartView(QChart* parent) : QChartView(parent), activeSetPoint(-1), activeDrag(0) {
 		qDebug() << "Updates " << this->updatesEnabled();
@@ -93,6 +95,13 @@ public:
 		xMax = 5;
 		yMin = -500;
 		yMax = 200;
+
+		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
+		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
+
+		parent->axisX()->setRange(xMin - xAxisExtent5Percent, xMax + xAxisExtent5Percent);
+		parent->axisY()->setRange(yMin - yAxisExtent5Percent, yMax + yAxisExtent5Percent);
+
 	}
 	virtual ~AnkleTorqueChartView(){}
 
@@ -108,9 +117,14 @@ public:
 
 		QChartView::drawForeground(painter, rect);
 
-		painter->setPen(QPen(QColor(Qt::white)));
+		painter->setPen(QPen(QColor(Qt::red)));
 		painter->setBrush(Qt::NoBrush);
 
+		painter->drawRect(QRectF(
+							  chart()->mapToPosition(QPointF(xMin, yMin)),
+							  chart()->mapToPosition(QPointF(xMax, yMax))));
+
+		painter->setPen(QPen(QColor(Qt::white)));
 		for(int i = 0; i < ATCV_NUMPOINTS; i++)
 		{
 			painter->drawEllipse(drawnPoints[i], radius, radius);
@@ -155,7 +169,7 @@ public:
 
 		float dist = (p - sp).manhattanLength();
 
-		static float distThresh = 1.5*radius;
+		static float distThresh = 0.5*radius;
 
 		if(dist > distThresh)
 		{
@@ -163,6 +177,17 @@ public:
 			this->update();
 			chart()->update();
 		}
+	}
+
+	void enforceBounds(QPointF* p)
+	{
+		if(!p) return;
+
+		if(p->x() > xMax) p->setX(xMax);
+		if(p->y() > yMax) p->setY(yMax);
+
+		if(p->x() < xMin) p->setX(xMin);
+		if(p->y() < yMin) p->setY(yMin);
 	}
 
 	virtual void mouseReleaseEvent(QMouseEvent* event)
@@ -173,11 +198,7 @@ public:
 		QPointF* p = &points[activeSetPoint];
 		*p = chart()->mapToValue(drawnPoints[activeSetPoint]);
 
-		if(p->x() > xMax) p->setX(xMax);
-		if(p->y() > yMax) p->setY(yMax);
-
-		if(p->x() < xMin) p->setX(xMin);
-		if(p->y() < yMin) p->setY(yMin);
+		enforceBounds(p);
 
 		drawnPoints[activeSetPoint] = chart()->mapToPosition(*p);
 
@@ -191,38 +212,51 @@ public:
 		for(int i = 0; i < ATCV_NUMPOINTS; i++)
 		{
 			points[i] = p[i];
+			enforceBounds(&points[i]);
 			drawnPoints[i] = chart()->mapToPosition(p[i]);
 		}
 		this->update();
 		chart()->update();
 	}
+
 	void setPoint(int i, const QPointF &p)
 	{
 		if(i >= 0 && i < ATCV_NUMPOINTS)
 		{
 			points[i] = p;
+			enforceBounds(&points[i]);
 			drawnPoints[i] = chart()->mapToPosition(points[i]);
 			this->update();
 			chart()->update();
 		}
 	}
+
 	void setPoint(int i, float x, float y)
 	{
 		if(i >= 0 && i < ATCV_NUMPOINTS)
 		{
 			points[i] = QPointF(x, y);
+			enforceBounds(&points[i]);
 			drawnPoints[i] = chart()->mapToPosition(points[i]);
 			this->update();
 			chart()->update();
 		}
 	}
+
+	void getPoints(QPointF* p, int n)
+	{
+		for(int i = 0; i < n && i < ATCV_NUMPOINTS; i++)
+			p[i] = points[i];
+	}
+
+signals:
+	void pointsChanged();
 
 private:
 	QPointF points[ATCV_NUMPOINTS];
 	QPointF drawnPoints[ATCV_NUMPOINTS];
 	bool firstDraw = true;
 	int xMin, xMax, yMin, yMax;
-
 };
 
 namespace Ui {
@@ -244,10 +278,13 @@ public slots:
 	void receiveNewData(void);
 	void refresh2DPlot(void);
 	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
+	void handlePointChange();
 
 signals:
 
 	void windowClosed(void);
+	void getSlaveId(int* slaveId);
+	void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
 
 private:
 

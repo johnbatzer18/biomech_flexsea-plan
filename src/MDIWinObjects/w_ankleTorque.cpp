@@ -44,6 +44,11 @@
 #include "flexsea_generic.h"
 #include "main.h"
 
+#include "flexsea.h"
+#include "flexsea_board.h"
+#include "flexsea_system.h"
+#include "flexsea_cmd_angle_torque_profile.h"
+
 QT_CHARTS_USE_NAMESPACE
 
 //****************************************************************************
@@ -71,8 +76,6 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
 	}
 
 	chart->createDefaultAxes();
-	chart->axisX()->setRange(-70, 30);
-	chart->axisY()->setRange(-1000, 1000);
 
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
@@ -84,6 +87,9 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
 		chartView->setPoint(i, (float)(-60 + i*15), 0.0f);
 	}
 
+	connect(chartView,	&AnkleTorqueChartView::pointsChanged,
+				this,	&W_AnkleTorque::handlePointChange);
+
 	ui->gridLayout_test->addWidget(chartView, 0,0);
 	chartView->setRenderHint(QPainter::Antialiasing);
 	chartView->setBaseSize(600,300);
@@ -92,15 +98,37 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
 	chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
-
-
 }
+
 
 W_AnkleTorque::~W_AnkleTorque()
 {
 	emit windowClosed();
 
 	delete ui;
+}
+
+void W_AnkleTorque::handlePointChange()
+{
+	QPointF p[ATCV_NUMPOINTS];
+	chartView->getPoints(p, ATCV_NUMPOINTS);
+	for(int i = 0; i < ATCV_NUMPOINTS; i++)
+	{
+		atProfile_torques[i] = p[i].y();
+		atProfile_angles[i] = p[i].x()*10;
+	}
+
+	int slaveId = -1;
+	emit getSlaveId(&slaveId);
+	if(slaveId < 0) return;
+
+	uint8_t info = PORT_USB;
+	uint16_t numb = 0;
+
+	tx_cmd_ankleTorqueProfile_rw(TX_N_DEFAULT);
+	pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
+
 }
 
 //****************************************************************************
