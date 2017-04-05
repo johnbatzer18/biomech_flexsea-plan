@@ -205,6 +205,8 @@ public:
 		this->update();
 		chart()->update();
 		activeSetPoint = -1;
+
+		emit pointsChanged();
 	}
 
 	void setPoints(QPointF p[ATCV_NUMPOINTS])

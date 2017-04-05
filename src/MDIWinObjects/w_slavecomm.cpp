@@ -115,7 +115,7 @@ void W_SlaveComm::getSlaveId(int* slaveId)
 		int experimentIndex = ui->comboBoxExp1->currentIndex();
 		int slaveIndex = ui->comboBoxSlave1->currentIndex();
 
-		if(experimentIndex > 0 && slaveIndex > 0)
+		if(experimentIndex >= 0 && slaveIndex >= 0)
 		{
 			*slaveId = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
 		}
