@@ -92,6 +92,7 @@ class MainWindow;
 #define COMMTEST_WINDOWS_MAX		1
 #define INCONTROL_WINDOWS_MAX		1
 #define EVENT_WINDOWS_MAX			1
+#define ANKLE_TORQUE_WINDOWS_MAX	1
 
 class MainWindow : public QMainWindow
 {
@@ -170,6 +171,7 @@ private:
 	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
 	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
+	W_AnkleTorque *myAnkleTorque[ANKLE_TORQUE_WINDOWS_MAX];
 
 	// Objects
 	ChartController *chartController;

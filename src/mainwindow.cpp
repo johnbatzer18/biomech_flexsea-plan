@@ -344,10 +344,17 @@ void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
 
 void MainWindow::createAnkleTorqueTool(void)
 {
-	static int x = 0;
-	if(x) return;
+
+	int count = W_AnkleTorque::howManyInstance();
+	if(count >= ANKLE_TORQUE_WINDOWS_MAX)
+	{
+		sendWindowCreatedFailedMsg(W_AnkleTorque::getDescription(),
+								   W_AnkleTorque::getMaxWindow());
+		return;
+	}
 
 	W_AnkleTorque* w = new W_AnkleTorque(this);
+	myAnkleTorque[count] = w;
 
 	int slaveCommCount = W_SlaveComm::howManyInstance();
 	if(slaveCommCount)
@@ -358,7 +365,8 @@ void MainWindow::createAnkleTorqueTool(void)
 	else
 	{
 		qDebug() << "Unable to connect ankletorque to slave comm, ankletorque won't work";
-		delete w;
+		delete w; //this gonna be bad
+		myAnkleTorque[count] = nullptr;
 		return;
 	}
 
@@ -368,8 +376,6 @@ void MainWindow::createAnkleTorqueTool(void)
 
 	ui->mdiArea->addSubWindow(w);
 	w->show();
-
-	x++;
 }
 
 //Creates a new View Execute window

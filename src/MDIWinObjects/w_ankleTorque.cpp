@@ -140,7 +140,7 @@ void W_AnkleTorque::handlePointChange()
 	chartView->getPoints(p, ATCV_NUMPOINTS);
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
-		atProfile_torques[i] = p[i].y();
+		atProfile_torques[i] = p[i].y()*10;
 		atProfile_angles[i] = p[i].x()*10;
 	}
 
@@ -173,7 +173,7 @@ void W_AnkleTorque::receiveNewData(void)
 	{
 		atProfile_newProfileFlag = 0;
 		for(int i = 0; i < ATCV_NUMPOINTS; i++)
-			chartView->setPoint(i, atProfile_angles[i] / 10.0f, atProfile_torques[i]);
+			chartView->setPoint(i, atProfile_angles[i] / 10.0f, atProfile_torques[i] / 10.0f);
 
 		chartView->isActive = true;
 		timer->stop();
@@ -181,7 +181,7 @@ void W_AnkleTorque::receiveNewData(void)
 	if(atProfile_newDataFlag)
 	{
 		atProfile_newDataFlag = 0;
-		chartView->addDataPoint(angleBuf[indexOfLastBuffered] / 10.0f, torqueBuf[indexOfLastBuffered]);
+		chartView->addDataPoint(angleBuf[indexOfLastBuffered] / 10.0f, torqueBuf[indexOfLastBuffered] / 10.0f);
 	}
 	chartView->update();
 	chart->update();

@@ -60,10 +60,10 @@ class AnkleTorqueChartView : public QChartView
 public:
 	explicit AnkleTorqueChartView(QChart* parent) : QChartView(parent), activeSetPoint(-1), activeDrag(0) {
 		qDebug() << "Updates " << this->updatesEnabled();
-		xMin = -45;
-		xMax = 5;
-		yMin = -500;
-		yMax = 200;
+		xMin = -60;
+		xMax = 0;
+		yMin = 0;
+		yMax = 100;
 
 		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
 		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
@@ -86,14 +86,14 @@ public:
 
 	virtual void drawForeground(QPainter* painter, const QRectF &rect)
 	{
+		if(!isActive) return;
+
 		if(firstDraw || windowResized)
 		{
 			firstDraw = false;
 			windowResized = false;
 			recomputeProfileDrawPoints();
 		}
-
-//		lineSeries->replace(dataPoints);
 
 		QChartView::drawForeground(painter, rect);
 
@@ -117,13 +117,36 @@ public:
 
 		//draw profile points
 		painter->setPen(QPen(QColor(Qt::white)));
+		QPointF textPoint;
+		QString positionLabel = "";
+		QPainterPath path;
+		QFont font("Arial", 10, 50, false);
 		for(int i = 0; i < ATCV_NUMPOINTS; i++)
 		{
+			//line to the next point
 			if(i + 1 < ATCV_NUMPOINTS)
 				painter->drawLine(drawnPoints[i], drawnPoints[i+1]);
 
+			//text labeling the index
+			textPoint = drawnPoints[i];
+			textPoint.setY(textPoint.y() - radius - 2);
+
+			path.addText(textPoint, font, QString::number(i+1));
+
+			//text labeling the position
+			textPoint.setY(textPoint.y() + 14 + 2 * radius);
+			textPoint.setX(textPoint.x() - radius);
+			positionLabel = QString::number(points[i].x()) + ", " + QString::number(points[i].y());
+
+			path.addText(textPoint, font, positionLabel);
+
+			//the circle
 			painter->drawEllipse(drawnPoints[i], radius, radius);
 		}
+
+		painter->setBrush(QBrush(QColor(Qt::black)));
+		painter->setPen(QColor(Qt::white));
+		painter->drawPath(path);
 	}
 
 	int activeSetPoint;
@@ -292,9 +315,8 @@ class W_AnkleTorque : public QWidget, public Counter<W_AnkleTorque>
 
 public:
 
-	//Constructor & Destructor:
 	explicit W_AnkleTorque(QWidget *parent = 0);
-	~W_AnkleTorque();
+	virtual ~W_AnkleTorque();
 
 	static int getCommandCode();
 
