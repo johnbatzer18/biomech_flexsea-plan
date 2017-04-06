@@ -60,16 +60,16 @@ class AnkleTorqueChartView : public QChartView
 public:
 	explicit AnkleTorqueChartView(QChart* parent) : QChartView(parent), activeSetPoint(-1), activeDrag(0) {
 		qDebug() << "Updates " << this->updatesEnabled();
-		xMin = -60;
+		xMin = -30;
 		xMax = 0;
 		yMin = 0;
-		yMax = 100;
+		yMax = 60;
 
 		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
 		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
 
-		parent->axisX()->setRange(xMin - xAxisExtent5Percent, xMax + xAxisExtent5Percent);
-		parent->axisY()->setRange(yMin - yAxisExtent5Percent, yMax + yAxisExtent5Percent);
+		parent->axisX()->setRange(xMin - 5, xMax + 5);
+		parent->axisY()->setRange(yMin - 5, yMax + 5);
 	}
 	virtual ~AnkleTorqueChartView(){}
 
