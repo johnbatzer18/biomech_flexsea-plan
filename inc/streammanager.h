@@ -96,5 +96,6 @@ private:
 	void sendCommandTestBench(uint8_t slaveId);
 	void sendCommandInControl(uint8_t slaveId);
 	void sendCommandDynamic(uint8_t slaveId);
+	void sendCommandAngleTorqueProfile(uint8_t slaveId);
 };
 #endif // STREAMMANAGER_H

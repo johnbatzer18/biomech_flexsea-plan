@@ -362,6 +362,8 @@ void MainWindow::createAnkleTorqueTool(void)
 		return;
 	}
 
+	connect(mySerialDriver, &SerialDriver::newDataReady, w, &W_AnkleTorque::receiveNewData);
+	connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleTorque::comStatusChanged);
 	connect(w, &W_AnkleTorque::writeCommand, this, &MainWindow::connectorWriteCommand);
 
 	ui->mdiArea->addSubWindow(w);
@@ -637,6 +639,7 @@ void MainWindow::createSlaveComm(void)
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
 		myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
+		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleTorque::getCommandCode());
 	}
 
 	else

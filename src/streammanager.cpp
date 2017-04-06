@@ -8,6 +8,7 @@
 #include <cmd-RICNU_Knee_v1.h>
 #include <cmd-MotorTestBench.h>
 #include <dynamic_user_structs.h>
+#include <flexsea_cmd_angle_torque_profile.h>
 
 StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	QObject(parent),
@@ -286,6 +287,9 @@ void StreamManager::sendCommands(int index)
 		case CMD_USER_DYNAMIC:
 			sendCommandDynamic(record.slaveIndex);
 			break;
+		case CMD_ANGLE_TORQUE_PROFILE:
+			sendCommandAngleTorqueProfile(record.slaveIndex);
+					break;
 		default:
 			qDebug() << "Unsupported command was given: " << record.cmdType;
 			stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
@@ -352,4 +356,10 @@ void StreamManager::sendCommandDynamic(uint8_t slaveId)
 {
 	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_DATA);
 	tryPackAndSend(CMD_USER_DYNAMIC, slaveId);
+}
+
+void StreamManager::sendCommandAngleTorqueProfile(uint8_t slaveId)
+{
+	tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 0);
+	tryPackAndSend(CMD_ANGLE_TORQUE_PROFILE, slaveId);
 }

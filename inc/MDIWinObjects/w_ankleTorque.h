@@ -41,39 +41,8 @@
 #include <QTimer>
 #include <QtCharts>
 #include <QtCharts/QChartView>
-#include "flexsea_generic.h"
-#include "flexseaDevice.h"
-#include <QtCharts/QXYSeries>
-#include "executeDevice.h"
-#include "define.h"
-#include <QDrag>
-
-//****************************************************************************
-// Definition(s)
-//****************************************************************************
-
-#define INIT_PLOT_XMIN				0
-#define INIT_PLOT_XMAX				200
-#define INIT_PLOT_YMIN				-1000
-#define INIT_PLOT_YMAX				1000
-#define INIT_PLOT_LEN				((INIT_PLOT_XMAX-INIT_PLOT_XMIN)+1)
-#define VAR_NUM						6
-#define PLOT_BUF_LEN				1000
-
-#define TWO_PI						(2*3.14159)
-#define PHASE_INCREMENT				(TWO_PI/75)
-#define A_GAIN						1000
-
-//Stats:
-#define STATS_FIELDS				4
-#define STATS_MIN					0
-#define STATS_MAX					1
-#define STATS_AVG					2
-#define STATS_RMS					3
-
-//Scaling:
-#define SCALE_DEFAULT_M				1
-#define SCALE_DEFAULT_B				0
+#include <vector>
+#include <QVector>
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -101,32 +70,58 @@ public:
 
 		parent->axisX()->setRange(xMin - xAxisExtent5Percent, xMax + xAxisExtent5Percent);
 		parent->axisY()->setRange(yMin - yAxisExtent5Percent, yMax + yAxisExtent5Percent);
-
 	}
 	virtual ~AnkleTorqueChartView(){}
 
 	int radius = 10;
+	bool isActive = true;
+	QLineSeries* lineSeries;
+	bool windowResized = false;
+
+	void recomputeProfileDrawPoints()
+	{
+		for(int i = 0; i < ATCV_NUMPOINTS; i++)
+			drawnPoints[i] = chart()->mapToPosition(points[i]);
+	}
+
 	virtual void drawForeground(QPainter* painter, const QRectF &rect)
 	{
-		if(firstDraw)
+		if(firstDraw || windowResized)
 		{
 			firstDraw = false;
-			for(int i = 0; i < ATCV_NUMPOINTS; i++)
-				drawnPoints[i] = chart()->mapToPosition(points[i]);
+			windowResized = false;
+			recomputeProfileDrawPoints();
 		}
+
+//		lineSeries->replace(dataPoints);
 
 		QChartView::drawForeground(painter, rect);
 
-		painter->setPen(QPen(QColor(Qt::red)));
 		painter->setBrush(Qt::NoBrush);
+		painter->setPen(QPen(QColor(Qt::green)));
 
+		//draw data points
+		int numLines = dataPoints.size()-1;
+		for(int i = 0; i < numLines; i++)
+		{
+			painter->setOpacity((i) / (float)numLines);
+			painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
+		}
+		painter->setOpacity(1);
+
+		//draw bounds
+		painter->setPen(QPen(QColor(Qt::red)));
 		painter->drawRect(QRectF(
 							  chart()->mapToPosition(QPointF(xMin, yMin)),
 							  chart()->mapToPosition(QPointF(xMax, yMax))));
 
+		//draw profile points
 		painter->setPen(QPen(QColor(Qt::white)));
 		for(int i = 0; i < ATCV_NUMPOINTS; i++)
 		{
+			if(i + 1 < ATCV_NUMPOINTS)
+				painter->drawLine(drawnPoints[i], drawnPoints[i+1]);
+
 			painter->drawEllipse(drawnPoints[i], radius, radius);
 		}
 	}
@@ -135,7 +130,7 @@ public:
 	int activeDrag;
 	virtual void mousePressEvent(QMouseEvent *event)
 	{
-		if(!(activeSetPoint < 0)) return;
+		if(!(activeSetPoint < 0) || !isActive) return;
 
 		QPointF p = event->pos();
 		QPointF sp;
@@ -169,7 +164,7 @@ public:
 
 		float dist = (p - sp).manhattanLength();
 
-		static float distThresh = 0.5*radius;
+		static float distThresh = 0.25*radius;
 
 		if(dist > distThresh)
 		{
@@ -251,6 +246,28 @@ public:
 			p[i] = points[i];
 	}
 
+	void setMaxDataPoints(uint16_t x)
+	{
+		maxDataPoints = x;
+		while(dataPoints.size() > 0 && dataPoints.size() > (int)x)
+			dataPoints.removeFirst();
+	}
+	void addDataPoint(QPointF p)
+	{
+		while(dataPoints.size() > 0 && dataPoints.size() >= (int)maxDataPoints)
+			dataPoints.removeFirst();
+
+		dataPoints.push_back(p);
+	}
+	void addDataPoint(float angle, float torque)
+	{
+		while(dataPoints.size() > 0 && dataPoints.size() >= (int)maxDataPoints)
+			dataPoints.removeFirst();
+
+		dataPoints.push_back(QPointF(angle, torque));
+	}
+
+
 signals:
 	void pointsChanged();
 
@@ -259,6 +276,10 @@ private:
 	QPointF drawnPoints[ATCV_NUMPOINTS];
 	bool firstDraw = true;
 	int xMin, xMax, yMin, yMax;
+
+	unsigned int maxDataPoints = 20;
+	QVector<QPointF> dataPoints;
+
 };
 
 namespace Ui {
@@ -275,12 +296,20 @@ public:
 	explicit W_AnkleTorque(QWidget *parent = 0);
 	~W_AnkleTorque();
 
+	static int getCommandCode();
+
 public slots:
 
 	void receiveNewData(void);
 	void refresh2DPlot(void);
-	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 	void handlePointChange();
+	void comStatusChanged(bool open);
+	void requestProfileRead();
+	void resizeEvent(QResizeEvent *event)
+	{
+		if(chartView) chartView->windowResized = true;
+		QWidget::resizeEvent(event);
+	}
 
 signals:
 
@@ -293,25 +322,15 @@ private:
 	Ui::W_AnkleTorque *ui;
 	QChart *chart;
 	AnkleTorqueChartView *chartView;
-	QLineSeries *qlsChart[VAR_NUM];
-	QVector<QPointF> vDataBuffer[VAR_NUM];
-	QDateTime *timerRefreshDisplay, *timerRefreshData;
-	int plot_xmin, plot_ymin, plot_xmax, plot_ymax, plot_len;
-	int globalYmin, globalYmax;
+	QTimer* timer;
 
-	QStringList var_list_margin;
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
 
-	uint8_t varToPlotFormat[6];
-
-	uint8_t varIndex[VAR_NUM];
-	int64_t stats[VAR_NUM][STATS_FIELDS];
-	int32_t myFakeData;
-	float dataRate;
+	bool isComPortOpen = true;
 
 	//Scaling:
-	int32_t scaling[VAR_NUM][2];
+	int32_t scaling[2];
 };
 
 #endif // W_ANKLE_TORQUE_TOOL_H

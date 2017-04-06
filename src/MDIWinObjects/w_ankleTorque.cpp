@@ -68,13 +68,9 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
 	chart = new QChart();
 	chart->legend()->hide();
 
-	for(int i = 0; i < 2; i++)
-	{
-		qlsChart[i] = new QLineSeries();
-		qlsChart[i]->append(0, 0);
-		chart->addSeries(qlsChart[i]);
-	}
-
+	QLineSeries* lineSeries = new QLineSeries();
+	lineSeries->append(0, 0);
+	chart->addSeries(lineSeries);
 	chart->createDefaultAxes();
 
 	//Colors:
@@ -82,6 +78,8 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
 
 	//Chart view:
 	chartView = new AnkleTorqueChartView(chart);
+	chartView->isActive = false;
+	chartView->lineSeries = lineSeries;
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
 		chartView->setPoint(i, (float)(-60 + i*15), 0.0f);
@@ -98,15 +96,43 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
 	chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
+
+	timer = new QTimer();
+	timer->setInterval(50);
+	timer->setSingleShot(false);
+	connect(timer, &QTimer::timeout, this, &W_AnkleTorque::requestProfileRead);
+	timer->start();
+	requestProfileRead();
 }
 
+void W_AnkleTorque::comStatusChanged(bool open)
+{
+	isComPortOpen = open;
+	if(open)
+		requestProfileRead();
+}
+
+void W_AnkleTorque::requestProfileRead()
+{
+	int slaveId = -1;
+	emit getSlaveId(&slaveId);
+	if(slaveId < 0 || !isComPortOpen) return;
+
+	uint8_t info = PORT_USB;
+	uint16_t numb = 0;
+
+	tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 1);
+	pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, READ);
+}
 
 W_AnkleTorque::~W_AnkleTorque()
 {
 	emit windowClosed();
-
 	delete ui;
 }
+
+int W_AnkleTorque::getCommandCode() { return CMD_ANGLE_TORQUE_PROFILE; }
 
 void W_AnkleTorque::handlePointChange()
 {
@@ -125,10 +151,12 @@ void W_AnkleTorque::handlePointChange()
 	uint8_t info = PORT_USB;
 	uint16_t numb = 0;
 
+	chartView->isActive = false;
+	timer->start();
+
 	tx_cmd_ankleTorqueProfile_rw(TX_N_DEFAULT);
 	pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);
-
 }
 
 //****************************************************************************
@@ -141,15 +169,25 @@ void W_AnkleTorque::handlePointChange()
 
 void W_AnkleTorque::receiveNewData(void)
 {
+	if(atProfile_newProfileFlag)
+	{
+		atProfile_newProfileFlag = 0;
+		for(int i = 0; i < ATCV_NUMPOINTS; i++)
+			chartView->setPoint(i, atProfile_angles[i] / 10.0f, atProfile_torques[i]);
 
+		chartView->isActive = true;
+		timer->stop();
+	}
+	if(atProfile_newDataFlag)
+	{
+		atProfile_newDataFlag = 0;
+		chartView->addDataPoint(angleBuf[indexOfLastBuffered] / 10.0f, torqueBuf[indexOfLastBuffered]);
+	}
+	chartView->update();
+	chart->update();
 }
 
 void W_AnkleTorque::refresh2DPlot(void)
-{
-
-}
-
-void W_AnkleTorque::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
 
 }
