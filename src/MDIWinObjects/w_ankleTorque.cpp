@@ -48,6 +48,7 @@
 #include "flexsea_board.h"
 #include "flexsea_system.h"
 #include "flexsea_cmd_angle_torque_profile.h"
+#include <QValidator>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -80,9 +81,10 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
 	chartView = new AnkleTorqueChartView(chart);
 	chartView->isActive = false;
 	chartView->lineSeries = lineSeries;
+	chartView->setMaxDataPoints(600);
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
-		chartView->setPoint(i, (float)(-60 + i*15), 0.0f);
+		chartView->setPoint(i, 0.0f, 0.0f);
 	}
 
 	connect(chartView,	&AnkleTorqueChartView::pointsChanged,
@@ -103,6 +105,17 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
 	connect(timer, &QTimer::timeout, this, &W_AnkleTorque::requestProfileRead);
 	timer->start();
 	requestProfileRead();
+
+	const QValidator *validator = new QDoubleValidator(-1000, 1000, 2, this);
+	ui->lineEditXMin->setValidator(validator);
+	ui->lineEditXMax->setValidator(validator);
+	ui->lineEditYMin->setValidator(validator);
+	ui->lineEditYMax->setValidator(validator);
+
+	ui->lineEditXMin->setText(QString::number(chartView->xMin));
+	ui->lineEditXMax->setText(QString::number(chartView->xMax));
+	ui->lineEditYMin->setText(QString::number(chartView->yMin));
+	ui->lineEditYMax->setText(QString::number(chartView->yMax));
 }
 
 void W_AnkleTorque::comStatusChanged(bool open)
@@ -160,10 +173,6 @@ void W_AnkleTorque::handlePointChange()
 }
 
 //****************************************************************************
-// Public function(s):
-//****************************************************************************
-
-//****************************************************************************
 // Public slot(s):
 //****************************************************************************
 
@@ -187,7 +196,33 @@ void W_AnkleTorque::receiveNewData(void)
 	chart->update();
 }
 
-void W_AnkleTorque::refresh2DPlot(void)
+void W_AnkleTorque::setAxesLimits()
 {
 
+	QString xMinText = ui->lineEditXMin->text();
+	QString xMaxText = ui->lineEditXMax->text();
+	QString yMinText = ui->lineEditYMin->text();
+	QString yMaxText = ui->lineEditYMax->text();
+
+	bool success = true;
+	int xmin=-1,xmax=0,ymin=-1,ymax=0;
+	if(success) xmin = xMinText.toFloat(&success);
+	if(success) xmax = xMaxText.toFloat(&success);
+	if(success) ymin = yMinText.toFloat(&success);
+	if(success) ymax = yMaxText.toFloat(&success);
+
+	if(success)
+	{
+		chartView->setAxisLimits(xmin, xmax, ymin, ymax);
+		chartView->forceRecomputeDrawnPoints = true;
+		chartView->update();
+		chart->update();
+	}
 }
+
+void W_AnkleTorque::on_lineEditXMin_returnPressed() {setAxesLimits();}
+void W_AnkleTorque::on_lineEditXMax_returnPressed() {setAxesLimits();}
+void W_AnkleTorque::on_lineEditYMin_returnPressed() {setAxesLimits();}
+void W_AnkleTorque::on_lineEditYMax_returnPressed() {setAxesLimits();}
+
+

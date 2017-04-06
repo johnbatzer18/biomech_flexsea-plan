@@ -65,8 +65,8 @@ public:
 		yMin = 0;
 		yMax = 60;
 
-		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
-		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
+//		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
+//		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
 
 		parent->axisX()->setRange(xMin - 5, xMax + 5);
 		parent->axisY()->setRange(yMin - 5, yMax + 5);
@@ -76,7 +76,8 @@ public:
 	int radius = 10;
 	bool isActive = true;
 	QLineSeries* lineSeries;
-	bool windowResized = false;
+	bool forceRecomputeDrawnPoints = false;
+	int xMin, xMax, yMin, yMax;
 
 	void recomputeProfileDrawPoints()
 	{
@@ -88,10 +89,10 @@ public:
 	{
 		if(!isActive) return;
 
-		if(firstDraw || windowResized)
+		if(firstDraw || forceRecomputeDrawnPoints)
 		{
 			firstDraw = false;
-			windowResized = false;
+			forceRecomputeDrawnPoints = false;
 			recomputeProfileDrawPoints();
 		}
 
@@ -290,6 +291,16 @@ public:
 		dataPoints.push_back(QPointF(angle, torque));
 	}
 
+	void setAxisLimits(float xMin, float xMax, float yMin, float yMax)
+	{
+		this->xMin = xMin;
+		this->xMax = xMax;
+		this->yMin = yMin;
+		this->yMax = yMax;
+
+		chart()->axisX()->setRange(xMin - 5, xMax + 5);
+		chart()->axisY()->setRange(yMin - 5, yMax + 5);
+	}
 
 signals:
 	void pointsChanged();
@@ -298,7 +309,6 @@ private:
 	QPointF points[ATCV_NUMPOINTS];
 	QPointF drawnPoints[ATCV_NUMPOINTS];
 	bool firstDraw = true;
-	int xMin, xMax, yMin, yMax;
 
 	unsigned int maxDataPoints = 20;
 	QVector<QPointF> dataPoints;
@@ -323,15 +333,19 @@ public:
 public slots:
 
 	void receiveNewData(void);
-	void refresh2DPlot(void);
 	void handlePointChange();
 	void comStatusChanged(bool open);
 	void requestProfileRead();
 	void resizeEvent(QResizeEvent *event)
 	{
-		if(chartView) chartView->windowResized = true;
+		if(chartView) chartView->forceRecomputeDrawnPoints = true;
 		QWidget::resizeEvent(event);
 	}
+
+	void on_lineEditXMin_returnPressed();
+	void on_lineEditXMax_returnPressed();
+	void on_lineEditYMin_returnPressed();
+	void on_lineEditYMax_returnPressed();
 
 signals:
 
@@ -353,6 +367,8 @@ private:
 
 	//Scaling:
 	int32_t scaling[2];
+
+	void setAxesLimits();
 };
 
 #endif // W_ANKLE_TORQUE_TOOL_H
