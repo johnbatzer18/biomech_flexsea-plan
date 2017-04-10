@@ -136,6 +136,9 @@ void SerialDriver::close(void)
 	comPortOpen = false;
 	emit openStatus(comPortOpen);
 
+	circularBuffer_t* cb = commPeriph[PORT_USB].rx.circularBuff;
+	circ_buff_move_head(cb, circ_buff_get_size(cb));
+
 	USBSerialPort.flush();
 	//Delay (for ongoing transmissions)
 	usleep(100000);
@@ -169,11 +172,11 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 	return (int) write_ret;
 }
 
-FlexseaDevice* SerialDriver::getDeviceById(uint8_t slaveId)
+FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, uint8_t cmd)
 {
 	for(unsigned int i = 0; i < devices.size(); i++)
 	{
-		if(devices.at(i)->slaveID == slaveId)
+		if(devices.at(i)->slaveID == slaveId && devices.at(i)->experimentIndex == cmd)
 			return devices.at(i);
 	}
 	return nullptr;
@@ -183,7 +186,9 @@ void SerialDriver::signalSuccessfulParse()
 {
 	//Update appropriate FlexseaDevice
 	uint8_t slaveId = packet[PORT_USB][INBOUND].unpaked[P_XID];
-	FlexseaDevice* device = getDeviceById(slaveId);
+	int cmd = (int)packet[PORT_USB][INBOUND].unpaked[P_CMD1];
+	FlexseaDevice* device = getDeviceByIdCmd(slaveId, cmd);
+
 	if(device)
 	{
 		device->decodeLastLine();

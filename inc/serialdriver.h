@@ -80,7 +80,7 @@ private:
 	uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
 
 	std::vector<FlexseaDevice*> devices;
-	FlexseaDevice* getDeviceById(uint8_t slaveId);
+	FlexseaDevice* getDeviceByIdCmd(uint8_t slaveId, uint8_t cmd);
 
 	void signalSuccessfulParse();
 	void debugStats(int,int);
