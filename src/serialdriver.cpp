@@ -172,7 +172,7 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 	return (int) write_ret;
 }
 
-FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, uint8_t cmd)
+FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, int cmd)
 {
 	for(unsigned int i = 0; i < devices.size(); i++)
 	{
