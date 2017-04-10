@@ -77,6 +77,12 @@ private slots:
 	void on_pbLoadLogFile_clicked();
 	void on_pbCloseLogFile_clicked();
 
+	void on_pbBTmode_clicked();
+
+	void on_pbBTdefault_clicked();
+
+	void on_pbBTfactory_clicked();
+
 public slots:
 	void setComProgress(int val);
 
@@ -84,6 +90,7 @@ private:
 	//Variables & Objects:
 	Ui::W_Config *ui;
 	DataSource dataSourceState;
+	bool btDataMode;
 
 	QTimer *comPortRefreshTimer;
 
@@ -99,6 +106,7 @@ private:
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource , FlexseaDevice *);
 	void windowClosed(void);
+	void writeSerial(uint8_t bytes_to_send, uint8_t *serial_tx_data);
 
 };
 

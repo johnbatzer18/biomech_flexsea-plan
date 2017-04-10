@@ -88,8 +88,12 @@ void W_Config::setComProgress(int val)
 
 void W_Config::initCom(void)
 {
-	//Bluetooth disabled for now:
-	ui->pushButtonBTCon->setEnabled(false);
+	//Bluetooth:
+	ui->pbBTmode->setEnabled(false);
+	btDataMode = true;
+	ui->pbBTmode->setText("Set mode: Cmd");
+	ui->pbBTfactory->setEnabled(false);
+	ui->pbBTdefault->setEnabled(false);
 
 	//No manual entry, 0% progress, etc.:
 	ui->comProgressBar->setValue(0);
@@ -162,6 +166,9 @@ void W_Config::on_openComButton_clicked()
 
 		ui->pbLoadLogFile->setDisabled(true);
 		//ui->pushButtonBTCon->setDisabled(true);
+
+		//Enable Bluetooth button:
+		ui->pbBTmode->setEnabled(true);
 	}
 	else
 	{
@@ -190,6 +197,9 @@ void W_Config::on_closeComButton_clicked()
 	getComList();
 	// Restart the auto-Refresh
 	comPortRefreshTimer->start(REFRESH_PERIOD);
+
+	//Disable Bluetooth button:
+	ui->pbBTmode->setEnabled(false);
 }
 
 void W_Config::on_pbLoadLogFile_clicked()
@@ -219,4 +229,46 @@ void W_Config::on_pbCloseLogFile_clicked()
 	//ui->pushButtonBTCon->setDisabled(false);
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState, nullptr);
+}
+
+void W_Config::on_pbBTmode_clicked()
+{
+	uint8_t config[4] = {0,0,0,0};
+
+	if(btDataMode == false)
+	{
+		btDataMode = true;
+		ui->pbBTmode->setText("Set mode: Cmd");
+		config[0] = '-';
+		config[1] = '-';
+		config[2] = '-';
+		config[3] = '\n';
+		writeSerial(4, config);
+		//We are now in Data mode:
+		ui->pbBTfactory->setEnabled(false);
+		ui->pbBTdefault->setEnabled(false);
+	}
+	else
+	{
+		btDataMode = false;
+		ui->pbBTmode->setText("Set mode: Data");
+		config[0] = '$';
+		config[1] = '$';
+		config[2] = '$';
+		writeSerial(3,config);
+		//We are now in CMD mode:
+		ui->pbBTfactory->setEnabled(true);
+		ui->pbBTdefault->setEnabled(true);
+
+	}
+}
+
+void W_Config::on_pbBTdefault_clicked()
+{
+
+}
+
+void W_Config::on_pbBTfactory_clicked()
+{
+
 }

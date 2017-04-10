@@ -509,6 +509,8 @@ void MainWindow::createConfig(void)
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource, FlexseaDevice *)));
 		connect(myViewConfig[0], SIGNAL(createLogKeypad(DataSource, FlexseaDevice *)),
 				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
+		connect(myViewConfig[0], SIGNAL(writeSerial(uint8_t,uint8_t*)), \
+				mySerialDriver, SLOT(write(uint8_t,uint8_t*)));
 	}
 
 	else
