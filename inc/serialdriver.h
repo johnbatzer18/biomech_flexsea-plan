@@ -62,6 +62,8 @@ public:
 
 	void init(void);
 	bool isOpen() { return USBSerialPort.isOpen(); }
+	void flush(void);
+	void clear(void);
 
 	void addDevice(FlexseaDevice* device);
 

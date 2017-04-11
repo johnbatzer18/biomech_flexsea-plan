@@ -485,6 +485,8 @@ void MainWindow::createConfig(void)
 		ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
 		myViewConfig[objectCount]->show();
 
+		myViewConfig[objectCount]->serialDriver = mySerialDriver;
+
 		sendWindowCreatedMsg(W_Config::getDescription(), objectCount,
 							 W_Config::getMaxWindow() - 1);
 
@@ -509,8 +511,9 @@ void MainWindow::createConfig(void)
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource, FlexseaDevice *)));
 		connect(myViewConfig[0], SIGNAL(createLogKeypad(DataSource, FlexseaDevice *)),
 				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
-		connect(myViewConfig[0], SIGNAL(writeSerial(uint8_t,uint8_t*)), \
-				mySerialDriver, SLOT(write(uint8_t,uint8_t*)));
+
+		/*connect(myViewConfig[0], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
+				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t))); */
 	}
 
 	else

@@ -38,6 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexseaDevice.h"
+#include <serialdriver.h>
 
 #define REFRESH_PERIOD 750 //Port list refresh in ms
 
@@ -67,6 +68,8 @@ public:
 	explicit W_Config(QWidget *parent = 0);
 	~W_Config();
 
+	SerialDriver* serialDriver;
+
 	DataSource getDataSourceStatus(void) {return dataSourceState;}
 
 
@@ -83,6 +86,8 @@ private slots:
 
 	void on_pbBTfactory_clicked();
 
+	void on_pbBTreset_clicked();
+
 public slots:
 	void setComProgress(int val);
 
@@ -97,6 +102,8 @@ private:
 	//Function(s):
 	void initCom(void);
 	void defaultComOffUi(void);
+	void enableBluetoothCommandButtons(void);
+	void disableBluetoothCommandButtons(void);
 
  signals:
 	void openCom(QString name, int tries, int delay, bool *success);
@@ -106,7 +113,8 @@ private:
 	void closeReadingFile(void);
 	void updateDataSourceStatus(DataSource , FlexseaDevice *);
 	void windowClosed(void);
-	void writeSerial(uint8_t bytes_to_send, uint8_t *serial_tx_data);
+	//void writeSerial(uint8_t bytes_to_send, uint8_t *serial_tx_data);
+	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 };
 
