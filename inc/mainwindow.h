@@ -182,6 +182,9 @@ private:
 	StreamManager* streamManager;
 	DynamicUserDataManager* userDataManager;
 
+	void writeSettings();
+	void readSettings();
+
 signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
@@ -251,6 +254,8 @@ public slots:
 	void displayDocumentation();
 	void displayLicense();
 	void setStatusBar(QString msg);
+
+	void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H

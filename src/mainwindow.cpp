@@ -150,6 +150,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 
 	ui->menuGL->addAction("Add Chart Window", this, &MainWindow::triggerChartView);
+
+	readSettings();
 }
 
 MainWindow::~MainWindow()
@@ -1255,4 +1257,35 @@ void MainWindow::displayDocumentation()
 void MainWindow::setStatusBar(QString msg)
 {
 	ui->statusBar->showMessage(msg);
+}
+
+void MainWindow::writeSettings()
+{
+	QSettings settings("Dephy, Inc.", "Plan-GUI");
+
+	settings.beginGroup("MainWindow");
+	settings.setValue("size", size());
+	settings.setValue("pos", pos());
+	settings.setValue("geometry", saveGeometry());
+	settings.setValue("windowState", saveState());
+	settings.endGroup();
+}
+
+void MainWindow::readSettings()
+{
+	QSettings settings("Dephy, Inc.", "Plan-GUI");
+
+	settings.beginGroup("MainWindow");
+	resize(settings.value("size", QSize(400, 400)).toSize());
+	move(settings.value("pos", QPoint(200, 200)).toPoint());
+	restoreGeometry(settings.value("myWidget/geometry").toByteArray());
+	restoreState(settings.value("myWidget/windowState").toByteArray());
+	settings.endGroup();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+	qDebug() << "Closing, see you soon!";
+	writeSettings();
+	event->accept();
 }
