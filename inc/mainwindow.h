@@ -208,6 +208,7 @@ private:
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
 	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
+	//void (MainWindow::*mdiCloseWinPtr[WINDOWS_TYPES])(void);
 
 	// Objects
 	ChartController *chartController;
@@ -275,10 +276,14 @@ public slots:
 	void closeViewTestBench(void);
 	void closeViewCommTest(void);
 	void closeToolEvent(void);
+	void closeInControl(void);
+	void closeAnkleTorqueTool(void);
 
 	void saveConfig(void);
 	void loadConfig(void);
+	void defaultConfig(void);
 	void initializeCreateWindowFctPtr(void);
+	//void initializeCloseWindowFctPtr(void);
 	void emptyWinFct(void);
 	void setWinGeo(int id, int obj, int x, int y, int w, int h);
 	void initMdiState(void);

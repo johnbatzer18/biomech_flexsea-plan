@@ -154,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->menuGL->addAction("Add Chart Window", this, &MainWindow::triggerChartView);
 
 	initializeCreateWindowFctPtr();
-	//readSettings();
+	loadCSVconfigFile();	//By default we load the last saved settings
 }
 
 MainWindow::~MainWindow()
@@ -335,6 +335,38 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &createAnkleTorqueTool;
 }
 
+/*
+void MainWindow::initializeCloseWindowFctPtr(void)
+{
+	//By default, point to empty function:
+	for(int i = 0; i < WINDOWS_TYPES; i++)
+	{
+		mdiCloseWinPtr[i] = &emptyWinFct;
+	}
+
+	mdiCloseWinPtr[CONFIG_WINDOWS_ID] = &closeConfig;
+	//mdiCloseWinPtr[LOGKEYPAD_WINDOWS_ID] = &closeLogKeyPad();
+	mdiCloseWinPtr[SLAVECOMM_WINDOWS_ID] = &closeSlaveComm;
+	mdiCloseWinPtr[PLOT2D_WINDOWS_ID] = &closeView2DPlot;
+	mdiCloseWinPtr[CONTROL_WINDOWS_ID] = &closeControlControl;
+	mdiCloseWinPtr[INCONTROL_WINDOWS_ID] = &closeInControl;
+	mdiCloseWinPtr[USERRW_WINDOWS_ID] = &closeUserRW;
+	mdiCloseWinPtr[EVENT_WINDOWS_ID] = &closeToolEvent;
+	mdiCloseWinPtr[ANYCOMMAND_WINDOWS_ID] = &closeAnyCommand;
+	mdiCloseWinPtr[CONVERTER_WINDOWS_ID] = &closeConverter;
+	mdiCloseWinPtr[CALIB_WINDOWS_ID] = &closeCalib;
+	mdiCloseWinPtr[COMMTEST_WINDOWS_ID] = &closeViewCommTest;
+	mdiCloseWinPtr[EX_VIEW_WINDOWS_ID] = &closeViewExecute;
+	mdiCloseWinPtr[MN_VIEW_WINDOWS_ID] = &closeViewManage;
+	mdiCloseWinPtr[BATT_WINDOWS_ID] = &closeViewBattery;
+	mdiCloseWinPtr[GOSSIP_WINDOWS_ID] = &closeViewGossip;
+	mdiCloseWinPtr[STRAIN_WINDOWS_ID] = &closeViewStrain;
+	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &closeViewRicnu;
+	mdiCloseWinPtr[TESTBENCH_WINDOWS_ID] = &closeViewTestBench;
+	mdiCloseWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &closeAnkleTorqueTool;
+}
+*/
+
 void MainWindow::emptyWinFct(void)
 {
 	//Catch all for the function pointer
@@ -369,6 +401,24 @@ void MainWindow::loadConfig(void)
 
 	//From CSV:
 	loadCSVconfigFile();
+}
+
+void MainWindow::defaultConfig(void)
+{
+	qDebug() << "Default settings...";
+
+	//Close all Windows other than the essentials:
+	for(int i = PLOT2D_WINDOWS_ID; i < WINDOWS_TYPES; i++)
+	{
+		for(int j = 0; j < WINDOWS_MAX_INSTANCES; j++)
+		{
+			if(mdiState[i][j].open == true)
+			{
+				qDebug() << "Closing" << i << j;
+				mdiState[i][j].winPtr->close();
+			}
+		}
+	}
 }
 
 //Transfer the signal from config to the
@@ -432,9 +482,19 @@ void MainWindow::createAnkleTorqueTool(void)
 	connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleTorque::comStatusChanged);
 	connect(w, &W_AnkleTorque::writeCommand, this, &MainWindow::connectorWriteCommand);
 
+	//Link to MainWindow for the close signal:
+	connect(myAnkleTorque[count], SIGNAL(windowClosed()), \
+			this, SLOT(closeAnkleTorqueTool()));
+
 	mdiState[ANKLE_TORQUE_WINDOWS_ID][count].winPtr = ui->mdiArea->addSubWindow(w);
 	mdiState[ANKLE_TORQUE_WINDOWS_ID][count].open = true;
 	w->show();
+}
+
+void MainWindow::closeAnkleTorqueTool(void)
+{
+	sendCloseWindowMsg(W_AnkleTorque::getDescription());
+	mdiState[ANKLE_TORQUE_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
 }
 
 //Creates a new View Execute window
@@ -483,11 +543,16 @@ void MainWindow::createViewExecute(void)
 								   W_Execute::getMaxWindow());
 	}
 }
-void MainWindow::triggerChartView() {	chartController->createChartView(ui->mdiArea);	}
+
+void MainWindow::triggerChartView()
+{
+	chartController->createChartView(ui->mdiArea);
+}
 
 void MainWindow::closeViewExecute(void)
 {
 	sendCloseWindowMsg(W_Execute::getDescription());
+	mdiState[EX_VIEW_WINDOWS_ID][W_Execute::howManyInstance()-1].open = false;	//ToDo this is wrong!
 }
 
 //Creates a new View Manage window
@@ -533,6 +598,7 @@ void MainWindow::createViewManage(void)
 void MainWindow::closeViewManage(void)
 {
 	sendCloseWindowMsg(W_Manage::getDescription());
+	mdiState[MN_VIEW_WINDOWS_ID][W_Manage::howManyInstance()].open = false;
 }
 
 //Creates a new Config window
@@ -589,10 +655,12 @@ void MainWindow::createConfig(void)
 void MainWindow::closeConfig(void)
 {
 	sendCloseWindowMsg(W_Config::getDescription());
+	mdiState[CONFIG_WINDOWS_ID][0].open = false;	//ToDo shouldn't be 0
 
 	if(W_LogKeyPad::howManyInstance() > 0)
 	{
 		myViewLogKeyPad[0]->parentWidget()->close();
+		mdiState[LOGKEYPAD_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 	}
 }
 
@@ -620,7 +688,6 @@ void MainWindow::createControlControl(void)
 		connect(myViewControl[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
 				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
 	}
-
 	else
 	{
 		sendWindowCreatedFailedMsg(W_Control::getDescription(),
@@ -631,6 +698,7 @@ void MainWindow::createControlControl(void)
 void MainWindow::closeControlControl(void)
 {
 	sendCloseWindowMsg(W_Control::getDescription());
+	mdiState[CONTROL_WINDOWS_ID][0].open = false; //ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View 2DPlot window
@@ -678,6 +746,7 @@ void MainWindow::createView2DPlot(void)
 void MainWindow::closeView2DPlot(void)
 {
 	sendCloseWindowMsg(W_2DPlot::getDescription());
+	mdiState[PLOT2D_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 void MainWindow::createSlaveComm(void)
@@ -729,6 +798,7 @@ void MainWindow::createSlaveComm(void)
 void MainWindow::closeSlaveComm(void)
 {
 	sendCloseWindowMsg(W_SlaveComm::getDescription());
+	mdiState[SLAVECOMM_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Any Command window
@@ -757,6 +827,12 @@ void MainWindow::createAnyCommand(void)
 		sendWindowCreatedFailedMsg(W_AnyCommand::getDescription(),
 								   W_AnyCommand::getMaxWindow());
 	}
+}
+
+void MainWindow::closeAnyCommand(void)
+{
+	sendCloseWindowMsg(W_AnyCommand::getDescription());
+	mdiState[ANYCOMMAND_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 void MainWindow::createInControl(void)
@@ -788,9 +864,10 @@ void MainWindow::createInControl(void)
 	}
 }
 
-void MainWindow::closeAnyCommand(void)
+void MainWindow::closeInControl(void)
 {
-	sendCloseWindowMsg(W_AnyCommand::getDescription());
+	sendCloseWindowMsg(W_InControl::getDescription());
+	mdiState[INCONTROL_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View RIC/NU window
@@ -836,6 +913,7 @@ void MainWindow::createViewRicnu(void)
 void MainWindow::closeViewRicnu(void)
 {
 	sendCloseWindowMsg(W_Ricnu::getDescription());
+	mdiState[RICNU_VIEW_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Converter window
@@ -869,6 +947,7 @@ void MainWindow::createConverter(void)
 void MainWindow::closeConverter(void)
 {
 	sendCloseWindowMsg(W_Converter::getDescription());
+	mdiState[CONVERTER_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Calibration window
@@ -905,6 +984,7 @@ void MainWindow::createCalib(void)
 void MainWindow::closeCalib(void)
 {
 	sendCloseWindowMsg(W_Calibration::getDescription());
+	mdiState[CALIB_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new User R/W window
@@ -947,6 +1027,7 @@ void MainWindow::createUserRW(void)
 void MainWindow::closeUserRW(void)
 {
 	sendCloseWindowMsg(W_UserRW::getDescription());
+	mdiState[USERRW_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Gossip window
@@ -992,6 +1073,7 @@ void MainWindow::createViewGossip(void)
 void MainWindow::closeViewGossip(void)
 {
 	sendCloseWindowMsg(W_Gossip::getDescription());
+	mdiState[GOSSIP_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Strain window
@@ -1037,6 +1119,7 @@ void MainWindow::createViewStrain(void)
 void MainWindow::closeViewStrain(void)
 {
 	sendCloseWindowMsg(W_Strain::getDescription());
+	mdiState[STRAIN_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Battery window
@@ -1086,6 +1169,7 @@ void MainWindow::createViewBattery(void)
 void MainWindow::closeViewBattery(void)
 {
 	sendCloseWindowMsg(W_Battery::getDescription());
+	mdiState[BATT_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new LogKeyPad
@@ -1125,6 +1209,7 @@ void MainWindow::createLogKeyPad(FlexseaDevice *devPtr)
 void MainWindow::closeLogKeyPad(void)
 {
 	sendCloseWindowMsg(W_LogKeyPad::getDescription());
+	mdiState[LOGKEYPAD_WINDOWS_MAX][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 DisplayMode MainWindow::getDisplayMode(void)
@@ -1185,6 +1270,7 @@ void MainWindow::createViewTestBench(void)
 void MainWindow::closeViewTestBench(void)
 {
 	sendCloseWindowMsg(W_TestBench::getDescription());
+	mdiState[TESTBENCH_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Comm. Test window
@@ -1234,6 +1320,7 @@ void MainWindow::createViewCommTest(void)
 void MainWindow::closeViewCommTest(void)
 {
 	sendCloseWindowMsg(W_CommTest::getDescription());
+	mdiState[COMMTEST_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Event window
@@ -1267,6 +1354,7 @@ void MainWindow::createToolEvent(void)
 void MainWindow::closeToolEvent(void)
 {
 	sendCloseWindowMsg(W_Event::getDescription());
+	mdiState[EVENT_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)
@@ -1372,7 +1460,7 @@ void MainWindow::loadCSVconfigFile(void)
 	QFile configFile;
 
 	QString path = QDir::currentPath();
-	QString filename = path + "/config2.csv";
+	QString filename = path + "/config.csv";
 
 	//Now we open it:
 	configFile.setFileName(filename);
@@ -1429,7 +1517,7 @@ void MainWindow::saveCSVconfigFile(void)
 	QTextStream cfStream;
 
 	QString path = QDir::currentPath();
-	QString filename = path + "/config2.csv";
+	QString filename = path + "/config.csv";
 
 	//Now we open it:
 	configFile.setFileName(filename);
