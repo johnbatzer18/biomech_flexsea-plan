@@ -49,7 +49,6 @@ W_Config::W_Config(QWidget *parent) :
 	serialDriver(nullptr),
 	ui(new Ui::W_Config)
 {
-
 	ui->setupUi(this);
 
 	setWindowTitle(this->getDescription());
@@ -63,6 +62,10 @@ W_Config::W_Config(QWidget *parent) :
 	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
 	comPortRefreshTimer->start(REFRESH_PERIOD); //ms
 	getComList();	//Call now to avoid lag when a new window is opened.
+
+	//Timer for sequential configuration, BT module:
+	btConfigTimer = new QTimer(this);
+	connect(btConfigTimer, SIGNAL(timeout()), this, SLOT(btConfig()));
 }
 
 W_Config::~W_Config()
@@ -98,6 +101,8 @@ void W_Config::initCom(void)
 
 	//No manual entry, 0% progress, etc.:
 	ui->comProgressBar->setValue(0);
+	ui->btProgressBar->setValue(0);
+	ui->btProgressBar->setDisabled(true);
 	ui->openComButton->setDisabled(false);
 	ui->closeComButton->setDisabled(true);
 	ui->pbLoadLogFile->setDisabled(false);
@@ -142,6 +147,41 @@ void W_Config::getComList(void)
 	lastComPortCounts = ComPortCounts;
 }
 
+void W_Config::btConfig(void)
+{
+	//Settings:
+	//---------
+	//Name = FlexSEA-ADDR
+	//Baudrate = 230k
+	//TX Power = max
+	//Inquiry window = 0012
+	//Page Window = 0012
+	//CfgTimer = 15s
+
+	static uint8_t config[BT_FIELDS][20] = {{"S-,FlexSEA\r"}, \
+											{"SU,230K\r"}, \
+											{"SY,0010\r"}, \
+											{"SI,0012\r"}, \
+											{"SJ,0012\r"}, \
+											{"ST,15\r"}};
+
+	static uint8_t len[BT_FIELDS] = {11,8,8,8,8,6};
+
+	if(btConfigField >= BT_FIELDS)
+	{
+		btConfigTimer->stop();
+		return;
+	}
+
+	//Send:
+	serialDriver->write(len[btConfigField], &config[btConfigField][0]);
+	btConfigField++;
+	//qDebug() << "Sent one BT config";
+	serialDriver->flush();
+	btConfigTimer->start(BT_CONF_DELAY);
+	ui->btProgressBar->setValue(100*btConfigField/BT_FIELDS);
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -166,7 +206,6 @@ void W_Config::on_openComButton_clicked()
 		ui->comPortComboBox->setDisabled(true);
 
 		ui->pbLoadLogFile->setDisabled(true);
-		//ui->pushButtonBTCon->setDisabled(true);
 
 		//Enable Bluetooth button:
 		ui->pbBTmode->setEnabled(true);
@@ -248,6 +287,8 @@ void W_Config::on_pbBTmode_clicked()
 		serialDriver->write(4, config);
 		//We are now in Data mode:
 		disableBluetoothCommandButtons();
+		ui->btProgressBar->setValue(0);
+		ui->btProgressBar->setEnabled(false);
 	}
 	else
 	{
@@ -260,67 +301,20 @@ void W_Config::on_pbBTmode_clicked()
 		serialDriver->write(3, config);
 		//We are now in CMD mode:
 		enableBluetoothCommandButtons();
+		ui->btProgressBar->setEnabled(true);
 	}
 }
 
 void W_Config::on_pbBTdefault_clicked()
 {
-	uint32_t delay = 2000;
-	//Settings:
-	//Baudrate = 230k
-	//Name = FlexSEA-ADDR
-	//TX Power = max
-	//Inquiry window = 0012
-	//Page Window = 0012
-	//CfgTimer = 10s
-
-	/*
-	uint8_t config[6][20] = {{"S-,FlexSEA\\0"}, \
-							 {"SU,230K\n\0"}, \
-							 {"SY,0100\n"}, \
-							 {"SI,0012\n"}, \
-							 {"SJ,0012\n"}};
-							 */
-
-	//uint8_t config1[13] = {"S-,FlexSEA\0"};
-
-	uint8_t config2[15] = "SY,0100";
-	config2[7] = 13;
-	//serialDriver->clear();
-	serialDriver->write(8, config2);
-	qDebug() << "SY,0100";
-	serialDriver->flush();
-	serialDriver->clear();
-	QThread::msleep(delay);
-
-	uint8_t config4[15] = "SJ,0012";
-	config4[7] = 13;
-	serialDriver->write(8, config4);
-	qDebug() << "SJ,0012";
-	serialDriver->flush();
-	QThread::msleep(delay);
-
-	uint8_t config[15] = "SU,115K";
-	config[7] = 13;
-	serialDriver->write(8, config);
-	qDebug() << "SU,115K";
-	serialDriver->flush();
-	serialDriver->clear();
-	QThread::msleep(delay);
-
-	uint8_t config3[15] = "SI,0012";
-	config3[7] = 13;
-	serialDriver->write(8, config3);
-	qDebug() << "SI,0012";
-	serialDriver->flush();
-	serialDriver->clear();
-	QThread::msleep(delay);
+	btConfigField = 0;
+	btConfigTimer->setSingleShot(true);
+	btConfigTimer->start(0);
 }
 
 void W_Config::on_pbBTfactory_clicked()
 {
 	uint8_t config[6] = "SF,1\n";
-	//writeCommand(5,config, 0);
 	serialDriver->write(5, config);
 	serialDriver->flush();
 }
@@ -328,7 +322,6 @@ void W_Config::on_pbBTfactory_clicked()
 void W_Config::on_pbBTreset_clicked()
 {
 	uint8_t config[5] = "R,1\n";
-	//writeCommand(4,config, 0);
 	serialDriver->write(4, config);
 	serialDriver->flush();
 }
@@ -338,6 +331,7 @@ void W_Config::enableBluetoothCommandButtons(void)
 	ui->pbBTfactory->setEnabled(true);
 	ui->pbBTdefault->setEnabled(true);
 	ui->pbBTreset->setEnabled(true);
+	ui->pbBTfast->setEnabled(true);
 }
 
 void W_Config::disableBluetoothCommandButtons(void)
@@ -345,4 +339,14 @@ void W_Config::disableBluetoothCommandButtons(void)
 	ui->pbBTfactory->setEnabled(false);
 	ui->pbBTdefault->setEnabled(false);
 	ui->pbBTreset->setEnabled(false);
+	ui->pbBTfast->setEnabled(false);
+}
+
+void W_Config::on_pbBTfast_clicked()
+{
+	uint8_t config[5] = "F,1\n";
+	serialDriver->write(4, config);
+	serialDriver->flush();
+
+	emit on_pbBTmode_clicked();
 }
