@@ -279,7 +279,9 @@ public slots:
 	void saveConfig(void);
 	void loadConfig(void);
 	void initializeCreateWindowFctPtr(void);
+	void emptyWinFct(void);
 	void setWinGeo(int id, int obj, int x, int y, int w, int h);
+	void initMdiState(void);
 
 	//Miscellaneous
 

@@ -55,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 	QMainWindow::showMaximized();
 
+	initMdiState();
+
 	//Header contains timestamp:
 	QString winHeader = "FlexSEA-Plan GUI v2.1 (Beta) [Last full build: ";
 	winHeader = winHeader + QString(__DATE__) + QString(' ') + QString(__TIME__) \
@@ -305,7 +307,13 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 
 void MainWindow::initializeCreateWindowFctPtr(void)
 {
-	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &MainWindow::createConfig;
+	//By default, point to empty function:
+	for(int i = 0; i < WINDOWS_TYPES; i++)
+	{
+		mdiCreateWinPtr[i] = &emptyWinFct;
+	}
+
+	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &createConfig;
 	//mdiCreateWinPtr[LOGKEYPAD_WINDOWS_ID] = &createLogKeyPad();
 	mdiCreateWinPtr[SLAVECOMM_WINDOWS_ID] = &createSlaveComm;
 	mdiCreateWinPtr[PLOT2D_WINDOWS_ID] = &createView2DPlot;
@@ -319,9 +327,17 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[COMMTEST_WINDOWS_ID] = &createViewCommTest;
 	mdiCreateWinPtr[EX_VIEW_WINDOWS_ID] = &createViewExecute;
 	mdiCreateWinPtr[MN_VIEW_WINDOWS_ID] = &createViewManage;
+	mdiCreateWinPtr[BATT_WINDOWS_ID] = &createViewBattery;
+	mdiCreateWinPtr[GOSSIP_WINDOWS_ID] = &createViewGossip;
+	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &createViewStrain;
+	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &createViewRicnu;
+	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &createViewTestBench;
+	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &createAnkleTorqueTool;
+}
 
-	//ToDO complete list; *****************
-
+void MainWindow::emptyWinFct(void)
+{
+	//Catch all for the function pointer
 }
 
 //****************************************************************************
@@ -416,7 +432,8 @@ void MainWindow::createAnkleTorqueTool(void)
 	connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleTorque::comStatusChanged);
 	connect(w, &W_AnkleTorque::writeCommand, this, &MainWindow::connectorWriteCommand);
 
-	ui->mdiArea->addSubWindow(w);
+	mdiState[ANKLE_TORQUE_WINDOWS_ID][count].winPtr = ui->mdiArea->addSubWindow(w);
+	mdiState[ANKLE_TORQUE_WINDOWS_ID][count].open = true;
 	w->show();
 }
 
@@ -1355,7 +1372,7 @@ void MainWindow::loadCSVconfigFile(void)
 	QFile configFile;
 
 	QString path = QDir::currentPath();
-	QString filename = path + "/config.csv";
+	QString filename = path + "/config2.csv";
 
 	//Now we open it:
 	configFile.setFileName(filename);
@@ -1396,7 +1413,11 @@ void MainWindow::loadCSVconfigFile(void)
 		h = splitLine.at(7).toInt();
 		if(on == 1)
 		{
-			(this->*mdiCreateWinPtr[id])();	//Create window
+			if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
+			{
+				//Create any extra windows:
+				(this->*mdiCreateWinPtr[id])();	//Create window
+			}
 			setWinGeo(id, obj, x, y, w, h);	//Position it
 		}
 	}
@@ -1405,6 +1426,7 @@ void MainWindow::loadCSVconfigFile(void)
 void MainWindow::saveCSVconfigFile(void)
 {
 	QFile configFile;
+	QTextStream cfStream;
 
 	QString path = QDir::currentPath();
 	QString filename = path + "/config2.csv";
@@ -1420,9 +1442,49 @@ void MainWindow::saveCSVconfigFile(void)
 	}
 
 	qDebug() << "Opened:" << filename;
+	cfStream.setDevice(&configFile);
+
+	//CLear all data:
+	configFile.resize(0);
+
+	cfStream << "Nickname,id,objectCnt,visible,x,y,w,h" << endl;
+
+	//We scan the list, and we save the needed info:
+	for(int i = 0; i < WINDOWS_TYPES; i++)
+	{
+		for(int j = 0; j < WINDOWS_MAX_INSTANCES; j++)
+		{
+			if(mdiState[i][j].open == true)
+			{
+				//Window is open, we save its info:
+				QRect rect = mdiState[i][j].winPtr->geometry();
+				int x = rect.x();
+				int y = rect.y();
+				int w = rect.width();
+				int h = rect.height();
+				cfStream << "nickname," << QString::number(i) << ',' << QString::number(j) \
+						 << ",1," <<  QString::number(x) << ',' << QString::number(y) \
+						 << ',' << QString::number(w) << ',' << QString::number(h) << endl;
+			}
+		}
+	}
+
+	//Close file:
+	configFile.close();
 }
 
 void MainWindow::setWinGeo(int id, int obj, int x, int y, int w, int h)
 {
 	mdiState[id][obj].winPtr->setGeometry(x,y,w,h);
+}
+
+void MainWindow::initMdiState(void)
+{
+	for(int i = 0; i < WINDOWS_TYPES; i++)
+	{
+		for(int j = 0; j < WINDOWS_MAX_INSTANCES; j++)
+		{
+			mdiState[i][j].open = false;
+		}
+	}
 }
