@@ -436,8 +436,9 @@ void MainWindow::createViewExecute(void)
 							  &testBenchLog,
 							  getDisplayMode(),
 							  &executeDevList);
-		mdiState[EX_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
 
+		mdiState[EX_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
+		mdiState[EX_VIEW_WINDOWS_ID][objectCount].open = true;
 		myViewExecute[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Execute::getDescription(), objectCount,
@@ -482,7 +483,8 @@ void MainWindow::createViewManage(void)
 	{
 		myViewManage[objectCount] = new W_Manage(this, &manageLog,
 												 getDisplayMode(), &manageDevList);
-		ui->mdiArea->addSubWindow(myViewManage[objectCount]);
+		mdiState[MN_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewManage[objectCount]);
+		mdiState[MN_VIEW_WINDOWS_ID][objectCount].open = true;
 		myViewManage[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Manage::getDescription(), objectCount,
@@ -525,7 +527,8 @@ void MainWindow::createConfig(void)
 	if(objectCount < (CONFIG_WINDOWS_MAX))
 	{
 		myViewConfig[objectCount] = new W_Config(this);
-		ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
+		mdiState[CONFIG_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
+		mdiState[CONFIG_WINDOWS_ID][objectCount].open = true;
 		myViewConfig[objectCount]->show();
 
 		myViewConfig[objectCount]->serialDriver = mySerialDriver;
@@ -585,7 +588,8 @@ void MainWindow::createControlControl(void)
 	if(objectCount < (CONTROL_WINDOWS_MAX))
 	{
 		myViewControl[objectCount] = new W_Control(this);
-		ui->mdiArea->addSubWindow(myViewControl[objectCount]);
+		mdiState[CONTROL_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewControl[objectCount]);
+		mdiState[CONTROL_WINDOWS_ID][objectCount].open = true;
 		myViewControl[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Control::getDescription(), objectCount,
@@ -625,7 +629,8 @@ void MainWindow::createView2DPlot(void)
 												 getDisplayMode(),
 												 &flexseaPtrlist);
 
-		ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
+		mdiState[PLOT2D_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
+		mdiState[PLOT2D_WINDOWS_ID][objectCount].open = true;
 		myView2DPlot[objectCount]->show();
 
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
@@ -676,7 +681,8 @@ void MainWindow::createSlaveComm(void)
 													   &testBenchFlexList,
 													   streamManager);
 
-		ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
+		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
+		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].open = true;
 		myViewSlaveComm[objectCount]->show();
 
 		sendWindowCreatedMsg(W_SlaveComm::getDescription(), objectCount,
@@ -717,7 +723,8 @@ void MainWindow::createAnyCommand(void)
 	if(objectCount < (ANYCOMMAND_WINDOWS_MAX))
 	{
 		myViewAnyCommand[objectCount] = new W_AnyCommand(this);
-		ui->mdiArea->addSubWindow(myViewAnyCommand[objectCount]);
+		mdiState[ANYCOMMAND_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewAnyCommand[objectCount]);
+		mdiState[ANYCOMMAND_WINDOWS_ID][objectCount].open = true;
 		myViewAnyCommand[objectCount]->show();
 
 		sendWindowCreatedMsg(W_AnyCommand::getDescription(), objectCount,
@@ -743,7 +750,8 @@ void MainWindow::createInControl(void)
 	if(objectCount < INCONTROL_WINDOWS_MAX)
 	{
 		myViewInControl[objectCount] = new W_InControl(this);
-		ui->mdiArea->addSubWindow((myViewInControl[objectCount]));
+		mdiState[INCONTROL_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow((myViewInControl[objectCount]));
+		mdiState[INCONTROL_WINDOWS_ID][objectCount].open = true;
 		myViewInControl[objectCount]->show();
 		QRect currRect = myViewInControl[objectCount]->geometry();
 		currRect.setWidth(619);
@@ -778,7 +786,8 @@ void MainWindow::createViewRicnu(void)
 	{
 		myViewRicnu[objectCount] = new W_Ricnu(this, &ricnuLog,
 											   getDisplayMode(), &ricnuDevList);;
-		ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
+		mdiState[RICNU_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
+		mdiState[RICNU_VIEW_WINDOWS_ID][objectCount].open = true;
 		myViewRicnu[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Ricnu::getDescription(), objectCount,
@@ -821,7 +830,8 @@ void MainWindow::createConverter(void)
 	if(objectCount < (CONVERTER_WINDOWS_MAX))
 	{
 		my_w_converter[objectCount] = new W_Converter(this);
-		ui->mdiArea->addSubWindow(my_w_converter[objectCount]);
+		mdiState[CONVERTER_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(my_w_converter[objectCount]);
+		mdiState[CONVERTER_WINDOWS_ID][objectCount].open = true;
 		my_w_converter[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Converter::getDescription(), objectCount,
@@ -853,7 +863,8 @@ void MainWindow::createCalib(void)
 	if(objectCount < (CALIB_WINDOWS_MAX))
 	{
 		myViewCalibration[objectCount] = new W_Calibration(this);
-		ui->mdiArea->addSubWindow(myViewCalibration[objectCount]);
+		mdiState[CALIB_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewCalibration[objectCount]);
+		mdiState[CALIB_WINDOWS_ID][objectCount].open = true;
 		myViewCalibration[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Calibration::getDescription(), objectCount,
@@ -889,7 +900,8 @@ void MainWindow::createUserRW(void)
 	{
 		W_UserRW* userRW = new W_UserRW(this, userDataManager);
 		myUserRW[objectCount] = userRW;
-		ui->mdiArea->addSubWindow(myUserRW[objectCount]);
+		mdiState[USERRW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myUserRW[objectCount]);
+		mdiState[USERRW_WINDOWS_ID][objectCount].open = true;
 		myUserRW[objectCount]->show();
 
 		sendWindowCreatedMsg(W_UserRW::getDescription(), objectCount,
@@ -930,7 +942,8 @@ void MainWindow::createViewGossip(void)
 	{
 		myViewGossip[objectCount] = new W_Gossip(this, &gossipLog,
 												 getDisplayMode(), &gossipDevList);
-		ui->mdiArea->addSubWindow(myViewGossip[objectCount]);
+		mdiState[GOSSIP_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewGossip[objectCount]);
+		mdiState[GOSSIP_WINDOWS_ID][objectCount].open = true;
 		myViewGossip[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Gossip::getDescription(), objectCount,
@@ -974,7 +987,8 @@ void MainWindow::createViewStrain(void)
 	{
 		myViewStrain[objectCount] = new W_Strain(this, &strainLog,
 												 getDisplayMode(), &strainDevList);
-		ui->mdiArea->addSubWindow(myViewStrain[objectCount]);
+		mdiState[STRAIN_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewStrain[objectCount]);
+		mdiState[STRAIN_WINDOWS_ID][objectCount].open = true;
 		myViewStrain[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Strain::getDescription(), objectCount,
@@ -1022,7 +1036,8 @@ void MainWindow::createViewBattery(void)
 												&testBenchLog,
 												getDisplayMode(),
 												&batteryDevList);
-		ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
+		mdiState[BATT_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
+		mdiState[BATT_WINDOWS_ID][objectCount].open = true;
 		myViewBatt[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Battery::getDescription(), objectCount,
@@ -1065,7 +1080,8 @@ void MainWindow::createLogKeyPad(FlexseaDevice *devPtr)
 	if(objectCount < (LOGKEYPAD_WINDOWS_MAX))
 	{
 		myViewLogKeyPad[objectCount] = new W_LogKeyPad(this, devPtr);
-		ui->mdiArea->addSubWindow(myViewLogKeyPad[objectCount]);
+		mdiState[LOGKEYPAD_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewLogKeyPad[objectCount]);
+		mdiState[LOGKEYPAD_WINDOWS_ID][objectCount].open = true;
 		myViewLogKeyPad[objectCount]->show();
 		myViewLogKeyPad[objectCount]->parentWidget()->setWindowFlags(
 					Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
@@ -1119,7 +1135,8 @@ void MainWindow::createViewTestBench(void)
 													   &testBenchLog,
 														getDisplayMode(),
 													   &testBenchDevList);
-		ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
+		mdiState[TESTBENCH_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
+		mdiState[TESTBENCH_WINDOWS_ID][objectCount].open = true;
 		myViewTestBench[objectCount]->show();
 
 		sendWindowCreatedMsg(W_TestBench::getDescription(), objectCount,
@@ -1166,7 +1183,8 @@ void MainWindow::createViewCommTest(void)
 
 		myViewCommTest[objectCount]->serialDriver = mySerialDriver;
 
-		ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
+		mdiState[COMMTEST_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
+		mdiState[COMMTEST_WINDOWS_ID][objectCount].open = true;
 		myViewCommTest[objectCount]->show();
 
 		sendWindowCreatedMsg(W_CommTest::getDescription(), objectCount,
@@ -1210,7 +1228,8 @@ void MainWindow::createToolEvent(void)
 	if(objectCount < (EVENT_WINDOWS_MAX))
 	{
 		myEvent[objectCount] = new W_Event(this);
-		ui->mdiArea->addSubWindow(myEvent[objectCount]);
+		mdiState[EVENT_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myEvent[objectCount]);
+		mdiState[EVENT_WINDOWS_ID][objectCount].open = true;
 		myEvent[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Event::getDescription(), objectCount,
