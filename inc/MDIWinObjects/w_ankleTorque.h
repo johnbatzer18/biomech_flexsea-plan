@@ -277,6 +277,7 @@ public:
 			p[i] = points[i];
 	}
 
+	uint16_t getMaxDataPoints() { return maxDataPoints; }
 	void setMaxDataPoints(uint16_t x)
 	{
 		maxDataPoints = x;
@@ -355,6 +356,7 @@ public slots:
 	void on_lineEditXMax_returnPressed();
 	void on_lineEditYMin_returnPressed();
 	void on_lineEditYMax_returnPressed();
+	void on_lineEditPersistentPoints_returnPressed();
 	void on_streamButton_pressed();
 	void on_textToggleButton_pressed();
 
