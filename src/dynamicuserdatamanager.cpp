@@ -117,6 +117,16 @@ bool DynamicUserDataManager::getPlanFieldFlags(QList<bool> *flags)
 	flags->clear();
 	if(dynamicUser_numFields < 1) return false;
 	if(!dynamicUser_fieldFlagsPlan || !flags) return false;
+
+	//this turns on the first 8 flags by default
+	static bool firstTime = true;
+	if(firstTime)
+	{
+		firstTime = false;
+		for(uint8_t i = 0; i < 8 && i < dynamicUser_numFields; i++)
+			dynamicUser_fieldFlagsPlan[i] = 1;
+	}
+
 	for(int i = 0; i < dynamicUser_numFields; i++)
 	{
 		flags->append(dynamicUser_fieldFlagsPlan[i]);
