@@ -81,7 +81,8 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	USBSerialPort.setDataBits(QSerialPort::Data8);
 	USBSerialPort.setParity(QSerialPort::NoParity);
 	USBSerialPort.setStopBits(QSerialPort::OneStop);
-	USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
+	//USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
+	USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
 
 	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
 
@@ -167,6 +168,16 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 	}
 
 	return (int) write_ret;
+}
+
+void SerialDriver::flush(void)
+{
+	USBSerialPort.flush();
+}
+
+void SerialDriver::clear(void)
+{
+	USBSerialPort.clear();
 }
 
 FlexseaDevice* SerialDriver::getDeviceById(uint8_t slaveId)
@@ -273,8 +284,8 @@ void SerialDriver::handleReadyRead()
 	int maxMessagesExpected = (len / COMM_STR_BUF_LEN + (len % COMM_STR_BUF_LEN != 0));
 	uint16_t bytesToWrite;
 	int error;
-    for(int i = 0; i < numBuffers; i++)
-    {
+	for(int i = 0; i < numBuffers; i++)
+	{
 		bytesToWrite = remainingBytes > CHUNK_SIZE ? CHUNK_SIZE : remainingBytes;
 		error = update_rx_buf_usb(&largeRxBuffer[i*CHUNK_SIZE], bytesToWrite);
 		if(error)
@@ -293,16 +304,16 @@ void SerialDriver::handleReadyRead()
 		} while(successfulParse && numMessagesReceived < maxMessagesExpected);
 	}
 
-    // Notify user in GUI: ... TODO: support 4 channels
-    if(numMessagesReceived >= numMessagesExpected)
-        emit dataStatus(0, DATAIN_STATUS_GREEN);
-    else if(numMessagesReceived == 0)
-        emit dataStatus(0, DATAIN_STATUS_RED);
-    else
-        emit dataStatus(0, DATAIN_STATUS_YELLOW);
+	// Notify user in GUI: ... TODO: support 4 channels
+	if(numMessagesReceived >= numMessagesExpected)
+		emit dataStatus(0, DATAIN_STATUS_GREEN);
+	else if(numMessagesReceived == 0)
+		emit dataStatus(0, DATAIN_STATUS_RED);
+	else
+		emit dataStatus(0, DATAIN_STATUS_YELLOW);
 
 	if(numMessagesReceived)
-        emit newDataTimeout(true); //Reset counter
+		emit newDataTimeout(true); //Reset counter
 
 //	debugStats(len, numMessagesReceived);
 

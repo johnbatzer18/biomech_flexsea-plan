@@ -38,6 +38,7 @@
 #include <QSerialPortInfo>
 #include <QDebug>
 #include <QTimer>
+#include <QThread>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -45,6 +46,7 @@
 
 W_Config::W_Config(QWidget *parent) :
 	QWidget(parent),
+	serialDriver(nullptr),
 	ui(new Ui::W_Config)
 {
 
@@ -88,8 +90,11 @@ void W_Config::setComProgress(int val)
 
 void W_Config::initCom(void)
 {
-	//Bluetooth disabled for now:
-	ui->pushButtonBTCon->setEnabled(false);
+	//Bluetooth:
+	ui->pbBTmode->setEnabled(false);
+	btDataMode = true;
+	ui->pbBTmode->setText("Set mode: Cmd");
+	disableBluetoothCommandButtons();
 
 	//No manual entry, 0% progress, etc.:
 	ui->comProgressBar->setValue(0);
@@ -162,6 +167,9 @@ void W_Config::on_openComButton_clicked()
 
 		ui->pbLoadLogFile->setDisabled(true);
 		//ui->pushButtonBTCon->setDisabled(true);
+
+		//Enable Bluetooth button:
+		ui->pbBTmode->setEnabled(true);
 	}
 	else
 	{
@@ -190,6 +198,9 @@ void W_Config::on_closeComButton_clicked()
 	getComList();
 	// Restart the auto-Refresh
 	comPortRefreshTimer->start(REFRESH_PERIOD);
+
+	//Disable Bluetooth button:
+	ui->pbBTmode->setEnabled(false);
 }
 
 void W_Config::on_pbLoadLogFile_clicked()
@@ -219,4 +230,119 @@ void W_Config::on_pbCloseLogFile_clicked()
 	//ui->pushButtonBTCon->setDisabled(false);
 	dataSourceState = None;
 	emit updateDataSourceStatus(dataSourceState, nullptr);
+}
+
+void W_Config::on_pbBTmode_clicked()
+{
+	uint8_t config[4] = {0,0,0,0};
+
+	if(btDataMode == false)
+	{
+		btDataMode = true;
+		ui->pbBTmode->setText("Set mode: Cmd");
+		config[0] = '-';
+		config[1] = '-';
+		config[2] = '-';
+		config[3] = '\n';
+		//writeCommand(4, config, 0);
+		serialDriver->write(4, config);
+		//We are now in Data mode:
+		disableBluetoothCommandButtons();
+	}
+	else
+	{
+		btDataMode = false;
+		ui->pbBTmode->setText("Set mode: Data");
+		config[0] = '$';
+		config[1] = '$';
+		config[2] = '$';
+		//writeCommand(3,config, 0);
+		serialDriver->write(3, config);
+		//We are now in CMD mode:
+		enableBluetoothCommandButtons();
+	}
+}
+
+void W_Config::on_pbBTdefault_clicked()
+{
+	uint32_t delay = 2000;
+	//Settings:
+	//Baudrate = 230k
+	//Name = FlexSEA-ADDR
+	//TX Power = max
+	//Inquiry window = 0012
+	//Page Window = 0012
+	//CfgTimer = 10s
+
+	/*
+	uint8_t config[6][20] = {{"S-,FlexSEA\\0"}, \
+							 {"SU,230K\n\0"}, \
+							 {"SY,0100\n"}, \
+							 {"SI,0012\n"}, \
+							 {"SJ,0012\n"}};
+							 */
+
+	//uint8_t config1[13] = {"S-,FlexSEA\0"};
+
+	uint8_t config2[15] = "SY,0100";
+	config2[7] = 13;
+	//serialDriver->clear();
+	serialDriver->write(8, config2);
+	qDebug() << "SY,0100";
+	serialDriver->flush();
+	serialDriver->clear();
+	QThread::msleep(delay);
+
+	uint8_t config4[15] = "SJ,0012";
+	config4[7] = 13;
+	serialDriver->write(8, config4);
+	qDebug() << "SJ,0012";
+	serialDriver->flush();
+	QThread::msleep(delay);
+
+	uint8_t config[15] = "SU,115K";
+	config[7] = 13;
+	serialDriver->write(8, config);
+	qDebug() << "SU,115K";
+	serialDriver->flush();
+	serialDriver->clear();
+	QThread::msleep(delay);
+
+	uint8_t config3[15] = "SI,0012";
+	config3[7] = 13;
+	serialDriver->write(8, config3);
+	qDebug() << "SI,0012";
+	serialDriver->flush();
+	serialDriver->clear();
+	QThread::msleep(delay);
+}
+
+void W_Config::on_pbBTfactory_clicked()
+{
+	uint8_t config[6] = "SF,1\n";
+	//writeCommand(5,config, 0);
+	serialDriver->write(5, config);
+	serialDriver->flush();
+}
+
+void W_Config::on_pbBTreset_clicked()
+{
+	uint8_t config[5] = "R,1\n";
+	//writeCommand(4,config, 0);
+	serialDriver->write(4, config);
+	serialDriver->flush();
+}
+
+void W_Config::enableBluetoothCommandButtons(void)
+{
+	ui->pbBTfactory->setEnabled(true);
+	ui->pbBTdefault->setEnabled(true);
+	ui->pbBTreset->setEnabled(true);
+}
+
+void W_Config::disableBluetoothCommandButtons(void)
+{
+	ui->pbBTfactory->setEnabled(false);
+	ui->pbBTdefault->setEnabled(false);
+	ui->pbBTreset->setEnabled(false);
 }

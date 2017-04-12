@@ -257,5 +257,7 @@ void W_AnkleTorque::on_streamButton_pressed()
 void W_AnkleTorque::on_textToggleButton_pressed()
 {
 	chartView->drawText = !(chartView->drawText);
+	chartView->update();
+	chart->update();
 }
 
