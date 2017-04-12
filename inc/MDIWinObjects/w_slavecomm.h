@@ -99,6 +99,7 @@ public slots:
 	void receiveComPortStatus(bool status);
 	void updateIndicatorTimeout(bool rst);
 	void getSlaveId(int* slaveId);
+	void getCurrentDevice(FlexseaDevice** device);
 
 private slots:
 

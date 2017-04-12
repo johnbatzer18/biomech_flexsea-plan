@@ -353,14 +353,17 @@ void MainWindow::createAnkleTorqueTool(void)
 		return;
 	}
 
-	W_AnkleTorque* w = new W_AnkleTorque(this);
+	W_AnkleTorque* w = new W_AnkleTorque(this, streamManager);
 	myAnkleTorque[count] = w;
 
 	int slaveCommCount = W_SlaveComm::howManyInstance();
 	if(slaveCommCount)
 	{
+		connect(w,									&W_AnkleTorque::getCurrentDevice,
+				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getCurrentDevice);
 		connect(w,									&W_AnkleTorque::getSlaveId,
 				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getSlaveId);
+
 	}
 	else
 	{

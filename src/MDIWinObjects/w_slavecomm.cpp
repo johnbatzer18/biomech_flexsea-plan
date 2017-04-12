@@ -106,6 +106,24 @@ void W_SlaveComm::addExperiment(QList<FlexseaDevice *> *deviceList, int cmdCode)
 	numExperiments++;
 }
 
+
+void W_SlaveComm::getCurrentDevice(FlexseaDevice** device)
+{
+	*device = nullptr;
+
+	if(ui && ui->comboBoxExp1 && ui->comboBoxSlave1)
+	{
+		int experimentIndex = ui->comboBoxExp1->currentIndex();
+		int slaveIndex = ui->comboBoxSlave1->currentIndex();
+
+		if(experimentIndex >= 0 && slaveIndex >= 0)
+		{
+			*device = (targetListMap[experimentIndex])->at(slaveIndex);
+		}
+	}
+}
+
+
 void W_SlaveComm::getSlaveId(int* slaveId)
 {
 	*slaveId = -1;

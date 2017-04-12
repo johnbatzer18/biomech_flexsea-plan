@@ -56,8 +56,8 @@ QT_CHARTS_USE_NAMESPACE
 // Constructor & Destructor:
 //****************************************************************************
 
-W_AnkleTorque::W_AnkleTorque(QWidget *parent) :
-	QWidget(parent),
+W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
+	QWidget(parent), streamManager(sm),
 	ui(new Ui::W_AnkleTorque)
 {
 	ui->setupUi(this);
@@ -225,4 +225,37 @@ void W_AnkleTorque::on_lineEditXMax_returnPressed() {setAxesLimits();}
 void W_AnkleTorque::on_lineEditYMin_returnPressed() {setAxesLimits();}
 void W_AnkleTorque::on_lineEditYMax_returnPressed() {setAxesLimits();}
 
+void W_AnkleTorque::on_streamButton_pressed()
+{
+	static bool isStreaming = false;
+	const int streamFreq = 33;
+	if(!streamManager) return;
+
+	int slaveId = -1;
+	FlexseaDevice* device = nullptr;
+	emit getSlaveId(&slaveId);
+	emit getCurrentDevice(&device);
+
+	if(slaveId < 0 || !device) return;
+
+	if(isStreaming)
+	{
+		streamManager->stopStreaming(getCommandCode(), slaveId, streamFreq);
+		chartView->clearOverlay();
+	}
+	else
+		streamManager->startAutoStreaming(getCommandCode(), slaveId, streamFreq, false, device);
+
+	QString btnText = "";
+	btnText.append(isStreaming ? "Start" : "Stop");
+	btnText.append(" Streaming Overlay");
+
+	ui->streamButton->setText(btnText);
+	isStreaming = !isStreaming;
+}
+
+void W_AnkleTorque::on_textToggleButton_pressed()
+{
+	chartView->drawText = !(chartView->drawText);
+}
 

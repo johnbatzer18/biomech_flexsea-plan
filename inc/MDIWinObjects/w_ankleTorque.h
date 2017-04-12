@@ -41,7 +41,7 @@
 #include <QTimer>
 #include <QtCharts>
 #include <QtCharts/QChartView>
-#include <vector>
+#include <streammanager.h>
 #include <QVector>
 
 //****************************************************************************
@@ -70,14 +70,18 @@ public:
 
 		parent->axisX()->setRange(xMin - 5, xMax + 5);
 		parent->axisY()->setRange(yMin - 5, yMax + 5);
+		QColor darkGray(100, 100, 100);
+		parent->axisX()->setGridLineColor(darkGray);
+		parent->axisY()->setGridLineColor(darkGray);
 	}
 	virtual ~AnkleTorqueChartView(){}
 
-	int radius = 10;
+	int radius = 12;
 	bool isActive = true;
 	QLineSeries* lineSeries;
 	bool forceRecomputeDrawnPoints = false;
 	int xMin, xMax, yMin, yMax;
+	bool drawText = false;
 
 	void recomputeProfileDrawPoints()
 	{
@@ -99,7 +103,7 @@ public:
 		QChartView::drawForeground(painter, rect);
 
 		painter->setBrush(Qt::NoBrush);
-		painter->setPen(QPen(QColor(Qt::green)));
+		painter->setPen(QPen(QColor(58, 217, 242)));	//sky blue
 
 		//draw data points
 		int numLines = dataPoints.size()-1;
@@ -111,13 +115,13 @@ public:
 		painter->setOpacity(1);
 
 		//draw bounds
-		painter->setPen(QPen(QColor(Qt::red)));
+		painter->setPen(QPen(QColor(155, 35, 35)));		//dark red
 		painter->drawRect(QRectF(
 							  chart()->mapToPosition(QPointF(xMin, yMin)),
 							  chart()->mapToPosition(QPointF(xMax, yMax))));
 
 		//draw profile points
-		painter->setPen(QPen(QColor(Qt::white)));
+		painter->setPen(QPen(QColor(220, 220, 220)));	//light grey
 		QPointF textPoint;
 		QString positionLabel = "";
 		QPainterPath path;
@@ -145,9 +149,12 @@ public:
 			painter->drawEllipse(drawnPoints[i], radius, radius);
 		}
 
-		painter->setBrush(QBrush(QColor(Qt::black)));
-		painter->setPen(QColor(Qt::white));
-		painter->drawPath(path);
+		if(drawText)
+		{
+			painter->setBrush(QBrush(QColor(Qt::black)));
+			painter->setPen(QColor(Qt::white));
+			painter->drawPath(path);
+		}
 	}
 
 	int activeSetPoint;
@@ -302,6 +309,8 @@ public:
 		chart()->axisY()->setRange(yMin - 5, yMax + 5);
 	}
 
+	void clearOverlay() { dataPoints.clear(); chart()->update(); this->update(); }
+
 signals:
 	void pointsChanged();
 
@@ -325,7 +334,7 @@ class W_AnkleTorque : public QWidget, public Counter<W_AnkleTorque>
 
 public:
 
-	explicit W_AnkleTorque(QWidget *parent = 0);
+	explicit W_AnkleTorque(QWidget *parent = 0, StreamManager* sm = nullptr);
 	virtual ~W_AnkleTorque();
 
 	static int getCommandCode();
@@ -346,11 +355,14 @@ public slots:
 	void on_lineEditXMax_returnPressed();
 	void on_lineEditYMin_returnPressed();
 	void on_lineEditYMax_returnPressed();
+	void on_streamButton_pressed();
+	void on_textToggleButton_pressed();
 
 signals:
 
 	void windowClosed(void);
 	void getSlaveId(int* slaveId);
+	void getCurrentDevice(FlexseaDevice** device);
 	void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
 
 private:
@@ -369,6 +381,7 @@ private:
 	int32_t scaling[2];
 
 	void setAxesLimits();
+	StreamManager* streamManager = nullptr;
 };
 
 #endif // W_ANKLE_TORQUE_TOOL_H
