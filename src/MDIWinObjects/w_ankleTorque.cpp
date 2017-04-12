@@ -81,7 +81,7 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	chartView = new AnkleTorqueChartView(chart);
 	chartView->isActive = false;
 	chartView->lineSeries = lineSeries;
-	chartView->setMaxDataPoints(600);
+	chartView->setMaxDataPoints(150);
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
 		chartView->setPoint(i, 0.0f, 0.0f);
@@ -224,6 +224,25 @@ void W_AnkleTorque::on_lineEditXMin_returnPressed() {setAxesLimits();}
 void W_AnkleTorque::on_lineEditXMax_returnPressed() {setAxesLimits();}
 void W_AnkleTorque::on_lineEditYMin_returnPressed() {setAxesLimits();}
 void W_AnkleTorque::on_lineEditYMax_returnPressed() {setAxesLimits();}
+
+void W_AnkleTorque::on_lineEditPersistentPoints_returnPressed() {
+	QString text = ui->lineEditPersistentPoints->text();
+	bool success = true;
+
+	int numPoints = text.toInt(&success);
+	if(success && numPoints > 2)
+	{
+		chartView->setMaxDataPoints(numPoints);
+	}
+	else
+	{
+		numPoints = chartView->getMaxDataPoints();
+		ui->lineEditPersistentPoints->clear();
+		ui->lineEditPersistentPoints->setText(QString::number(numPoints));
+	}
+	chart->update();
+	chartView->update();
+}
 
 void W_AnkleTorque::on_streamButton_pressed()
 {
