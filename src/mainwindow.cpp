@@ -305,9 +305,6 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 
 void MainWindow::initializeCreateWindowFctPtr(void)
 {
-	//Test:
-	oneMdiCreateWinPtr = &createViewExecute;
-
 	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &MainWindow::createConfig;
 	//mdiCreateWinPtr[LOGKEYPAD_WINDOWS_ID] = &createLogKeyPad();
 	mdiCreateWinPtr[SLAVECOMM_WINDOWS_ID] = &createSlaveComm;
@@ -344,6 +341,9 @@ void MainWindow::saveConfig(void)
 {
 	qDebug() << "Saving settings...";
 	writeSettings();
+
+	//To CSV:
+	saveCSVconfigFile();
 }
 
 void MainWindow::loadConfig(void)
@@ -436,7 +436,8 @@ void MainWindow::createViewExecute(void)
 							  &testBenchLog,
 							  getDisplayMode(),
 							  &executeDevList);
-		ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
+		mdiState[EX_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewExecute[objectCount]);
+
 		myViewExecute[objectCount]->show();
 
 		sendWindowCreatedMsg(W_Execute::getDescription(), objectCount,
@@ -1359,13 +1360,8 @@ void MainWindow::loadCSVconfigFile(void)
 	QString line;
 	QStringList splitLine;
 
-	/*
-	line = configFile.readLine();
-	splitLine = line.split(',', QString::KeepEmptyParts);
-	qDebug() << splitLine;
-	*/
-	int on = 0;
-	int id = 0;
+	int on = 0, obj = 0, id = 0, x = 0, y = 0, w = 0, h = 0;
+	line = configFile.readLine();	//Get rid of header
 	while(!configFile.atEnd())
 	{
 		line = configFile.readLine();
@@ -1373,8 +1369,41 @@ void MainWindow::loadCSVconfigFile(void)
 		qDebug() << splitLine;
 
 		id = splitLine.at(1).toInt();
-		on = splitLine.at(2).toInt();
-		if(on == 1)	{(this->*mdiCreateWinPtr[id])();}
+		obj = splitLine.at(2).toInt();
+		on = splitLine.at(3).toInt();
+		x = splitLine.at(4).toInt();
+		y = splitLine.at(5).toInt();
+		w = splitLine.at(6).toInt();
+		h = splitLine.at(7).toInt();
+		if(on == 1)
+		{
+			(this->*mdiCreateWinPtr[id])();	//Create window
+			setWinGeo(id, obj, x, y, w, h);	//Position it
+		}
 	}
 }
 
+void MainWindow::saveCSVconfigFile(void)
+{
+	QFile configFile;
+
+	QString path = QDir::currentPath();
+	QString filename = path + "/config2.csv";
+
+	//Now we open it:
+	configFile.setFileName(filename);
+
+	//Check if the file was successfully opened
+	if(configFile.open(QIODevice::ReadWrite) == false)
+	{
+		qDebug() << "Couldn't RW open file " << filename;
+		return;
+	}
+
+	qDebug() << "Opened:" << filename;
+}
+
+void MainWindow::setWinGeo(int id, int obj, int x, int y, int w, int h)
+{
+	mdiState[id][obj].winPtr->setGeometry(x,y,w,h);
+}

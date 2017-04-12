@@ -123,6 +123,7 @@ typedef struct {
 	uint8_t id;
 	QString nickname;
 	bool open;
+	QMdiSubWindow *winPtr;
 
 }mdiState_s;
 
@@ -182,7 +183,6 @@ private:
 
 	bool comPortStatus;
 
-
 	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
 	W_Manage *myViewManage[MN_VIEW_WINDOWS_MAX];
@@ -206,9 +206,8 @@ private:
 	W_AnkleTorque *myAnkleTorque[ANKLE_TORQUE_WINDOWS_MAX];
 
 	//MDI state:
-	mdiState_s mdiState[WINDOWS_TYPES];
+	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
 	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
-	void (MainWindow::*oneMdiCreateWinPtr)(void);
 
 	// Objects
 	ChartController *chartController;
@@ -280,6 +279,7 @@ public slots:
 	void saveConfig(void);
 	void loadConfig(void);
 	void initializeCreateWindowFctPtr(void);
+	void setWinGeo(int id, int obj, int x, int y, int w, int h);
 
 	//Miscellaneous
 
@@ -298,6 +298,7 @@ public slots:
 
 	void closeEvent(QCloseEvent *event);
 	void loadCSVconfigFile(void);
+	void saveCSVconfigFile(void);
 };
 
 #endif // MAINWINDOW_H
