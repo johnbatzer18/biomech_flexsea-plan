@@ -240,6 +240,9 @@ public slots:
 	void closeViewCommTest(void);
 	void closeToolEvent(void);
 
+	void saveConfig(void);
+	void loadConfig(void);
+
 	//Miscellaneous
 
 	DisplayMode getDisplayMode(void);

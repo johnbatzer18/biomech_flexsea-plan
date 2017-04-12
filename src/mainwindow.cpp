@@ -132,8 +132,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	createSlaveComm();
 
 	//Disable options that are not implemented:
-	ui->menuFile->actions().at(3)->setEnabled(false);		//Load configuration
-	ui->menuFile->actions().at(4)->setEnabled(false);		//Save configuration
+	ui->menuFile->actions().at(3)->setEnabled(true);		//Load configuration
+	ui->menuFile->actions().at(4)->setEnabled(true);		//Save configuration
 	ui->menuTools->addAction("AnkleTorqueTool", this, &MainWindow::createAnkleTorqueTool);
 
 	//Log and MainWindow
@@ -151,7 +151,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->menuGL->addAction("Add Chart Window", this, &MainWindow::triggerChartView);
 
-	readSettings();
+	//readSettings();
 }
 
 MainWindow::~MainWindow()
@@ -313,6 +313,18 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 void MainWindow::saveComPortStatus(bool status)
 {
 	comPortStatus = status;
+}
+
+void MainWindow::saveConfig(void)
+{
+	qDebug() << "Saving settings...";
+	writeSettings();
+}
+
+void MainWindow::loadConfig(void)
+{
+	qDebug() << "Loading settings...";
+	readSettings();
 }
 
 //Transfer the signal from config to the
@@ -1286,6 +1298,6 @@ void MainWindow::readSettings()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 	qDebug() << "Closing, see you soon!";
-	writeSettings();
+	//writeSettings();
 	event->accept();
 }

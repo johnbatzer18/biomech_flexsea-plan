@@ -280,22 +280,7 @@
    <property name="text">
     <string>Event Flag</string>
    </property>
-  </action>    
-  <!--action name="actionGL_Graph">
-   <property name="text">
-    <string>GL Graph</string>
-   </property>
   </action>
-  <action name="actionGL_Event_Log">
-   <property name="text">
-    <string>GL Event Log</string>
-   </property>
-  </action>
-  <action name="actionGL_Stats">
-   <property name="text">
-    <string>GL Stats</string>
-   </property>
-  </action-->
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
@@ -636,6 +621,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSave_Configuration</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>saveConfig()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLoad_Configuration</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadConfig()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>433</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>createViewExecute()</slot>
@@ -660,5 +677,7 @@
   <slot>createViewCommTest()</slot>
   <slot>createInControl()</slot>
   <slot>createToolEvent()</slot>
+  <slot>saveConfig()</slot>
+  <slot>loadConfig()</slot>
  </slots>
 </ui>
