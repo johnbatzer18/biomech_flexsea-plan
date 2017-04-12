@@ -140,7 +140,7 @@
    </widget>
    <widget class="QMenu" name="menuGL">
     <property name="title">
-     <string>GL</string>
+     <string>Gait Lab</string>
     </property>
    </widget>
    <addaction name="menuFile"/>

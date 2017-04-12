@@ -133,10 +133,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	createConfig();
 	createSlaveComm();
 
-	//Disable options that are not implemented:
-	ui->menuFile->actions().at(3)->setEnabled(true);		//Load configuration
-	ui->menuFile->actions().at(4)->setEnabled(true);		//Save configuration
-	ui->menuTools->addAction("AnkleTorqueTool", this, &MainWindow::createAnkleTorqueTool);
+	//Add extra options:
+	ui->menuGL->addAction("Ankle Torque Tool", this, &MainWindow::createAnkleTorqueTool);
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
