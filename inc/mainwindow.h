@@ -72,6 +72,30 @@ namespace Ui {
 class MainWindow;
 }
 
+//MDI Objects: ID
+#define CONFIG_WINDOWS_ID			0
+#define LOGKEYPAD_WINDOWS_ID		1
+#define SLAVECOMM_WINDOWS_ID		2
+#define PLOT2D_WINDOWS_ID			3
+#define CONTROL_WINDOWS_ID			4
+#define INCONTROL_WINDOWS_ID		5
+#define USERRW_WINDOWS_ID			6
+#define EVENT_WINDOWS_ID			7
+#define ANYCOMMAND_WINDOWS_ID		8
+#define CONVERTER_WINDOWS_ID		9
+#define CALIB_WINDOWS_ID			10
+#define COMMTEST_WINDOWS_ID			11
+#define EX_VIEW_WINDOWS_ID			12
+#define MN_VIEW_WINDOWS_ID			13
+#define BATT_WINDOWS_ID				14
+#define GOSSIP_WINDOWS_ID			15
+#define STRAIN_WINDOWS_ID			16
+#define RICNU_VIEW_WINDOWS_ID		17
+#define TESTBENCH_WINDOWS_ID		18
+#define ANKLE_TORQUE_WINDOWS_ID		19
+#define WINDOWS_TYPES				20 //(has to match the list above)
+#define WINDOWS_MAX_INSTANCES		5
+
 //MDI Objects: set maximums # of child
 #define EX_VIEW_WINDOWS_MAX			5
 #define MN_VIEW_WINDOWS_MAX			2
@@ -93,6 +117,14 @@ class MainWindow;
 #define INCONTROL_WINDOWS_MAX		1
 #define EVENT_WINDOWS_MAX			1
 #define ANKLE_TORQUE_WINDOWS_MAX	1
+
+//Window information:
+typedef struct {
+	uint8_t id;
+	QString nickname;
+	bool open;
+
+}mdiState_s;
 
 class MainWindow : public QMainWindow
 {
@@ -173,6 +205,11 @@ private:
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
 	W_AnkleTorque *myAnkleTorque[ANKLE_TORQUE_WINDOWS_MAX];
 
+	//MDI state:
+	mdiState_s mdiState[WINDOWS_TYPES];
+	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
+	void (MainWindow::*oneMdiCreateWinPtr)(void);
+
 	// Objects
 	ChartController *chartController;
 	SerialDriver *mySerialDriver;
@@ -242,6 +279,7 @@ public slots:
 
 	void saveConfig(void);
 	void loadConfig(void);
+	void initializeCreateWindowFctPtr(void);
 
 	//Miscellaneous
 
@@ -259,6 +297,7 @@ public slots:
 	void setStatusBar(QString msg);
 
 	void closeEvent(QCloseEvent *event);
+	void loadCSVconfigFile(void);
 };
 
 #endif // MAINWINDOW_H

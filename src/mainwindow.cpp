@@ -39,10 +39,10 @@
 #include <QDebug>
 #include <QString>
 #include <QFileDialog>
+#include <QTextStream>
 #include <flexsea_system.h>
 #include <passthroughprovider.h>
 #include <sineprovider3.h>
-
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -151,6 +151,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->menuGL->addAction("Add Chart Window", this, &MainWindow::triggerChartView);
 
+	initializeCreateWindowFctPtr();
 	//readSettings();
 }
 
@@ -302,6 +303,30 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 			this, SLOT(saveComPortStatus(bool)));
 }
 
+void MainWindow::initializeCreateWindowFctPtr(void)
+{
+	//Test:
+	oneMdiCreateWinPtr = &createViewExecute;
+
+	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &MainWindow::createConfig;
+	//mdiCreateWinPtr[LOGKEYPAD_WINDOWS_ID] = &createLogKeyPad();
+	mdiCreateWinPtr[SLAVECOMM_WINDOWS_ID] = &createSlaveComm;
+	mdiCreateWinPtr[PLOT2D_WINDOWS_ID] = &createView2DPlot;
+	mdiCreateWinPtr[CONTROL_WINDOWS_ID] = &createControlControl;
+	mdiCreateWinPtr[INCONTROL_WINDOWS_ID] = &createInControl;
+	mdiCreateWinPtr[USERRW_WINDOWS_ID] = &createUserRW;
+	mdiCreateWinPtr[EVENT_WINDOWS_ID] = &createToolEvent;
+	mdiCreateWinPtr[ANYCOMMAND_WINDOWS_ID] = &createAnyCommand;
+	mdiCreateWinPtr[CONVERTER_WINDOWS_ID] = &createConverter;
+	mdiCreateWinPtr[CALIB_WINDOWS_ID] = &createCalib;
+	mdiCreateWinPtr[COMMTEST_WINDOWS_ID] = &createViewCommTest;
+	mdiCreateWinPtr[EX_VIEW_WINDOWS_ID] = &createViewExecute;
+	mdiCreateWinPtr[MN_VIEW_WINDOWS_ID] = &createViewManage;
+
+	//ToDO complete list; *****************
+
+}
+
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
@@ -325,6 +350,9 @@ void MainWindow::loadConfig(void)
 {
 	qDebug() << "Loading settings...";
 	readSettings();
+
+	//From CSV:
+	loadCSVconfigFile();
 }
 
 //Transfer the signal from config to the
@@ -1301,3 +1329,52 @@ void MainWindow::closeEvent(QCloseEvent *event)
 	//writeSettings();
 	event->accept();
 }
+
+void MainWindow::loadCSVconfigFile(void)
+{
+	QFile configFile;
+
+	QString path = QDir::currentPath();
+	QString filename = path + "/config.csv";
+
+	//Now we open it:
+	configFile.setFileName(filename);
+
+	//Check if the file was successfully opened
+	if(configFile.open(QIODevice::ReadOnly) == false)
+	{
+		qDebug() << "Couldn't open file " << filename;
+		return;
+	}
+
+	qDebug() << "Opened:" << filename;
+
+	if(configFile.size() == 0)
+	{
+		qDebug() << "Empty file.";
+		return;
+	}
+
+	//Read and save the file information.
+	QString line;
+	QStringList splitLine;
+
+	/*
+	line = configFile.readLine();
+	splitLine = line.split(',', QString::KeepEmptyParts);
+	qDebug() << splitLine;
+	*/
+	int on = 0;
+	int id = 0;
+	while(!configFile.atEnd())
+	{
+		line = configFile.readLine();
+		splitLine = line.split(',', QString::KeepEmptyParts);
+		qDebug() << splitLine;
+
+		id = splitLine.at(1).toInt();
+		on = splitLine.at(2).toInt();
+		if(on == 1)	{(this->*mdiCreateWinPtr[id])();}
+	}
+}
+
