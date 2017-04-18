@@ -63,8 +63,7 @@ W_Rigid::~W_Rigid()
 //Call this function to refresh the display
 void W_Rigid::refreshDisplay(void)
 {
-	int index = ui->comboBox_slave->currentIndex();
-	display(&((*deviceList)[index]), 0);
+	display(&((*deviceList)[0]), 0);
 }
 
 void W_Rigid::refreshDisplayLog(int index, FlexseaDevice * devPtr)
@@ -98,20 +97,10 @@ void W_Rigid::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 
 void W_Rigid::initLive(void)
 {
-	//Populates Slave list:
-	ui->comboBox_slave->clear();
-
-	for(int i = 0; i < (*deviceList).length(); i++)
-	{
-		ui->comboBox_slave->addItem((*deviceList)[i].slaveName);
-	}
 }
 
 void W_Rigid::initLog(void)
 {
-	//Populates Slave list:
-	ui->comboBox_slave->clear();
-	ui->comboBox_slave->addItem(deviceLog->slaveName);
 }
 
 void W_Rigid::display(RigidDevice *devicePtr, int index)
