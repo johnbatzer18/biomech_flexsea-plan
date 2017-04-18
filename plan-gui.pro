@@ -118,7 +118,9 @@ SOURCES += src/main.cpp \
                 flexsea-user/src/user-ex.c \
                 flexsea-user/src/user-mn.c \
                 flexsea-user/src/dynamic_user_structs_common.c \
-    flexsea-user/src/flexsea_cmd_angle_torque_profile.c
+    flexsea-user/src/flexsea_cmd_angle_torque_profile.c \
+    src/FlexSEADevice/rigidDevice.cpp \
+    src/MDIWinObjects/w_rigid.cpp
 
 HEADERS += inc/main.h \
                 inc/mainwindow.h \
@@ -198,7 +200,9 @@ HEADERS += inc/main.h \
                 flexsea-system/inc/flexsea_cmd_in_control.h \
                 flexsea-system/inc/flexsea_cmd_stream.h \
                 flexsea-system/test/flexsea-system_test-all.h \
-    flexsea-user/inc/flexsea_cmd_angle_torque_profile.h
+    flexsea-user/inc/flexsea_cmd_angle_torque_profile.h \
+    inc/FlexSEADevice/rigidDevice.h \
+    inc/MDIWinObjects/w_rigid.h
 
 FORMS += ui/mainwindow.ui \
                 ui/w_execute.ui \
@@ -221,7 +225,8 @@ FORMS += ui/mainwindow.ui \
                 ui/w_incontrol.ui \
                 ui/w_event.ui \
                 ui/w_glplot.ui \
-                ui/w_ankleTorque.ui
+                ui/w_ankleTorque.ui \
+    ui/w_rigid.ui
 
 RESOURCES += \
         misc/icons.qrc

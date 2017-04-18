@@ -89,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_CommTest::setMaxWindow(COMMTEST_WINDOWS_MAX);
 	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
+	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -109,6 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_CommTest::setDescription("Communication Test");
 	W_InControl::setDescription("Controller Tuning");
 	W_Event::setDescription("Event Flag");
+	W_Rigid::setDescription("FlexSEA-Rigid");
 
 	initFlexSeaDeviceObject();
 	//SerialDriver:
@@ -135,6 +137,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	//Add extra options:
 	ui->menuGL->addAction("Ankle Torque Tool", this, &MainWindow::createAnkleTorqueTool);
+	ui->menuView->addAction("Rigid", this, &MainWindow::createViewRigid);
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
@@ -274,6 +277,12 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	dynamicDeviceList.append(userDataManager->getDevice());
 	flexseaPtrlist.append(userDataManager->getDevice());
 
+	rigidDevList.append(RigidDevice(&rigid1));
+	rigidDevList.last().slaveName = "Rigid 1";
+	rigidDevList.last().slaveID = FLEXSEA_MANAGE_1;
+	flexseaPtrlist.append(&rigidDevList.last());
+	rigidFlexList.append(&rigidDevList.last());
+
 	return;
 }
 
@@ -331,6 +340,7 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &createViewRicnu;
 	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &createViewTestBench;
 	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &createAnkleTorqueTool;
+	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &createViewRigid;
 }
 
 /*
@@ -1075,6 +1085,52 @@ void MainWindow::closeViewGossip(void)
 {
 	sendCloseWindowMsg(W_Gossip::getDescription());
 	mdiState[GOSSIP_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
+}
+
+//Creates a new View Rigid window
+void MainWindow::createViewRigid(void)
+{
+	int objectCount = W_Rigid::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (RIGID_WINDOWS_MAX))
+	{
+		myViewRigid[objectCount] = new W_Rigid(this, &rigidLog,
+												 getDisplayMode(), &rigidDevList);
+		mdiState[RIGID_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRigid[objectCount]);
+		mdiState[RIGID_WINDOWS_ID][objectCount].open = true;
+		myViewRigid[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Rigid::getDescription(), objectCount,
+							 W_Rigid::getMaxWindow() - 1);
+
+		//Link SerialDriver and Rigid:
+		connect(mySerialDriver, SIGNAL(newDataReady()), \
+				myViewRigid[objectCount], SLOT(refreshDisplay()));
+
+		//Link to MainWindow for the close signal:
+		connect(myViewRigid[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeViewGossip()));
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+				myViewRigid[objectCount], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+		connect(this, SIGNAL(connectorUpdateDisplayMode(DisplayMode, FlexseaDevice*)), \
+				myViewRigid[objectCount], SLOT(updateDisplayMode(DisplayMode, FlexseaDevice*)));
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Rigid::getDescription(),
+								   W_Rigid::getMaxWindow());
+	}
+}
+
+void MainWindow::closeViewRigid(void)
+{
+	sendCloseWindowMsg(W_Rigid::getDescription());
+	mdiState[RIGID_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Strain window

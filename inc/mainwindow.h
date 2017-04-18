@@ -54,7 +54,7 @@
 #include "w_incontrol.h"
 #include "w_event.h"
 #include "w_ankleTorque.h"
-
+#include "w_rigid.h"
 #include "flexseaDevice.h"
 #include "w_testbench.h"
 #include "w_commtest.h"
@@ -62,9 +62,7 @@
 #include <dynamicuserdatamanager.h>
 #include <chartcontroller.h>
 #include <dataprovider.h>
-
 #include "main.h"
-
 #include <QList>
 #include <QThread>
 
@@ -93,7 +91,8 @@ class MainWindow;
 #define RICNU_VIEW_WINDOWS_ID		17
 #define TESTBENCH_WINDOWS_ID		18
 #define ANKLE_TORQUE_WINDOWS_ID		19
-#define WINDOWS_TYPES				20 //(has to match the list above)
+#define RIGID_WINDOWS_ID			20
+#define WINDOWS_TYPES				21 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES		5
 
 //MDI Objects: set maximums # of child
@@ -117,6 +116,7 @@ class MainWindow;
 #define INCONTROL_WINDOWS_MAX		1
 #define EVENT_WINDOWS_MAX			1
 #define ANKLE_TORQUE_WINDOWS_MAX	1
+#define RIGID_WINDOWS_MAX			1
 
 //Window information:
 typedef struct {
@@ -146,6 +146,7 @@ private:
 	// Device Object
 	QList<ExecuteDevice>	executeDevList;
 	QList<ManageDevice>		manageDevList;
+	QList<RigidDevice>		rigidDevList;
 	QList<GossipDevice>		gossipDevList;
 	QList<BatteryDevice>	batteryDevList;
 	QList<StrainDevice>		strainDevList;
@@ -156,6 +157,7 @@ private:
 	// Specific Flexsea list
 	QList<FlexseaDevice*>	executeFlexList;
 	QList<FlexseaDevice*>	manageFlexList;
+	QList<FlexseaDevice*>	rigidFlexList;
 	QList<FlexseaDevice*>	gossipFlexList;
 	QList<FlexseaDevice*>	batteryFlexList;
 	QList<FlexseaDevice*>	strainFlexList;
@@ -173,6 +175,7 @@ private:
 	ExecuteDevice executeLog = ExecuteDevice();
 	ManageDevice manageLog = ManageDevice();
 	GossipDevice gossipLog = GossipDevice();
+	RigidDevice rigidLog = RigidDevice();
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
@@ -204,6 +207,7 @@ private:
 	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
 	W_AnkleTorque *myAnkleTorque[ANKLE_TORQUE_WINDOWS_MAX];
+	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
 
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
@@ -256,6 +260,7 @@ public slots:
 	void createInControl(void);
 	void createToolEvent(void);
 	void createAnkleTorqueTool(void);
+	void createViewRigid(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -278,6 +283,7 @@ public slots:
 	void closeToolEvent(void);
 	void closeInControl(void);
 	void closeAnkleTorqueTool(void);
+	void closeViewRigid(void);
 
 	void saveConfig(void);
 	void loadConfig(void);
