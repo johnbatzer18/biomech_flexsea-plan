@@ -21,6 +21,7 @@
 
 #include "w_rigid.h"
 #include "ui_w_rigid.h"
+#include "flexsea_cmd_user.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -91,6 +92,8 @@ void W_Rigid::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 	}
 }
 
+int W_Rigid::getCommandCode() { return CMD_READ_ALL_RIGID; }
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -105,46 +108,38 @@ void W_Rigid::initLog(void)
 
 void W_Rigid::display(RigidDevice *devicePtr, int index)
 {
-	struct rigid_s *go = devicePtr->riList[index];
+	struct rigid_s *ri = devicePtr->riList[index];
 	//Raw values:
 	//===========
 
-	ui->disp_accx->setText(QString::number(go->accel.x));
-	ui->disp_accy->setText(QString::number(go->accel.y));
-	ui->disp_accz->setText(QString::number(go->accel.z));
+	ui->disp_accx->setText(QString::number(ri->mn.accel.x));
+	ui->disp_accy->setText(QString::number(ri->mn.accel.y));
+	ui->disp_accz->setText(QString::number(ri->mn.accel.z));
 
-	ui->disp_gyrox->setText(QString::number(go->gyro.x));
-	ui->disp_gyroy->setText(QString::number(go->gyro.y));
-	ui->disp_gyroz->setText(QString::number(go->gyro.z));
+	ui->disp_gyrox->setText(QString::number(ri->mn.gyro.x));
+	ui->disp_gyroy->setText(QString::number(ri->mn.gyro.y));
+	ui->disp_gyroz->setText(QString::number(ri->mn.gyro.z));
 
-	ui->disp_magnetox->setText(QString::number(go->magneto.x));
-	ui->disp_magnetoy->setText(QString::number(go->magneto.y));
-	ui->disp_magnetoz->setText(QString::number(go->magneto.z));
+	ui->disp_magnetox->setText(QString::number(ri->mn.magneto.x));
+	ui->disp_magnetoy->setText(QString::number(ri->mn.magneto.y));
+	ui->disp_magnetoz->setText(QString::number(ri->mn.magneto.z));
 
-	ui->disp_cs1->setText(QString::number(go->capsense[0]));
-	ui->disp_cs2->setText(QString::number(go->capsense[1]));
-	ui->disp_cs3->setText(QString::number(go->capsense[2]));
-	ui->disp_cs4->setText(QString::number(go->capsense[3]));
-
-	ui->disp_io1->setText(QString::number(go->io[0]));
-	ui->disp_io2->setText(QString::number(go->io[1]));
-
-	ui->disp_stat1->setText(QString::number(go->status));
+	ui->disp_stat1->setText(QString::number(ri->mn.status));
 
 	//Decoded values:
 	//===============
 
-	ui->disp_accx_d->setText(QString::number((float)go->decoded.accel.x/1000,'f',2));
-	ui->disp_accy_d->setText(QString::number((float)go->decoded.accel.y/1000,'f',2));
-	ui->disp_accz_d->setText(QString::number((float)go->decoded.accel.z/1000,'f',2));
+	ui->disp_accx_d->setText(QString::number((float)ri->mn.decoded.accel.x/1000,'f',2));
+	ui->disp_accy_d->setText(QString::number((float)ri->mn.decoded.accel.y/1000,'f',2));
+	ui->disp_accz_d->setText(QString::number((float)ri->mn.decoded.accel.z/1000,'f',2));
 
-	ui->disp_gyrox_d->setText(QString::number(go->decoded.gyro.x, 'i', 0));
-	ui->disp_gyroy_d->setText(QString::number(go->decoded.gyro.y, 'i', 0));
-	ui->disp_gyroz_d->setText(QString::number(go->decoded.gyro.z, 'i', 0));
+	ui->disp_gyrox_d->setText(QString::number(ri->mn.decoded.gyro.x, 'i', 0));
+	ui->disp_gyroy_d->setText(QString::number(ri->mn.decoded.gyro.y, 'i', 0));
+	ui->disp_gyroz_d->setText(QString::number(ri->mn.decoded.gyro.z, 'i', 0));
 
-	ui->disp_magnetox_d->setText(QString::number(go->decoded.magneto.x, 'i', 0));
-	ui->disp_magnetoy_d->setText(QString::number(go->decoded.magneto.y, 'i', 0));
-	ui->disp_magnetoz_d->setText(QString::number(go->decoded.magneto.z, 'i', 0));
+	ui->disp_magnetox_d->setText(QString::number(ri->mn.decoded.magneto.x, 'i', 0));
+	ui->disp_magnetoy_d->setText(QString::number(ri->mn.decoded.magneto.y, 'i', 0));
+	ui->disp_magnetoz_d->setText(QString::number(ri->mn.decoded.magneto.z, 'i', 0));
 
 	//==========
 }

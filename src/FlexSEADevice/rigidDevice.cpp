@@ -111,22 +111,16 @@ QString RigidDevice::getLastSerializedStr(void)
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
 							timeStamp.last().ms			<< ',' << \
 							eventFlags.last()			<< ',' << \
-							riList.last()->accel.x		<< ',' << \
-							riList.last()->accel.y		<< ',' << \
-							riList.last()->accel.z		<< ',' << \
-							riList.last()->gyro.x		<< ',' << \
-							riList.last()->gyro.y		<< ',' << \
-							riList.last()->gyro.z		<< ',' << \
-							riList.last()->magneto.x	<< ',' << \
-							riList.last()->magneto.y	<< ',' << \
-							riList.last()->magneto.z	<< ',' << \
-							riList.last()->io[0]		<< ',' << \
-							riList.last()->io[1]		<< ',' << \
-							riList.last()->capsense[0]	<< ',' << \
-							riList.last()->capsense[1]	<< ',' << \
-							riList.last()->capsense[2]	<< ',' << \
-							riList.last()->capsense[3]	<< ',' << \
-							riList.last()->status;
+							riList.last()->mn.accel.x		<< ',' << \
+							riList.last()->mn.accel.y		<< ',' << \
+							riList.last()->mn.accel.z		<< ',' << \
+							riList.last()->mn.gyro.x		<< ',' << \
+							riList.last()->mn.gyro.y		<< ',' << \
+							riList.last()->mn.gyro.z		<< ',' << \
+							riList.last()->mn.magneto.x	<< ',' << \
+							riList.last()->mn.magneto.y	<< ',' << \
+							riList.last()->mn.magneto.z	<< ',' << \
+							riList.last()->mn.status;
 	return str;
 }
 
@@ -138,26 +132,19 @@ void RigidDevice::appendSerializedStr(QStringList *splitLine)
 	if(splitLine->length() >= serializedLength)
 	{
 		appendEmptyLine();
-		timeStamp.last().date		= (*splitLine)[idx++];
-		timeStamp.last().ms			= (*splitLine)[idx++].toInt();
-		eventFlags.last()			= (*splitLine)[idx++].toInt();
+		timeStamp.last().date			= (*splitLine)[idx++];
+		timeStamp.last().ms				= (*splitLine)[idx++].toInt();
+		eventFlags.last()				= (*splitLine)[idx++].toInt();
 
-		riList.last()->accel.x		= (*splitLine)[idx++].toInt();
-		riList.last()->accel.y		= (*splitLine)[idx++].toInt();
-		riList.last()->accel.z		= (*splitLine)[idx++].toInt();
-		riList.last()->gyro.x		= (*splitLine)[idx++].toInt();
-		riList.last()->gyro.y		= (*splitLine)[idx++].toInt();
-		riList.last()->gyro.z		= (*splitLine)[idx++].toInt();
-		riList.last()->magneto.x	= (*splitLine)[idx++].toInt();
-		riList.last()->magneto.y	= (*splitLine)[idx++].toInt();
-		riList.last()->magneto.z	= (*splitLine)[idx++].toInt();
-		riList.last()->io[0]		= (*splitLine)[idx++].toInt();
-		riList.last()->io[1]		= (*splitLine)[idx++].toInt();
-		riList.last()->capsense[0]	= (*splitLine)[idx++].toInt();
-		riList.last()->capsense[1]	= (*splitLine)[idx++].toInt();
-		riList.last()->capsense[2]	= (*splitLine)[idx++].toInt();
-		riList.last()->capsense[3]	= (*splitLine)[idx++].toInt();
-		riList.last()->status		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.accel.x		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.accel.y		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.accel.z		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.gyro.x		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.gyro.y		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.gyro.z		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.magneto.x		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.magneto.y		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.magneto.z		= (*splitLine)[idx++].toInt();
 	}
 }
 
@@ -200,79 +187,52 @@ struct std_variable RigidDevice::getSerializedVar(int parameter, int index)
 			break;
 		case 3: //"Accel X"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->accel.x;
-			var.decodedPtr = &riList[index]->decoded.accel.x;
+			var.rawGenPtr = &riList[index]->mn.accel.x;
+			var.decodedPtr = &riList[index]->mn.decoded.accel.x;
 			break;
 		case 4: //"Accel Y"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->accel.y;
-			var.decodedPtr = &riList[index]->decoded.accel.y;
+			var.rawGenPtr = &riList[index]->mn.accel.y;
+			var.decodedPtr = &riList[index]->mn.decoded.accel.y;
 			break;
 		case 5: //"Accel Z"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->accel.z;
-			var.decodedPtr = &riList[index]->decoded.accel.z;
+			var.rawGenPtr = &riList[index]->mn.accel.z;
+			var.decodedPtr = &riList[index]->mn.decoded.accel.z;
 			break;
 		case 6: //"Gyro X"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->gyro.x;
-			var.decodedPtr = &riList[index]->decoded.gyro.x;
+			var.rawGenPtr = &riList[index]->mn.gyro.x;
+			var.decodedPtr = &riList[index]->mn.decoded.gyro.x;
 			break;
 		case 7: //"Gyro Y"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->gyro.y;
-			var.decodedPtr = &riList[index]->decoded.gyro.y;
+			var.rawGenPtr = &riList[index]->mn.gyro.y;
+			var.decodedPtr = &riList[index]->mn.decoded.gyro.y;
 			break;
 		case 8: //"Gyro Z"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->gyro.z;
-			var.decodedPtr = &riList[index]->decoded.gyro.z;
+			var.rawGenPtr = &riList[index]->mn.gyro.z;
+			var.decodedPtr = &riList[index]->mn.decoded.gyro.z;
 			break;
 		case 9: //"Magneto X"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->magneto.x;
-			var.decodedPtr = &riList[index]->decoded.magneto.x;
+			var.rawGenPtr = &riList[index]->mn.magneto.x;
+			var.decodedPtr = &riList[index]->mn.decoded.magneto.x;
 			break;
 		case 10: //"Magneto Y"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->magneto.y;
-			var.decodedPtr = &riList[index]->decoded.magneto.y;
+			var.rawGenPtr = &riList[index]->mn.magneto.y;
+			var.decodedPtr = &riList[index]->mn.decoded.magneto.y;
 			break;
 		case 11: //"Magneto Z"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->magneto.z;
-			var.decodedPtr = &riList[index]->decoded.magneto.z;
+			var.rawGenPtr = &riList[index]->mn.magneto.z;
+			var.decodedPtr = &riList[index]->mn.decoded.magneto.z;
 			break;
-		case 12: //"IO 1"
-			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->io[0];
-			var.decodedPtr = nullptr;
-			break;
-		case 13: //"IO 2"
-			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->io[1];
-			var.decodedPtr = nullptr;
-			break;
-		case 14: //"Capsense 1"
-			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->capsense[0];
-			var.decodedPtr = nullptr;
-			break;
-		case 15: //"Capsense 2"
-			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->capsense[1];
-			var.decodedPtr = nullptr;
-		case 16: //"Capsense 3"
-			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->capsense[2];
-			var.decodedPtr = nullptr;
-		case 17: //"Capsense 4"
-			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->capsense[3];
-			var.decodedPtr = nullptr;
-		case 18: //"Status"
+		case 12: //"Status"
 			var.format = FORMAT_8U;
-			var.rawGenPtr = &riList[index]->status;
+			var.rawGenPtr = &riList[index]->mn.status;
 			var.decodedPtr = nullptr;
 			break;
 		default:
@@ -323,19 +283,19 @@ QString RigidDevice::getStatusStr(int index)
 void RigidDevice::decode(struct rigid_s *riPtr)
 {
 	//Accel in mG
-	riPtr->decoded.accel.x = (1000*riPtr->accel.x)/8192;
-	riPtr->decoded.accel.y = (1000*riPtr->accel.y)/8192;
-	riPtr->decoded.accel.z = (1000*riPtr->accel.z)/8192;
+	riPtr->mn.decoded.accel.x = (1000*riPtr->mn.accel.x)/8192;
+	riPtr->mn.decoded.accel.y = (1000*riPtr->mn.accel.y)/8192;
+	riPtr->mn.decoded.accel.z = (1000*riPtr->mn.accel.z)/8192;
 
 	//Gyro in degrees/s
-	riPtr->decoded.gyro.x = (100*riPtr->gyro.x)/164;
-	riPtr->decoded.gyro.y = (100*riPtr->gyro.y)/164;
-	riPtr->decoded.gyro.z = (100*riPtr->gyro.z)/164;
+	riPtr->mn.decoded.gyro.x = (100*riPtr->mn.gyro.x)/164;
+	riPtr->mn.decoded.gyro.y = (100*riPtr->mn.gyro.y)/164;
+	riPtr->mn.decoded.gyro.z = (100*riPtr->mn.gyro.z)/164;
 
 	//Magneto in uT (0.15uT/LSB)
-	riPtr->decoded.magneto.x = (15*riPtr->magneto.x)/100;
-	riPtr->decoded.magneto.y = (15*riPtr->magneto.y)/100;
-	riPtr->decoded.magneto.z = (15*riPtr->magneto.z)/100;
+	riPtr->mn.decoded.magneto.x = (15*riPtr->mn.magneto.x)/100;
+	riPtr->mn.decoded.magneto.y = (15*riPtr->mn.magneto.y)/100;
+	riPtr->mn.decoded.magneto.z = (15*riPtr->mn.magneto.z)/100;
 }
 
 //****************************************************************************

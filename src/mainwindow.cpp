@@ -776,6 +776,7 @@ void MainWindow::createSlaveComm(void)
 													   &ricnuFlexList,
 													   &ankle2DofFlexList,
 													   &testBenchFlexList,
+													   &rigidFlexList,
 													   streamManager);
 
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
@@ -797,6 +798,7 @@ void MainWindow::createSlaveComm(void)
 
 		myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
 		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleTorque::getCommandCode());
+		myViewSlaveComm[objectCount]->addExperiment(&rigidFlexList, W_Rigid::getCommandCode());
 	}
 
 	else

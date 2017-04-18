@@ -59,6 +59,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 						 QList<FlexseaDevice*> *ricnuDevListInit,
 						 QList<FlexseaDevice*> *ankle2DofDevListInit,
 						 QList<FlexseaDevice*> *testBenchDevListInit,
+						 QList<FlexseaDevice*> *rigidDevListInit,
 						 StreamManager* sm) :
 	QWidget(parent),
 	streamManager(sm),
@@ -80,6 +81,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	ricnuDevList = ricnuDevListInit;
 	ankle2DofDevList = ankle2DofDevListInit;
 	testBenchDevList = testBenchDevListInit;
+	rigidDevList = rigidDevListInit;
 
 	initializeMaps();
 	mapSerializedPointers();
@@ -96,6 +98,7 @@ W_SlaveComm::~W_SlaveComm()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
+
 void W_SlaveComm::addExperiment(QList<FlexseaDevice *> *deviceList, int cmdCode)
 {
 	if(numExperiments >= MAX_EXPERIMENTS) return;
@@ -105,7 +108,6 @@ void W_SlaveComm::addExperiment(QList<FlexseaDevice *> *deviceList, int cmdCode)
 
 	numExperiments++;
 }
-
 
 void W_SlaveComm::getCurrentDevice(FlexseaDevice** device)
 {
@@ -122,7 +124,6 @@ void W_SlaveComm::getCurrentDevice(FlexseaDevice** device)
 		}
 	}
 }
-
 
 void W_SlaveComm::getSlaveId(int* slaveId)
 {
@@ -190,6 +191,8 @@ void W_SlaveComm::initExperimentList(void)
 	testBenchTargetList.append(*manageDevList);
 
 	batteryTargetList.append(*batteryDevList);
+
+	rigidTargetList.append(*manageDevList);
 }
 
 void W_SlaveComm::mapSerializedPointers(void)
@@ -239,6 +242,9 @@ void W_SlaveComm::initializeMaps()
 	targetListMap[4] = &ankle2DofTargetList;
 	targetListMap[5] = &batteryTargetList;
 	targetListMap[6] = &testBenchTargetList;
+	//targetListMap[7] = &;
+	//targetListMap[8] = &;
+	targetListMap[9] = &rigidTargetList;
 
 	cmdMap[0] = CMD_READ_ALL;
 	cmdMap[1] = CMD_IN_CONTROL;
@@ -247,8 +253,11 @@ void W_SlaveComm::initializeMaps()
 	cmdMap[4] = CMD_A2DOF;
 	cmdMap[5] = CMD_BATT;
 	cmdMap[6] = CMD_MOTORTB;
+	//cmdMap[7] = ;
+	//cmdMap[8] = ;
+	cmdMap[9] = CMD_READ_ALL_RIGID;
 
-	numExperiments = 7;
+	numExperiments = 10;
 }
 
 void W_SlaveComm::populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected)
@@ -524,10 +533,12 @@ void W_SlaveComm::on_pushButton2_clicked() { managePushButton(1, false); }
 void W_SlaveComm::on_pushButton3_clicked() { managePushButton(2, false); }
 void W_SlaveComm::on_pushButton4_clicked() { managePushButton(3, false); }
 
-void W_SlaveComm::on_comboBoxExp1_currentIndexChanged(int index) {
+void W_SlaveComm::on_comboBoxExp1_currentIndexChanged(int index)
+{
 	(void)index;
 	manageSelectedExperimentChanged(0);
 }
+
 void W_SlaveComm::on_comboBoxExp2_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(1); }
 void W_SlaveComm::on_comboBoxExp3_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(2); }
 void W_SlaveComm::on_comboBoxExp4_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(3); }

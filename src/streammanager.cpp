@@ -7,6 +7,7 @@
 #include <cmd-MIT_2DoF_Ankle_v1.h>
 #include <cmd-RICNU_Knee_v1.h>
 #include <cmd-MotorTestBench.h>
+#include <cmd-Rigid.h>
 #include <dynamic_user_structs.h>
 #include <flexsea_cmd_angle_torque_profile.h>
 
@@ -25,7 +26,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 		streamLists[i] = std::vector<CmdSlaveRecord>();
 	}
 
-    clockPeriod = 2;
+	clockPeriod = 2;
 	clockTimer = new QTimer();
 	clockTimer->setTimerType(Qt::PreciseTimer);
 	clockTimer->setSingleShot(false);
@@ -182,8 +183,7 @@ void StreamManager::tryPackAndSend(int cmd, uint8_t slaveId)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	pack(P_AND_S_DEFAULT, slaveId
-		 , info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 
 	if(serialDriver && serialDriver->isOpen())
 	{
@@ -269,34 +269,37 @@ void StreamManager::sendCommands(int index)
 		CmdSlaveRecord record = streamLists[index].at(i);
 		switch(record.cmdType)
 		{
-		case CMD_READ_ALL:
-			sendCommandReadAll(record.slaveIndex);
-			break;
-		case CMD_READ_ALL_RICNU:
-			sendCommandReadAllRicnu(record.slaveIndex);
-			break;
-		case CMD_A2DOF:
-			sendCommandAnkle2DOF(record.slaveIndex);
-			break;
-		case CMD_MOTORTB:
-			sendCommandTestBench(record.slaveIndex);
-			break;
-		case CMD_BATT:
-			sendCommandBattery(record.slaveIndex);
-			break;
-		case CMD_IN_CONTROL:
-			sendCommandInControl(record.slaveIndex);
-			break;
-		case CMD_USER_DYNAMIC:
-			sendCommandDynamic(record.slaveIndex);
-			break;
-		case CMD_ANGLE_TORQUE_PROFILE:
-			sendCommandAngleTorqueProfile(record.slaveIndex);
-					break;
-		default:
-			qDebug() << "Unsupported command was given: " << record.cmdType;
-			stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
-			break;
+			case CMD_READ_ALL:
+				sendCommandReadAll(record.slaveIndex);
+				break;
+			case CMD_READ_ALL_RICNU:
+				sendCommandReadAllRicnu(record.slaveIndex);
+				break;
+			case CMD_A2DOF:
+				sendCommandAnkle2DOF(record.slaveIndex);
+				break;
+			case CMD_MOTORTB:
+				sendCommandTestBench(record.slaveIndex);
+				break;
+			case CMD_BATT:
+				sendCommandBattery(record.slaveIndex);
+				break;
+			case CMD_IN_CONTROL:
+				sendCommandInControl(record.slaveIndex);
+				break;
+			case CMD_USER_DYNAMIC:
+				sendCommandDynamic(record.slaveIndex);
+				break;
+			case CMD_ANGLE_TORQUE_PROFILE:
+				sendCommandAngleTorqueProfile(record.slaveIndex);
+				break;
+			case CMD_READ_ALL_RIGID:
+				sendCommandRigid(record.slaveIndex);
+				break;
+			default:
+				qDebug() << "Unsupported command was given: " << record.cmdType;
+				stopStreaming(record.cmdType, record.slaveIndex, timerFrequencies[index]);
+				break;
 		}
 	}
 }
@@ -365,4 +368,10 @@ void StreamManager::sendCommandAngleTorqueProfile(uint8_t slaveId)
 {
 	tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 0);
 	tryPackAndSend(CMD_ANGLE_TORQUE_PROFILE, slaveId);
+}
+
+void StreamManager::sendCommandRigid(uint8_t slaveId)
+{
+	tx_cmd_rigid_r(TX_N_DEFAULT, 0);
+	tryPackAndSend(CMD_READ_ALL_RIGID, slaveId);
 }

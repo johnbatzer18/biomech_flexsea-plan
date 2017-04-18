@@ -51,15 +51,16 @@
 #include "ricnuProject.h"
 #include "ankle2DofProject.h"
 #include "testBenchProject.h"
+#include "rigidDevice.h"
 #include <streammanager.h>
 
 //****************************************************************************
 // Definition(s)
 //****************************************************************************
 
-#define MAX_SC_ITEMS            4
+#define MAX_SC_ITEMS			4
 #define MAX_SLAVES				10
-#define MAX_EXPERIMENTS         10
+#define MAX_EXPERIMENTS			12
 
 #define TIM_FREQ_TO_P(f)		(1000/f)	//f in Hz, return in ms
 
@@ -86,6 +87,7 @@ public:
 							QList<FlexseaDevice*> *ricnuDevListInit = nullptr,
 							QList<FlexseaDevice*> *ankle2DofDevListIni = nullptr,
 							QList<FlexseaDevice*> *testBenchDevListInit = nullptr,
+							QList<FlexseaDevice*> *rigidDevListInit = nullptr,
 							StreamManager* sm = nullptr);
 
 	StreamManager* streamManager;
@@ -150,6 +152,7 @@ private:
 	QList<FlexseaDevice*> *gossipDevList;
 	QList<FlexseaDevice*> *batteryDevList;
 	QList<FlexseaDevice*> *strainDevList;
+	QList<FlexseaDevice*> *rigidDevList;
 
 	QList<FlexseaDevice*> *ricnuDevList;
 	QList<FlexseaDevice*> *ankle2DofDevList;
@@ -161,6 +164,7 @@ private:
 	QList<FlexseaDevice*> ankle2DofTargetList;
 	QList<FlexseaDevice*> testBenchTargetList;
 	QList<FlexseaDevice*> batteryTargetList;
+	QList<FlexseaDevice*> rigidTargetList;
 
 	//Command line (only for RIC/NU as of today):
 	QString defaultCmdLineText;
