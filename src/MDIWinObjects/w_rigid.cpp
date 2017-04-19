@@ -109,25 +109,58 @@ void W_Rigid::initLog(void)
 void W_Rigid::display(RigidDevice *devicePtr, int index)
 {
 	struct rigid_s *ri = devicePtr->riList[index];
-	//Raw values:
-	//===========
+
+	//Raw values - Manage:
+	//====================
 
 	ui->disp_accx->setText(QString::number(ri->mn.accel.x));
 	ui->disp_accy->setText(QString::number(ri->mn.accel.y));
 	ui->disp_accz->setText(QString::number(ri->mn.accel.z));
-
 	ui->disp_gyrox->setText(QString::number(ri->mn.gyro.x));
 	ui->disp_gyroy->setText(QString::number(ri->mn.gyro.y));
 	ui->disp_gyroz->setText(QString::number(ri->mn.gyro.z));
-
 	ui->disp_magnetox->setText(QString::number(ri->mn.magneto.x));
 	ui->disp_magnetoy->setText(QString::number(ri->mn.magneto.y));
 	ui->disp_magnetoz->setText(QString::number(ri->mn.magneto.z));
 
-	ui->disp_stat1->setText(QString::number(ri->mn.status));
+	ui->disp_an0->setText(QString::number(ri->mn.analog[0]));
+	ui->disp_an1->setText(QString::number(ri->mn.analog[1]));
+	ui->disp_an2->setText(QString::number(ri->mn.analog[2]));
+	ui->disp_an3->setText(QString::number(ri->mn.analog[3]));
 
-	//Decoded values:
-	//===============
+	ui->disp_mn_stat->setText(QString::number(ri->mn.status));
+	ui->label_mn_stat->setText("Status: ToDo.");
+
+	//Raw values - Execute:
+	//=====================
+
+	ui->disp_mot_ang->setText(QString::number(*(ri->ex.enc_ang)));
+	ui->disp_mot_vel->setText(QString::number(*ri->ex.enc_ang_vel));
+	ui->disp_strain->setText(QString::number(ri->ex.strain));
+	ui->disp_current_mot->setText(QString::number(ri->ex.current));
+
+	ui->disp_joint_angle->setText(QString::number(ri->ex.joint_angle));
+	ui->disp_pwm->setText(QString::number(ri->ex.ctrl.pwm));
+
+	ui->disp_ex_stat->setText(QString::number(ri->ex.status));
+	ui->label_ex_stat->setText("Status: ToDo.");
+
+	//Raw values - Regulate:
+	//======================
+
+	ui->disp_vb->setText(QString::number(ri->re.vb));
+	ui->disp_vg->setText(QString::number(ri->re.vg));
+	ui->disp_5v->setText(QString::number(ri->re.v5));
+
+	ui->disp_current_batt->setText(QString::number(ri->re.current));
+	ui->disp_temp->setText(QString::number(ri->re.temp));
+	ui->disp_button->setText(QString::number(ri->re.button));
+
+	ui->disp_re_stat->setText(QString::number(ri->re.status));
+	ui->label_re_stat->setText("Status: ToDo.");
+
+	//Decoded values - Manage:
+	//========================
 
 	ui->disp_accx_d->setText(QString::number((float)ri->mn.decoded.accel.x/1000,'f',2));
 	ui->disp_accy_d->setText(QString::number((float)ri->mn.decoded.accel.y/1000,'f',2));
