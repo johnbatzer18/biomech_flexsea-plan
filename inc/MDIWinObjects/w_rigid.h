@@ -42,6 +42,7 @@ class W_Rigid : public QWidget, public Counter<W_Rigid>
 public:
 	//Constructor & Destructor:
 	explicit W_Rigid(QWidget *parent = 0,
+					  FlexseaDevice *currentLog = nullptr,
 					  RigidDevice *deviceLogPtr = nullptr,
 					  DisplayMode mode = DisplayLiveData,
 					  QList<RigidDevice> *deviceListPtr = nullptr);
@@ -69,8 +70,9 @@ private:
 
 	//Function(s):
 	void initLive(void);
-	void initLog(void);
+	void initLog(FlexseaDevice *devPtr);
 	void display(RigidDevice *devicePtr, int index);
+	//void display(struct rigid_s *ri);
 };
 
 //****************************************************************************

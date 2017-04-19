@@ -48,10 +48,39 @@ RigidDevice::RigidDevice(rigid_s *devicePtr): FlexseaDevice()
 
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
+
 	riList.append(devicePtr);
+	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
 	eventFlags.append(0);
+
 	serializedLength = header.length();
 	slaveTypeName = "rigid";
+}
+
+RigidDevice::~RigidDevice()
+{
+	if(ownershipList.size() != riList.size())
+	{
+		qDebug() << "Rigid Device class cleaning up: execute list size doesn't match list of ownership info size.";
+		qDebug() << "Not sure whether it is safe to delete these device records.";
+		return;
+	}
+
+	while(ownershipList.size())
+	{
+		bool shouldDelete = ownershipList.takeLast();
+		rigid_s* readyToDelete = riList.takeLast();
+		if(shouldDelete)
+		{
+			delete readyToDelete->ex.enc_ang;
+			readyToDelete->ex.enc_ang = nullptr;
+
+			delete readyToDelete->ex.enc_ang_vel;
+			readyToDelete->ex.enc_ang_vel = nullptr;
+
+			delete readyToDelete;
+		}
+	}
 }
 
 //****************************************************************************
@@ -249,6 +278,7 @@ void RigidDevice::clear(void)
 {
 	FlexseaDevice::clear();
 	riList.clear();
+	ownershipList.clear();
 	timeStamp.clear();
 	eventFlags.clear();
 }
@@ -256,7 +286,12 @@ void RigidDevice::clear(void)
 void RigidDevice::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(new rigid_s());
+
+	rigid_s *emptyStruct = new rigid_s();
+	emptyStruct->ex.enc_ang = new int32_t();
+	emptyStruct->ex.enc_ang_vel = new int32_t();
+	riList.append(emptyStruct);
+	ownershipList.append(true); // we own this struct, so we must delete it in destructor
 	eventFlags.append(0);
 }
 

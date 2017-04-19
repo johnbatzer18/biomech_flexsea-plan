@@ -28,6 +28,7 @@
 //****************************************************************************
 
 W_Rigid::W_Rigid(QWidget *parent,
+				   FlexseaDevice *currentLog,
 				   RigidDevice *deviceLogPtr,
 				   DisplayMode mode,
 				   QList<RigidDevice> *deviceListPtr) :
@@ -39,12 +40,13 @@ W_Rigid::W_Rigid(QWidget *parent,
 	deviceLog  = deviceLogPtr;
 	deviceList = deviceListPtr;
 
-	displayMode = mode;
+	//displayMode = mode;
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	updateDisplayMode(displayMode, nullptr);
+	//updateDisplayMode(displayMode, nullptr);
+	updateDisplayMode(mode, currentLog);
 }
 
 W_Rigid::~W_Rigid()
@@ -80,11 +82,11 @@ void W_Rigid::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 
 void W_Rigid::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 {
-	(void)devPtr;
+	//(void)devPtr;
 	displayMode = mode;
 	if(displayMode == DisplayLogData)
 	{
-		initLog();
+		initLog(devPtr);
 	}
 	else
 	{
@@ -102,8 +104,9 @@ void W_Rigid::initLive(void)
 {
 }
 
-void W_Rigid::initLog(void)
+void W_Rigid::initLog(FlexseaDevice *devPtr)
 {
+	(void)devPtr;
 }
 
 void W_Rigid::display(RigidDevice *devicePtr, int index)
@@ -134,8 +137,8 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	//Raw values - Execute:
 	//=====================
 
-	ui->disp_mot_ang->setText(QString::number(*(ri->ex.enc_ang)));
-	ui->disp_mot_vel->setText(QString::number(*ri->ex.enc_ang_vel));
+	//ui->disp_mot_ang->setText(QString::number(*(ri->ex.enc_ang)));
+	//ui->disp_mot_vel->setText(QString::number(*(ri->ex.enc_ang_vel)));
 	ui->disp_strain->setText(QString::number(ri->ex.strain));
 	ui->disp_current_mot->setText(QString::number(ri->ex.current));
 

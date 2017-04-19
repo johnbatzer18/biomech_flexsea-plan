@@ -46,6 +46,7 @@ class RigidDevice : public FlexseaDevice
 public:
 	explicit RigidDevice(void);
 	explicit RigidDevice(rigid_s *devicePtr);
+	virtual ~RigidDevice();
 
 	// Interface implementation
 	QString getHeaderStr(void);
@@ -63,6 +64,7 @@ public:
 	QString getStatusStr(int index);
 
 	QList<struct rigid_s *> riList;
+	QList<bool> ownershipList;
 	static void decode(struct rigid_s *riPtr);
 
 private:

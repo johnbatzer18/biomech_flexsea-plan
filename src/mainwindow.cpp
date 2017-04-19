@@ -1097,8 +1097,11 @@ void MainWindow::createViewRigid(void)
 	//Limited number of windows:
 	if(objectCount < (RIGID_WINDOWS_MAX))
 	{
-		myViewRigid[objectCount] = new W_Rigid(this, &rigidLog,
-												 getDisplayMode(), &rigidDevList);
+		myViewRigid[objectCount] = new W_Rigid(this,
+											   currentFlexLog,
+											   &rigidLog,
+											   getDisplayMode(),
+											   &rigidDevList);
 		mdiState[RIGID_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRigid[objectCount]);
 		mdiState[RIGID_WINDOWS_ID][objectCount].open = true;
 		myViewRigid[objectCount]->show();
