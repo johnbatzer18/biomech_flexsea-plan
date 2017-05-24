@@ -50,6 +50,8 @@ RigidDevice::RigidDevice(rigid_s *devicePtr): FlexseaDevice()
 	timeStamp.append(TimeStamp());
 
 	riList.append(devicePtr);
+	riList.last()->ex.enc_ang = &enc_ang;
+	riList.last()->ex.enc_ang_vel = &enc_vel;
 	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
 	eventFlags.append(0);
 

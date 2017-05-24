@@ -137,8 +137,8 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	//Raw values - Execute:
 	//=====================
 
-	//ui->disp_mot_ang->setText(QString::number(*(ri->ex.enc_ang)));
-	//ui->disp_mot_vel->setText(QString::number(*(ri->ex.enc_ang_vel)));
+	ui->disp_mot_ang->setText(QString::number(*(ri->ex.enc_ang)));
+	ui->disp_mot_vel->setText(QString::number(*(ri->ex.enc_ang_vel)));
 	ui->disp_strain->setText(QString::number(ri->ex.strain));
 	ui->disp_current_mot->setText(QString::number(ri->ex.current));
 

@@ -372,6 +372,10 @@ void StreamManager::sendCommandAngleTorqueProfile(uint8_t slaveId)
 
 void StreamManager::sendCommandRigid(uint8_t slaveId)
 {
-	tx_cmd_rigid_r(TX_N_DEFAULT, 0);
+	static uint8_t offs = 0;
+	offs++;
+	offs %= 2;
+
+	tx_cmd_rigid_r(TX_N_DEFAULT, offs);
 	tryPackAndSend(CMD_READ_ALL_RIGID, slaveId);
 }
