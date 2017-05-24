@@ -185,6 +185,7 @@ private:
 	FlexseaDevice* currentFlexLog;
 
 	bool comPortStatus;
+	QString activeSlaveNameStreaming;
 
 	// Sub-Windows
 	W_Execute *myViewExecute[EX_VIEW_WINDOWS_MAX];
@@ -231,10 +232,13 @@ signals:
 	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
 	void connectorUpdateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
+	void connectorCurrentSlaveStreaming(QString slaveName);
+
 
 public slots:
 	void triggerChartView();
 
+	void translatorActiveSlaveStreaming(QString slaveName);
 	void saveComPortStatus(bool status);
 	void translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr);
 	void manageLogKeyPad(DataSource status, FlexseaDevice *);

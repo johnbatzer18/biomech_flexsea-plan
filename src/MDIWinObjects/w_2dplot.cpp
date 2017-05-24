@@ -54,7 +54,8 @@ QT_CHARTS_USE_NAMESPACE
 W_2DPlot::W_2DPlot(QWidget *parent,
 				   FlexseaDevice* devLogInit,
 				   DisplayMode mode,
-				   QList<FlexseaDevice*> *devListInit) :
+				   QList<FlexseaDevice*> *devListInit,
+				   QString activeSlave) :
 	QWidget(parent),
 	ui(new Ui::W_2DPlot)
 {
@@ -81,6 +82,8 @@ W_2DPlot::W_2DPlot(QWidget *parent,
 	drawingTimer->setInterval(40);
 	drawingTimer->setSingleShot(false);
 	connect(drawingTimer, &QTimer::timeout, this, &W_2DPlot::refresh2DPlot);
+
+	selectSlave(activeSlave);
 }
 
 W_2DPlot::~W_2DPlot()
@@ -188,12 +191,6 @@ void W_2DPlot::refresh2DPlot(void)
 		{
 			if(vtp[i].used && !vDataBuffer[i].isEmpty())
 			{
-				int bufLength = vDataBuffer[i].size();
-				for(int j = 0; j < bufLength; j++)
-				{
-					vDataBuffer[i][j].setX(j);
-				}
-
 				qlsChart[i]->replace(vDataBuffer[i]);
 			}
 
@@ -255,9 +252,32 @@ void W_2DPlot::updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr)
 	lastDisplayMode = displayMode;
 }
 
+void W_2DPlot::activeSlaveStreaming(QString slaveName)
+{
+	selectSlave(slaveName);
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
+
+void W_2DPlot::saveScreenshot(void)
+{
+	QPixmap originalPixmap = this->grab();
+
+	const QString format = "png";
+	QString path = QDir::currentPath();
+	QString dateTime =	QDate::currentDate().toString("yyyy-MM-dd_") + \
+						QTime::currentTime().toString("HH'h'mm'm'ss's'");
+	path += tr("/Plan-GUI-Logs/")+ dateTime + "." + format;
+
+	if (!originalPixmap.save(path)) {
+		QMessageBox::warning(this, tr("Save Error"), tr("The image could not be saved to \"%1\".")
+							 .arg(QDir::toNativeSeparators(path)));
+	}
+
+
+}
 
 void W_2DPlot::initPtr(void)
 {
@@ -582,6 +602,14 @@ void W_2DPlot::saveNewPoint(int row, int data)
 		vDataBuffer[row].removeFirst();
 		vDataBuffer[row].append(QPointF(plot_len-1, data));
 	}
+
+	// Fill the x value properly
+	int bufLength = vDataBuffer[row].size();
+
+	for(int j = 0; j < bufLength; j++)
+	{
+		vDataBuffer[row][j].setX(j);
+	}
 }
 
 void W_2DPlot::saveNewPointsLog(int index)
@@ -595,16 +623,21 @@ void W_2DPlot::saveNewPointsLog(int index)
 	{
 		int dataIter = 0;
 		// Manage the starting point for parsing the data
+
+		// set the data iterator to start with an half
+		// the plot filled to the right (oscilloscope style)
 		if(index > plot_len / 2)
 		{
 			dataIter = index - (plot_len / 2);
 		}
+		// if the index is higher thant plot-len/2, plot normally
 		else
 		{
 			dataIter = 0;
 		}
 
 
+		// Set the plot iterator
 		int graphIter = (plot_len / 2) - index;
 
 		if(graphIter < 0)
@@ -612,6 +645,7 @@ void W_2DPlot::saveNewPointsLog(int index)
 			graphIter = 0;
 		}
 
+		// Add data until one of the limit is reached.
 		while(dataIter < selectedDevList[item]->length() &&
 			  graphIter < plot_len &&
 			  varIndex[item] > 0)
@@ -1490,6 +1524,11 @@ void W_2DPlot::on_pbIMU_clicked()
 	}
 }
 
+void W_2DPlot::on_pbScreenShot_clicked()
+{
+	saveScreenshot();
+}
+
 void W_2DPlot::on_pbPoints_clicked()
 {
 	if(pointsVisible == false)
@@ -1620,6 +1659,17 @@ void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
 void W_2DPlot::scale(uint8_t item, int *value)
 {
 	(*value) = (*value)*scaling[item][0] + scaling[item][1];
+}
+
+void W_2DPlot::selectSlave(QString slaveName)
+{
+	for(int i = 0; i < currentDevList->length(); ++i)
+	{
+		if((*currentDevList)[i]->slaveName == slaveName)
+		{
+			(*cbVarSlave[0])->setCurrentIndex(i);
+		}
+	}
 }
 
 void W_2DPlot::on_lineEditM1_textEdited(const QString &arg1)

@@ -37,6 +37,8 @@
 #include <QTextStream>
 #include "executeDevice.h"
 #include "strainDevice.h"
+#include "batteryDevice.h"
+#include "flexsea_global_structs.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -46,7 +48,7 @@ RicnuProject::RicnuProject(void): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Ricnu!";
+		qDebug() << "Mismatch between header length Ricnu!";
 	}
 
 	this->dataSource = LogDataFile;
@@ -54,20 +56,47 @@ RicnuProject::RicnuProject(void): FlexseaDevice()
 	slaveTypeName = "ricnu";
 }
 
-RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr): FlexseaDevice()
+RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr, battery_s *baPtr): FlexseaDevice()
 {
 	if(header.length() != headerDecoded.length())
 	{
-		qDebug() << "Mismatch between header lenght Ricnu!";
+		qDebug() << "Mismatch between header length Ricnu!";
 	}
 
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
+	riList.append(&ricnu_1);
 	riList.last()->ex = exPtr;
 	riList.last()->st = stPtr;
+	riList.last()->batt = baPtr;
+	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
 	serializedLength = header.length();
 	slaveTypeName = "ricnu";
+}
+
+RicnuProject::~RicnuProject()
+{
+	if(ownershipList.size() != riList.size())
+	{
+		qDebug() << "RICNU Device class cleaning up: execute list size doesn't match list of ownership info size.";
+		qDebug() << "Not sure whether it is safe to delete these device records.";
+		return;
+	}
+
+	while(ownershipList.size())
+	{
+		bool shouldDelete = ownershipList.takeLast();
+		ricnu_s* readyToDelete = riList.takeLast();
+		if(shouldDelete)
+		{
+			delete readyToDelete->ex->enc_ang;
+			delete readyToDelete->ex->enc_ang_vel;
+			delete readyToDelete->ex;
+			delete readyToDelete->st;
+			delete readyToDelete->batt;
+			delete readyToDelete;
+		}
+	}
 }
 
 //****************************************************************************
@@ -79,6 +108,7 @@ QString RicnuProject::getHeaderStr(void)
 	return header.join(',');
 }
 
+//ToDo Add Battery board to this list
 QStringList RicnuProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -100,6 +130,7 @@ QStringList RicnuProject::header = QStringList()
 								<< "Strain[5]"
 								<< "PWM";
 
+//ToDo Add Battery board to this list
 QStringList RicnuProject::headerDecoded = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
@@ -113,14 +144,15 @@ QStringList RicnuProject::headerDecoded = QStringList()
 								<< "Decoded: mA"
 								<< "Raw value only"
 								<< "Raw value only"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
-								<< "Decoded: ±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
+								<< "Decoded: Â±100%"
 								<< "PWM, -1024 to 1024";
 
+//ToDo Add Battery board to this list
 QString RicnuProject::getLastSerializedStr(void)
 {
 	QString str;
@@ -146,6 +178,7 @@ QString RicnuProject::getLastSerializedStr(void)
 	return str;
 }
 
+//ToDo Add Battery board to this list
 void RicnuProject::appendSerializedStr(QStringList *splitLine)
 {
 	//Check if data line contain the number of data expected
@@ -182,6 +215,7 @@ struct std_variable RicnuProject::getSerializedVar(int parameter)
 	return getSerializedVar(parameter, 0);
 }
 
+//ToDo Add Battery board to this list
 struct std_variable RicnuProject::getSerializedVar(int parameter, int index)
 {
 	struct std_variable var;
@@ -304,25 +338,39 @@ void RicnuProject::clear(void)
 {
 	FlexseaDevice::clear();
 	riList.clear();
+	ownershipList.clear();
 	timeStamp.clear();
 }
 
 void RicnuProject::appendEmptyLine(void)
 {
 	timeStamp.append(TimeStamp());
-	riList.append(new ricnu_s_plan());
+
+	execute_s *emptyEx = new execute_s();
+	emptyEx->enc_ang = new int32_t();
+	emptyEx->enc_ang_vel = new int32_t();
+	strain_s *emptySt = new strain_s();
+	battery_s *emptyBa = new battery_s();
+	ricnu_s *emptyStruct = new ricnu_s();
+	emptyStruct->ex = emptyEx;
+	emptyStruct->st = emptySt;
+	emptyStruct->batt = emptyBa;
+	riList.append(emptyStruct);
+	ownershipList.append(true); // we own this struct, so we must delete it in destructor
 }
 
 void RicnuProject::appendEmptyLineWithStruct(void)
 {
 	appendEmptyLine();
-	riList.last()->ex = new execute_s();
-	riList.last()->st = new strain_s();
 }
 
 void RicnuProject::decodeLastLine(void)
 {
-	if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList.last()->st);}
+	if(dataSource == LiveDataFile)
+	{
+		StrainDevice::decompressRawBytes(riList.last()->st);
+		BatteryDevice::decompressRawBytes(riList.last()->batt);
+	}
 	decode(riList.last());
 }
 
@@ -330,21 +378,20 @@ void RicnuProject::decodeAllLine(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{
-		if(dataSource == LiveDataFile){StrainDevice::decompressRawBytes(riList[i]->st);}
+		if(dataSource == LiveDataFile)
+		{
+			StrainDevice::decompressRawBytes(riList[i]->st);
+			BatteryDevice::decompressRawBytes(riList.last()->batt);
+		}
 		decode(riList[i]);
 	}
 }
 
 void RicnuProject::decode(struct ricnu_s *riPtr)
 {
-	ExecuteDevice::decode(&riPtr->ex);
-	StrainDevice::decode(&riPtr->st);
-}
-
-void RicnuProject::decode(struct ricnu_s_plan *riPtr)
-{
 	ExecuteDevice::decode(riPtr->ex);
 	StrainDevice::decode(riPtr->st);
+	BatteryDevice::decode(riPtr->batt);
 }
 
 QString RicnuProject::getStatusStr(int index)

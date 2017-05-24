@@ -87,6 +87,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	mapSerializedPointers();
 	initExperimentList();
 	initSlaveCom();
+	initTimers();
 }
 
 W_SlaveComm::~W_SlaveComm()
@@ -190,8 +191,8 @@ void W_SlaveComm::initExperimentList(void)
 	testBenchTargetList.append(*executeDevList);
 	testBenchTargetList.append(*manageDevList);
 
-	batteryTargetList.append(*batteryDevList);
-
+	batteryTargetList.append(*executeDevList);
+	batteryTargetList.append(*manageDevList);
 	rigidTargetList.append(*manageDevList);
 }
 
@@ -248,7 +249,7 @@ void W_SlaveComm::initializeMaps()
 
 	cmdMap[0] = CMD_READ_ALL;
 	cmdMap[1] = CMD_IN_CONTROL;
-	cmdMap[2] = CMD_READ_ALL_RICNU;
+	cmdMap[2] = CMD_RICNU;
 	cmdMap[3] = -1;
 	cmdMap[4] = CMD_A2DOF;
 	cmdMap[5] = CMD_BATT;
@@ -258,6 +259,13 @@ void W_SlaveComm::initializeMaps()
 	cmdMap[9] = CMD_READ_ALL_RIGID;
 
 	numExperiments = 10;
+}
+
+void W_SlaveComm::initTimers(void)
+{
+	dataTimeout = new QTimer(this);
+	connect(dataTimeout, SIGNAL(timeout()), this, SLOT(dataTimeoutEvent()));
+	dataTimeout->start(DATA_TIMEOUT);
 }
 
 void W_SlaveComm::populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected)
@@ -397,18 +405,21 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 
 	switch(cmd)
 	{
-	case CMD_READ_ALL_RICNU:
-		target = ricnuDevList->at(0);
-		break;
-	case CMD_A2DOF:
-		target = ankle2DofDevList->at(0);
-		break;
-	case CMD_MOTORTB:
-		target = testBenchDevList->at(0);
-		break;
-	default:
-		target = (targetListMap[experimentIndex])->at(slaveIndex);
-		break;
+		case CMD_BATT:
+			target = batteryDevList->at(0);
+			break;
+		case CMD_RICNU:
+			target = ricnuDevList->at(0);
+			break;
+		case CMD_A2DOF:
+			target = ankle2DofDevList->at(0);
+			break;
+		case CMD_MOTORTB:
+			target = testBenchDevList->at(0);
+			break;
+		default:
+			target = (targetListMap[experimentIndex])->at(slaveIndex);
+			break;
 	}
 
 	return target;
@@ -417,7 +428,6 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 //The 4 PB slots call this function:
 void W_SlaveComm::managePushButton(int row, bool forceOff)
 {
-
 	int experimentIndex = comboBoxExpPtr[row]->currentIndex();
 	int slaveIndex = comboBoxSlavePtr[row]->currentIndex();
 	int refreshRateIndex = comboBoxRefreshPtr[row]->currentIndex();
@@ -428,6 +438,7 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 	int refreshRate = streamManager->getRefreshRates()[refreshRateIndex];
 	FlexseaDevice* target = getTargetDevice(cmdCode, experimentIndex, slaveIndex);
 	int slaveId = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
+	target->slaveID = slaveId;
 
 	if(on_off_pb_ptr[row]->isChecked() == true &&
 		forceOff == false && cmdCode >= 0)
@@ -442,6 +453,8 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		target->frequency = refreshRate;
 		target->experimentIndex = cmdCode;
 		target->experimentName = comboBoxExpPtr[row]->currentText();
+
+		emit activeSlaveStreaming(target->slaveName);
 
 		if(auto_checkbox[row]->isChecked())
 		{
@@ -461,6 +474,9 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		(on_off_pb_ptr[row])->setText(QChar(0x2718));
 		(on_off_pb_ptr[row])->setStyleSheet("background-color: \
 						rgb(127, 127, 127); color: rgb(0, 0, 0)");
+
+		// Used to open view window by default.
+		emit activeSlaveStreaming("None");
 
 		// start streaming
 		if(cmdCode >= 0)
@@ -595,4 +611,9 @@ void W_SlaveComm::on_lineEdit_returnPressed()
 	}
 
 	//qDebug() << "Result: " << offsetArray;
+}
+
+void W_SlaveComm::dataTimeoutEvent(void)
+{
+	updateIndicatorTimeout(false);
 }

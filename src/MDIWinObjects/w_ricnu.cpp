@@ -34,6 +34,7 @@
 
 #include "w_ricnu.h"
 #include "ui_w_ricnu.h"
+#include "executeDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -133,7 +134,8 @@ void W_Ricnu::initLog(void)
 
 void W_Ricnu::display(RicnuProject *devicePtr, int index)
 {
-	struct ricnu_s_plan *ricnu = devicePtr->riList[index];
+	//struct ricnu_s_plan *ricnu = devicePtr->riList[index];
+	struct ricnu_s *ricnu = devicePtr->riList[index];
 
 	//Raw values:
 	//===========
@@ -178,8 +180,6 @@ void W_Ricnu::display(RicnuProject *devicePtr, int index)
 	ui->strain5d->setText(QString::number(ricnu->st->decoded.strain[4],'i',0));
 	ui->strain6d->setText(QString::number(ricnu->st->decoded.strain[5],'i',0));
 }
-
-
 
 //****************************************************************************
 // Private slot(s):

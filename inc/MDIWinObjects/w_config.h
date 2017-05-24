@@ -117,7 +117,6 @@ private:
 	void windowClosed(void);
 	//void writeSerial(uint8_t bytes_to_send, uint8_t *serial_tx_data);
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
-
 };
 
 #endif // W_CONFIG_H

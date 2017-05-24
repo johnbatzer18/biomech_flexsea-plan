@@ -57,8 +57,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	initMdiState();
 
+	activeSlaveNameStreaming = "None";
+
 	//Header contains timestamp:
-	QString winHeader = "FlexSEA-Plan GUI v2.1 (Beta) [Last full build: ";
+	QString winHeader = "FlexSEA-Plan GUI v2.1 (Beta) PRIVATE BUILD [Last full build: ";
 	winHeader = winHeader + QString(__DATE__) + QString(' ') + QString(__TIME__) \
 				+ QString(']');
 	setWindowTitle(winHeader);
@@ -162,11 +164,8 @@ MainWindow::~MainWindow()
 {
 	delete ui;
 
-//	serialThread->quit();
 	delete mySerialDriver;
 	delete streamManager;
-//	delete serialThread;
-
 
 	int num2d = W_2DPlot::howManyInstance();
 	for(int i = 0; i < num2d; i++)
@@ -241,8 +240,8 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	gossipFlexList.append(&gossipDevList.last());
 
 	batteryDevList.append(BatteryDevice(&batt1));
-	batteryDevList.last().slaveName = "Battery 1";
-	batteryDevList.last().slaveID = FLEXSEA_BATTERY_1;
+	batteryDevList.last().slaveName = "Battery";
+	batteryDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&batteryDevList.last());
 	batteryFlexList.append(&batteryDevList.last());
 
@@ -252,7 +251,7 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&strainDevList.last());
 	strainFlexList.append(&strainDevList.last());
 
-	ricnuDevList.append(RicnuProject(&exec1, &strain1));
+	ricnuDevList.append(RicnuProject(&exec1, &strain1, &batt1));
 	ricnuDevList.last().slaveName = "RIC/NU";
 	ricnuDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&ricnuDevList.last());
@@ -387,6 +386,12 @@ void MainWindow::emptyWinFct(void)
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
+void MainWindow::translatorActiveSlaveStreaming(QString slaveName)
+{
+	activeSlaveNameStreaming = slaveName;
+	emit connectorCurrentSlaveStreaming(slaveName);
+}
 
 void MainWindow::saveComPortStatus(bool status)
 {
@@ -723,7 +728,8 @@ void MainWindow::createView2DPlot(void)
 		myView2DPlot[objectCount] = new W_2DPlot(nullptr,
 												 currentFlexLog,
 												 getDisplayMode(),
-												 &flexseaPtrlist);
+												 &flexseaPtrlist,
+												 activeSlaveNameStreaming);
 
 		mdiState[PLOT2D_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myView2DPlot[objectCount]);
 		mdiState[PLOT2D_WINDOWS_ID][objectCount].open = true;
@@ -738,6 +744,9 @@ void MainWindow::createView2DPlot(void)
 		//Link to MainWindow for the close signal:
 		connect(myView2DPlot[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeView2DPlot()));
+
+		connect(this, SIGNAL(connectorCurrentSlaveStreaming(QString)), \
+				myView2DPlot[objectCount], SLOT(activeSlaveStreaming(QString)));
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
@@ -789,6 +798,9 @@ void MainWindow::createSlaveComm(void)
 		connect(myViewSlaveComm[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeSlaveComm()));
 
+		connect(myViewSlaveComm[objectCount], SIGNAL(activeSlaveStreaming(QString)), \
+				this, SLOT(translatorActiveSlaveStreaming(QString)));
+
 		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
 				myViewSlaveComm[0], SLOT(receiveComPortStatus(bool)));
 		connect(mySerialDriver, SIGNAL(dataStatus(int, int)), \
@@ -800,7 +812,6 @@ void MainWindow::createSlaveComm(void)
 		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleTorque::getCommandCode());
 		myViewSlaveComm[objectCount]->addExperiment(&rigidFlexList, W_Rigid::getCommandCode());
 	}
-
 	else
 	{
 		sendWindowCreatedFailedMsg(W_SlaveComm::getDescription(),
@@ -892,7 +903,7 @@ void MainWindow::createViewRicnu(void)
 	if(objectCount < (RICNU_VIEW_WINDOWS_MAX))
 	{
 		myViewRicnu[objectCount] = new W_Ricnu(this, &ricnuLog,
-											   getDisplayMode(), &ricnuDevList);;
+											   getDisplayMode(), &ricnuDevList);
 		mdiState[RICNU_VIEW_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRicnu[objectCount]);
 		mdiState[RICNU_VIEW_WINDOWS_ID][objectCount].open = true;
 		myViewRicnu[objectCount]->show();

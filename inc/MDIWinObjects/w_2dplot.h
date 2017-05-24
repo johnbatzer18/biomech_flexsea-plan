@@ -107,7 +107,8 @@ public:
 	explicit W_2DPlot(QWidget *parent = 0,
 					  FlexseaDevice* devLogInit = nullptr,
 					  DisplayMode mode = DisplayLiveData,
-					  QList<FlexseaDevice*> *devListInit = nullptr);
+					  QList<FlexseaDevice*> *devListInit = nullptr,
+					  QString activeSlave = "None_constructor");
 	~W_2DPlot();
 
 public slots:
@@ -116,6 +117,7 @@ public slots:
 	void refresh2DPlot(void);
 	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
 	void updateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
+	void activeSlaveStreaming(QString slaveName);
 
 private slots:
 
@@ -149,6 +151,7 @@ private slots:
 	void on_pushButtonClear_clicked();
 	void on_pbReset_clicked();
 	void on_pbIMU_clicked();
+	void on_pbScreenShot_clicked();
 	void on_pbPoints_clicked();
 	void genTestData(void);
 	void myHoverHandler0(QPointF pt, bool state);
@@ -230,6 +233,7 @@ private:
 
 	//Function(s):
 
+	void saveScreenshot(void);
 	void initChart(void);
 	void initUserInput(void);
 	void saveNewPoint(int row, int data);
@@ -252,6 +256,7 @@ private:
 	void useOpenGL(bool yesNo);
 	void updateScalingFactors(uint8_t var, uint8_t param, QString txt);
 	void scale(uint8_t item, int *value);
+	void selectSlave(QString slaveName);
 
 	void updateVarList(uint8_t var);
 	void assignVariable(uint8_t var);
