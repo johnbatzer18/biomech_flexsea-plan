@@ -47,6 +47,7 @@
 #include "manageDevice.h"
 #include "ricnuProject.h"
 #include "strainDevice.h"
+#include "rigidDevice.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -62,7 +63,8 @@ DataLogger::DataLogger(QWidget *parent,
 					   StrainDevice *strainInitPtr,
 					   RicnuProject *ricnuInitPtr,
 					   Ankle2DofProject *ankle2DofInitPtr,
-					   TestBenchProject *testBenchInitPtr) :
+					   TestBenchProject *testBenchInitPtr,
+					   RigidDevice *rigidInitPtr) :
 	QWidget(parent)
 {
 	executeDevPtr = executeInitPtr;
@@ -73,6 +75,7 @@ DataLogger::DataLogger(QWidget *parent,
 	ricnuDevPtr = ricnuInitPtr;
 	ankle2DofDevPtr = ankle2DofInitPtr;
 	testBenchDevPtr = testBenchInitPtr;
+	rigidDevPtr = rigidInitPtr;
 
 	planGUIRootPath = QDir::currentPath();
 
@@ -96,8 +99,6 @@ QString DataLogger::generateFileName(QString shortFileName, int fileIndex)
 	// Replace whitespace by underscore
 	result.replace(" ", "_");
 	// Replace double underscores with single underscore
-
-
 
 	// Remove invalid character for a filename(According to Windows)
 	result.remove(QRegExp("[<>:\"/|?*]"));
@@ -257,6 +258,7 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	else if(slavetype == ricnuDevPtr->slaveTypeName)	{flexSEAPtr = ricnuDevPtr;}
 	else if(slavetype == ankle2DofDevPtr->slaveTypeName)	{flexSEAPtr = ankle2DofDevPtr;}
 	else if(slavetype == testBenchDevPtr->slaveTypeName)	{flexSEAPtr = testBenchDevPtr;}
+	else if(slavetype == rigidDevPtr->slaveTypeName)	{flexSEAPtr = rigidDevPtr;}
 	else
 	{
 		setStatus("Error : Loaded file Slave Type is not supported.");

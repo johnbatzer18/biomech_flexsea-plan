@@ -127,7 +127,8 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &strainLog,
 								  &ricnuLog,
 								  &ankle2DofLog,
-								  &testBenchLog);
+								  &testBenchLog,
+								  &rigidLog);
 
 	initSerialComm(mySerialDriver, streamManager);
 	userDataManager = new DynamicUserDataManager(this);

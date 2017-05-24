@@ -53,6 +53,7 @@
 #include <QHash>
 #include "ankle2DofProject.h"
 #include "testBenchProject.h"
+#include "rigidDevice.h"
 
 #define LOG_NUM 4
 
@@ -79,7 +80,8 @@ public:
 						StrainDevice *strainInitPtr = nullptr,
 						RicnuProject *ricnuInitPtr = nullptr,
 						Ankle2DofProject *ankle2DofInitPtr = nullptr,
-						TestBenchProject *testBenchInitPtr= nullptr);
+						TestBenchProject *testBenchInitPtr = nullptr,
+						RigidDevice *rigidInitPtr = nullptr);
 
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr);
@@ -114,6 +116,7 @@ private:
 	RicnuProject *ricnuDevPtr;
 	Ankle2DofProject *ankle2DofDevPtr;
 	TestBenchProject *testBenchDevPtr;
+	RigidDevice *rigidDevPtr;
 
 	QString planGUIRootPath;
 	QString logFolder;
