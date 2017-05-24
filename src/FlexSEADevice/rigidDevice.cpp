@@ -111,13 +111,16 @@ QStringList RigidDevice::header = QStringList()
 								<< "Magneto X"
 								<< "Magneto X"
 								<< "Magneto Z"
-								<< "IO[0]"
-								<< "IO[0]"
-								<< "CapSense[1]"
-								<< "CapSense[2]"
-								<< "CapSense[3]"
-								<< "CapSense[4]"
-								<< "Status";
+								<< "Motor Angle"
+								<< "Motor Velocity"
+								<< "Joint Angle"
+								<< "Motor Current"
+								<< "Strain"
+								<< "PWM"
+								<< "Analog[0]"
+								<< "Analog[1]"
+								<< "Analog[2]"
+								<< "Analog[3]";
 
 QStringList RigidDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
@@ -138,24 +141,38 @@ QStringList RigidDevice::headerDecoded = QStringList()
 								<< "Raw value only"
 								<< "Raw value only"
 								<< "Raw value only"
+								<< "Raw value only"
+								<< "Raw value only"
+								<< "Raw value only"
 								<< "Raw value only";
 
 QString RigidDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
-							timeStamp.last().ms			<< ',' << \
-							eventFlags.last()			<< ',' << \
-							riList.last()->mn.accel.x		<< ',' << \
-							riList.last()->mn.accel.y		<< ',' << \
-							riList.last()->mn.accel.z		<< ',' << \
-							riList.last()->mn.gyro.x		<< ',' << \
-							riList.last()->mn.gyro.y		<< ',' << \
-							riList.last()->mn.gyro.z		<< ',' << \
-							riList.last()->mn.magneto.x	<< ',' << \
-							riList.last()->mn.magneto.y	<< ',' << \
-							riList.last()->mn.magneto.z	<< ',' << \
-							riList.last()->mn.status;
+	QTextStream(&str) <<	timeStamp.last().date				<< ',' << \
+							timeStamp.last().ms					<< ',' << \
+							eventFlags.last()					<< ',' << \
+
+							riList.last()->mn.accel.x			<< ',' << \
+							riList.last()->mn.accel.y			<< ',' << \
+							riList.last()->mn.accel.z			<< ',' << \
+							riList.last()->mn.gyro.x			<< ',' << \
+							riList.last()->mn.gyro.y			<< ',' << \
+							riList.last()->mn.gyro.z			<< ',' << \
+							riList.last()->mn.magneto.x			<< ',' << \
+							riList.last()->mn.magneto.y			<< ',' << \
+							riList.last()->mn.magneto.z			<< ',' << \
+
+							*(riList.last()->ex.enc_ang)		<< ',' << \
+							*(riList.last()->ex.enc_ang_vel)	<< ',' << \
+							*(riList.last()->ex.joint_ang)		<< ',' << \
+							riList.last()->ex.current			<< ',' << \
+							riList.last()->ex.strain			<< ',' << \
+							riList.last()->ex.ctrl.pwm			<< ',' << \
+							riList.last()->mn.analog[0]			<< ',' << \
+							riList.last()->mn.analog[1]			<< ',' << \
+							riList.last()->mn.analog[2]			<< ',' << \
+							riList.last()->mn.analog[3];
 	return str;
 }
 
@@ -180,6 +197,17 @@ void RigidDevice::appendSerializedStr(QStringList *splitLine)
 		riList.last()->mn.magneto.x		= (*splitLine)[idx++].toInt();
 		riList.last()->mn.magneto.y		= (*splitLine)[idx++].toInt();
 		riList.last()->mn.magneto.z		= (*splitLine)[idx++].toInt();
+
+		*(riList.last()->ex.enc_ang)	= (*splitLine)[idx++].toInt();
+		*(riList.last()->ex.enc_ang_vel)= (*splitLine)[idx++].toInt();
+		*(riList.last()->ex.joint_ang)	= (*splitLine)[idx++].toInt();
+		riList.last()->ex.current		= (*splitLine)[idx++].toInt();
+		riList.last()->ex.strain		= (*splitLine)[idx++].toInt();
+		riList.last()->ex.ctrl.pwm		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.analog[0]		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.analog[1]		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.analog[2]		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.analog[3]		= (*splitLine)[idx++].toInt();
 	}
 }
 
@@ -265,9 +293,54 @@ struct std_variable RigidDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &riList[index]->mn.magneto.z;
 			var.decodedPtr = &riList[index]->mn.decoded.magneto.z;
 			break;
-		case 12: //"Status"
-			var.format = FORMAT_8U;
-			var.rawGenPtr = &riList[index]->mn.status;
+		case 12: //"Motor Angle"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = riList[index]->ex.enc_ang;
+			var.decodedPtr = nullptr;
+			break;
+		case 13: //"Motor Velocity"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = riList[index]->ex.enc_ang_vel;
+			var.decodedPtr = nullptr;
+			break;
+		case 14: //"Joint Angle"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = riList[index]->ex.joint_ang;
+			var.decodedPtr = nullptr;
+			break;
+		case 15: //"Motor current"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->ex.current;
+			var.decodedPtr = nullptr;
+			break;
+		case 16: //"Strain"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->ex.strain;
+			var.decodedPtr = nullptr;
+			break;
+		case 17: //"PWM"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->ex.ctrl.pwm;
+			var.decodedPtr = nullptr;
+			break;
+		case 18: //"Analog 0"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->mn.analog[0];
+			var.decodedPtr = nullptr;
+			break;
+		case 19: //"Analog 1"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->mn.analog[1];
+			var.decodedPtr = nullptr;
+			break;
+		case 20: //"Analog 2"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->mn.analog[2];
+			var.decodedPtr = nullptr;
+			break;
+		case 21: //"Analog 3"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->mn.analog[3];
 			var.decodedPtr = nullptr;
 			break;
 		default:

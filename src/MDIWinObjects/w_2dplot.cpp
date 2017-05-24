@@ -275,8 +275,6 @@ void W_2DPlot::saveScreenshot(void)
 		QMessageBox::warning(this, tr("Save Error"), tr("The image could not be saved to \"%1\".")
 							 .arg(QDir::toNativeSeparators(path)));
 	}
-
-
 }
 
 void W_2DPlot::initPtr(void)
@@ -473,7 +471,6 @@ void W_2DPlot::initUserInput(void)
 
 	//Note: Color coded labels will be defined based on the chart.
 
-
 	//Slave combo box:
 	for(int i = 0; i < VAR_NUM; i++)
 	{
@@ -503,7 +500,6 @@ void W_2DPlot::initUserInput(void)
 
 	//By default, we track Slave 1:
 	ui->checkBoxTrack->setChecked(true);
-
 
 	pointsVisible = false;
 	globalYmin = 0;
