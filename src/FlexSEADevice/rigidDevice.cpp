@@ -52,6 +52,7 @@ RigidDevice::RigidDevice(rigid_s *devicePtr): FlexseaDevice()
 	riList.append(devicePtr);
 	riList.last()->ex.enc_ang = &enc_ang;
 	riList.last()->ex.enc_ang_vel = &enc_vel;
+	riList.last()->ex.joint_ang = &joint_ang;
 	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
 	eventFlags.append(0);
 
@@ -79,6 +80,9 @@ RigidDevice::~RigidDevice()
 
 			delete readyToDelete->ex.enc_ang_vel;
 			readyToDelete->ex.enc_ang_vel = nullptr;
+
+			delete readyToDelete->ex.joint_ang;
+			readyToDelete->ex.joint_ang = nullptr;
 
 			delete readyToDelete;
 		}
@@ -292,6 +296,7 @@ void RigidDevice::appendEmptyLine(void)
 	rigid_s *emptyStruct = new rigid_s();
 	emptyStruct->ex.enc_ang = new int32_t();
 	emptyStruct->ex.enc_ang_vel = new int32_t();
+	emptyStruct->ex.joint_ang = new int32_t();
 	riList.append(emptyStruct);
 	ownershipList.append(true); // we own this struct, so we must delete it in destructor
 	eventFlags.append(0);
