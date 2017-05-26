@@ -120,7 +120,12 @@ QStringList RigidDevice::header = QStringList()
 								<< "Analog[0]"
 								<< "Analog[1]"
 								<< "Analog[2]"
-								<< "Analog[3]";
+								<< "Analog[3]"
+								<< "+VB"
+								<< "+VG"
+								<< "+5V"
+								<< "Battery current"
+								<< "Temperature";
 
 QStringList RigidDevice::headerDecoded = QStringList()
 								<< "Raw Value Only"
@@ -144,7 +149,12 @@ QStringList RigidDevice::headerDecoded = QStringList()
 								<< "Raw value only"
 								<< "Raw value only"
 								<< "Raw value only"
-								<< "Raw value only";
+								<< "Raw value only"
+								<< "mV"
+								<< "mV"
+								<< "mV"
+								<< "mA"
+								<< "Celsius";
 
 QString RigidDevice::getLastSerializedStr(void)
 {
@@ -172,7 +182,12 @@ QString RigidDevice::getLastSerializedStr(void)
 							riList.last()->mn.analog[0]			<< ',' << \
 							riList.last()->mn.analog[1]			<< ',' << \
 							riList.last()->mn.analog[2]			<< ',' << \
-							riList.last()->mn.analog[3];
+							riList.last()->mn.analog[3]			<< ',' << \
+							riList.last()->re.vb				<< ',' << \
+							riList.last()->re.vg				<< ',' << \
+							riList.last()->re.v5				<< ',' << \
+							riList.last()->re.current			<< ',' << \
+							riList.last()->re.temp;
 	return str;
 }
 
@@ -208,6 +223,12 @@ void RigidDevice::appendSerializedStr(QStringList *splitLine)
 		riList.last()->mn.analog[1]		= (*splitLine)[idx++].toInt();
 		riList.last()->mn.analog[2]		= (*splitLine)[idx++].toInt();
 		riList.last()->mn.analog[3]		= (*splitLine)[idx++].toInt();
+
+		riList.last()->re.vb			= (*splitLine)[idx++].toInt();
+		riList.last()->re.vg			= (*splitLine)[idx++].toInt();
+		riList.last()->re.v5			= (*splitLine)[idx++].toInt();
+		riList.last()->re.current		= (*splitLine)[idx++].toInt();
+		riList.last()->re.temp			= (*splitLine)[idx++].toInt();
 	}
 }
 
@@ -341,6 +362,31 @@ struct std_variable RigidDevice::getSerializedVar(int parameter, int index)
 		case 21: //"Analog 3"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->mn.analog[3];
+			var.decodedPtr = nullptr;
+			break;
+		case 22: //"+VB"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->re.vb;
+			var.decodedPtr = nullptr;
+			break;
+		case 23: //"+VG"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->re.vg;
+			var.decodedPtr = nullptr;
+			break;
+		case 24: //"+5V"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->re.v5;
+			var.decodedPtr = nullptr;
+			break;
+		case 25: //"Battery Current"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->re.current;
+			var.decodedPtr = nullptr;
+			break;
+		case 26: //"Temperature"
+			var.format = FORMAT_8S;
+			var.rawGenPtr = &riList[index]->re.temp;
 			var.decodedPtr = nullptr;
 			break;
 		default:
