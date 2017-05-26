@@ -92,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
 	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
+	W_CycleTester::setMaxWindow(CYCLE_TESTER_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -113,6 +114,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_InControl::setDescription("Controller Tuning");
 	W_Event::setDescription("Event Flag");
 	W_Rigid::setDescription("FlexSEA-Rigid");
+	W_CycleTester::setDescription("FlexSEA-Rigid Cycle Tester");
 
 	initFlexSeaDeviceObject();
 	//SerialDriver:
@@ -141,6 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//Add extra options:
 	ui->menuGL->addAction("Ankle Torque Tool", this, &MainWindow::createAnkleTorqueTool);
 	ui->menuView->addAction("Rigid", this, &MainWindow::createViewRigid);
+	ui->menuTools->addAction("Cycle Tester", this, &MainWindow::createCycleTester);
 
 	//Log and MainWindow
 	connect(myDataLogger, SIGNAL(setStatusBarMessage(QString)), \
@@ -341,6 +344,7 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &createViewTestBench;
 	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &createAnkleTorqueTool;
 	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &createViewRigid;
+	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &createCycleTester;
 }
 
 /*
@@ -372,6 +376,8 @@ void MainWindow::initializeCloseWindowFctPtr(void)
 	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &closeViewRicnu;
 	mdiCloseWinPtr[TESTBENCH_WINDOWS_ID] = &closeViewTestBench;
 	mdiCloseWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &closeAnkleTorqueTool;
+	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &closeViewRigid;
+	mdiCloseWinPtr[CYCLE_TESTER_WINDOWS_ID] = &closeCycleTester;
 }
 */
 
@@ -463,10 +469,8 @@ void MainWindow::manageLogKeyPad(DataSource status, FlexseaDevice *devPtr)
 	}
 }
 
-
 void MainWindow::createAnkleTorqueTool(void)
 {
-
 	int count = W_AnkleTorque::howManyInstance();
 	if(count >= ANKLE_TORQUE_WINDOWS_MAX)
 	{
@@ -485,7 +489,6 @@ void MainWindow::createAnkleTorqueTool(void)
 				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getCurrentDevice);
 		connect(w,									&W_AnkleTorque::getSlaveId,
 				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getSlaveId);
-
 	}
 	else
 	{
@@ -1429,6 +1432,43 @@ void MainWindow::closeToolEvent(void)
 {
 	sendCloseWindowMsg(W_Event::getDescription());
 	mdiState[EVENT_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
+}
+
+//Creates a new CycleTester window
+void MainWindow::createCycleTester(void)
+{
+	int objectCount = W_CycleTester::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (CYCLE_TESTER_WINDOWS_MAX))
+	{
+		myCycleTester[objectCount] = new W_CycleTester(this);
+		mdiState[CYCLE_TESTER_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myCycleTester[objectCount]);
+		mdiState[CYCLE_TESTER_WINDOWS_ID][objectCount].open = true;
+		myCycleTester[objectCount]->show();
+
+		sendWindowCreatedMsg(W_CycleTester::getDescription(), objectCount,
+							 W_CycleTester::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myCycleTester[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeControlControl()));
+
+		//Link to SlaveComm to send commands:
+		connect(myCycleTester[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
+				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
+	}
+	else
+	{
+		sendWindowCreatedFailedMsg(W_CycleTester::getDescription(),
+								   W_CycleTester::getMaxWindow());
+	}
+}
+
+void MainWindow::closeCycleTester(void)
+{
+	sendCloseWindowMsg(W_CycleTester::getDescription());
+	mdiState[CYCLE_TESTER_WINDOWS_ID][0].open = false; //ToDo wrong, shouldn't be 0!
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)

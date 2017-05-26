@@ -72,6 +72,7 @@ SOURCES += src/main.cpp \
 				src/MDIWinObjects/w_commtest.cpp \
 				src/MDIWinObjects/w_glplot.cpp \
 				src/MDIWinObjects/w_ankleTorque.cpp \
+				src/MDIWinObjects/w_cycletester.cpp \
 				flexsea-shared/unity/unity.c \
 				flexsea-user/src/flexsea_cmd_user.c \
 				flexsea-user/src/dynamic_user_structs_plan.c \
@@ -173,6 +174,7 @@ HEADERS += inc/main.h \
 				inc/MDIWinObjects/w_testbench.h \
 				inc/MDIWinObjects/w_glplot.h \
 				inc/MDIWinObjects/w_ankleTorque.h \
+				inc/MDIWinObjects/w_cycletester.h \
 				flexsea-shared/unity/unity.h \
 				flexsea-shared/unity/unity_internals.h \
 				flexsea-user/inc/flexsea_cmd_user.h \
@@ -229,7 +231,8 @@ FORMS += ui/mainwindow.ui \
 				ui/w_event.ui \
 				ui/w_glplot.ui \
 				ui/w_ankleTorque.ui \
-				ui/w_rigid.ui
+				ui/w_rigid.ui \
+				ui/w_cycletester.ui
 
 RESOURCES += \
 		misc/icons.qrc
