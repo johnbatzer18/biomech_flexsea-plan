@@ -151,11 +151,11 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	//Raw values - Regulate:
 	//======================
 
-	ui->disp_vb->setText(QString::number(ri->re.vb));
-	ui->disp_vg->setText(QString::number(ri->re.vg));
-	ui->disp_5v->setText(QString::number(ri->re.v5));
+	ui->disp_vb->setText(QString::number((float)ri->re.vb/1000,'f',2));
+	ui->disp_vg->setText(QString::number((float)ri->re.vg/1000,'f',2));
+	ui->disp_5v->setText(QString::number((float)ri->re.v5/1000,'f',2));
 
-	ui->disp_current_batt->setText(QString::number(ri->re.current));
+	ui->disp_current_batt->setText(QString::number((float)ri->re.current/1000,'f',2));
 	ui->disp_temp->setText(QString::number(ri->re.temp));
 	ui->disp_button->setText(QString::number(ri->re.button));
 
