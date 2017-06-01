@@ -51,13 +51,39 @@ signals:
 
 private slots:
 
+	void on_pushButtonInit_clicked();
+	void on_pushButtonStart_clicked();
+	void on_pushButtonStop_clicked();
+	void on_pushButtonRead_clicked();
+	void on_pushButtonStartStreaming_clicked();
+	void on_pushButtonReset_clicked();
+	void on_pushButtonConfirmReset_clicked();
+
 private:
 	//Variables & Objects:
 	Ui::W_CycleTester *ui;
-	QTimer *timery;
+	QTimer *timer;
+	bool resetPBstate, streamingPBstate;
+
+	enum expCtrl
+	{
+		INIT = 0,
+		START,
+		STOP
+	};
+
+	enum expStats
+	{
+		READ = 0,
+		START_STREAMING,
+		RESET,
+		CONFIRM_RESET
+	};
 
 	//Function(s):
 	void init(void);
+	void experimentControl(enum expCtrl e);
+	void experimentStats(enum expStats e);
 };
 
 #endif // W_CYCLETESTER_H
