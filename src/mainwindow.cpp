@@ -282,7 +282,7 @@ void MainWindow::initFlexSeaDeviceObject(void)
 
 	rigidDevList.append(RigidDevice(&rigid1));
 	rigidDevList.last().slaveName = "Rigid 1";
-	rigidDevList.last().slaveID = FLEXSEA_MANAGE_1;
+	rigidDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&rigidDevList.last());
 	rigidFlexList.append(&rigidDevList.last());
 

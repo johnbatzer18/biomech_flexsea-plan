@@ -417,6 +417,9 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 		case CMD_MOTORTB:
 			target = testBenchDevList->at(0);
 			break;
+		case CMD_READ_ALL_RIGID:
+			target = rigidDevList->at(0);
+			break;
 		default:
 			target = (targetListMap[experimentIndex])->at(slaveIndex);
 			break;

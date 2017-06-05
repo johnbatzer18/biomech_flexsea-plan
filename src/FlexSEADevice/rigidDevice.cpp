@@ -121,9 +121,9 @@ QStringList RigidDevice::header = QStringList()
 								<< "Analog[1]"
 								<< "Analog[2]"
 								<< "Analog[3]"
-								<< "+VB"
-								<< "+VG"
-								<< "+5V"
+								<< "VB"
+								<< "VG"
+								<< "5V"
 								<< "Battery current"
 								<< "Temperature";
 
