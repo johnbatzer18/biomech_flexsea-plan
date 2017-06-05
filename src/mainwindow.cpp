@@ -115,6 +115,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Event::setDescription("Event Flag");
 	W_Rigid::setDescription("FlexSEA-Rigid");
 	W_CycleTester::setDescription("FlexSEA-Rigid Cycle Tester");
+	W_AnkleTorque::setDescription("Ankle Torque Tool");
 
 	initFlexSeaDeviceObject();
 	//SerialDriver:
