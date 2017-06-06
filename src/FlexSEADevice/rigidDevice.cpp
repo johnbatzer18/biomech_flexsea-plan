@@ -109,7 +109,7 @@ QStringList RigidDevice::header = QStringList()
 								<< "Gyro Y"
 								<< "Gyro Z"
 								<< "Magneto X"
-								<< "Magneto X"
+								<< "Magneto Y"
 								<< "Magneto Z"
 								<< "Motor Angle"
 								<< "Motor Velocity"
