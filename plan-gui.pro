@@ -23,7 +23,8 @@ INCLUDEPATH += inc \
 				flexsea-user/MIT_2DoF_Ankle_v1/inc \
 				flexsea-user/MotorTestBench/inc \
 				flexsea-user/RICNU_Knee_v1/inc \
-				flexsea-user/Rigid/inc
+				flexsea-user/Rigid/inc \
+				flexsea-user/CycleTester/inc
 
 SOURCES += src/main.cpp \
 				src/mainwindow.cpp \
@@ -121,6 +122,7 @@ SOURCES += src/main.cpp \
 				flexsea-user/src/user-mn.c \
 				flexsea-user/src/dynamic_user_structs_common.c \
 				flexsea-user/src/flexsea_cmd_angle_torque_profile.c \
+				flexsea-user/CycleTester/src/cmd-CycleTester.c \
 				src/FlexSEADevice/rigidDevice.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
 				flexsea-user/Rigid/src/cmd-Rigid.c
@@ -205,6 +207,7 @@ HEADERS += inc/main.h \
 				flexsea-system/inc/flexsea_cmd_stream.h \
 				flexsea-system/test/flexsea-system_test-all.h \
 				flexsea-user/inc/flexsea_cmd_angle_torque_profile.h \
+				flexsea-user/CycleTester/inc/cmd-CycleTester.h \
 				inc/FlexSEADevice/rigidDevice.h \
 				inc/MDIWinObjects/w_rigid.h \
 				flexsea-user/Rigid/inc/cmd-Rigid.h
