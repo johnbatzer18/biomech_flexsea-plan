@@ -67,17 +67,17 @@ private:
 
 	enum expCtrl
 	{
-		INIT = 0,
-		START,
-		STOP
+		CT_C_INIT = 0,
+		CT_C_START,
+		CT_C_STOP
 	};
 
 	enum expStats
 	{
-		READ = 0,
-		START_STREAMING,
-		RESET,
-		CONFIRM_RESET
+		CT_S_READ = 0,
+		CT_S_START_STREAMING,
+		CT_S_RESET,
+		CT_S_CONFIRM_RESET
 	};
 
 	//Function(s):

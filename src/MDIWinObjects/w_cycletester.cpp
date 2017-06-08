@@ -24,6 +24,10 @@
 #include "ui_w_cycletester.h"
 #include <QTimer>
 #include <QDebug>
+#include "cmd-CycleTester.h"
+#include <flexsea_system.h>
+#include <flexsea_comm.h>
+#include "flexsea_board.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -77,30 +81,42 @@ void W_CycleTester::init(void)
 
 void W_CycleTester::experimentControl(enum expCtrl e)
 {
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint8_t act1 = 0;
+
 	switch(e)
 	{
-		case INIT:
+		case CT_C_INIT:
 			qDebug() << "Init.";
+			act1 = 1;
 			break;
-		case START:
+		case CT_C_START:
 			qDebug() << "Start.";
+			act1 = 2;
 			break;
-		case STOP:
+		case CT_C_STOP:
 			qDebug() << "Stop.";
+			act1 = 3;
 			break;
 		default:
 			break;
 	}
+
+	//Prep & send:
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, act1, 0);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
 }
 
 void W_CycleTester::experimentStats(enum expStats e)
 {
 	switch(e)
 	{
-		case READ:
+		case CT_S_READ:
 			qDebug() << "Read.";
 			break;
-		case START_STREAMING:
+		case CT_S_START_STREAMING:
 			streamingPBstate = streamingPBstate ? false : true;
 			if(streamingPBstate == true)
 			{
@@ -123,7 +139,7 @@ void W_CycleTester::experimentStats(enum expStats e)
 				ui->pushButtonReset->setDisabled(true);
 			}
 			break;
-		case RESET:
+		case CT_S_RESET:
 			resetPBstate = resetPBstate ? false : true;
 			if(resetPBstate == true)
 			{
@@ -143,11 +159,11 @@ void W_CycleTester::experimentStats(enum expStats e)
 					"background-color: rgb(255, 0, 0); color: rgb(0, 0, 0)");
 			}
 			break;
-		case CONFIRM_RESET:
+		case CT_S_CONFIRM_RESET:
 			qDebug() << "Confirm reset.";
 
 			//Recursive call to reset state:
-			experimentStats(RESET);
+			experimentStats(CT_S_RESET);
 			break;
 		default:
 			break;
@@ -160,35 +176,35 @@ void W_CycleTester::experimentStats(enum expStats e)
 
 void W_CycleTester::on_pushButtonInit_clicked()
 {
-	experimentControl(INIT);
+	experimentControl(CT_C_INIT);
 }
 
 void W_CycleTester::on_pushButtonStart_clicked()
 {
-	experimentControl(START);
+	experimentControl(CT_C_START);
 }
 
 void W_CycleTester::on_pushButtonStop_clicked()
 {
-	experimentControl(STOP);
+	experimentControl(CT_C_STOP);
 }
 
 void W_CycleTester::on_pushButtonRead_clicked()
 {
-	experimentStats(READ);
+	experimentStats(CT_S_READ);
 }
 
 void W_CycleTester::on_pushButtonStartStreaming_clicked()
 {
-	experimentStats(START_STREAMING);
+	experimentStats(CT_S_START_STREAMING);
 }
 
 void W_CycleTester::on_pushButtonReset_clicked()
 {
-	experimentStats(RESET);
+	experimentStats(CT_S_RESET);
 }
 
 void W_CycleTester::on_pushButtonConfirmReset_clicked()
 {
-	experimentStats(CONFIRM_RESET);
+	experimentStats(CT_S_CONFIRM_RESET);
 }
