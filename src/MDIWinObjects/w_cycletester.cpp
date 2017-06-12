@@ -232,6 +232,10 @@ void W_CycleTester::timerEvent(void)
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 
+	//Refresh display with last values:
+	ui->progressBar->setValue(ctStats_pct);
+	ui->lcdNumber->display((double)cyclesVolatile);
+
 	//Prep & send:
 	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
