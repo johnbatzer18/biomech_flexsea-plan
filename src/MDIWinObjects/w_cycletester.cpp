@@ -87,21 +87,22 @@ void W_CycleTester::experimentControl(enum expCtrl e)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint8_t act1 = 0;
+	uint8_t act1 = e;
 
+	//ToDo, or remove
 	switch(e)
 	{
 		case CT_C_INIT:
-			qDebug() << "Init.";
-			act1 = 1;
+
 			break;
 		case CT_C_START:
-			qDebug() << "Start.";
-			act1 = 2;
+
+			break;
+		case CT_C_PAUSE:
+
 			break;
 		case CT_C_STOP:
-			qDebug() << "Stop.";
-			act1 = 3;
+
 			break;
 		default:
 			break;
@@ -194,6 +195,11 @@ void W_CycleTester::on_pushButtonInit_clicked()
 void W_CycleTester::on_pushButtonStart_clicked()
 {
 	experimentControl(CT_C_START);
+}
+
+void W_CycleTester::on_pushButtonPause_clicked()
+{
+	experimentControl(CT_C_PAUSE);
 }
 
 void W_CycleTester::on_pushButtonStop_clicked()

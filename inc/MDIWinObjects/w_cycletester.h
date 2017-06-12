@@ -25,6 +25,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
+#include "cmd-CycleTester.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -60,28 +61,13 @@ private slots:
 	void on_pushButtonConfirmReset_clicked();
 	void timerEvent(void);
 
+	void on_pushButtonPause_clicked();
+
 private:
 	//Variables & Objects:
 	Ui::W_CycleTester *ui;
 	QTimer *timer;
 	bool resetPBstate, streamingPBstate;
-
-	enum expCtrl
-	{
-		CT_C_DEFAULT = 0,
-		CT_C_INIT,
-		CT_C_START,
-		CT_C_STOP
-	};
-
-	enum expStats
-	{
-		CT_S_DEFAULT = 0,
-		CT_S_READ,
-		CT_S_START_STREAMING,
-		CT_S_RESET,
-		CT_S_CONFIRM_RESET
-	};
 
 	//Function(s):
 	void init(void);
