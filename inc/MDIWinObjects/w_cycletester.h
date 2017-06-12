@@ -58,6 +58,7 @@ private slots:
 	void on_pushButtonStartStreaming_clicked();
 	void on_pushButtonReset_clicked();
 	void on_pushButtonConfirmReset_clicked();
+	void timerEvent(void);
 
 private:
 	//Variables & Objects:
@@ -67,14 +68,16 @@ private:
 
 	enum expCtrl
 	{
-		CT_C_INIT = 0,
+		CT_C_DEFAULT = 0,
+		CT_C_INIT,
 		CT_C_START,
 		CT_C_STOP
 	};
 
 	enum expStats
 	{
-		CT_S_READ = 0,
+		CT_S_DEFAULT = 0,
+		CT_S_READ,
 		CT_S_START_STREAMING,
 		CT_S_RESET,
 		CT_S_CONFIRM_RESET
@@ -84,6 +87,9 @@ private:
 	void init(void);
 	void experimentControl(enum expCtrl e);
 	void experimentStats(enum expStats e);
+	void resetStats(void);
 };
+
+#define TIMER_PERIOD	40		//40ms / 25Hz
 
 #endif // W_CYCLETESTER_H

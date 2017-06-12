@@ -77,6 +77,10 @@ void W_CycleTester::init(void)
 	streamingPBstate = true;
 	ui->pushButtonStartStreaming->setText("Start Streaming");
 	ui->pushButtonConfirmReset->setDisabled(true);
+
+	//Timer:
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
 }
 
 void W_CycleTester::experimentControl(enum expCtrl e)
@@ -115,6 +119,7 @@ void W_CycleTester::experimentStats(enum expStats e)
 	{
 		case CT_S_READ:
 			qDebug() << "Read.";
+			timerEvent();
 			break;
 		case CT_S_START_STREAMING:
 			streamingPBstate = streamingPBstate ? false : true;
@@ -127,6 +132,9 @@ void W_CycleTester::experimentStats(enum expStats e)
 				ui->progressBar->setEnabled(false);
 				ui->pushButtonRead->setDisabled(false);
 				ui->pushButtonReset->setDisabled(false);
+
+				//Stop timer:
+				timer->stop();
 			}
 			else
 			{
@@ -137,6 +145,9 @@ void W_CycleTester::experimentStats(enum expStats e)
 				ui->progressBar->setEnabled(true);
 				ui->pushButtonRead->setDisabled(true);
 				ui->pushButtonReset->setDisabled(true);
+
+				//Start timer:
+				timer->start(TIMER_PERIOD);
 			}
 			break;
 		case CT_S_RESET:
@@ -161,6 +172,7 @@ void W_CycleTester::experimentStats(enum expStats e)
 			break;
 		case CT_S_CONFIRM_RESET:
 			qDebug() << "Confirm reset.";
+			resetStats();
 
 			//Recursive call to reset state:
 			experimentStats(CT_S_RESET);
@@ -207,4 +219,26 @@ void W_CycleTester::on_pushButtonReset_clicked()
 void W_CycleTester::on_pushButtonConfirmReset_clicked()
 {
 	experimentStats(CT_S_CONFIRM_RESET);
+}
+
+void W_CycleTester::timerEvent(void)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//Prep & send:
+	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
+}
+
+void W_CycleTester::resetStats(void)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//Prep & send:
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, 0, 1);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
 }
