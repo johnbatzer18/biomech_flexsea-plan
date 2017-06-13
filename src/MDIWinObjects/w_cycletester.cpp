@@ -70,6 +70,8 @@ void W_CycleTester::init(void)
 	ui->progressBar->setDisabled(true);
 	ui->lcdNumber->display(0);
 	ui->lcdNumber->setDisabled(true);
+	ui->lcdNumberNV->setDisabled(true);
+	displayStatus(0);
 
 	//Buttons:
 	resetPBstate = true;
@@ -109,7 +111,7 @@ void W_CycleTester::experimentControl(enum expCtrl e)
 	}
 
 	//Prep & send:
-	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, act1, 0);
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, act1, CT_S_DEFAULT);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);
 }
@@ -130,6 +132,7 @@ void W_CycleTester::experimentStats(enum expStats e)
 				qDebug() << "Stop streaming.";
 				ui->pushButtonStartStreaming->setText("Start Streaming");
 				ui->lcdNumber->setEnabled(false);
+				ui->lcdNumberNV->setEnabled(false);
 				ui->progressBar->setEnabled(false);
 				ui->pushButtonRead->setDisabled(false);
 				ui->pushButtonReset->setDisabled(false);
@@ -143,6 +146,7 @@ void W_CycleTester::experimentStats(enum expStats e)
 				qDebug() << "Start streaming.";
 				ui->pushButtonStartStreaming->setText("Stop Streaming");
 				ui->lcdNumber->setEnabled(true);
+				ui->lcdNumberNV->setEnabled(true);
 				ui->progressBar->setEnabled(true);
 				ui->pushButtonRead->setDisabled(true);
 				ui->pushButtonReset->setDisabled(true);
@@ -235,6 +239,8 @@ void W_CycleTester::timerEvent(void)
 	//Refresh display with last values:
 	ui->progressBar->setValue(ctStats_pct);
 	ui->lcdNumber->display((double)cyclesVolatile);
+	ui->lcdNumberNV->display((double)cyclesNonVolatile);
+	displayStatus(ctStats_errorMsg);
 
 	//Prep & send:
 	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
@@ -248,7 +254,58 @@ void W_CycleTester::resetStats(void)
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 
 	//Prep & send:
-	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, 0, 1);
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, 0, CT_S_CONFIRM_RESET);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);
+}
+
+void W_CycleTester::displayStatus(uint8_t s)
+{
+	uint8_t errCnt = 0;
+	uint8_t mem = 0, tempW = 0, temp = 0, motion = 0;
+	QString txt = "Ok";
+	QString style = "background-color: rgb(128, 128, 128); color: rgb(0, 0, 0)";
+
+	//Decode flags:
+	mem = s & CT_ERR_MEM;
+	tempW = s & CT_ERR_TEMP_WARN;
+	temp = s & CT_ERR_TEMP;
+	motion = s & CT_ERR_MOTION;
+
+	//Sequential assignement - priority comes from order:
+	if(mem)
+	{
+		txt = "Mem";
+		style = "background-color: rgb(255, 140, 0); color: rgb(0, 0, 0)";
+		errCnt++;
+	}
+	if(tempW)
+	{
+		txt = "Temp";
+		style = "background-color: rgb(255, 140, 0); color: rgb(0, 0, 0)";
+		errCnt++;
+	}
+	if(temp)
+	{
+		txt = "Temp";
+		style = "background-color: rgb(255, 0, 0); color: rgb(0, 0, 0)";
+		errCnt++;
+	}
+	if(motion)
+	{
+		txt = "Motion";
+		style = "background-color: rgb(255, 0, 0); color: rgb(0, 0, 0)";
+		errCnt++;
+	}
+
+	//More than 1?
+	if(errCnt > 1)
+	{
+		txt = ">1 Err";
+		style = "background-color: rgb(255, 0, 0); color: rgb(0, 0, 0)";
+	}
+
+	//Apply to indicator:
+	ui->pushButtonStatus->setText(txt);
+	ui->pushButtonStatus->setStyleSheet(style);
 }

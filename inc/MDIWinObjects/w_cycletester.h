@@ -74,6 +74,7 @@ private:
 	void experimentControl(enum expCtrl e);
 	void experimentStats(enum expStats e);
 	void resetStats(void);
+	void displayStatus(uint8_t s);
 };
 
 #define TIMER_PERIOD	40		//40ms / 25Hz
