@@ -71,6 +71,9 @@ void W_CycleTester::init(void)
 	ui->lcdNumber->display(0);
 	ui->lcdNumber->setDisabled(true);
 	ui->lcdNumberNV->setDisabled(true);
+	ui->progressBarTemp->setValue(15);
+	ui->progressBarTemp->setDisabled(true);
+	ui->label_temp->setText("-°C");
 	displayStatus(0);
 
 	//Buttons:
@@ -241,6 +244,7 @@ void W_CycleTester::timerEvent(void)
 	ui->lcdNumber->display((double)cyclesVolatile);
 	ui->lcdNumberNV->display((double)cyclesNonVolatile);
 	displayStatus(ctStats_errorMsg);
+	displayTemp(ctStats_temp);
 
 	//Prep & send:
 	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
@@ -262,7 +266,7 @@ void W_CycleTester::resetStats(void)
 void W_CycleTester::displayStatus(uint8_t s)
 {
 	uint8_t errCnt = 0;
-	uint8_t mem = 0, tempW = 0, temp = 0, motion = 0;
+	uint8_t mem = 0, tempW = 0, temp = 0, motion = 0, stuck = 0;
 	QString txt = "Ok";
 	QString style = "background-color: rgb(128, 128, 128); color: rgb(0, 0, 0)";
 
@@ -271,6 +275,7 @@ void W_CycleTester::displayStatus(uint8_t s)
 	tempW = s & CT_ERR_TEMP_WARN;
 	temp = s & CT_ERR_TEMP;
 	motion = s & CT_ERR_MOTION;
+	stuck = s & CT_ERR_STUCK;
 
 	//Sequential assignement - priority comes from order:
 	if(mem)
@@ -297,6 +302,12 @@ void W_CycleTester::displayStatus(uint8_t s)
 		style = "background-color: rgb(255, 0, 0); color: rgb(0, 0, 0)";
 		errCnt++;
 	}
+	if(stuck)
+	{
+		txt = "Stuck";
+		style = "background-color: rgb(255, 0, 0); color: rgb(0, 0, 0)";
+		errCnt++;
+	}
 
 	//More than 1?
 	if(errCnt > 1)
@@ -308,4 +319,48 @@ void W_CycleTester::displayStatus(uint8_t s)
 	//Apply to indicator:
 	ui->pushButtonStatus->setText(txt);
 	ui->pushButtonStatus->setStyleSheet(style);
+}
+
+void W_CycleTester::displayTemp(int8_t t)
+{
+	int32_t r = 0, g = 0;
+	uint8_t diff = 0;
+	QString txt = "";
+	QString styleStart = "QProgressBar::chunk {background: rgb(";
+	QString styleMid = "";
+	QString styleEnd = ", 0);}";
+	QString style;
+
+	//Limits:
+	if(t < TEMP_MIN){t = TEMP_MIN;}
+	if(t > TEMP_MAX){t = TEMP_MAX;}
+
+	//Colors:
+	if(t <= (TEMP_MIN + TEMP_SPAN/2))
+	{
+		diff = t - TEMP_MIN;
+		r = (0xFF * 2* diff) / TEMP_SPAN;
+		g = 0xFF;
+	}
+	else
+	{
+		diff = t - TEMP_MIN;
+		r = 0xFF;
+		g = 512 - ((0xFF * 2 * diff) / TEMP_SPAN);
+	}
+
+	if(r > 255){r = 255;}
+	if(r < 0){r = 0;}
+	if(g > 255){g = 255;}
+	if(g < 0){g = 0;}
+
+	//Label:
+	txt = QString::number(t) + " °C";
+	ui->label_temp->setText(txt);
+
+	//Progress bar:
+	ui->progressBarTemp->setValue(t);
+	styleMid = QString::number(r) + ',' + QString::number(g);
+	style = styleStart + styleMid + styleEnd;
+	ui->progressBarTemp->setStyleSheet(style);
 }

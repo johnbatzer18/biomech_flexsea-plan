@@ -75,8 +75,13 @@ private:
 	void experimentStats(enum expStats e);
 	void resetStats(void);
 	void displayStatus(uint8_t s);
+	void displayTemp(int8_t t);
 };
 
 #define TIMER_PERIOD	40		//40ms / 25Hz
+
+#define TEMP_MIN		15
+#define TEMP_MAX		80
+#define TEMP_SPAN		(TEMP_MAX-TEMP_MIN)
 
 #endif // W_CYCLETESTER_H
