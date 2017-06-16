@@ -74,6 +74,7 @@ void W_CycleTester::init(void)
 	ui->progressBarTemp->setValue(15);
 	ui->progressBarTemp->setDisabled(true);
 	ui->label_temp->setText("-°C");
+	ui->label_peakCurrent->setText("-");
 	displayStatus(0);
 
 	//Buttons:
@@ -243,6 +244,7 @@ void W_CycleTester::timerEvent(void)
 	ui->progressBar->setValue(ctStats_pct);
 	ui->lcdNumber->display((double)cyclesVolatile);
 	ui->lcdNumberNV->display((double)cyclesNonVolatile);
+	ui->label_peakCurrent->setText(QString::number(peakCurrent));
 	displayStatus(ctStats_errorMsg);
 	displayTemp(ctStats_temp);
 
