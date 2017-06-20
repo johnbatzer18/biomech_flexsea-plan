@@ -69,7 +69,6 @@ SerialDriver::~SerialDriver() {
 //Open port
 void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
-//    name = "/dev/ttyACM9";
 	int cnt = 0;
 	bool isPortOpen = false;
 	int comProgress = 0;

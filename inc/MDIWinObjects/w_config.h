@@ -77,6 +77,7 @@ public:
 
 private slots:
 	void getComList(void);
+	QString getCOMnickname(const QSerialPortInfo *c);
 	void btConfig(void);
 	void on_openComButton_clicked();
 	void on_closeComButton_clicked();
