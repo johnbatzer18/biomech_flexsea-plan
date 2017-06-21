@@ -367,8 +367,9 @@ void W_SlaveComm::initSlaveCom(void)
 		(on_off_pb_ptr[row])->setDisabled(true);
 	}
 
-	//Default command line settings, RIC/NU:
+	//Default command line settings, RIC/NU & Rigid:
 	streamManager->ricnuOffsets = QList<int>({0, 1});
+	streamManager->rigidOffsets = QList<int>({0, 1});
 	defaultCmdLineText = "o=0,1;";
 	ui->lineEdit->setEnabled(false);
 	ui->lineEdit->setText(" ");
@@ -382,9 +383,10 @@ void W_SlaveComm::manageSelectedExperimentChanged(int row)
 	int indexOfNewlySelectedExperiment = comboBoxExpPtr[row]->currentIndex();
 	this->populateSlaveComboBox(comboBoxSlavePtr[row], indexOfNewlySelectedExperiment);
 
-	//ricnu has cmd line arguments
-	ui->lineEdit->setEnabled(indexOfNewlySelectedExperiment == 2);
-	ui->lineEdit->setText(indexOfNewlySelectedExperiment == 2 ? defaultCmdLineText : " ");
+	//RICNU & Rigid have cmd line arguments:
+	bool en = (indexOfNewlySelectedExperiment == 2 || indexOfNewlySelectedExperiment == 9);
+	ui->lineEdit->setEnabled(en);
+	ui->lineEdit->setText(en ? defaultCmdLineText : " ");
 }
 
 void W_SlaveComm::setRowDisabled(int row, bool disabled)
@@ -558,9 +560,9 @@ void W_SlaveComm::on_comboBoxExp1_currentIndexChanged(int index)
 	manageSelectedExperimentChanged(0);
 }
 
-void W_SlaveComm::on_comboBoxExp2_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(1); }
-void W_SlaveComm::on_comboBoxExp3_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(2); }
-void W_SlaveComm::on_comboBoxExp4_currentIndexChanged(int index) {	(void)index; manageSelectedExperimentChanged(3); }
+void W_SlaveComm::on_comboBoxExp2_currentIndexChanged(int index) {(void)index; manageSelectedExperimentChanged(1); }
+void W_SlaveComm::on_comboBoxExp3_currentIndexChanged(int index) {(void)index; manageSelectedExperimentChanged(2); }
+void W_SlaveComm::on_comboBoxExp4_currentIndexChanged(int index) {(void)index; manageSelectedExperimentChanged(3); }
 
 //Command line input: enter pressed
 void W_SlaveComm::on_lineEdit_returnPressed()

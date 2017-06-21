@@ -15,7 +15,6 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	QObject(parent),
 	serialDriver(driver)
 {
-
 	//this needs to be in order from smallest to largest
 	int timerFreqsInHz[NUM_TIMER_FREQS] = {1, 5, 10, 20, 33, 50, 100, 200};
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
@@ -372,10 +371,12 @@ void StreamManager::sendCommandAngleTorqueProfile(uint8_t slaveId)
 
 void StreamManager::sendCommandRigid(uint8_t slaveId)
 {
-	static uint8_t offs = 0;
-	offs++;
-	offs %= 2;
+	if(rigidOffsets.size() < 1) return;
+	static int index = 0;
 
-	tx_cmd_rigid_r(TX_N_DEFAULT, offs);
+	tx_cmd_rigid_r(TX_N_DEFAULT, (uint8_t)(ricnuOffsets.at(index)));
+	index++;
+	index %= rigidOffsets.size();
 	tryPackAndSend(CMD_READ_ALL_RIGID, slaveId);
 }
+
