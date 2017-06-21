@@ -80,8 +80,8 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	USBSerialPort.setDataBits(QSerialPort::Data8);
 	USBSerialPort.setParity(QSerialPort::NoParity);
 	USBSerialPort.setStopBits(QSerialPort::OneStop);
-	//USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
-	USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
+	USBSerialPort.setFlowControl(QSerialPort::HardwareControl);
+	//USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
 
 	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
 
