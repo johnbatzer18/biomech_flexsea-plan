@@ -184,6 +184,7 @@ HEADERS += inc/main.h \
 				flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
 				flexsea-user/test/flexsea-user_test-all.h \
 				flexsea-user/inc/flexsea_user_structs.h \
+				flexsea-user/inc/user-plan.h \
 				flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h \
 				flexsea-user/inc/dynamic_user_structs.h \
 				flexsea-comm/inc/flexsea.h \
