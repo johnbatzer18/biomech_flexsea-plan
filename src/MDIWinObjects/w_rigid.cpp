@@ -178,7 +178,11 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_magnetoy_d->setText(QString::number(ri->mn.decoded.magneto.y, 'i', 0));
 	ui->disp_magnetoz_d->setText(QString::number(ri->mn.decoded.magneto.z, 'i', 0));
 
-	//==========
+	//Decoded values - Regulate:
+	//==========================
+
+	if(ri->re.status & 0x80){ui->disp_button->setText("Pressed");}
+	else{ui->disp_button->setText("Released");}
 }
 
 //****************************************************************************
