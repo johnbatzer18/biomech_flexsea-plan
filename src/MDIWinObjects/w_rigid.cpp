@@ -144,6 +144,7 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_current_mot->setText(QString::number(ri->ex.current));
 
 	ui->disp_joint_angle->setText(QString::number(*(ri->ex.joint_ang)));
+	ui->disp_joint_angle_vel->setText(QString::number(*(ri->ex.joint_ang_vel)));
 	ui->disp_pwm->setText(QString::number(ri->ex.ctrl.pwm));
 
 	ui->disp_ex_stat->setText(QString::number(ri->ex.status));

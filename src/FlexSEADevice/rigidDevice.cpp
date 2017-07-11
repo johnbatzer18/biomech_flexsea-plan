@@ -53,6 +53,7 @@ RigidDevice::RigidDevice(rigid_s *devicePtr): FlexseaDevice()
 	riList.last()->ex.enc_ang = &enc_ang;
 	riList.last()->ex.enc_ang_vel = &enc_vel;
 	riList.last()->ex.joint_ang = &joint_ang;
+	riList.last()->ex.joint_ang_vel = &joint_ang_vel;
 	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
 	eventFlags.append(0);
 
@@ -84,6 +85,9 @@ RigidDevice::~RigidDevice()
 			delete readyToDelete->ex.joint_ang;
 			readyToDelete->ex.joint_ang = nullptr;
 
+			delete readyToDelete->ex.joint_ang_vel;
+			readyToDelete->ex.joint_ang_vel = nullptr;
+
 			delete readyToDelete;
 		}
 	}
@@ -113,7 +117,9 @@ QStringList RigidDevice::header = QStringList()
 								<< "Magneto Z"
 								<< "Motor Angle"
 								<< "Motor Velocity"
+								<< "Motor Accel"
 								<< "Joint Angle"
+								<< "Joint Velocity"
 								<< "Motor Current"
 								<< "Strain"
 								<< "PWM"
@@ -150,6 +156,8 @@ QStringList RigidDevice::headerDecoded = QStringList()
 								<< "Raw value only"
 								<< "Raw value only"
 								<< "Raw value only"
+								<< "Raw value only"
+								<< "Raw value only"
 								<< "mV"
 								<< "mV"
 								<< "mV"
@@ -175,7 +183,9 @@ QString RigidDevice::getLastSerializedStr(void)
 
 							*(riList.last()->ex.enc_ang)		<< ',' << \
 							*(riList.last()->ex.enc_ang_vel)	<< ',' << \
+							riList.last()->ex.mot_acc			<< ',' << \
 							*(riList.last()->ex.joint_ang)		<< ',' << \
+							*(riList.last()->ex.joint_ang_vel)	<< ',' << \
 							riList.last()->ex.current			<< ',' << \
 							riList.last()->ex.strain			<< ',' << \
 							riList.last()->ex.ctrl.pwm			<< ',' << \
@@ -215,7 +225,9 @@ void RigidDevice::appendSerializedStr(QStringList *splitLine)
 
 		*(riList.last()->ex.enc_ang)	= (*splitLine)[idx++].toInt();
 		*(riList.last()->ex.enc_ang_vel)= (*splitLine)[idx++].toInt();
+		riList.last()->ex.mot_acc		= (*splitLine)[idx++].toInt();
 		*(riList.last()->ex.joint_ang)	= (*splitLine)[idx++].toInt();
+		*(riList.last()->ex.joint_ang_vel)	= (*splitLine)[idx++].toInt();
 		riList.last()->ex.current		= (*splitLine)[idx++].toInt();
 		riList.last()->ex.strain		= (*splitLine)[idx++].toInt();
 		riList.last()->ex.ctrl.pwm		= (*splitLine)[idx++].toInt();
@@ -324,67 +336,77 @@ struct std_variable RigidDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = riList[index]->ex.enc_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
-		case 14: //"Joint Angle"
+		case 14: //"Motor Acceleration"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->ex.mot_acc;
+			var.decodedPtr = nullptr;
+			break;
+		case 15: //"Joint Angle"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = riList[index]->ex.joint_ang;
 			var.decodedPtr = nullptr;
 			break;
-		case 15: //"Motor current"
+		case 16: //"Joint Velocity"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = riList[index]->ex.joint_ang_vel;
+			var.decodedPtr = nullptr;
+			break;
+		case 17: //"Motor current"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->ex.current;
 			var.decodedPtr = nullptr;
 			break;
-		case 16: //"Strain"
+		case 18: //"Strain"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->ex.strain;
 			var.decodedPtr = nullptr;
 			break;
-		case 17: //"PWM"
+		case 19: //"PWM"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->ex.ctrl.pwm;
 			var.decodedPtr = nullptr;
 			break;
-		case 18: //"Analog 0"
+		case 20: //"Analog 0"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->mn.analog[0];
 			var.decodedPtr = nullptr;
 			break;
-		case 19: //"Analog 1"
+		case 21: //"Analog 1"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->mn.analog[1];
 			var.decodedPtr = nullptr;
 			break;
-		case 20: //"Analog 2"
+		case 22: //"Analog 2"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->mn.analog[2];
 			var.decodedPtr = nullptr;
 			break;
-		case 21: //"Analog 3"
+		case 23: //"Analog 3"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->mn.analog[3];
 			var.decodedPtr = nullptr;
 			break;
-		case 22: //"+VB"
+		case 24: //"+VB"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->re.vb;
 			var.decodedPtr = nullptr;
 			break;
-		case 23: //"+VG"
+		case 25: //"+VG"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->re.vg;
 			var.decodedPtr = nullptr;
 			break;
-		case 24: //"+5V"
+		case 26: //"+5V"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->re.v5;
 			var.decodedPtr = nullptr;
 			break;
-		case 25: //"Battery Current"
+		case 27: //"Battery Current"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &riList[index]->re.current;
 			var.decodedPtr = nullptr;
 			break;
-		case 26: //"Temperature"
+		case 28: //"Temperature"
 			var.format = FORMAT_8S;
 			var.rawGenPtr = &riList[index]->re.temp;
 			var.decodedPtr = nullptr;
@@ -416,6 +438,7 @@ void RigidDevice::appendEmptyLine(void)
 	emptyStruct->ex.enc_ang = new int32_t();
 	emptyStruct->ex.enc_ang_vel = new int32_t();
 	emptyStruct->ex.joint_ang = new int32_t();
+	emptyStruct->ex.joint_ang_vel = new int32_t();
 	riList.append(emptyStruct);
 	ownershipList.append(true); // we own this struct, so we must delete it in destructor
 	eventFlags.append(0);
