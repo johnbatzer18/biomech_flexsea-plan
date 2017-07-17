@@ -44,7 +44,7 @@ void DynamicUserDataManager::handleNewMessage()
 }
 
 bool DynamicUserDataManager::parseDynamicUserMetadata(QList<QString> *labels, QList<QString> *types)
-{	
+{
 	if(dynamicUser_numFields < 1) return false;
 	if(!dynamicUser_labels || !dynamicUser_labelLengths || !labels) return false;
 	if(!newMetaDataAvailable) return false;
@@ -201,6 +201,7 @@ QStringList DynamicDevice::getHeaderList(void)
 
 	result.append("Timestamp (date)");
 	result.append("Timestamp (ms)");
+	result.append("Event Flags");
 	for(int i = 0; i < dynamicUser_numFields; i++)
 	{
 		int labelLength = dynamicUser_labelLengths[i];
@@ -244,7 +245,8 @@ QString DynamicDevice::getLastSerializedStr(void)
 
 
 	stream	<<	timeStamp.last().date		<< ',' << \
-				timeStamp.last().ms			<< ',';
+				timeStamp.last().ms			<< ',' << \
+				eventFlags.last()			<< ',';
 
 	uchar* data = dynamicUser_data;
 	for(int i = 0; i < dynamicUser_numFields; i++)
