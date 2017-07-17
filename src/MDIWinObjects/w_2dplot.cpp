@@ -455,8 +455,8 @@ void W_2DPlot::initUserInput(void)
 	var_list_margin.clear();
 
 	//Margin options:
-	var_list_margin << "±2%" << "±5%" << "±10%" << "±10 ticks" << "±25 ticks" \
-					<< "±100 ticks" << "±1000 ticks";
+	var_list_margin << "±2%" << "±5%" << "±10%" << "±5 ticks" << "±10 ticks" \
+					<< "±25 ticks" << "±100 ticks" << "±1000 ticks";
 	for(int i = 0; i < var_list_margin.length(); i++)
 	{
 		ui->comboBoxMargin->addItem(var_list_margin.at(i));
@@ -916,19 +916,23 @@ void W_2DPlot::addMargins(int *ymin, int *ymax)
 			*ymin = (*ymin-(abs(*ymin)/10));
 			*ymax = (*ymax+(abs(*ymax)/10));
 			break;
-		case 3: //10 ticks
+		case 3: //5 ticks
+			*ymin = (*ymin-5);
+			*ymax = (*ymax+5);
+			break;
+		case 4: //10 ticks
 			*ymin = (*ymin-10);
 			*ymax = (*ymax+10);
 			break;
-		case 4: //25 ticks
+		case 5: //25 ticks
 			*ymin = (*ymin-25);
 			*ymax = (*ymax+25);
 			break;
-		case 5: //100 ticks
+		case 6: //100 ticks
 			*ymin = (*ymin-100);
 			*ymax = (*ymax+100);
 			break;
-		case 6: //1000 ticks
+		case 7: //1000 ticks
 			*ymin = (*ymin-1000);
 			*ymax = (*ymax+1000);
 			break;
