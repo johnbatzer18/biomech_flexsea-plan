@@ -59,6 +59,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 						 QList<FlexseaDevice*> *ricnuDevListInit,
 						 QList<FlexseaDevice*> *ankle2DofDevListInit,
 						 QList<FlexseaDevice*> *testBenchDevListInit,
+						 QList<FlexseaDevice*> *dynamicUserDevListInit,
 						 QList<FlexseaDevice*> *rigidDevListInit,
 						 StreamManager* sm) :
 	QWidget(parent),
@@ -82,6 +83,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	ankle2DofDevList = ankle2DofDevListInit;
 	testBenchDevList = testBenchDevListInit;
 	rigidDevList = rigidDevListInit;
+	dynamicUserDevList = dynamicUserDevListInit;
 
 	initializeMaps();
 	mapSerializedPointers();
@@ -194,6 +196,7 @@ void W_SlaveComm::initExperimentList(void)
 	batteryTargetList.append(*executeDevList);
 	batteryTargetList.append(*manageDevList);
 	rigidTargetList.append(*manageDevList);
+	dynamicUserTargetList.append(*dynamicUserDevList);
 }
 
 void W_SlaveComm::mapSerializedPointers(void)
@@ -243,7 +246,7 @@ void W_SlaveComm::initializeMaps()
 	targetListMap[4] = &ankle2DofTargetList;
 	targetListMap[5] = &batteryTargetList;
 	targetListMap[6] = &testBenchTargetList;
-	//targetListMap[7] = &;
+	targetListMap[7] = &dynamicUserTargetList;
 	//targetListMap[8] = &;
 	targetListMap[9] = &rigidTargetList;
 
@@ -254,7 +257,7 @@ void W_SlaveComm::initializeMaps()
 	cmdMap[4] = CMD_A2DOF;
 	cmdMap[5] = CMD_BATT;
 	cmdMap[6] = CMD_MOTORTB;
-	//cmdMap[7] = ;
+	cmdMap[7] = CMD_USER_DYNAMIC;
 	//cmdMap[8] = ;
 	cmdMap[9] = CMD_READ_ALL_RIGID;
 

@@ -157,8 +157,6 @@ MainWindow::MainWindow(QWidget *parent) :
 		chartController->addDataProvider(dataProviders.at(i));
 	}
 
-	//ui->menuGL->addAction("Add Chart Window", this, &MainWindow::triggerChartView);
-
 	initializeCreateWindowFctPtr();
 	loadCSVconfigFile();	//By default we load the last saved settings
 }
@@ -236,7 +234,6 @@ void MainWindow::initializeDataProviders()
 	ptp->setDataPointer(&(manag1.accel.x));
 	ptp->dataSignSize = PassThroughProvider::S_16;
 	ptp->setLabel("Manage X Accel");
-	//connect(serialDriver, &SerialDriver::newDataReady, ptp, &PassThroughProvider::handleNewDataRecieved);
 
 	dataProviders.append(ptp);
 }
@@ -837,6 +834,7 @@ void MainWindow::createSlaveComm(void)
 													   &ricnuFlexList,
 													   &ankle2DofFlexList,
 													   &testBenchFlexList,
+													   &dynamicDeviceList,
 													   &rigidFlexList,
 													   streamManager);
 
@@ -860,9 +858,9 @@ void MainWindow::createSlaveComm(void)
 		connect(mySerialDriver, SIGNAL(newDataTimeout(bool)), \
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
-		myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
+		//myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
 		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleTorque::getCommandCode());
-		myViewSlaveComm[objectCount]->addExperiment(&rigidFlexList, W_Rigid::getCommandCode());
+		//myViewSlaveComm[objectCount]->addExperiment(&rigidFlexList, W_Rigid::getCommandCode());
 	}
 	else
 	{

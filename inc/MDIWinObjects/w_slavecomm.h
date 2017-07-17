@@ -87,6 +87,7 @@ public:
 							QList<FlexseaDevice*> *ricnuDevListInit = nullptr,
 							QList<FlexseaDevice*> *ankle2DofDevListIni = nullptr,
 							QList<FlexseaDevice*> *testBenchDevListInit = nullptr,
+							QList<FlexseaDevice*> *dynamicUserDevListInit = nullptr,
 							QList<FlexseaDevice*> *rigidDevListInit = nullptr,
 							StreamManager* sm = nullptr);
 
@@ -161,12 +162,14 @@ private:
 	QList<FlexseaDevice*> *ricnuDevList;
 	QList<FlexseaDevice*> *ankle2DofDevList;
 	QList<FlexseaDevice*> *testBenchDevList;
+	QList<FlexseaDevice*> *dynamicUserDevList;
 
 	QList<FlexseaDevice*> readAllTargetList;
 	QList<FlexseaDevice*> inControlTargetList;
 	QList<FlexseaDevice*> ricnuTargetList;
 	QList<FlexseaDevice*> ankle2DofTargetList;
 	QList<FlexseaDevice*> testBenchTargetList;
+	QList<FlexseaDevice*> dynamicUserTargetList;
 	QList<FlexseaDevice*> batteryTargetList;
 	QList<FlexseaDevice*> rigidTargetList;
 
