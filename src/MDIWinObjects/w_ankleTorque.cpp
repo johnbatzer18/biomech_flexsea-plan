@@ -263,7 +263,9 @@ void W_AnkleTorque::on_streamButton_pressed()
 		chartView->clearOverlay();
 	}
 	else
-		streamManager->startAutoStreaming(getCommandCode(), slaveId, streamFreq, false, device);
+	{
+		streamManager->startAutoStreaming(getCommandCode(), slaveId, streamFreq, false, device, 0, 0);	//ToDo this has to be the index!!! not 0,0
+	}
 
 	QString btnText = "";
 	btnText.append(isStreaming ? "Start" : "Stop");
@@ -279,4 +281,3 @@ void W_AnkleTorque::on_textToggleButton_pressed()
 	chartView->update();
 	chart->update();
 }
-
