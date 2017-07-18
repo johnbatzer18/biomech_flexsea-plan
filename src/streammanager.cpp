@@ -16,7 +16,7 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	serialDriver(driver)
 {
 	//this needs to be in order from smallest to largest
-	int timerFreqsInHz[NUM_TIMER_FREQS] = {1, 5, 10, 20, 33, 50, 100, 200};
+	int timerFreqsInHz[NUM_TIMER_FREQS] = {1, 5, 10, 20, 33, 50, 100, 200, 500, 1000};
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
 		timerFrequencies[i] = timerFreqsInHz[i];
