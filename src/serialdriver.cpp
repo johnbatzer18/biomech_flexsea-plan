@@ -44,6 +44,7 @@
 #include <flexsea_payload.h>
 #include <ctime>
 #include <w_event.h>
+#include <QThread>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -52,6 +53,18 @@
 SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 {
 	comPortOpen = false;
+
+	//QThread *thread1 = new QThread; // First thread
+	//thread1->start();
+
+	//Timer:
+	clockTimer = new QTimer();
+	clockTimer->setTimerType(Qt::CoarseTimer);
+	clockTimer->setSingleShot(false);
+	//clockTimer->setInterval(CLOCK_TIMER_PERIOD);
+	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::timerEvent);
+
+	//clockTimer->moveToThread(thread1);
 }
 
 SerialDriver::~SerialDriver() {
@@ -84,6 +97,10 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	//USBSerialPort.setFlowControl(QSerialPort::NoFlowControl);
 
 	connect(&USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
+
+	//Start timer:
+	timerCount = 0;
+	clockTimer->start(CLOCK_TIMER_PERIOD);
 
 	do
 	{
@@ -355,3 +372,20 @@ void SerialDriver::init(void)
 // Private slot(s):
 //****************************************************************************
 
+void SerialDriver::timerEvent(void)
+{
+	if(timerCount < CLOCK_TIMER_MAX_COUNT && comPortOpen == false)
+	{
+		timerCount++;
+		emit openProgress(100*(timerCount/CLOCK_TIMER_MAX_COUNT));
+		qDebug() << "Tick...";
+	}
+	else
+	{
+		//We have reached the maximum count, or the port opened.
+
+		qDebug() << "Timer expired or port opened";
+
+		clockTimer->stop();
+	}
+}
