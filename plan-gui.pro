@@ -24,6 +24,7 @@ INCLUDEPATH += inc \
 				flexsea-user/MotorTestBench/inc \
 				flexsea-user/RICNU_Knee_v1/inc \
 				flexsea-user/Rigid/inc \
+				flexsea-user/DpEb31/inc \
 				flexsea-user/CycleTester/inc
 
 SOURCES += src/main.cpp \
@@ -125,7 +126,8 @@ SOURCES += src/main.cpp \
 				flexsea-user/CycleTester/src/cmd-CycleTester.c \
 				src/FlexSEADevice/rigidDevice.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
-				flexsea-user/Rigid/src/cmd-Rigid.c
+				flexsea-user/Rigid/src/cmd-Rigid.c \
+				flexsea-user/DpEb31/src/cmd-DpEb31.c
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -211,7 +213,8 @@ HEADERS += inc/main.h \
 				flexsea-user/CycleTester/inc/cmd-CycleTester.h \
 				inc/FlexSEADevice/rigidDevice.h \
 				inc/MDIWinObjects/w_rigid.h \
-				flexsea-user/Rigid/inc/cmd-Rigid.h
+				flexsea-user/Rigid/inc/cmd-Rigid.h \
+				flexsea-user/DpEb31/inc/cmd-DpEb31.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \

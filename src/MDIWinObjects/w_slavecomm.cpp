@@ -649,7 +649,7 @@ void W_SlaveComm::readCommandLine()
 			qDebug() << "Min offset:" << min << ", Max offset:" << max;
 			streamManager->ricnuOffsets = offsets;
 			streamManager->minOffs = min;
-			streamManager->minOffs = max;
+			streamManager->maxOffs = max;
 			break;
 
 		default:
