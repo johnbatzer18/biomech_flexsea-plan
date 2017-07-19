@@ -84,9 +84,11 @@ void W_CycleTester::init(void)
 	ui->pushButtonStartStreaming->setText("Start Streaming");
 	ui->pushButtonConfirmReset->setDisabled(true);
 
-	//Timer:
+	//Timers:
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
+	buttonTimer = new QTimer(this);
+	connect(buttonTimer, SIGNAL(timeout()), this, SLOT(buttonTimerEvent()));
 }
 
 void W_CycleTester::experimentControl(enum expCtrl e)
@@ -115,7 +117,7 @@ void W_CycleTester::experimentControl(enum expCtrl e)
 	}
 
 	//Prep & send:
-	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, act1, CT_S_DEFAULT);
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, act1, CT_S_DEFAULT, 0);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);
 }
@@ -245,11 +247,35 @@ void W_CycleTester::timerEvent(void)
 	ui->lcdNumber->display((double)cyclesVolatile);
 	ui->lcdNumberNV->display((double)cyclesNonVolatile);
 	ui->label_peakCurrent->setText(QString::number(peakCurrent));
+	ui->label_mod->setText(QString::number(ctStats_mod));
 	displayStatus(ctStats_errorMsg);
 	displayTemp(ctStats_temp);
 
 	//Prep & send:
 	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
+}
+
+void W_CycleTester::buttonTimerEvent(void)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	buttonTimer->stop();
+	if(ui->pushButtonStatus->isDown())
+	{
+		//User held the button down long enough
+		qDebug() << "Time to reset the CT errors.";
+	}
+	else
+	{
+		qDebug() << "False alert - nothing to do.";
+		return;
+	}
+
+	//Prep & send:
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, 0, CT_S_DEFAULT, 1);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);
 }
@@ -260,7 +286,7 @@ void W_CycleTester::resetStats(void)
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 
 	//Prep & send:
-	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, 0, CT_S_CONFIRM_RESET);
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, 0, CT_S_CONFIRM_RESET, 0);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);
 }
@@ -365,4 +391,14 @@ void W_CycleTester::displayTemp(int8_t t)
 	styleMid = QString::number(r) + ',' + QString::number(g);
 	style = styleStart + styleMid + styleEnd;
 	ui->progressBarTemp->setStyleSheet(style);
+}
+
+void W_CycleTester::on_pushButtonStatus_pressed()
+{
+	qDebug() << "Button pressed...";
+	//Start timer:
+	buttonTimer->setTimerType(Qt::CoarseTimer);
+	buttonTimer->setSingleShot(true);
+	buttonTimer->setInterval(1750);
+	buttonTimer->start();
 }

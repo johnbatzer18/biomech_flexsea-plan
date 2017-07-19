@@ -60,13 +60,16 @@ private slots:
 	void on_pushButtonReset_clicked();
 	void on_pushButtonConfirmReset_clicked();
 	void timerEvent(void);
+	void buttonTimerEvent(void);
 
 	void on_pushButtonPause_clicked();
+
+	void on_pushButtonStatus_pressed();
 
 private:
 	//Variables & Objects:
 	Ui::W_CycleTester *ui;
-	QTimer *timer;
+	QTimer *timer, *buttonTimer;
 	bool resetPBstate, streamingPBstate;
 
 	//Function(s):
