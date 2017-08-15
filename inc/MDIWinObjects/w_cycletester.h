@@ -78,6 +78,7 @@ private:
 	void experimentStats(enum expStats e);
 	void resetStats(void);
 	void displayStatus(uint8_t s);
+	QString displayFSMstate(uint8_t s);
 	void displayTemp(int8_t t);
 };
 

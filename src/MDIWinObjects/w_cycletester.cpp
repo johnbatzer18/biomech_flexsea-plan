@@ -247,9 +247,12 @@ void W_CycleTester::timerEvent(void)
 	ui->lcdNumber->display((double)cyclesVolatile);
 	ui->lcdNumberNV->display((double)cyclesNonVolatile);
 	ui->label_peakCurrent->setText(QString::number(peakCurrent));
-	ui->label_mod->setText(QString::number(ctStats_mod));
+	ui->label_valleyCurrent->setText(QString::number(valleyCurrent));
+	ui->label_mod1->setText(QString::number(ctStats_mod1));
+	ui->label_mod2->setText(QString::number(ctStats_mod2));
 	displayStatus(ctStats_errorMsg);
 	displayTemp(ctStats_temp);
+	ui->label_FSM_State->setText(displayFSMstate(ctStats_fsm1State));
 
 	//Prep & send:
 	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
@@ -354,6 +357,48 @@ void W_CycleTester::displayStatus(uint8_t s)
 	//Apply to indicator:
 	ui->pushButtonStatus->setText(txt);
 	ui->pushButtonStatus->setStyleSheet(style);
+}
+
+//Return a QString version of the enum text
+QString W_CycleTester::displayFSMstate(uint8_t s)
+{
+	QString tmp;
+
+	switch(s)
+	{
+		case 0:
+			tmp = "CT_FSM1_BOOT";
+			break;
+		case 1:
+			tmp = "CT_FSM1_INIT_CTRL0";
+			break;
+		case 2:
+			tmp = "CT_FSM1_INIT_CTRL1";
+			break;
+		case 3:
+			tmp = "CT_FSM1_INIT_ERROR";
+			break;
+		case 4:
+			tmp = "CT_FSM1_INIT_CTRL2";
+			break;
+		case 5:
+			tmp = "CT_FSM1_CYCLE";
+			break;
+		case 6:
+			tmp = "CT_FSM1_PAUSE";
+			break;
+		case 7:
+			tmp = "CT_FSM1_STOP";
+			break;
+		case 8:
+			tmp = "CT_FSM1_ERROR";
+			break;
+		default:
+			tmp = "Unknown state.";
+			break;
+	}
+
+	return tmp;
 }
 
 void W_CycleTester::displayTemp(int8_t t)
