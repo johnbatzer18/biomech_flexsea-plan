@@ -294,7 +294,7 @@ void W_CycleTester::resetStats(void)
 void W_CycleTester::displayStatus(uint8_t s)
 {
 	uint8_t errCnt = 0;
-	uint8_t mem = 0, tempW = 0, temp = 0, motion = 0, stuck = 0;
+	uint8_t mem = 0, tempW = 0, temp = 0, motion = 0, stuck = 0, cord = 0;
 	QString txt = "Ok";
 	QString style = "background-color: rgb(128, 128, 128); color: rgb(0, 0, 0)";
 
@@ -304,6 +304,7 @@ void W_CycleTester::displayStatus(uint8_t s)
 	temp = s & CT_ERR_TEMP;
 	motion = s & CT_ERR_MOTION;
 	stuck = s & CT_ERR_STUCK;
+	cord = s & CT_ERR_CORD;
 
 	//Sequential assignement - priority comes from order:
 	if(mem)
@@ -333,6 +334,12 @@ void W_CycleTester::displayStatus(uint8_t s)
 	if(stuck)
 	{
 		txt = "Stuck";
+		style = "background-color: rgb(255, 0, 0); color: rgb(0, 0, 0)";
+		errCnt++;
+	}
+	if(cord)
+	{
+		txt = "Cord";
 		style = "background-color: rgb(255, 0, 0); color: rgb(0, 0, 0)";
 		errCnt++;
 	}

@@ -359,7 +359,6 @@ void W_2DPlot::initChart(void)
 	chart->axisX()->setRange(INIT_PLOT_XMIN, INIT_PLOT_XMAX);
 	chart->axisY()->setRange(INIT_PLOT_YMIN, INIT_PLOT_YMAX);
 
-
 	//Colors:
 	chart->setTheme(QChart::ChartThemeDark);
 	qlsChart[5]->setColor(Qt::red);  //Color[5] was ~= [0], too similar, now red
@@ -632,7 +631,6 @@ void W_2DPlot::saveNewPointsLog(int index)
 			dataIter = 0;
 		}
 
-
 		// Set the plot iterator
 		int graphIter = (plot_len / 2) - index;
 
@@ -725,7 +723,6 @@ void W_2DPlot::computeStats(void)
 
 			for(int j = 0; j < vDataBuffer[i].length(); j++)
 			{
-
 				//Minimum:
 				if(vDataBuffer[i].at(j).y() < min)
 				{
@@ -817,6 +814,7 @@ float W_2DPlot::getRefreshRateDisplay(void)
 		timer.start();
 		return -1;
 	}
+
 	int64_t msec = timer.elapsed();
 	timer.restart();
 
@@ -1009,8 +1007,6 @@ void W_2DPlot::setChartAxis(void)
 		//Save values:
 		plot_xmin = tmpXmin;
 		plot_xmax = tmpXmax;
-
-
 	}
 	else if(ui->radioButtonXA->isChecked())
 	{
@@ -1170,31 +1166,31 @@ void W_2DPlot::updateVarList(uint8_t item)
 //pointer.
 void W_2DPlot::assignVariable(uint8_t item)
 {
-		struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
+	struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
 
-		if(varIndex[item] == 0)
-		{
-			vtp[item].used = false;
-			vtp[item].format = NULL_PTR;
-			vtp[item].rawGenPtr = nullptr;
-			vtp[item].decodedPtr = nullptr;
-		}
-		else
-		{
-			vtp[item].used = true;
-			vtp[item].format = varHandle.format;
-			vtp[item].rawGenPtr = varHandle.rawGenPtr;
-			vtp[item].decodedPtr = varHandle.decodedPtr;
-		}
+	if(varIndex[item] == 0)
+	{
+		vtp[item].used = false;
+		vtp[item].format = NULL_PTR;
+		vtp[item].rawGenPtr = nullptr;
+		vtp[item].decodedPtr = nullptr;
+	}
+	else
+	{
+		vtp[item].used = true;
+		vtp[item].format = varHandle.format;
+		vtp[item].rawGenPtr = varHandle.rawGenPtr;
+		vtp[item].decodedPtr = varHandle.decodedPtr;
+	}
 
-		if(displayMode == DisplayLogData)
-		{
-			saveNewPointsLog(logIndex);
-			refresh2DPlot();
-		}
+	if(displayMode == DisplayLogData)
+	{
+		saveNewPointsLog(logIndex);
+		refresh2DPlot();
+	}
 
-		if(allChannelUnused()) drawingTimer->stop();
-		else if(!drawingTimer->isActive()) drawingTimer->start();
+	if(allChannelUnused()) drawingTimer->stop();
+	else if(!drawingTimer->isActive()) drawingTimer->start();
 }
 
 //****************************************************************************
@@ -1648,8 +1644,6 @@ void W_2DPlot::updateScalingFactors(uint8_t var, uint8_t param, QString txt)
 		qDebug() << "Invalid parameter, scaling unchaged.";
 		return;
 	}
-
-	//qDebug() << "scaling[" << var << "]" << "[" << param << "] =" << num;
 
 	//Change array:
 	scaling[var][param] = num;

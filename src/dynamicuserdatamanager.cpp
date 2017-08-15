@@ -243,7 +243,6 @@ QString DynamicDevice::getLastSerializedStr(void)
 	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
 		return result;
 
-
 	stream	<<	timeStamp.last().date		<< ',' << \
 				timeStamp.last().ms			<< ',' << \
 				eventFlags.last()			<< ',';
@@ -272,7 +271,7 @@ struct std_variable DynamicDevice::getSerializedVar(int parameter, int index)
 {
 	(void)index;
 	struct std_variable v;
-	parameter-=2;
+	parameter -= 3;	//Tweak this if 2DPlot and UserR/W are offseted
 	if(parameter < 0 || parameter >= dynamicUser_numFields) return v;
 	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
 		return v;
