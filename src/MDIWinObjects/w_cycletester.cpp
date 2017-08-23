@@ -253,6 +253,8 @@ void W_CycleTester::timerEvent(void)
 	displayStatus(ctStats_errorMsg);
 	displayTemp(ctStats_temp);
 	ui->label_FSM_State->setText(displayFSMstate(ctStats_fsm1State));
+	ui->label_cyclePower->setText(QString::number(cyclePower));
+	ui->label_peakPower->setText(QString::number(peakPower));
 
 	//Prep & send:
 	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
