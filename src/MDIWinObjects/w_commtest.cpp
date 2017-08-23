@@ -543,6 +543,6 @@ float W_CommTest::getAverageRate(qint64 dt, int32_t packets)
 {
 	int64_t tmp1 = (int64_t)(1000 * packets) / dt;
 	float tmp2 = (float) tmp1;
-	qDebug() << "Average rate:" << tmp2 << endl;
+	//qDebug() << "Average rate:" << tmp2 << endl;
 	return (tmp2);
 }

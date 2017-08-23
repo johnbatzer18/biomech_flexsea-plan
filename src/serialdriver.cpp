@@ -235,7 +235,7 @@ void SerialDriver::signalSuccessfulParse()
 
 void SerialDriver::debugStats(int readLength, int numMessagesDecoded)
 {
-	/*	Below code benchmarks the read stream proess
+	/*	Below code benchmarks the read stream process
 	 *  Measures the time between reads, low passes, periodically qDebug()'s it
 	 * (use ctime lib instead of QTime because somehow QTime is so inefficient it changes the speed
 	 * */
@@ -291,7 +291,7 @@ void SerialDriver::handleReadyRead()
 
 	if(USBSerialPort.bytesAvailable())
 	{	//this indicates our buffer is filling faster than we can process it
-		//qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
+		qDebug() << "Data length over " << MAX_SERIAL_RX_LEN << " bytes (" << len << "bytes)";
 		USBSerialPort.clear((QSerialPort::AllDirections));
 		emit dataStatus(0, DATAIN_STATUS_RED);
 	}
@@ -304,6 +304,7 @@ void SerialDriver::handleReadyRead()
 	int maxMessagesExpected = (len / COMM_STR_BUF_LEN + (len % COMM_STR_BUF_LEN != 0));
 	uint16_t bytesToWrite;
 	int error;
+	commPeriph[PORT_USB].rx.bytesReadyFlag += numBuffers;
 	for(int i = 0; i < numBuffers; i++)
 	{
 		bytesToWrite = remainingBytes > CHUNK_SIZE ? CHUNK_SIZE : remainingBytes;
