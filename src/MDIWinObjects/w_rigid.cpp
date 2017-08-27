@@ -122,9 +122,6 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_gyrox->setText(QString::number(ri->mn.gyro.x));
 	ui->disp_gyroy->setText(QString::number(ri->mn.gyro.y));
 	ui->disp_gyroz->setText(QString::number(ri->mn.gyro.z));
-	ui->disp_magnetox->setText(QString::number(ri->mn.magneto.x));
-	ui->disp_magnetoy->setText(QString::number(ri->mn.magneto.y));
-	ui->disp_magnetoz->setText(QString::number(ri->mn.magneto.z));
 
 	ui->disp_an0->setText(QString::number(ri->mn.analog[0]));
 	ui->disp_an1->setText(QString::number(ri->mn.analog[1]));
@@ -141,7 +138,7 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_mot_vel->setText(QString::number(*(ri->ex.enc_ang_vel)));
 	ui->disp_mot_acc->setText(QString::number(ri->ex.mot_acc));
 	ui->disp_strain->setText(QString::number(ri->ex.strain));
-	ui->disp_current_mot->setText(QString::number(ri->ex.current));
+	ui->disp_current_mot->setText(QString::number(ri->ex.mot_current));
 
 	ui->disp_joint_angle->setText(QString::number(*(ri->ex.joint_ang)));
 	ui->disp_joint_angle_vel->setText(QString::number(*(ri->ex.joint_ang_vel)));
@@ -174,10 +171,6 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_gyrox_d->setText(QString::number(ri->mn.decoded.gyro.x, 'i', 0));
 	ui->disp_gyroy_d->setText(QString::number(ri->mn.decoded.gyro.y, 'i', 0));
 	ui->disp_gyroz_d->setText(QString::number(ri->mn.decoded.gyro.z, 'i', 0));
-
-	ui->disp_magnetox_d->setText(QString::number(ri->mn.decoded.magneto.x, 'i', 0));
-	ui->disp_magnetoy_d->setText(QString::number(ri->mn.decoded.magneto.y, 'i', 0));
-	ui->disp_magnetoz_d->setText(QString::number(ri->mn.decoded.magneto.z, 'i', 0));
 
 	//Decoded values - Regulate:
 	//==========================

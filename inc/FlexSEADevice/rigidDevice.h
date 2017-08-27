@@ -70,7 +70,8 @@ public:
 private:
 	static QStringList header;
 	static QStringList headerDecoded;
-	int32_t enc_ang, enc_vel, joint_ang, joint_ang_vel;
+	int32_t enc_ang, enc_vel;
+	int16_t joint_ang, joint_ang_vel, joint_ang_from_mot;
 };
 
 //****************************************************************************
