@@ -107,92 +107,148 @@ QString RigidDevice::getHeaderStr(void)
 }
 
 QStringList RigidDevice::header = QStringList()
-								<< "Timestamp"
-								<< "Timestamp (ms)"
-								<< "Event Flags"
-								<< "Accel X"
-								<< "Accel Y"
-								<< "Accel Z"
-								<< "Gyro X"
-								<< "Gyro Y"
-								<< "Gyro Z"
-								<< "Motor Angle"
-								<< "Motor Velocity"
-								<< "Motor Accel"
-								<< "Joint Angle"
-								<< "Joint Velocity"
-								<< "Motor Current"
-								<< "Strain"
-								<< "PWM"
-								<< "Analog[0]"
-								<< "Analog[1]"
-								<< "Analog[2]"
-								<< "Analog[3]"
-								<< "VB"
-								<< "VG"
-								<< "5V"
-								<< "Battery current"
-								<< "Temperature";
+	<< "Timestamp"
+	<< "Timestamp (ms)"
+	<< "Event Flags"
+	<< "State time"
+	<< "Last Offset"
+	<< "Accel X"
+	<< "Accel Y"
+	<< "Accel Z"
+	<< "Gyro X"
+	<< "Gyro Y"
+	<< "Gyro Z"
+	<< "Joint Angle"
+	<< "Joint Velocity"
+	<< "Joint Angle from Mot"
+	<< "Motor Angle"
+	<< "Motor Velocity"
+	<< "Motor Accel"
+	<< "Current Setpoint"
+	<< "Motor Current"
+	<< "Motor Voltage"
+	<< "Walking State"
+	<< "Gait State"
+	<< "VB"
+	<< "VG"
+	<< "5V"
+	<< "Battery current"
+	<< "Temperature"
+	<< "Strain"
+	<< "Analog[0]"
+	<< "Analog[1]"
+	<< "Analog[2]"
+	<< "Analog[3]"
+	<< "genVar[0]"
+	<< "genVar[1]"
+	<< "genVar[2]"
+	<< "genVar[3]"
+	<< "genVar[4]"
+	<< "genVar[5]"
+	<< "genVar[6]"
+	<< "genVar[7]"
+	<< "genVar[8]"
+	<< "genVar[9]";
 
 QStringList RigidDevice::headerDecoded = QStringList()
-								<< "Raw Value Only"
-								<< "Raw Value Only"
-								<< "Raw Value Only"
-								<< "Decoded: mg"
-								<< "Decoded: mg"
-								<< "Decoded: mg"
-								<< "Decoded: deg/s"
-								<< "Decoded: deg/s"
-								<< "Decoded: deg/s"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "Raw value only"
-								<< "mV"
-								<< "mV"
-								<< "mV"
-								<< "mA"
-								<< "Celsius";
+	<< "Raw Value Only"
+	<< "Raw Value Only"
+	<< "Raw Value Only"
+	<< "Raw Value Only"
+	<< "Raw Value Only"
+	<< "Decoded: mg"
+	<< "Decoded: mg"
+	<< "Decoded: mg"
+	<< "Decoded: deg/s"
+	<< "Decoded: deg/s"
+	<< "Decoded: deg/s"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "mA"
+	<< "mA"
+	<< "mV"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "mV"
+	<< "mV"
+	<< "mV"
+	<< "mA"
+	<< "Celsius"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only"
+	<< "Raw value only";
 
 QString RigidDevice::getLastSerializedStr(void)
 {
 	QString str;
-	QTextStream(&str) <<	timeStamp.last().date				<< ',' << \
-							timeStamp.last().ms					<< ',' << \
-							eventFlags.last()					<< ',' << \
+	QTextStream(&str) << \
+		timeStamp.last().date						<< ',' << \
+		timeStamp.last().ms							<< ',' << \
+		eventFlags.last()							<< ',' << \
 
-							riList.last()->mn.accel.x			<< ',' << \
-							riList.last()->mn.accel.y			<< ',' << \
-							riList.last()->mn.accel.z			<< ',' << \
-							riList.last()->mn.gyro.x			<< ',' << \
-							riList.last()->mn.gyro.y			<< ',' << \
-							riList.last()->mn.gyro.z			<< ',' << \
+		riList.last()->ctrl.timestamp				<< ',' << \
+		riList.last()->lastOffsetDecoded			<< ',' << \
 
-							*(riList.last()->ex.enc_ang)		<< ',' << \
-							*(riList.last()->ex.enc_ang_vel)	<< ',' << \
-							riList.last()->ex.mot_acc			<< ',' << \
-							*(riList.last()->ex.joint_ang)		<< ',' << \
-							*(riList.last()->ex.joint_ang_vel)	<< ',' << \
-							riList.last()->ex.mot_current		<< ',' << \
-							riList.last()->ex.strain			<< ',' << \
-							riList.last()->ex.ctrl.pwm			<< ',' << \
-							riList.last()->mn.analog[0]			<< ',' << \
-							riList.last()->mn.analog[1]			<< ',' << \
-							riList.last()->mn.analog[2]			<< ',' << \
-							riList.last()->mn.analog[3]			<< ',' << \
-							riList.last()->re.vb				<< ',' << \
-							riList.last()->re.vg				<< ',' << \
-							riList.last()->re.v5				<< ',' << \
-							riList.last()->re.current			<< ',' << \
-							riList.last()->re.temp;
+		riList.last()->mn.accel.x					<< ',' << \
+		riList.last()->mn.accel.y					<< ',' << \
+		riList.last()->mn.accel.z					<< ',' << \
+		riList.last()->mn.gyro.x					<< ',' << \
+		riList.last()->mn.gyro.y					<< ',' << \
+		riList.last()->mn.gyro.z					<< ',' << \
+
+		*(riList.last()->ex.joint_ang)				<< ',' << \
+		*(riList.last()->ex.joint_ang_vel)			<< ',' << \
+		*(riList.last()->ex.joint_ang_from_mot)		<< ',' << \
+
+		*(riList.last()->ex.enc_ang)				<< ',' << \
+		*(riList.last()->ex.enc_ang_vel)			<< ',' << \
+		riList.last()->ex.mot_acc					<< ',' << \
+		riList.last()->ex.ctrl.current.setpoint_val	<< ',' << \
+		riList.last()->ex.mot_current				<< ',' << \
+		riList.last()->ex.mot_volt					<< ',' << \
+
+		riList.last()->ctrl.walkingState			<< ',' << \
+		riList.last()->ctrl.gaitState				<< ',' << \
+
+		riList.last()->re.vb						<< ',' << \
+		riList.last()->re.vg						<< ',' << \
+		riList.last()->re.v5						<< ',' << \
+		riList.last()->re.current					<< ',' << \
+		riList.last()->re.temp						<< ',' << \
+		riList.last()->ex.strain					<< ',' << \
+
+		riList.last()->mn.analog[0]					<< ',' << \
+		riList.last()->mn.analog[1]					<< ',' << \
+		riList.last()->mn.analog[2]					<< ',' << \
+
+		riList.last()->mn.genVar[0]					<< ',' << \
+		riList.last()->mn.genVar[1]					<< ',' << \
+		riList.last()->mn.genVar[2]					<< ',' << \
+		riList.last()->mn.genVar[3]					<< ',' << \
+		riList.last()->mn.genVar[4]					<< ',' << \
+		riList.last()->mn.genVar[5]					<< ',' << \
+		riList.last()->mn.genVar[6]					<< ',' << \
+		riList.last()->mn.genVar[7]					<< ',' << \
+		riList.last()->mn.genVar[8]					<< ',' << \
+		riList.last()->mn.genVar[9];
+
 	return str;
 }
 
@@ -204,35 +260,56 @@ void RigidDevice::appendSerializedStr(QStringList *splitLine)
 	if(splitLine->length() >= serializedLength)
 	{
 		appendEmptyLine();
-		timeStamp.last().date			= (*splitLine)[idx++];
-		timeStamp.last().ms				= (*splitLine)[idx++].toInt();
-		eventFlags.last()				= (*splitLine)[idx++].toInt();
+		timeStamp.last().date						= (*splitLine)[idx++];
+		timeStamp.last().ms							= (*splitLine)[idx++].toInt();
+		eventFlags.last()							= (*splitLine)[idx++].toInt();
 
-		riList.last()->mn.accel.x		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.accel.y		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.accel.z		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.gyro.x		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.gyro.y		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.gyro.z		= (*splitLine)[idx++].toInt();
+		riList.last()->ctrl.timestamp				= (*splitLine)[idx++].toInt();
+		riList.last()->lastOffsetDecoded			= (*splitLine)[idx++].toInt();
 
-		*(riList.last()->ex.enc_ang)	= (*splitLine)[idx++].toInt();
-		*(riList.last()->ex.enc_ang_vel)= (*splitLine)[idx++].toInt();
-		riList.last()->ex.mot_acc		= (*splitLine)[idx++].toInt();
-		*(riList.last()->ex.joint_ang)	= (*splitLine)[idx++].toInt();
-		*(riList.last()->ex.joint_ang_vel)	= (*splitLine)[idx++].toInt();
-		riList.last()->ex.mot_current		= (*splitLine)[idx++].toInt();
-		riList.last()->ex.strain		= (*splitLine)[idx++].toInt();
-		riList.last()->ex.ctrl.pwm		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.analog[0]		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.analog[1]		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.analog[2]		= (*splitLine)[idx++].toInt();
-		riList.last()->mn.analog[3]		= (*splitLine)[idx++].toInt();
+		riList.last()->mn.accel.x					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.accel.y					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.accel.z					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.gyro.x					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.gyro.y					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.gyro.z					= (*splitLine)[idx++].toInt();
 
-		riList.last()->re.vb			= (*splitLine)[idx++].toInt();
-		riList.last()->re.vg			= (*splitLine)[idx++].toInt();
-		riList.last()->re.v5			= (*splitLine)[idx++].toInt();
-		riList.last()->re.current		= (*splitLine)[idx++].toInt();
-		riList.last()->re.temp			= (*splitLine)[idx++].toInt();
+		*(riList.last()->ex.joint_ang)				= (*splitLine)[idx++].toInt();
+		*(riList.last()->ex.joint_ang_vel)			= (*splitLine)[idx++].toInt();
+		*(riList.last()->ex.joint_ang_from_mot)		= (*splitLine)[idx++].toInt();
+
+		*(riList.last()->ex.enc_ang)				= (*splitLine)[idx++].toInt();
+		*(riList.last()->ex.enc_ang_vel)			= (*splitLine)[idx++].toInt();
+		riList.last()->ex.mot_acc					= (*splitLine)[idx++].toInt();
+		riList.last()->ex.ctrl.current.setpoint_val	= (*splitLine)[idx++].toInt();
+		riList.last()->ex.mot_current				= (*splitLine)[idx++].toInt();
+		riList.last()->ex.mot_volt					= (*splitLine)[idx++].toInt();
+
+		riList.last()->ctrl.walkingState			= (*splitLine)[idx++].toInt();
+		riList.last()->ctrl.gaitState				= (*splitLine)[idx++].toInt();
+
+		riList.last()->re.vb						= (*splitLine)[idx++].toInt();
+		riList.last()->re.vg						= (*splitLine)[idx++].toInt();
+		riList.last()->re.v5						= (*splitLine)[idx++].toInt();
+		riList.last()->re.current					= (*splitLine)[idx++].toInt();
+		riList.last()->re.temp						= (*splitLine)[idx++].toInt();
+		riList.last()->ex.strain					= (*splitLine)[idx++].toInt();
+
+		riList.last()->mn.analog[0]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.analog[1]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.analog[2]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.analog[3]					= (*splitLine)[idx++].toInt();
+
+		riList.last()->mn.genVar[0]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[1]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[2]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[3]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[4]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[5]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[6]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[7]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[8]					= (*splitLine)[idx++].toInt();
+		riList.last()->mn.genVar[9]					= (*splitLine)[idx++].toInt();
 	}
 }
 
@@ -273,119 +350,199 @@ struct std_variable RigidDevice::getSerializedVar(int parameter, int index)
 			var.rawGenPtr = &eventFlags[index];
 			var.decodedPtr = nullptr;
 			break;
-		case 3: //"Accel X"
+		case 3: //"State time"
+			var.format = FORMAT_32U;
+			var.rawGenPtr = &riList[index]->ctrl.timestamp;
+			var.decodedPtr = nullptr;
+			break;
+		case 4: //"Last offset decoded"
+			var.format = FORMAT_8U;
+			var.rawGenPtr = &riList[index]->lastOffsetDecoded;
+			var.decodedPtr = nullptr;
+			break;
+		case 5: //"Accel X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &riList[index]->mn.accel.x;
 			var.decodedPtr = &riList[index]->mn.decoded.accel.x;
 			break;
-		case 4: //"Accel Y"
+		case 6: //"Accel Y"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &riList[index]->mn.accel.y;
 			var.decodedPtr = &riList[index]->mn.decoded.accel.y;
 			break;
-		case 5: //"Accel Z"
+		case 7: //"Accel Z"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &riList[index]->mn.accel.z;
 			var.decodedPtr = &riList[index]->mn.decoded.accel.z;
 			break;
-		case 6: //"Gyro X"
+		case 8: //"Gyro X"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &riList[index]->mn.gyro.x;
 			var.decodedPtr = &riList[index]->mn.decoded.gyro.x;
 			break;
-		case 7: //"Gyro Y"
+		case 9: //"Gyro Y"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &riList[index]->mn.gyro.y;
 			var.decodedPtr = &riList[index]->mn.decoded.gyro.y;
 			break;
-		case 8: //"Gyro Z"
+		case 10: //"Gyro Z"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &riList[index]->mn.gyro.z;
 			var.decodedPtr = &riList[index]->mn.decoded.gyro.z;
 			break;
-		case 9: //"Motor Angle"
+		case 11: //"Joint Angle"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = riList[index]->ex.joint_ang;
+			var.decodedPtr = nullptr;
+			break;
+		case 12: //"Joint Velocity"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = riList[index]->ex.joint_ang_vel;
+			var.decodedPtr = nullptr;
+			break;
+		case 13: //"Joint Angle From Motor"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = riList[index]->ex.joint_ang_from_mot;
+			var.decodedPtr = nullptr;
+			break;
+		case 14: //"Motor Angle"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = riList[index]->ex.enc_ang;
 			var.decodedPtr = nullptr;
 			break;
-		case 10: //"Motor Velocity"
+		case 15: //"Motor Velocity"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = riList[index]->ex.enc_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
-		case 11: //"Motor Acceleration"
+		case 16: //"Motor Acceleration"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->ex.mot_acc;
 			var.decodedPtr = nullptr;
 			break;
-		case 12: //"Joint Angle"
+		case 17: //"Motor Current Setpoint"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = riList[index]->ex.joint_ang;
+			var.rawGenPtr = &riList[index]->ex.ctrl.current.setpoint_val;
 			var.decodedPtr = nullptr;
 			break;
-		case 13: //"Joint Velocity"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = riList[index]->ex.joint_ang_vel;
-			var.decodedPtr = nullptr;
-			break;
-		case 14: //"Motor current"
+		case 18: //"Motor current"
 			var.format = FORMAT_32S;
 			var.rawGenPtr = &riList[index]->ex.mot_current;
 			var.decodedPtr = nullptr;
 			break;
-		case 15: //"Strain"
-			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->ex.strain;
-			var.decodedPtr = nullptr;
-			break;
-		case 16: //"PWM"
+		case 19: //"Motor Voltage"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->ex.ctrl.pwm;
+			var.rawGenPtr = &riList[index]->ex.mot_volt;
 			var.decodedPtr = nullptr;
 			break;
-		case 17: //"Analog 0"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->mn.analog[0];
+		case 20: //"Walking State"
+			var.format = FORMAT_8S;
+			var.rawGenPtr = &riList[index]->ctrl.walkingState;
 			var.decodedPtr = nullptr;
 			break;
-		case 18: //"Analog 1"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->mn.analog[1];
+		case 21: //"Gait State"
+			var.format = FORMAT_8S;
+			var.rawGenPtr = &riList[index]->ctrl.gaitState;
 			var.decodedPtr = nullptr;
 			break;
-		case 19: //"Analog 2"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->mn.analog[2];
-			var.decodedPtr = nullptr;
-			break;
-		case 20: //"Analog 3"
-			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->mn.analog[3];
-			var.decodedPtr = nullptr;
-			break;
-		case 21: //"+VB"
+		case 22: //"+VB"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->re.vb;
 			var.decodedPtr = nullptr;
 			break;
-		case 22: //"+VG"
+		case 23: //"+VG"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->re.vg;
 			var.decodedPtr = nullptr;
 			break;
-		case 23: //"+5V"
+		case 24: //"+5V"
 			var.format = FORMAT_16U;
 			var.rawGenPtr = &riList[index]->re.v5;
 			var.decodedPtr = nullptr;
 			break;
-		case 24: //"Battery Current"
+		case 25: //"Battery Current"
 			var.format = FORMAT_16S;
 			var.rawGenPtr = &riList[index]->re.current;
 			var.decodedPtr = nullptr;
 			break;
-		case 25: //"Temperature"
+		case 26: //"Temperature"
 			var.format = FORMAT_8S;
 			var.rawGenPtr = &riList[index]->re.temp;
+			var.decodedPtr = nullptr;
+			break;
+		case 27: //"Strain"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &riList[index]->ex.strain;
+			var.decodedPtr = nullptr;
+			break;
+		case 28: //"Analog 0"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->mn.analog[0];
+			var.decodedPtr = nullptr;
+			break;
+		case 29: //"Analog 1"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->mn.analog[1];
+			var.decodedPtr = nullptr;
+			break;
+		case 30: //"Analog 2"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->mn.analog[2];
+			var.decodedPtr = nullptr;
+			break;
+		case 31: //"Analog 3"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &riList[index]->mn.analog[3];
+			var.decodedPtr = nullptr;
+			break;
+		case 32: //"genVar[0]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[0];
+			var.decodedPtr = nullptr;
+			break;
+		case 33: //"genVar[1]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[1];
+			var.decodedPtr = nullptr;
+			break;
+		case 34: //"genVar[2]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[2];
+			var.decodedPtr = nullptr;
+			break;
+		case 35: //"genVar[3]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[3];
+			var.decodedPtr = nullptr;
+			break;
+		case 36: //"genVar[4]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[4];
+			var.decodedPtr = nullptr;
+			break;
+		case 37: //"genVar[5]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[5];
+			var.decodedPtr = nullptr;
+			break;
+		case 38: //"genVar[6]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[6];
+			var.decodedPtr = nullptr;
+			break;
+		case 39: //"genVar[7]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[7];
+			var.decodedPtr = nullptr;
+			break;
+		case 40: //"genVar[8]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[8];
+			var.decodedPtr = nullptr;
+			break;
+		case 41: //"genVar[9]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &riList[index]->mn.genVar[9];
 			var.decodedPtr = nullptr;
 			break;
 		default:

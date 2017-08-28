@@ -333,7 +333,9 @@ void W_SlaveComm::initSlaveCom(void)
 		{
 			//Fill the experiment combo box
 			comboBoxExpPtr[row]->addItems(FlexSEA_Generic::var_list_exp);
+			//Start with Rigid, CL enabled:
 			comboBoxExpPtr[row]->setCurrentIndex(FlexSEA_Generic::var_list_exp.count()-2);
+
 			//Fill the slave combo box accordingly
 			int selectedExperimentIndex = comboBoxExpPtr[row]->currentIndex();
 			this->populateSlaveComboBox(comboBoxSlavePtr[row], selectedExperimentIndex);
@@ -378,8 +380,9 @@ void W_SlaveComm::initSlaveCom(void)
 	streamManager->ricnuOffsets = QList<int>({0, 1});
 	streamManager->rigidOffsets = QList<int>({0, 1});
 	defaultCmdLineText = "o=0,1;";
-	ui->lineEdit->setEnabled(false);
-	ui->lineEdit->setText(" ");
+	//We start with Rigid, so we enable the CL:
+	ui->lineEdit->setEnabled(true);
+	ui->lineEdit->setText(defaultCmdLineText);
 	ui->lineEdit->setToolTip(lineEdit_ttip);
 
 	allComboBoxesPopulated = true;
