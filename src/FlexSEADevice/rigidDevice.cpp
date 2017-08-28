@@ -193,6 +193,7 @@ QStringList RigidDevice::headerDecoded = QStringList()
 	<< "Raw value only"
 	<< "Raw value only"
 	<< "Raw value only"
+	<< "Raw value only"
 	<< "Raw value only";
 
 QString RigidDevice::getLastSerializedStr(void)
@@ -237,6 +238,7 @@ QString RigidDevice::getLastSerializedStr(void)
 		riList.last()->mn.analog[0]					<< ',' << \
 		riList.last()->mn.analog[1]					<< ',' << \
 		riList.last()->mn.analog[2]					<< ',' << \
+		riList.last()->mn.analog[3]					<< ',' << \
 
 		riList.last()->mn.genVar[0]					<< ',' << \
 		riList.last()->mn.genVar[1]					<< ',' << \
