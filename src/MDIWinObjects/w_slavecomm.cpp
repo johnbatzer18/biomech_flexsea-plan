@@ -379,7 +379,7 @@ void W_SlaveComm::initSlaveCom(void)
 	//Default command line settings, RIC/NU & Rigid:
 	streamManager->ricnuOffsets = QList<int>({0, 1});
 	streamManager->rigidOffsets = QList<int>({0, 1});
-	defaultCmdLineText = "o=0,1;";
+	defaultCmdLineText = "o=0,1,2,3;";
 	//We start with Rigid, so we enable the CL:
 	ui->lineEdit->setEnabled(true);
 	ui->lineEdit->setText(defaultCmdLineText);

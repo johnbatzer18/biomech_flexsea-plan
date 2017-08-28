@@ -1516,7 +1516,11 @@ void W_2DPlot::on_pbIMU_clicked()
 
 	for(int item = 0; item < VAR_NUM; item++)
 	{
-		(*cbVar[item])->setCurrentIndex(item + 2);
+		//Special case for Rigid:
+		if((*cbVarSlave[item])->count()-1 == (*cbVarSlave[item])->currentIndex())
+			(*cbVar[item])->setCurrentIndex(item + 4);
+		else
+			(*cbVar[item])->setCurrentIndex(item + 2);
 	}
 }
 
