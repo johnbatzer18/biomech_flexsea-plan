@@ -28,7 +28,7 @@ public:
 
 	QList<int> getRefreshRates();
 
-	static const int NUM_TIMER_FREQS = 10;
+	static const int NUM_TIMER_FREQS = 11;
 	QList<int> ricnuOffsets, rigidOffsets;
 	int minOffs = 0, maxOffs = 0;
 
