@@ -77,12 +77,14 @@ private:
 	Ui::W_CycleTester *ui;
 	QTimer *timer, *buttonTimer;
 	bool resetPBstate, streamingPBstate;
+	/*
 	uint16_t piu_t[5] = {0,1,2,3,4};
 	uint16_t piu_y[5] = {0,0,0,0,0};
 	uint16_t np_t[5] = {0,0,0,0,0};
 	uint16_t np_y[5] = {0,0,0,0,0};
 	uint16_t piu_vCurr = 1, np_vCurr = 0;
 	uint16_t piu_pCurr = 2, np_pCurr = 0;
+	*/
 
 	//Function(s):
 	void init(void);

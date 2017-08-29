@@ -534,11 +534,11 @@ void W_CycleTester::on_pbCopy_clicked()
 	//Copy data:
 	for(int i = 0; i < 5; i++)
 	{
-		np_t[i] = piu_t[i];
-		np_y[i] = piu_y[i];
+		ctNewProfileYT[0][i] = ctProfileInUseYT[0][i];
+		ctNewProfileYT[1][i] = ctProfileInUseYT[1][i];
 	}
-	np_vCurr = piu_vCurr;
-	np_pCurr = piu_pCurr;
+	ctNewProfileCurr[0] = ctProfileInUseCurr[0];
+	ctNewProfileCurr[1] = ctProfileInUseCurr[1];
 
 	//Refresh display:
 	refreshProfileDisplay();
@@ -546,49 +546,56 @@ void W_CycleTester::on_pbCopy_clicked()
 
 void W_CycleTester::refreshProfileDisplay(void)
 {
-	ui->label_piu_t0->setText(QString::number(piu_t[0]));
-	ui->label_piu_y0->setText(QString::number(piu_y[0]));
-	ui->label_piu_t1->setText(QString::number(piu_t[1]));
-	ui->label_piu_y1->setText(QString::number(piu_y[1]));
-	ui->label_piu_t2->setText(QString::number(piu_t[2]));
-	ui->label_piu_y2->setText(QString::number(piu_y[2]));
-	ui->label_piu_t3->setText(QString::number(piu_t[3]));
-	ui->label_piu_y3->setText(QString::number(piu_y[3]));
-	ui->label_piu_t4->setText(QString::number(piu_t[4]));
-	ui->label_piu_y4->setText(QString::number(piu_y[4]));
-	ui->label_piu_vCurr->setText(QString::number(piu_vCurr));
-	ui->label_piu_pCurr->setText(QString::number(piu_pCurr));
+	ui->label_piu_t0->setText(QString::number(ctProfileInUseYT[0][0]));
+	ui->label_piu_y0->setText(QString::number(ctProfileInUseYT[1][0]));
+	ui->label_piu_t1->setText(QString::number(ctProfileInUseYT[0][1]));
+	ui->label_piu_y1->setText(QString::number(ctProfileInUseYT[1][1]));
+	ui->label_piu_t2->setText(QString::number(ctProfileInUseYT[0][2]));
+	ui->label_piu_y2->setText(QString::number(ctProfileInUseYT[1][2]));
+	ui->label_piu_t3->setText(QString::number(ctProfileInUseYT[0][3]));
+	ui->label_piu_y3->setText(QString::number(ctProfileInUseYT[1][3]));
+	ui->label_piu_t4->setText(QString::number(ctProfileInUseYT[0][4]));
+	ui->label_piu_y4->setText(QString::number(ctProfileInUseYT[1][4]));
+	ui->label_piu_vCurr->setText(QString::number(ctProfileInUseCurr[0]));
+	ui->label_piu_pCurr->setText(QString::number(ctProfileInUseCurr[1]));
 
-	ui->lineEdit_np_t0->setText(QString::number(np_t[0]));
-	ui->label_np_y0->setText(QString::number(np_y[0]));
-	ui->lineEdit_np_t1->setText(QString::number(np_t[1]));
-	ui->label_np_y1->setText(QString::number(np_y[1]));
-	ui->lineEdit_np_t2->setText(QString::number(np_t[2]));
-	ui->label_np_y2->setText(QString::number(np_y[2]));
-	ui->lineEdit_np_t3->setText(QString::number(np_t[3]));
-	ui->label_np_y3->setText(QString::number(np_y[3]));
-	ui->lineEdit_np_t4->setText(QString::number(np_t[4]));
-	ui->label_np_y4->setText(QString::number(np_y[4]));
-	ui->lineEdit_np_vCurr->setText(QString::number(np_vCurr));
-	ui->lineEdit_np_pCurr->setText(QString::number(np_pCurr));
+	ui->lineEdit_np_t0->setText(QString::number(ctNewProfileYT[0][0]));
+	ui->label_np_y0->setText(QString::number(ctNewProfileYT[1][0]));
+	ui->lineEdit_np_t1->setText(QString::number(ctNewProfileYT[0][1]));
+	ui->label_np_y1->setText(QString::number(ctNewProfileYT[1][1]));
+	ui->lineEdit_np_t2->setText(QString::number(ctNewProfileYT[0][2]));
+	ui->label_np_y2->setText(QString::number(ctNewProfileYT[1][2]));
+	ui->lineEdit_np_t3->setText(QString::number(ctNewProfileYT[0][3]));
+	ui->label_np_y3->setText(QString::number(ctNewProfileYT[1][3]));
+	ui->lineEdit_np_t4->setText(QString::number(ctNewProfileYT[0][4]));
+	ui->label_np_y4->setText(QString::number(ctNewProfileYT[1][4]));
+	ui->lineEdit_np_vCurr->setText(QString::number(ctNewProfileCurr[0]));
+	ui->lineEdit_np_pCurr->setText(QString::number(ctNewProfileCurr[1]));
 }
 
 void W_CycleTester::on_pbCompute_clicked()
 {
 	//Get numbers from lineEdits:
-	np_vCurr = ui->lineEdit_np_vCurr->text().toInt();
-	np_pCurr = ui->lineEdit_np_pCurr->text().toInt();
-	np_t[0] = ui->lineEdit_np_t0->text().toInt();
-	np_t[1] = ui->lineEdit_np_t1->text().toInt();
-	np_t[2] = ui->lineEdit_np_t2->text().toInt();
-	np_t[3] = ui->lineEdit_np_t3->text().toInt();
-	np_t[4] = ui->lineEdit_np_t4->text().toInt();
+	ctNewProfileCurr[0] = ui->lineEdit_np_vCurr->text().toInt();
+	ctNewProfileCurr[1] = ui->lineEdit_np_pCurr->text().toInt();
+	ctNewProfileYT[0][0] = ui->lineEdit_np_t0->text().toInt();
+	ctNewProfileYT[0][1] = ui->lineEdit_np_t1->text().toInt();
+	ctNewProfileYT[0][2] = ui->lineEdit_np_t2->text().toInt();
+	ctNewProfileYT[0][3] = ui->lineEdit_np_t3->text().toInt();
+	ctNewProfileYT[0][4] = ui->lineEdit_np_t4->text().toInt();
 
-	np_y[0] = np_vCurr;
-	np_y[1] = np_vCurr;
-	np_y[2] = np_pCurr;
-	np_y[3] = np_pCurr;
-	np_y[4] = np_vCurr;
+	/*
+	ctNewProfileYT[1][0] = ctNewProfileCurr[0];
+	ctNewProfileYT[1][1] = ctNewProfileCurr[0];
+	ctNewProfileYT[1][2] = ctNewProfileCurr[1];
+	ctNewProfileYT[1][3] = ctNewProfileCurr[1];
+	ctNewProfileYT[1][4] = ctNewProfileCurr[0];
+	*/
+	ctNewProfileYT[1][0] = ui->label_np_y0->text().toInt();
+	ctNewProfileYT[1][1] = ui->label_np_y1->text().toInt();
+	ctNewProfileYT[1][2] = ui->label_np_y2->text().toInt();
+	ctNewProfileYT[1][3] = ui->label_np_y3->text().toInt();
+	ctNewProfileYT[1][4] = ui->label_np_y4->text().toInt();
 
 	//Refresh display:
 	refreshProfileDisplay();
