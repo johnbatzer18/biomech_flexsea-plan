@@ -65,6 +65,22 @@ W_CycleTester::~W_CycleTester()
 
 void W_CycleTester::init(void)
 {
+	//Tabs:
+	initCtrlTab();
+	initProfileTab();
+
+	//Always start with the Ctrl tab:
+	ui->tabWidget->setCurrentIndex(0);
+
+	//Timers:
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
+	buttonTimer = new QTimer(this);
+	connect(buttonTimer, SIGNAL(timeout()), this, SLOT(buttonTimerEvent()));
+}
+
+void W_CycleTester::initCtrlTab(void)
+{
 	//Displays:
 	ui->progressBar->setValue(0);
 	ui->progressBar->setDisabled(true);
@@ -83,12 +99,48 @@ void W_CycleTester::init(void)
 	streamingPBstate = true;
 	ui->pushButtonStartStreaming->setText("Start Streaming");
 	ui->pushButtonConfirmReset->setDisabled(true);
+}
 
-	//Timers:
-	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
-	buttonTimer = new QTimer(this);
-	connect(buttonTimer, SIGNAL(timeout()), this, SLOT(buttonTimerEvent()));
+void W_CycleTester::initProfileTab(void)
+{
+	const QValidator *validT = new QIntValidator(0, 10000, this);
+	const QValidator *validI = new QIntValidator(0, 65535, this);
+
+	//Data:
+
+	//Displays:
+	ui->label_piu_t0->setText("-");
+	ui->label_piu_y0->setText("-");
+	ui->label_piu_t1->setText("-");
+	ui->label_piu_y1->setText("-");
+	ui->label_piu_t2->setText("-");
+	ui->label_piu_y2->setText("-");
+	ui->label_piu_t3->setText("-");
+	ui->label_piu_y3->setText("-");
+	ui->label_piu_t4->setText("-");
+	ui->label_piu_y4->setText("-");
+	ui->label_piu_vCurr->setText("-");
+	ui->label_piu_pCurr->setText("-");
+
+	ui->lineEdit_np_t0->setText("");
+	ui->lineEdit_np_t0->setValidator(validT);
+	ui->label_np_y0->setText("-");
+	ui->lineEdit_np_t1->setText("");
+	ui->lineEdit_np_t1->setValidator(validT);
+	ui->label_np_y1->setText("-");
+	ui->lineEdit_np_t2->setText("");
+	ui->lineEdit_np_t2->setValidator(validT);
+	ui->label_np_y2->setText("-");
+	ui->lineEdit_np_t3->setText("");
+	ui->lineEdit_np_t3->setValidator(validT);
+	ui->label_np_y3->setText("-");
+	ui->lineEdit_np_t4->setText("");
+	ui->lineEdit_np_t4->setValidator(validT);
+	ui->label_np_y4->setText("-");
+	ui->lineEdit_np_vCurr->setText("");
+	ui->lineEdit_np_vCurr->setValidator(validI);
+	ui->lineEdit_np_pCurr->setText("");
+	ui->lineEdit_np_pCurr->setValidator(validI);
 }
 
 void W_CycleTester::experimentControl(enum expCtrl e)
@@ -257,10 +309,14 @@ void W_CycleTester::timerEvent(void)
 	ui->label_peakPower->setText(QString::number((float)peakPower/10));
 	ui->label_instantPower->setText(QString::number((float)instantPower/10));
 
-	//Prep & send:
-	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
-	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	//We only stream when the Controls & Stats tab is selected:
+	if(ui->tabWidget->currentIndex() == 0)
+	{
+		//Prep & send:
+		tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
+		pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+		emit writeCommand(numb, comm_str_usb, WRITE);
+	}
 }
 
 void W_CycleTester::buttonTimerEvent(void)
@@ -456,4 +512,95 @@ void W_CycleTester::on_pushButtonStatus_pressed()
 	buttonTimer->setSingleShot(true);
 	buttonTimer->setInterval(1750);
 	buttonTimer->start();
+}
+
+void W_CycleTester::on_pbRead_clicked()
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//Prep & send:
+	tx_cmd_cycle_tester_r(TX_N_DEFAULT, 1);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	//emit writeCommand(numb, comm_str_usb, WRITE);
+	emit writeCommand(numb, comm_str_usb, READ);
+
+	//Refresh display:
+	refreshProfileDisplay();	//ToDo this should be done after a delay...
+}
+
+void W_CycleTester::on_pbCopy_clicked()
+{
+	//Copy data:
+	for(int i = 0; i < 5; i++)
+	{
+		np_t[i] = piu_t[i];
+		np_y[i] = piu_y[i];
+	}
+	np_vCurr = piu_vCurr;
+	np_pCurr = piu_pCurr;
+
+	//Refresh display:
+	refreshProfileDisplay();
+}
+
+void W_CycleTester::refreshProfileDisplay(void)
+{
+	ui->label_piu_t0->setText(QString::number(piu_t[0]));
+	ui->label_piu_y0->setText(QString::number(piu_y[0]));
+	ui->label_piu_t1->setText(QString::number(piu_t[1]));
+	ui->label_piu_y1->setText(QString::number(piu_y[1]));
+	ui->label_piu_t2->setText(QString::number(piu_t[2]));
+	ui->label_piu_y2->setText(QString::number(piu_y[2]));
+	ui->label_piu_t3->setText(QString::number(piu_t[3]));
+	ui->label_piu_y3->setText(QString::number(piu_y[3]));
+	ui->label_piu_t4->setText(QString::number(piu_t[4]));
+	ui->label_piu_y4->setText(QString::number(piu_y[4]));
+	ui->label_piu_vCurr->setText(QString::number(piu_vCurr));
+	ui->label_piu_pCurr->setText(QString::number(piu_pCurr));
+
+	ui->lineEdit_np_t0->setText(QString::number(np_t[0]));
+	ui->label_np_y0->setText(QString::number(np_y[0]));
+	ui->lineEdit_np_t1->setText(QString::number(np_t[1]));
+	ui->label_np_y1->setText(QString::number(np_y[1]));
+	ui->lineEdit_np_t2->setText(QString::number(np_t[2]));
+	ui->label_np_y2->setText(QString::number(np_y[2]));
+	ui->lineEdit_np_t3->setText(QString::number(np_t[3]));
+	ui->label_np_y3->setText(QString::number(np_y[3]));
+	ui->lineEdit_np_t4->setText(QString::number(np_t[4]));
+	ui->label_np_y4->setText(QString::number(np_y[4]));
+	ui->lineEdit_np_vCurr->setText(QString::number(np_vCurr));
+	ui->lineEdit_np_pCurr->setText(QString::number(np_pCurr));
+}
+
+void W_CycleTester::on_pbCompute_clicked()
+{
+	//Get numbers from lineEdits:
+	np_vCurr = ui->lineEdit_np_vCurr->text().toInt();
+	np_pCurr = ui->lineEdit_np_pCurr->text().toInt();
+	np_t[0] = ui->lineEdit_np_t0->text().toInt();
+	np_t[1] = ui->lineEdit_np_t1->text().toInt();
+	np_t[2] = ui->lineEdit_np_t2->text().toInt();
+	np_t[3] = ui->lineEdit_np_t3->text().toInt();
+	np_t[4] = ui->lineEdit_np_t4->text().toInt();
+
+	np_y[0] = np_vCurr;
+	np_y[1] = np_vCurr;
+	np_y[2] = np_pCurr;
+	np_y[3] = np_pCurr;
+	np_y[4] = np_vCurr;
+
+	//Refresh display:
+	refreshProfileDisplay();
+}
+
+void W_CycleTester::on_pbWrite_clicked()
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//Prep & send:
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 1, 0, 0, 0);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
 }

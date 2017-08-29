@@ -61,25 +61,40 @@ private slots:
 	void on_pushButtonConfirmReset_clicked();
 	void timerEvent(void);
 	void buttonTimerEvent(void);
-
 	void on_pushButtonPause_clicked();
-
 	void on_pushButtonStatus_pressed();
+
+	void on_pbRead_clicked();
+
+	void on_pbCopy_clicked();
+
+	void on_pbCompute_clicked();
+
+	void on_pbWrite_clicked();
 
 private:
 	//Variables & Objects:
 	Ui::W_CycleTester *ui;
 	QTimer *timer, *buttonTimer;
 	bool resetPBstate, streamingPBstate;
+	uint16_t piu_t[5] = {0,1,2,3,4};
+	uint16_t piu_y[5] = {0,0,0,0,0};
+	uint16_t np_t[5] = {0,0,0,0,0};
+	uint16_t np_y[5] = {0,0,0,0,0};
+	uint16_t piu_vCurr = 1, np_vCurr = 0;
+	uint16_t piu_pCurr = 2, np_pCurr = 0;
 
 	//Function(s):
 	void init(void);
+	void initCtrlTab(void);
+	void initProfileTab(void);
 	void experimentControl(enum expCtrl e);
 	void experimentStats(enum expStats e);
 	void resetStats(void);
 	void displayStatus(uint8_t s);
 	QString displayFSMstate(uint8_t s);
 	void displayTemp(int8_t t);
+	void refreshProfileDisplay(void);
 };
 
 #define TIMER_PERIOD	40		//40ms / 25Hz
