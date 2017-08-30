@@ -78,6 +78,12 @@ private slots:
 
 	void on_pushButtonStartAutoStreaming_clicked();
 
+	void on_pbPresetW1_clicked();
+
+	void on_pbPresetW2_clicked();
+
+	void on_pbPresetR1_clicked();
+
 private:
 	//Variables & Objects:
 	Ui::W_CycleTester *ui;
@@ -96,9 +102,14 @@ private:
 	QString displayFSMstate(uint8_t s);
 	void displayTemp(int8_t t);
 	void refreshProfileDisplay(void);
+	void presets(uint8_t i);
 
 	QList<FlexseaDevice*> *rigidDevList;
 	QList<FlexseaDevice*> rigidTargetList;
+
+	uint16_t timePresets[3][5] = {{0,400,650,725,1100}, \
+								{0,300,450,525,900},\
+								{0,300,350,400,600}};
 };
 
 #define TIMER_PERIOD	100		//10Hz

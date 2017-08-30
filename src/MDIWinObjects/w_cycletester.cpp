@@ -318,12 +318,15 @@ void W_CycleTester::timerEvent(void)
 	ui->label_mod2->setText(QString::number(ctStats_mod2));
 	displayStatus(ctStats_errorMsg);
 	displayTemp(ctStats_temp);
+	ui->label_statsTemp->setText(QString::number(ctStats_temp));
 	ui->label_FSM_State->setText(displayFSMstate(ctStats_fsm1State));
-	ui->label_cyclePower->setText(QString::number((float)cyclePower/1000));
-	ui->label_peakPower->setText(QString::number((float)peakPower/10));
-	ui->label_instantPower->setText(QString::number((float)instantPower/10));
+	ui->label_cyclePower->setText(QString::number((float)cyclePower/1000, 'f', 1));
+	ui->label_peakPower->setText(QString::number((float)peakPower/10, 'f', 1));
+	ui->label_instantPower->setText(QString::number((float)instantPower/10, 'f', 1));
+	ui->label_rms->setText(QString::number((float)rms/10, 'f', 1));
+	ui->label_i2r->setText(QString::number((float)i2r/1000, 'f', 1));
 
-	qDebug() << "Refresh display...";
+	//qDebug() << "Refresh display...";
 
 	//We only stream when the Controls & Stats tabs are selected:
 	if(ui->tabWidget->currentIndex() < 2 && streamingPBstate == false)
@@ -664,4 +667,28 @@ void W_CycleTester::on_pushButtonStartAutoStreaming_clicked()
 		//Timer to refresh the display:
 		timer->start(50);
 	}
+}
+
+void W_CycleTester::on_pbPresetW1_clicked()
+{
+	presets(0);
+}
+
+void W_CycleTester::on_pbPresetW2_clicked()
+{
+	presets(1);
+}
+
+void W_CycleTester::on_pbPresetR1_clicked()
+{
+	presets(2);
+}
+
+void W_CycleTester::presets(uint8_t i)
+{
+	for(int j = 0; j < 5; j++)
+	{
+		ctNewProfileYT[0][j] = timePresets[i][j];
+	}
+	refreshProfileDisplay();
 }
