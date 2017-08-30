@@ -386,6 +386,10 @@ void W_SlaveComm::initSlaveCom(void)
 	ui->lineEdit->setToolTip(lineEdit_ttip);
 
 	allComboBoxesPopulated = true;
+
+	//User notes:
+	ui->lineEdit_userNotes->setEnabled(true);
+
 	return;
 }
 
@@ -480,6 +484,14 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		target->experimentIndex = cmdCode;
 		target->experimentName = comboBoxExpPtr[row]->currentText();
 
+		//User notes, with any comma replaced by a space:
+		QString uNotes = ui->lineEdit_userNotes->text();
+		uNotes.replace(","," ");
+		ui->lineEdit_userNotes->setText(uNotes);
+		target->userNotes = uNotes;
+
+		ui->lineEdit_userNotes->setEnabled(false);
+
 		emit activeSlaveStreaming(target->slaveName);
 
 		if(auto_checkbox[row]->isChecked())
@@ -508,6 +520,8 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		{
 			ui->lineEdit->setEnabled(true);
 		}
+
+		ui->lineEdit_userNotes->setEnabled(true);
 
 		// Used to open view window by default.
 		emit activeSlaveStreaming("None");

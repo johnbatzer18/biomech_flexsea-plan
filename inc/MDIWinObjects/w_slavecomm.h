@@ -118,7 +118,6 @@ private slots:
 	void on_comboBoxExp4_currentIndexChanged(int index);
 
 	void readCommandLine();
-
 	void dataTimeoutEvent(void);
 
 signals:
