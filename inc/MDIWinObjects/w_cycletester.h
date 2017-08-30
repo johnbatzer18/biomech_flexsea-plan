@@ -26,6 +26,7 @@
 #include "counter.h"
 #include "flexsea_generic.h"
 #include "cmd-CycleTester.h"
+#include <streammanager.h>
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -41,7 +42,10 @@ class W_CycleTester : public QWidget, public Counter<W_CycleTester>
 
 public:
 	//Constructor & Destructor:
-	explicit W_CycleTester(QWidget *parent = 0);
+	explicit W_CycleTester(	QWidget *parent = 0, \
+							QList<FlexseaDevice*> *rigidDevListInit = nullptr, \
+							StreamManager* sm = nullptr);
+	StreamManager* streamManager;
 	~W_CycleTester();
 
 public slots:
@@ -72,23 +76,18 @@ private slots:
 
 	void on_pbWrite_clicked();
 
+	void on_pushButtonStartAutoStreaming_clicked();
+
 private:
 	//Variables & Objects:
 	Ui::W_CycleTester *ui;
 	QTimer *timer, *buttonTimer;
-	bool resetPBstate, streamingPBstate;
-	/*
-	uint16_t piu_t[5] = {0,1,2,3,4};
-	uint16_t piu_y[5] = {0,0,0,0,0};
-	uint16_t np_t[5] = {0,0,0,0,0};
-	uint16_t np_y[5] = {0,0,0,0,0};
-	uint16_t piu_vCurr = 1, np_vCurr = 0;
-	uint16_t piu_pCurr = 2, np_pCurr = 0;
-	*/
+	bool resetPBstate, streamingPBstate, autoStreamingPBstate;
 
 	//Function(s):
 	void init(void);
 	void initCtrlTab(void);
+	void initStatsTab(void);
 	void initProfileTab(void);
 	void experimentControl(enum expCtrl e);
 	void experimentStats(enum expStats e);
@@ -97,9 +96,12 @@ private:
 	QString displayFSMstate(uint8_t s);
 	void displayTemp(int8_t t);
 	void refreshProfileDisplay(void);
+
+	QList<FlexseaDevice*> *rigidDevList;
+	QList<FlexseaDevice*> rigidTargetList;
 };
 
-#define TIMER_PERIOD	40		//40ms / 25Hz
+#define TIMER_PERIOD	100		//10Hz
 
 #define TEMP_MIN		15
 #define TEMP_MAX		80

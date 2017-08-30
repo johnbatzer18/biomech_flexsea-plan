@@ -33,10 +33,17 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_CycleTester::W_CycleTester(QWidget *parent) :
+W_CycleTester::W_CycleTester(QWidget *parent,
+							 QList<FlexseaDevice*> *rigidDevListInit,
+							 StreamManager* sm) :
 	QWidget(parent),
+	streamManager(sm),
 	ui(new Ui::W_CycleTester)
 {
+	if(!sm) qDebug("Null StreamManager passed to CycleTester Window.");
+
+	rigidDevList = rigidDevListInit;
+
 	ui->setupUi(this);
 
 	setWindowTitle(this->getDescription());
@@ -90,7 +97,6 @@ void W_CycleTester::initCtrlTab(void)
 	ui->progressBarTemp->setValue(15);
 	ui->progressBarTemp->setDisabled(true);
 	ui->label_temp->setText("-°C");
-	ui->label_peakCurrent->setText("-");
 	displayStatus(0);
 
 	//Buttons:
@@ -99,6 +105,11 @@ void W_CycleTester::initCtrlTab(void)
 	streamingPBstate = true;
 	ui->pushButtonStartStreaming->setText("Start Streaming");
 	ui->pushButtonConfirmReset->setDisabled(true);
+}
+
+void W_CycleTester::initStatsTab(void)
+{
+	ui->label_peakCurrent->setText("-");
 }
 
 void W_CycleTester::initProfileTab(void)
@@ -189,6 +200,8 @@ void W_CycleTester::experimentStats(enum expStats e)
 				//User clicked on Stop:
 				qDebug() << "Stop streaming.";
 				ui->pushButtonStartStreaming->setText("Start Streaming");
+				ui->pushButtonStartAutoStreaming->setText("Start AutoStream");
+				ui->pushButtonStartAutoStreaming->setEnabled(true);
 				ui->lcdNumber->setEnabled(false);
 				ui->lcdNumberNV->setEnabled(false);
 				ui->progressBar->setEnabled(false);
@@ -203,6 +216,7 @@ void W_CycleTester::experimentStats(enum expStats e)
 				//User clicked on Start:
 				qDebug() << "Start streaming.";
 				ui->pushButtonStartStreaming->setText("Stop Streaming");
+				ui->pushButtonStartAutoStreaming->setEnabled(false);
 				ui->lcdNumber->setEnabled(true);
 				ui->lcdNumberNV->setEnabled(true);
 				ui->progressBar->setEnabled(true);
@@ -309,8 +323,10 @@ void W_CycleTester::timerEvent(void)
 	ui->label_peakPower->setText(QString::number((float)peakPower/10));
 	ui->label_instantPower->setText(QString::number((float)instantPower/10));
 
-	//We only stream when the Controls & Stats tab is selected:
-	if(ui->tabWidget->currentIndex() == 0)
+	qDebug() << "Refresh display...";
+
+	//We only stream when the Controls & Stats tabs are selected:
+	if(ui->tabWidget->currentIndex() < 2 && streamingPBstate == false)
 	{
 		//Prep & send:
 		tx_cmd_cycle_tester_r(TX_N_DEFAULT, 0);
@@ -584,13 +600,6 @@ void W_CycleTester::on_pbCompute_clicked()
 	ctNewProfileYT[0][3] = ui->lineEdit_np_t3->text().toInt();
 	ctNewProfileYT[0][4] = ui->lineEdit_np_t4->text().toInt();
 
-	/*
-	ctNewProfileYT[1][0] = ctNewProfileCurr[0];
-	ctNewProfileYT[1][1] = ctNewProfileCurr[0];
-	ctNewProfileYT[1][2] = ctNewProfileCurr[1];
-	ctNewProfileYT[1][3] = ctNewProfileCurr[1];
-	ctNewProfileYT[1][4] = ctNewProfileCurr[0];
-	*/
 	ctNewProfileYT[1][0] = ui->label_np_y0->text().toInt();
 	ctNewProfileYT[1][1] = ui->label_np_y1->text().toInt();
 	ctNewProfileYT[1][2] = ui->label_np_y2->text().toInt();
@@ -610,4 +619,49 @@ void W_CycleTester::on_pbWrite_clicked()
 	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 1, 0, 0, 0);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);
+}
+
+void W_CycleTester::on_pushButtonStartAutoStreaming_clicked()
+{
+	FlexseaDevice* target = rigidDevList->at(0);
+	int refreshRate = 33;
+
+	autoStreamingPBstate = autoStreamingPBstate ? false : true;
+
+	if(!autoStreamingPBstate)
+	{
+		//Stop streaming:
+
+		ui->pushButtonStartAutoStreaming->setText("Start AutoStream");
+		ui->pushButtonStartStreaming->setEnabled(true);
+		ui->pushButtonRead->setEnabled(true);
+		ui->pushButtonReset->setEnabled(true);
+
+		//Profile buttons:
+		ui->pbRead->setEnabled(true);
+		ui->pbWrite->setEnabled(true);
+
+		streamManager->stopStreaming(CMD_CYCLE_TESTER, FLEXSEA_MANAGE_1, refreshRate);
+
+		timer->stop();
+	}
+	else
+	{
+		//Start streaming:
+
+		ui->pushButtonStartAutoStreaming->setText("Stop AutoStream");
+		ui->pushButtonStartStreaming->setEnabled(false);
+		ui->pushButtonRead->setEnabled(false);
+		ui->pushButtonReset->setEnabled(false);
+
+		//Profile buttons:
+		ui->pbRead->setEnabled(false);
+		ui->pbWrite->setEnabled(false);
+
+		streamManager->startAutoStreaming(CMD_CYCLE_TESTER, FLEXSEA_MANAGE_1, \
+										  refreshRate, false, target, 0, 0);
+
+		//Timer to refresh the display:
+		timer->start(50);
+	}
 }

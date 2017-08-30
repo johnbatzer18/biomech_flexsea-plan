@@ -1488,7 +1488,7 @@ void MainWindow::createCycleTester(void)
 	//Limited number of windows:
 	if(objectCount < (CYCLE_TESTER_WINDOWS_MAX))
 	{
-		myCycleTester[objectCount] = new W_CycleTester(this);
+		myCycleTester[objectCount] = new W_CycleTester(this, &rigidFlexList, streamManager);
 		mdiState[CYCLE_TESTER_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myCycleTester[objectCount]);
 		mdiState[CYCLE_TESTER_WINDOWS_ID][objectCount].open = true;
 		myCycleTester[objectCount]->show();
