@@ -52,6 +52,8 @@
 
 QT_CHARTS_USE_NAMESPACE
 
+#define VA_DEMO_HACK	1
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -81,12 +83,13 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	chartView = new AnkleTorqueChartView(chart);
 	chartView->isActive = false;
 	chartView->lineSeries = lineSeries;
-	chartView->setMaxDataPoints(150);
+	chartView->setMaxDataPoints(500);
+	#ifndef VA_DEMO_HACK
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
 		chartView->setPoint(i, 0.0f, 0.0f);
 	}
-
+	#endif
 	connect(chartView,	&AnkleTorqueChartView::pointsChanged,
 				this,	&W_AnkleTorque::handlePointChange);
 
@@ -116,6 +119,10 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	ui->lineEditXMax->setText(QString::number(chartView->xMax));
 	ui->lineEditYMin->setText(QString::number(chartView->yMin));
 	ui->lineEditYMax->setText(QString::number(chartView->yMax));
+
+	int numPoints = chartView->getMaxDataPoints();
+	ui->lineEditPersistentPoints->clear();
+	ui->lineEditPersistentPoints->setText(QString::number(numPoints));
 }
 
 void W_AnkleTorque::comStatusChanged(bool open)
@@ -178,11 +185,17 @@ void W_AnkleTorque::handlePointChange()
 
 void W_AnkleTorque::receiveNewData(void)
 {
+	#ifdef VA_DEMO_HACK
+	static uint16_t idx = 0, lastGstate = 0;
+	#endif
+
 	if(atProfile_newProfileFlag)
 	{
 		atProfile_newProfileFlag = 0;
+		#ifndef VA_DEMO_HACK
 		for(int i = 0; i < ATCV_NUMPOINTS; i++)
 			chartView->setPoint(i, atProfile_angles[i] / 10.0f, atProfile_torques[i] / 10.0f);
+		#endif
 
 		chartView->isActive = true;
 		timer->stop();
@@ -190,15 +203,27 @@ void W_AnkleTorque::receiveNewData(void)
 	if(atProfile_newDataFlag)
 	{
 		atProfile_newDataFlag = 0;
+		#ifndef VA_DEMO_HACK
 		chartView->addDataPoint(angleBuf[indexOfLastBuffered] / 10.0f, torqueBuf[indexOfLastBuffered] / 10.0f);
+		#endif
 	}
 	chartView->update();
 	chart->update();
+
+	#ifdef VA_DEMO_HACK
+	idx += 10;
+	idx %= 1200;
+	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1)
+	{
+		idx = 0;
+	}
+	lastGstate = rigid1.ctrl.gaitState;
+	chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
+	#endif
 }
 
 void W_AnkleTorque::setAxesLimits()
 {
-
 	QString xMinText = ui->lineEditXMin->text();
 	QString xMaxText = ui->lineEditXMax->text();
 	QString yMinText = ui->lineEditYMin->text();

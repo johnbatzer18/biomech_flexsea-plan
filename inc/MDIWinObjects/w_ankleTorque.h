@@ -43,6 +43,10 @@
 #include <QtCharts/QChartView>
 #include <streammanager.h>
 #include <QVector>
+#include "rigidDevice.h"
+#include "define.h"
+
+#define VA_DEMO_HACK_H
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -54,16 +58,23 @@ class AnkleTorqueChartView : public QChartView
 {
 		Q_OBJECT
 
-#define ATCV_NUMPOINTS 6
-#define ATCV_ABS(x) ( (x) > 0 ? (x) : -(x) )
+		#define ATCV_NUMPOINTS 6
+		#define ATCV_ABS(x) ( (x) > 0 ? (x) : -(x) )
 
 public:
 	explicit AnkleTorqueChartView(QChart* parent) : QChartView(parent), activeSetPoint(-1), activeDrag(0) {
 		qDebug() << "Updates " << this->updatesEnabled();
+		#ifndef VA_DEMO_HACK_H
 		xMin = -30;
 		xMax = 0;
 		yMin = 0;
 		yMax = 60;
+		#else
+		xMin = 0;
+		xMax = 1200;
+		yMin = 0;
+		yMax = 900;
+		#endif
 
 //		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
 //		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
@@ -120,6 +131,7 @@ public:
 							  chart()->mapToPosition(QPointF(xMin, yMin)),
 							  chart()->mapToPosition(QPointF(xMax, yMax))));
 
+		#ifndef VA_DEMO_HACK_H
 		//draw profile points
 		painter->setPen(QPen(QColor(220, 220, 220)));	//light grey
 		QPointF textPoint;
@@ -148,12 +160,15 @@ public:
 			//the circle
 			painter->drawEllipse(drawnPoints[i], radius, radius);
 		}
+		#endif
 
 		if(drawText)
 		{
 			painter->setBrush(QBrush(QColor(Qt::black)));
 			painter->setPen(QColor(Qt::white));
+			#ifndef VA_DEMO_HACK_H
 			painter->drawPath(path);
+			#endif
 		}
 	}
 
