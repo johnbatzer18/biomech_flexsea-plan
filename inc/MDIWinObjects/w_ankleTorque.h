@@ -125,7 +125,7 @@ public:
 
 		//draw data points
 		int numLines = dataPoints.size()-1;
-		for(int i = 0; i < numLines; i++)
+		for(int i = 1; i < numLines; i++)
 		{
 			#ifndef VA_DEMO_HACK_H
 			painter->setOpacity((i) / (float)numLines);
@@ -135,7 +135,7 @@ public:
 			painter->setOpacity((i) / (float)numLines);
 			if(dataPoints.at(i).toPoint().x() > (dataPoints.at(i+1).toPoint().x()))
 			{
-				//qDebug() << "End of line?";
+				//qDebug() << "End of line.";
 				painter->setOpacity(0);
 				painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
 			}
