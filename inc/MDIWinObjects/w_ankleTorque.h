@@ -114,14 +114,37 @@ public:
 		QChartView::drawForeground(painter, rect);
 
 		painter->setBrush(Qt::NoBrush);
+		#ifndef VA_DEMO_HACK_H
 		painter->setPen(QPen(QColor(58, 217, 242)));	//sky blue
+		#else
+		QPen myPen;
+		myPen.setColor(QColor(0, 255, 64));
+		myPen.setWidth(2);
+		painter->setPen(myPen);	//bright green
+		#endif
 
 		//draw data points
 		int numLines = dataPoints.size()-1;
 		for(int i = 0; i < numLines; i++)
 		{
+			#ifndef VA_DEMO_HACK_H
 			painter->setOpacity((i) / (float)numLines);
 			painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
+			#else
+
+			painter->setOpacity((i) / (float)numLines);
+			if(dataPoints.at(i).toPoint().x() > (dataPoints.at(i+1).toPoint().x()))
+			{
+				//qDebug() << "End of line?";
+				painter->setOpacity(0);
+				painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
+			}
+			else
+			{
+				painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
+			}
+
+			#endif
 		}
 		painter->setOpacity(1);
 
