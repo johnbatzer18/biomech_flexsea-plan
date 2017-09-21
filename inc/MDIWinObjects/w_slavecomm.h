@@ -120,6 +120,8 @@ private slots:
 	void readCommandLine();
 	void dataTimeoutEvent(void);
 
+	void on_pushButtonPresets_clicked();
+
 signals:
 	void windowClosed(void);
 	void activeSlaveStreaming(QString slaveName);
