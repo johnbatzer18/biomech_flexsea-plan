@@ -67,22 +67,16 @@ private slots:
 	void buttonTimerEvent(void);
 	void on_pushButtonPause_clicked();
 	void on_pushButtonStatus_pressed();
-
 	void on_pbRead_clicked();
-
 	void on_pbCopy_clicked();
-
 	void on_pbCompute_clicked();
-
 	void on_pbWrite_clicked();
-
 	void on_pushButtonStartAutoStreaming_clicked();
-
 	void on_pbPresetW1_clicked();
-
 	void on_pbPresetW2_clicked();
-
 	void on_pbPresetR1_clicked();
+	void on_pushButtonStatus_clicked();
+	void on_pushButtonReboot_clicked();
 
 private:
 	//Variables & Objects:
@@ -99,7 +93,7 @@ private:
 	void experimentStats(enum expStats e);
 	void resetStats(void);
 	void displayStatus(uint8_t s);
-	QString displayFSMstate(uint8_t s);
+	QString displayFSMstate(uint8_t s, QString *shortText);
 	void displayTemp(int8_t t);
 	void refreshProfileDisplay(void);
 	void presets(uint8_t i);

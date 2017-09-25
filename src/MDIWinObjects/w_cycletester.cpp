@@ -135,19 +135,14 @@ void W_CycleTester::initProfileTab(void)
 
 	ui->lineEdit_np_t0->setText("");
 	ui->lineEdit_np_t0->setValidator(validT);
-	ui->label_np_y0->setText("-");
 	ui->lineEdit_np_t1->setText("");
 	ui->lineEdit_np_t1->setValidator(validT);
-	ui->label_np_y1->setText("-");
 	ui->lineEdit_np_t2->setText("");
 	ui->lineEdit_np_t2->setValidator(validT);
-	ui->label_np_y2->setText("-");
 	ui->lineEdit_np_t3->setText("");
 	ui->lineEdit_np_t3->setValidator(validT);
-	ui->label_np_y3->setText("-");
 	ui->lineEdit_np_t4->setText("");
 	ui->lineEdit_np_t4->setValidator(validT);
-	ui->label_np_y4->setText("-");
 	ui->lineEdit_np_vCurr->setText("");
 	ui->lineEdit_np_vCurr->setValidator(validI);
 	ui->lineEdit_np_pCurr->setText("");
@@ -283,6 +278,11 @@ void W_CycleTester::on_pushButtonStop_clicked()
 	experimentControl(CT_C_STOP);
 }
 
+void W_CycleTester::on_pushButtonReboot_clicked()
+{
+	experimentControl(CT_C_REBOOT);
+}
+
 void W_CycleTester::on_pushButtonRead_clicked()
 {
 	experimentStats(CT_S_READ);
@@ -307,6 +307,7 @@ void W_CycleTester::timerEvent(void)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
+	QString shortFSMtext;
 
 	//Refresh display with last values:
 	ui->progressBar->setValue(ctStats_pct);
@@ -319,14 +320,13 @@ void W_CycleTester::timerEvent(void)
 	displayStatus(ctStats_errorMsg);
 	displayTemp(ctStats_temp);
 	ui->label_statsTemp->setText(QString::number(ctStats_temp));
-	ui->label_FSM_State->setText(displayFSMstate(ctStats_fsm1State));
+	ui->label_FSM_State->setText(displayFSMstate(ctStats_fsm1State, &shortFSMtext));
+	ui->pushButtonFSMState->setText(shortFSMtext);
 	ui->label_cyclePower->setText(QString::number((float)cyclePower/1000, 'f', 1));
 	ui->label_peakPower->setText(QString::number((float)peakPower/10, 'f', 1));
 	ui->label_instantPower->setText(QString::number((float)instantPower/10, 'f', 1));
 	ui->label_rms->setText(QString::number((float)rms/10, 'f', 1));
 	ui->label_i2r->setText(QString::number((float)i2r/1000, 'f', 1));
-
-	//qDebug() << "Refresh display...";
 
 	//We only stream when the Controls & Stats tabs are selected:
 	if(ui->tabWidget->currentIndex() < 2 && streamingPBstate == false)
@@ -438,7 +438,7 @@ void W_CycleTester::displayStatus(uint8_t s)
 }
 
 //Return a QString version of the enum text
-QString W_CycleTester::displayFSMstate(uint8_t s)
+QString W_CycleTester::displayFSMstate(uint8_t s, QString *shortText)
 {
 	QString tmp;
 
@@ -446,33 +446,43 @@ QString W_CycleTester::displayFSMstate(uint8_t s)
 	{
 		case 0:
 			tmp = "CT_FSM1_BOOT";
+			(*shortText) = "Boot";
 			break;
 		case 1:
 			tmp = "CT_FSM1_INIT_CTRL0";
+			(*shortText) = "Reel";
 			break;
 		case 2:
 			tmp = "CT_FSM1_INIT_CTRL1";
+			(*shortText) = "Map";
 			break;
 		case 3:
 			tmp = "CT_FSM1_INIT_ERROR";
+			(*shortText) = "Init Eror";
 			break;
 		case 4:
 			tmp = "CT_FSM1_INIT_CTRL2";
+			(*shortText) = "Ready";
 			break;
 		case 5:
 			tmp = "CT_FSM1_CYCLE";
+			(*shortText) = "Cycle";
 			break;
 		case 6:
 			tmp = "CT_FSM1_PAUSE";
+			(*shortText) = "Pause";
 			break;
 		case 7:
 			tmp = "CT_FSM1_STOP";
+			(*shortText) = "Stop";
 			break;
 		case 8:
 			tmp = "CT_FSM1_ERROR";
+			(*shortText) = "Error";
 			break;
 		default:
 			tmp = "Unknown state.";
+			(*shortText) = "?";
 			break;
 	}
 
@@ -579,15 +589,10 @@ void W_CycleTester::refreshProfileDisplay(void)
 	ui->label_piu_pCurr->setText(QString::number(ctProfileInUseCurr[1]));
 
 	ui->lineEdit_np_t0->setText(QString::number(ctNewProfileYT[0][0]));
-	ui->label_np_y0->setText(QString::number(ctNewProfileYT[1][0]));
 	ui->lineEdit_np_t1->setText(QString::number(ctNewProfileYT[0][1]));
-	ui->label_np_y1->setText(QString::number(ctNewProfileYT[1][1]));
 	ui->lineEdit_np_t2->setText(QString::number(ctNewProfileYT[0][2]));
-	ui->label_np_y2->setText(QString::number(ctNewProfileYT[1][2]));
 	ui->lineEdit_np_t3->setText(QString::number(ctNewProfileYT[0][3]));
-	ui->label_np_y3->setText(QString::number(ctNewProfileYT[1][3]));
 	ui->lineEdit_np_t4->setText(QString::number(ctNewProfileYT[0][4]));
-	ui->label_np_y4->setText(QString::number(ctNewProfileYT[1][4]));
 	ui->lineEdit_np_vCurr->setText(QString::number(ctNewProfileCurr[0]));
 	ui->lineEdit_np_pCurr->setText(QString::number(ctNewProfileCurr[1]));
 }
@@ -602,12 +607,6 @@ void W_CycleTester::on_pbCompute_clicked()
 	ctNewProfileYT[0][2] = ui->lineEdit_np_t2->text().toInt();
 	ctNewProfileYT[0][3] = ui->lineEdit_np_t3->text().toInt();
 	ctNewProfileYT[0][4] = ui->lineEdit_np_t4->text().toInt();
-
-	ctNewProfileYT[1][0] = ui->label_np_y0->text().toInt();
-	ctNewProfileYT[1][1] = ui->label_np_y1->text().toInt();
-	ctNewProfileYT[1][2] = ui->label_np_y2->text().toInt();
-	ctNewProfileYT[1][3] = ui->label_np_y3->text().toInt();
-	ctNewProfileYT[1][4] = ui->label_np_y4->text().toInt();
 
 	//Refresh display:
 	refreshProfileDisplay();
@@ -691,4 +690,16 @@ void W_CycleTester::presets(uint8_t i)
 		ctNewProfileYT[0][j] = timePresets[i][j];
 	}
 	refreshProfileDisplay();
+}
+
+//We use this button to reset errors:
+void W_CycleTester::on_pushButtonStatus_clicked()
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//Prep & send:
+	tx_cmd_cycle_tester_w(TX_N_DEFAULT, 0, CT_C_DEFAULT, CT_S_DEFAULT, 1);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
 }
