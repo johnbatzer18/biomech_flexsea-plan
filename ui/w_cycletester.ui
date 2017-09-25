@@ -29,13 +29,83 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_ctrl">
       <attribute name="title">
        <string>Controls</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="1">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>10</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="5">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0" rowspan="3">
+          <widget class="QProgressBar" name="progressBarTemp">
+           <property name="minimum">
+            <number>15</number>
+           </property>
+           <property name="maximum">
+            <number>80</number>
+           </property>
+           <property name="value">
+            <number>24</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="format">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>15 °C</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>80 °C</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QLabel" name="label_temp">
+           <property name="text">
+            <string>Temp</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout">
          <item row="4" column="1">
@@ -197,19 +267,6 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="1">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>10</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="0" column="2" colspan="2">
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
@@ -351,69 +408,7 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="5">
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0" rowspan="3">
-          <widget class="QProgressBar" name="progressBarTemp">
-           <property name="minimum">
-            <number>15</number>
-           </property>
-           <property name="maximum">
-            <number>80</number>
-           </property>
-           <property name="value">
-            <number>24</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="format">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>15 °C</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>80 °C</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QLabel" name="label_temp">
-           <property name="text">
-            <string>Temp</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
       </layout>
-      <zorder></zorder>
-      <zorder>horizontalSpacer_2</zorder>
-      <zorder>horizontalSpacer</zorder>
-      <zorder>verticalSpacer_3</zorder>
-      <zorder>progressBar</zorder>
      </widget>
      <widget class="QWidget" name="stats">
       <attribute name="title">
