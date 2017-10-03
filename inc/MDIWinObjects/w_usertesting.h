@@ -41,6 +41,7 @@ public:
 
 signals:
 	void windowClosed(void);
+	void startExperiment(int r, bool log, bool autoSample, bool on);
 
 private slots:
 	void on_pushButtonApprove_clicked();
@@ -49,6 +50,10 @@ private slots:
 	void on_lineEditNameM_editingFinished();
 	void on_lineEditNameLast_editingFinished();
 	void on_lineEditNameUID_editingFinished();
+
+	void on_pushButtonExpStart_clicked();
+
+	void on_pushButtonExpStop_clicked();
 
 private:
 	Ui::W_UserTesting *ui;

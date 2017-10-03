@@ -70,9 +70,17 @@ void W_UserTesting::initSigBox(void)
 	QColor penColor;
 	penColor.setNamedColor("black");
 	scribbleArea = new ScribbleArea;
-	ui->gridLayout_Sig->addWidget(scribbleArea);
+	//ui->gridLayout_Sig->addWidget(scribbleArea);
+	ui->frame->layout()->addWidget(scribbleArea);
+			//addWidget(scribbleArea);
 	scribbleArea->setPenColor(penColor);
 	scribbleArea->setPenWidth(5);
+
+	//Draw box around the area:
+	ui->frame->setFrameShape(QFrame::Box);
+	ui->frame->setFrameShadow(QFrame::Plain);
+	ui->frame->setLineWidth(2);
+	ui->frame->setMidLineWidth(1);
 }
 
 //****************************************************************************
@@ -131,7 +139,7 @@ void W_UserTesting::on_lineEditNameUID_editingFinished()
 	nameEditingFinished(3);
 }
 
-void W_UserTesting::nameEditingFinished(uint8_t i)
+void W_UserTesting::nameEditingFinished(bool i)
 {
 	if(i < 3)
 	{
@@ -152,4 +160,14 @@ void W_UserTesting::nameEditingFinished(uint8_t i)
 	{
 		userID = ui->lineEditNameUID->text();
 	}
+}
+
+void W_UserTesting::on_pushButtonExpStart_clicked()
+{
+	emit startExperiment(200, true, true, true);
+}
+
+void W_UserTesting::on_pushButtonExpStop_clicked()
+{
+	emit startExperiment(200, false, false, false);
 }
