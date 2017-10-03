@@ -59,6 +59,7 @@
 #include "w_testbench.h"
 #include "w_commtest.h"
 #include "w_cycletester.h"
+#include "w_usertesting.h"
 #include <streammanager.h>
 #include <dynamicuserdatamanager.h>
 #include <chartcontroller.h>
@@ -94,7 +95,8 @@ class MainWindow;
 #define ANKLE_TORQUE_WINDOWS_ID		19
 #define RIGID_WINDOWS_ID			20
 #define CYCLE_TESTER_WINDOWS_ID		21
-#define WINDOWS_TYPES				22 //(has to match the list above)
+#define USER_TESTING_WINDOWS_ID		22
+#define WINDOWS_TYPES				23 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES		5
 
 //MDI Objects: set maximums # of child
@@ -120,6 +122,7 @@ class MainWindow;
 #define ANKLE_TORQUE_WINDOWS_MAX	1
 #define RIGID_WINDOWS_MAX			1
 #define CYCLE_TESTER_WINDOWS_MAX	1
+#define USER_TESTING_WINDOWS_MAX	1
 
 //Window information:
 typedef struct {
@@ -214,6 +217,7 @@ private:
 	W_AnkleTorque *myAnkleTorque[ANKLE_TORQUE_WINDOWS_MAX];
 	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
 	W_CycleTester *myCycleTester[CYCLE_TESTER_WINDOWS_MAX];
+	W_UserTesting *myUserTesting[USER_TESTING_WINDOWS_MAX];
 
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
@@ -271,6 +275,7 @@ public slots:
 	void createAnkleTorqueTool(void);
 	void createViewRigid(void);
 	void createCycleTester(void);
+	void createUserTesting(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -295,6 +300,7 @@ public slots:
 	void closeAnkleTorqueTool(void);
 	void closeViewRigid(void);
 	void closeCycleTester(void);
+	void closeUserTesting(void);
 
 	void saveConfig(void);
 	void loadConfig(void);

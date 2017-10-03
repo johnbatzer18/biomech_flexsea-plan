@@ -4,6 +4,7 @@
 
 QT += core gui charts serialport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+qtHaveModule(printsupport): QT += printsupport
 
 TARGET = plan-gui
 TEMPLATE = app
@@ -76,6 +77,8 @@ SOURCES += src/main.cpp \
 				src/MDIWinObjects/w_glplot.cpp \
 				src/MDIWinObjects/w_ankleTorque.cpp \
 				src/MDIWinObjects/w_cycletester.cpp \
+				src/MDIWinObjects/w_usertesting.cpp \
+				src/MDIWinObjects/scribblearea.cpp \
 				flexsea-shared/unity/unity.c \
 				flexsea-user/src/flexsea_cmd_user.c \
 				flexsea-user/src/dynamic_user_structs_plan.c \
@@ -180,6 +183,8 @@ HEADERS += inc/main.h \
 				inc/MDIWinObjects/w_glplot.h \
 				inc/MDIWinObjects/w_ankleTorque.h \
 				inc/MDIWinObjects/w_cycletester.h \
+				inc/MDIWinObjects/w_usertesting.h \
+				inc/MDIWinObjects/scribblearea.h \
 				flexsea-shared/unity/unity.h \
 				flexsea-shared/unity/unity_internals.h \
 				flexsea-user/inc/flexsea_cmd_user.h \
@@ -240,7 +245,8 @@ FORMS += ui/mainwindow.ui \
 				ui/w_glplot.ui \
 				ui/w_ankleTorque.ui \
 				ui/w_rigid.ui \
-				ui/w_cycletester.ui
+				ui/w_cycletester.ui \
+				ui/w_usertesting.ui
 
 RESOURCES += \
 		misc/icons.qrc

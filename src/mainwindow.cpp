@@ -93,6 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
 	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
 	W_CycleTester::setMaxWindow(CYCLE_TESTER_WINDOWS_MAX);
+	W_UserTesting::setMaxWindow(USER_TESTING_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -116,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Rigid::setDescription("FlexSEA-Rigid");
 	W_CycleTester::setDescription("FlexSEA-Rigid Cycle Tester");
 	W_AnkleTorque::setDescription("Ankle Torque Tool");
+	W_UserTesting::setDescription("User Testing Form");
 
 	initFlexSeaDeviceObject();
 	//SerialDriver:
@@ -202,6 +204,7 @@ void MainWindow::initMenus(void)
 	ui->menuControl->addAction("Any Command", this, &MainWindow::createAnyCommand);
 
 	//User:
+	ui->menuUser->addAction("User Testing Form", this, &MainWindow::createUserTesting);
 	ui->menuUser->addAction("Event Flags", this, &MainWindow::createToolEvent);
 	ui->menuUser->addAction("User R/W", this, &MainWindow::createUserRW);
 	ui->menuUser->addSeparator();
@@ -1515,6 +1518,40 @@ void MainWindow::closeCycleTester(void)
 {
 	sendCloseWindowMsg(W_CycleTester::getDescription());
 	mdiState[CYCLE_TESTER_WINDOWS_ID][0].open = false; //ToDo wrong, shouldn't be 0!
+}
+
+//Creates a new User Testing window
+void MainWindow::createUserTesting(void)
+{
+	int objectCount = W_UserTesting::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (USER_TESTING_WINDOWS_MAX))
+	{
+		myUserTesting[objectCount] = new W_UserTesting(this);
+		mdiState[USER_TESTING_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myUserTesting[objectCount]);
+		mdiState[USER_TESTING_WINDOWS_ID][objectCount].open = true;
+		myUserTesting[objectCount]->show();
+
+		sendWindowCreatedMsg(W_UserTesting::getDescription(), objectCount,
+							 W_UserTesting::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myUserTesting[objectCount], SIGNAL(windowClosed()), \
+				this, SLOT(closeUserTesting()));
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_UserTesting::getDescription(),
+								   W_UserTesting::getMaxWindow());
+	}
+}
+
+void MainWindow::closeUserTesting(void)
+{
+	sendCloseWindowMsg(W_UserTesting::getDescription());
+	mdiState[USER_TESTING_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 void MainWindow::sendWindowCreatedMsg(QString windowName, int index, int maxIndex)
