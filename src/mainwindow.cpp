@@ -1541,6 +1541,9 @@ void MainWindow::createUserTesting(void)
 		//Link to MainWindow for the close signal:
 		connect(myUserTesting[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeUserTesting()));
+		//Link to SlaveComm for experiment control:
+		connect(myUserTesting[objectCount], SIGNAL(startExperiment(int, bool, bool, bool)), \
+				myViewSlaveComm[0] , SLOT(externalStartExperiment(int, bool, bool, bool)));
 	}
 
 	else

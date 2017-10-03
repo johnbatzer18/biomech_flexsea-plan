@@ -139,7 +139,7 @@ void W_UserTesting::on_lineEditNameUID_editingFinished()
 	nameEditingFinished(3);
 }
 
-void W_UserTesting::nameEditingFinished(bool i)
+void W_UserTesting::nameEditingFinished(uint8_t i)
 {
 	if(i < 3)
 	{

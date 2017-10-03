@@ -103,6 +103,7 @@ public slots:
 	void updateIndicatorTimeout(bool rst);
 	void getSlaveId(int* slaveId);
 	void getCurrentDevice(FlexseaDevice** device);
+	void externalStartExperiment(int r, bool log, bool autoSample, bool on);
 
 private slots:
 
