@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Rigid::setDescription("FlexSEA-Rigid");
 	W_CycleTester::setDescription("FlexSEA-Rigid Cycle Tester");
 	W_AnkleTorque::setDescription("Ankle Torque Tool");
-	W_UserTesting::setDescription("User Testing Form");
+	W_UserTesting::setDescription("User Testing");
 
 	initFlexSeaDeviceObject();
 	//SerialDriver:
@@ -204,7 +204,7 @@ void MainWindow::initMenus(void)
 	ui->menuControl->addAction("Any Command", this, &MainWindow::createAnyCommand);
 
 	//User:
-	ui->menuUser->addAction("User Testing Form", this, &MainWindow::createUserTesting);
+	ui->menuUser->addAction("User Testing", this, &MainWindow::createUserTesting);
 	ui->menuUser->addAction("Event Flags", this, &MainWindow::createToolEvent);
 	ui->menuUser->addAction("User R/W", this, &MainWindow::createUserRW);
 	ui->menuUser->addSeparator();
@@ -393,6 +393,7 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &createAnkleTorqueTool;
 	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &createViewRigid;
 	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &createCycleTester;
+	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &createUserTesting;
 }
 
 /*
@@ -426,6 +427,7 @@ void MainWindow::initializeCloseWindowFctPtr(void)
 	mdiCloseWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &closeAnkleTorqueTool;
 	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &closeViewRigid;
 	mdiCloseWinPtr[CYCLE_TESTER_WINDOWS_ID] = &closeCycleTester;
+	mdiCloseWinPtr[USER_TESTING_WINDOWS_ID] = &closeUserTesting;
 }
 */
 

@@ -44,14 +44,19 @@ signals:
 
 private slots:
 	void on_pushButtonApprove_clicked();
-
 	void on_pushButtonSigClear_clicked();
+	void on_lineEditNameFirst_editingFinished();
+	void on_lineEditNameM_editingFinished();
+	void on_lineEditNameLast_editingFinished();
+	void on_lineEditNameUID_editingFinished();
 
 private:
 	Ui::W_UserTesting *ui;
 	ScribbleArea *scribbleArea;
+	QString userID;
 
 	void initSigBox(void);
+	void nameEditingFinished(uint8_t i);
 };
 
 //****************************************************************************
