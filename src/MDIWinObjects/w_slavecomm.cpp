@@ -173,10 +173,16 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 
 void W_SlaveComm::externalStartExperiment(int r, bool log, bool autoSample, bool on)
 {
-	qDebug() << "SlaveComm received a startExperiment signal.";
 	on_off_pb_ptr[0]->setChecked(on);
-	log_cb_ptr[0]->setChecked(log);
-	auto_checkbox[0]->setChecked(autoSample);
+
+	if(on == true)
+	{
+		//When it's a Start condition we set a few things:
+		comboBoxRefreshPtr[0]->setCurrentIndex(r);
+		log_cb_ptr[0]->setChecked(log);
+		auto_checkbox[0]->setChecked(autoSample);
+	}
+
 	managePushButton(0, false);
 }
 

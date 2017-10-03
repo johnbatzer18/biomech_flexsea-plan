@@ -50,10 +50,13 @@ private slots:
 	void on_lineEditNameM_editingFinished();
 	void on_lineEditNameLast_editingFinished();
 	void on_lineEditNameUID_editingFinished();
-
 	void on_pushButtonExpStart_clicked();
-
 	void on_pushButtonExpStop_clicked();
+	void on_horizontalSliderSpeed_valueChanged(int value);
+	void on_horizontalSliderIncline_valueChanged(int value);
+	void on_doubleSpinBoxSpeed_valueChanged(double arg1);
+
+	void on_doubleSpinBoxIncline_valueChanged(double arg1);
 
 private:
 	Ui::W_UserTesting *ui;
@@ -62,6 +65,9 @@ private:
 
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
+	void speed(int index, double val);
+	void incline(int index, double val);
+	void sliderToSpin(void);
 };
 
 //****************************************************************************

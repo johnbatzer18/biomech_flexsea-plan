@@ -44,6 +44,7 @@ W_UserTesting::W_UserTesting(QWidget *parent) :
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	initSigBox();
+	sliderToSpin();
 }
 
 W_UserTesting::~W_UserTesting()
@@ -164,10 +165,74 @@ void W_UserTesting::nameEditingFinished(uint8_t i)
 
 void W_UserTesting::on_pushButtonExpStart_clicked()
 {
-	emit startExperiment(200, true, true, true);
+	emit startExperiment(7, true, true, true);
 }
 
 void W_UserTesting::on_pushButtonExpStop_clicked()
 {
-	emit startExperiment(200, false, false, false);
+	emit startExperiment(0, false, false, false);
+}
+
+void W_UserTesting::on_horizontalSliderSpeed_valueChanged(int value)
+{
+	double realValue = (double)value / 10;
+	speed(0, realValue);
+}
+
+void W_UserTesting::on_horizontalSliderIncline_valueChanged(int value)
+{
+	double realValue = (double)value / 10;
+	incline(0, realValue);
+}
+
+void W_UserTesting::on_doubleSpinBoxSpeed_valueChanged(double arg1)
+{
+	speed(1, arg1);
+}
+
+
+void W_UserTesting::on_doubleSpinBoxIncline_valueChanged(double arg1)
+{
+	incline(1, arg1);
+}
+
+void W_UserTesting::speed(int index, double val)
+{
+	if(index == 0)
+	{
+		//qDebug() << "Speed:" << val;
+		//Change came from the slider
+		ui->doubleSpinBoxSpeed->setValue(val);
+	}
+	else
+	{
+		//Change came from the spinBox
+		double rV = val*10;
+		ui->horizontalSliderSpeed->setValue((int)rV);
+	}
+}
+
+void W_UserTesting::incline(int index, double val)
+{
+	if(index == 0)
+	{
+		qDebug() << "Incline:" << val;
+		//Change came from the slider
+		ui->doubleSpinBoxIncline->setValue(val);
+	}
+	else
+	{
+		//Change came from the spinBox
+		double rV = val*10;
+		ui->horizontalSliderIncline->setValue((int)rV);
+	}
+}
+
+//Call this once at boot to match all the displays
+void W_UserTesting::sliderToSpin(void)
+{
+	double val = (double)ui->horizontalSliderSpeed->value()/10;
+	ui->doubleSpinBoxSpeed->setValue(val);
+	val = (double)ui->horizontalSliderIncline->value()/10;
+	ui->doubleSpinBoxIncline->setValue(val);
 }
