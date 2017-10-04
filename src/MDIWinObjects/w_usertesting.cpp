@@ -33,6 +33,7 @@
 #include <QElapsedTimer>
 #include <QFileDialog>
 #include <QTextStream>
+#include <QDateTime>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -140,11 +141,18 @@ void W_UserTesting::initTimers(void)
 
 void W_UserTesting::createNewFile(void)
 {
+	QString dirName = "UserTesting";
 	textFile = new QFile(this);
 	textStream = new QTextStream;
 
+	//Create directory if needed
+	if(!QDir().exists(dirName)){QDir().mkdir(dirName);}
+
 	QString path = QDir::currentPath();
-	QString filename = path + "/uid.txt";	//ToDo better name
+	QString pathExp = path + '/' +dirName + '/';
+	QString filename = pathExp + "Exp_" + getTimestamp() + '_' + userID + ".txt";
+	//Save path for other functions
+	utPath = pathExp;
 
 	//Now we open it:
 	textFile->setFileName(filename);
@@ -162,9 +170,18 @@ void W_UserTesting::createNewFile(void)
 	//textFile->close();	//Done by other function
 }
 
+void W_UserTesting::saveSignature(void)
+{
+	QString fn = utPath + "Sig_" + userID + ".png";
+	qDebug() << fn;
+	scribbleArea->saveImage(fn, "png");
+}
+
 //Read all the input widgets and save data
 void W_UserTesting::latchSubjectInfo(void)
 {
+	saveSignature();
+
 	name[0] = ui->lineEditNameFirst->text();
 	name[1] = ui->lineEditNameM->text();
 	name[2] = ui->lineEditNameLast->text();
@@ -182,6 +199,31 @@ void W_UserTesting::latchSubjectInfo(void)
 	//QString sigFileName;
 }
 
+//bool start = true for start, false for stop
+void W_UserTesting::recordTimestampStartStop(bool start, int len)
+{
+	QString prefix, suffix = "", wtf;
+	if(start)
+	{
+		prefix = "Started at ";
+	}
+	else
+	{
+		prefix = "Stopped at ";
+		suffix = " (Length: " + QString::number(len) + "s)";
+	}
+
+	//Write to file:
+	wtf = prefix + getTimestamp() + suffix;
+	*textStream << wtf << endl;
+}
+
+QString W_UserTesting::getTimestamp(void)
+{
+	return (QDate::currentDate().toString("yyyy-MM-dd_") +
+			QTime::currentTime().toString("HH'h'mm'm'ss's'"));
+}
+
 void W_UserTesting::writeSubjectInfo(void)
 {
 	*textStream << "UID: " << userID << endl;
@@ -192,6 +234,7 @@ void W_UserTesting::writeSubjectInfo(void)
 	*textStream << "DOB (YYYY-MM-DD): " << DOB << endl;
 	*textStream << "Height: " << height[0] << "'" << height[1] << '"' << endl;
 	*textStream << "Weight (lbs): " << weight << endl;
+	*textStream << "---" << endl;
 }
 
 void W_UserTesting::closeTextFile(void)
@@ -212,11 +255,6 @@ void W_UserTesting::dispTimerTick(void)
 //This button is now named Start Experimental Session
 void W_UserTesting::on_pushButtonApprove_clicked()
 {
-	//ToDo use real file location?
-	QString fn = userID + ".png";
-	qDebug() << fn;
-	scribbleArea->saveImage(fn, "png");
-
 	//Move to the next tab, lock this one
 	ui->tabWidget->setCurrentIndex(1);
 	ui->tabWidget->setTabEnabled(0, false);
@@ -303,6 +341,7 @@ void W_UserTesting::on_pushButtonExpStart_clicked()
 	ongoingExperiment = true;
 	emit startExperiment(refreshRate, true, true, "o=0;", userID);	//ToDo pass better user notes
 	expTimer.start();
+	recordTimestampStartStop(true, 0);
 }
 
 void W_UserTesting::on_pushButtonExpStop_clicked()
@@ -311,6 +350,7 @@ void W_UserTesting::on_pushButtonExpStop_clicked()
 	ui->pushButtonExpStop->setEnabled(false);
 	ongoingExperiment = false;
 	emit stopExperiment();
+	recordTimestampStartStop(false, expTime);
 }
 
 void W_UserTesting::on_horizontalSliderSpeed_valueChanged(int value)

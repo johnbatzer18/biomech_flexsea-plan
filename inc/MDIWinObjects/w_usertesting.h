@@ -75,6 +75,7 @@ private:
 	bool ongoingExperiment;
 	QFile *textFile;
 	QTextStream *textStream;
+	QString utPath;
 
 	//Data to be written to file:
 	QString name[3];
@@ -97,6 +98,9 @@ private:
 	void writeSubjectInfo();
 	void closeTextFile();
 	void latchSubjectInfo();
+	void recordTimestampStartStop(bool start, int len);
+	QString getTimestamp();
+	void saveSignature();
 };
 
 //****************************************************************************
