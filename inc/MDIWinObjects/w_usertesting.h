@@ -48,6 +48,7 @@ signals:
 	void windowClosed(void);
 	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
 	void stopExperiment(void);
+	void userFlags(int index);
 
 private slots:
 	void on_pushButtonApprove_clicked();
@@ -64,8 +65,11 @@ private slots:
 	void on_doubleSpinBoxIncline_valueChanged(double arg1);
 	void on_pushButtonClearNotes_clicked();
 	void dispTimerTick();
-
 	void on_pushButtonEndSession_clicked();
+	void on_pushButtonFlagA_clicked();
+	void on_pushButtonFlagB_clicked();
+	void on_pushButtonFlagC_clicked();
+	void on_pushButtonFlagD_clicked();
 
 private:
 	Ui::W_UserTesting *ui;
@@ -105,6 +109,7 @@ private:
 	QString getTimestamp();
 	void saveSignature();
 	void writeNotes();
+	void flags(int index);
 };
 
 //****************************************************************************

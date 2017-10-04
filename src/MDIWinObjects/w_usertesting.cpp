@@ -107,6 +107,8 @@ void W_UserTesting::initTabExperiment(void)
 
 	ui->label_ExpUID->setText(userID);
 
+	ui->radioButtonDataF->setChecked(true);
+
 	//Start/Stop:
 	ui->pushButtonExpStart->setEnabled(true);
 	ui->pushButtonExpStop->setEnabled(false);
@@ -344,12 +346,13 @@ void W_UserTesting::nameEditingFinished(uint8_t i)
 
 		userID = uid;
 		ui->lineEditNameUID->setText(uid);
-		ui->label_ExpUID->setText(userID);	//Label on Exp tab
 	}
 	else
 	{
 		userID = ui->lineEditNameUID->text();
 	}
+
+	ui->label_ExpUID->setText(userID);	//Label on Exp tab
 }
 
 void W_UserTesting::on_pushButtonExpStart_clicked()
@@ -358,7 +361,10 @@ void W_UserTesting::on_pushButtonExpStart_clicked()
 	ui->pushButtonExpStart->setEnabled(false);
 	ui->pushButtonExpStop->setEnabled(true);
 	ongoingExperiment = true;
-	emit startExperiment(refreshRate, true, true, "o=0;", userID);	//ToDo pass better user notes
+	QString offs = "";
+	if(ui->radioButtonDataA->isChecked()){offs = "o=0,1,2,3;";}
+	else{offs = "o=0;";}
+	emit startExperiment(refreshRate, true, true, offs, userID);	//ToDo pass better user notes
 	expTimer.start();
 	recordTimestampStartStop(true, 0);
 }
@@ -451,4 +457,35 @@ void W_UserTesting::on_pushButtonEndSession_clicked()
 
 	writeNotes();
 	closeTextFile();
+}
+
+void W_UserTesting::on_pushButtonFlagA_clicked()
+{
+	flags(0);
+}
+
+void W_UserTesting::on_pushButtonFlagB_clicked()
+{
+	flags(1);
+}
+
+void W_UserTesting::on_pushButtonFlagC_clicked()
+{
+	flags(2);
+}
+
+void W_UserTesting::on_pushButtonFlagD_clicked()
+{
+	flags(3);
+}
+
+void W_UserTesting::flags(int index)
+{
+	QString wtf = "", txt = "";
+	if(index == 0){txt = ui->lineEditFlagA->text();}
+
+	wtf = "Flag " + QString::number(index) + " " + getTimestamp() + " " + txt;
+	*textStream << wtf << endl;
+
+	emit userFlags(index);
 }
