@@ -42,7 +42,8 @@ public:
 
 signals:
 	void windowClosed(void);
-	void startExperiment(int r, bool log, bool autoSample, bool on);
+	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
+	void stopExperiment(void);
 
 private slots:
 	void on_pushButtonApprove_clicked();

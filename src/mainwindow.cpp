@@ -1542,8 +1542,10 @@ void MainWindow::createUserTesting(void)
 		connect(myUserTesting[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeUserTesting()));
 		//Link to SlaveComm for experiment control:
-		connect(myUserTesting[objectCount], SIGNAL(startExperiment(int, bool, bool, bool)), \
-				myViewSlaveComm[0] , SLOT(externalStartExperiment(int, bool, bool, bool)));
+		connect(myUserTesting[objectCount], SIGNAL(startExperiment(int, bool, bool, QString, QString)), \
+				myViewSlaveComm[0] , SLOT(startExperiment(int, bool, bool, QString, QString)));
+		connect(myUserTesting[objectCount], SIGNAL(stopExperiment()), \
+				myViewSlaveComm[0] , SLOT(stopExperiment()));
 	}
 
 	else

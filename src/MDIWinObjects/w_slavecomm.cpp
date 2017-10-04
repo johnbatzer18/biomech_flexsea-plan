@@ -171,21 +171,25 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 	}
 }
 
-void W_SlaveComm::externalStartExperiment(int r, bool log, bool autoSample, bool on)
+void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes)
 {
-	on_off_pb_ptr[0]->setChecked(on);
+	on_off_pb_ptr[0]->setChecked(true);
 
-	if(on == true)
-	{
-		//When it's a Start condition we set a few things:
-		comboBoxRefreshPtr[0]->setCurrentIndex(r);
-		log_cb_ptr[0]->setChecked(log);
-		auto_checkbox[0]->setChecked(autoSample);
-	}
+	//We set a few things based on what we received
+	comboBoxRefreshPtr[0]->setCurrentIndex(r);
+	log_cb_ptr[0]->setChecked(log);
+	auto_checkbox[0]->setChecked(autoSample);
+	ui->lineEdit->setText(offs);
+	ui->lineEdit_userNotes->setText(uNotes);
 
 	managePushButton(0, false);
 }
 
+void W_SlaveComm::stopExperiment(void)
+{
+	on_off_pb_ptr[0]->setChecked(false);
+	managePushButton(0, false);
+}
 
 //****************************************************************************
 // Private function(s):

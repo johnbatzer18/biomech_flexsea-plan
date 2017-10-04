@@ -208,10 +208,11 @@ void W_UserTesting::nameEditingFinished(uint8_t i)
 
 void W_UserTesting::on_pushButtonExpStart_clicked()
 {
+	int refreshRate = 7;	//Index that corresponds to 200Hz
 	ui->pushButtonExpStart->setEnabled(false);
 	ui->pushButtonExpStop->setEnabled(true);
 	ongoingExperiment = true;
-	emit startExperiment(7, true, true, true);
+	emit startExperiment(refreshRate, true, true, "o=0;", userID);	//ToDo pass better user notes
 	expTimer.start();
 }
 
@@ -220,7 +221,7 @@ void W_UserTesting::on_pushButtonExpStop_clicked()
 	ui->pushButtonExpStart->setEnabled(true);
 	ui->pushButtonExpStop->setEnabled(false);
 	ongoingExperiment = false;
-	emit startExperiment(0, false, false, false);
+	emit stopExperiment();
 }
 
 void W_UserTesting::on_horizontalSliderSpeed_valueChanged(int value)
