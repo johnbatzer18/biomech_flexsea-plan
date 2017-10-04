@@ -43,8 +43,8 @@ W_UserTesting::W_UserTesting(QWidget *parent) :
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	initSigBox();
-	sliderToSpin();
+	initTabSubject();
+	initTabExperiment();
 }
 
 W_UserTesting::~W_UserTesting()
@@ -65,6 +65,26 @@ W_UserTesting::~W_UserTesting()
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
+
+void W_UserTesting::initTabSubject(void)
+{
+	ui->radioButtonSexM->setChecked(true);
+	userID = "U-";
+	ui->lineEditNameUID->setText(userID);
+	initSigBox();
+}
+
+void W_UserTesting::initTabExperiment(void)
+{
+	ui->radioButtonActWalk->setChecked(true);
+	sliderToSpin();
+
+	ui->label_ExpUID->setText(userID);
+
+	//Start/Stop:
+	ui->pushButtonExpStart->setEnabled(true);
+	ui->pushButtonExpStop->setEnabled(false);
+}
 
 void W_UserTesting::initSigBox(void)
 {
@@ -156,6 +176,7 @@ void W_UserTesting::nameEditingFinished(uint8_t i)
 
 		userID = uid;
 		ui->lineEditNameUID->setText(uid);
+		ui->label_ExpUID->setText(userID);	//Label on Exp tab
 	}
 	else
 	{
@@ -165,11 +186,15 @@ void W_UserTesting::nameEditingFinished(uint8_t i)
 
 void W_UserTesting::on_pushButtonExpStart_clicked()
 {
+	ui->pushButtonExpStart->setEnabled(false);
+	ui->pushButtonExpStop->setEnabled(true);
 	emit startExperiment(7, true, true, true);
 }
 
 void W_UserTesting::on_pushButtonExpStop_clicked()
 {
+	ui->pushButtonExpStart->setEnabled(true);
+	ui->pushButtonExpStop->setEnabled(false);
 	emit startExperiment(0, false, false, false);
 }
 
@@ -235,4 +260,9 @@ void W_UserTesting::sliderToSpin(void)
 	ui->doubleSpinBoxSpeed->setValue(val);
 	val = (double)ui->horizontalSliderIncline->value()/10;
 	ui->doubleSpinBoxIncline->setValue(val);
+}
+
+void W_UserTesting::on_pushButtonClearNotes_clicked()
+{
+	ui->plainTextEdit->clear();
 }

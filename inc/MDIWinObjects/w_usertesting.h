@@ -55,8 +55,8 @@ private slots:
 	void on_horizontalSliderSpeed_valueChanged(int value);
 	void on_horizontalSliderIncline_valueChanged(int value);
 	void on_doubleSpinBoxSpeed_valueChanged(double arg1);
-
 	void on_doubleSpinBoxIncline_valueChanged(double arg1);
+	void on_pushButtonClearNotes_clicked();
 
 private:
 	Ui::W_UserTesting *ui;
@@ -68,6 +68,8 @@ private:
 	void speed(int index, double val);
 	void incline(int index, double val);
 	void sliderToSpin(void);
+	void initTabSubject();
+	void initTabExperiment();
 };
 
 //****************************************************************************
