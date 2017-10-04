@@ -45,7 +45,7 @@ W_UserTesting::W_UserTesting(QWidget *parent) :
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
-	ui->tabWidget->setCurrentIndex(0);
+	initTabs();
 	initTabSubject();
 	initTabExperiment();
 	initTimers();
@@ -70,12 +70,25 @@ W_UserTesting::~W_UserTesting()
 // Private function(s):
 //****************************************************************************
 
+void W_UserTesting::initTabs(void)
+{
+	ui->tabWidget->setCurrentIndex(0);
+	ui->tabWidget->setTabEnabled(0, true);
+	ui->tabWidget->setTabEnabled(1, false);
+
+	//No Tweaks yet:
+	ui->tabWidget->setTabEnabled(2, false);
+}
+
 void W_UserTesting::initTabSubject(void)
 {
 	ui->radioButtonSexM->setChecked(true);
 	userID = "U-";
 	ui->lineEditNameUID->setText(userID);
 	initSigBox();
+
+	ui->pushButtonApprove->setStyleSheet("background-color: rgb(0, 255, 0); \
+											color: rgb(0, 0, 0)");
 }
 
 void W_UserTesting::initTabExperiment(void)
@@ -89,6 +102,9 @@ void W_UserTesting::initTabExperiment(void)
 	ui->pushButtonExpStart->setEnabled(true);
 	ui->pushButtonExpStop->setEnabled(false);
 	ongoingExperiment = false;
+
+	ui->pushButtonEndSession->setStyleSheet("background-color: rgb(255, 0, 0); \
+											color: rgb(0, 0, 0)");
 }
 
 void W_UserTesting::initSigBox(void)
@@ -130,12 +146,18 @@ void W_UserTesting::dispTimerTick(void)
 	ui->lcdNumberSeconds->display(expTime);
 }
 
+//This button is now named Start Experimental Session
 void W_UserTesting::on_pushButtonApprove_clicked()
 {
 	//ToDo use real file location?
 	QString fn = userID + ".png";
 	qDebug() << fn;
 	scribbleArea->saveImage(fn, "png");
+
+	//Move to the next tab, lock this one
+	ui->tabWidget->setCurrentIndex(1);
+	ui->tabWidget->setTabEnabled(0, false);
+	ui->tabWidget->setTabEnabled(1, true);
 }
 
 void W_UserTesting::on_pushButtonSigClear_clicked()
@@ -291,4 +313,13 @@ void W_UserTesting::sliderToSpin(void)
 void W_UserTesting::on_pushButtonClearNotes_clicked()
 {
 	ui->plainTextEdit->clear();
+}
+
+//End of a session
+void W_UserTesting::on_pushButtonEndSession_clicked()
+{
+	//Move to the Subject tab, lock this one
+	ui->tabWidget->setCurrentIndex(0);
+	ui->tabWidget->setTabEnabled(0, true);
+	ui->tabWidget->setTabEnabled(1, false);
 }

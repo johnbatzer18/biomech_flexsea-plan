@@ -61,6 +61,8 @@ private slots:
 	void on_pushButtonClearNotes_clicked();
 	void dispTimerTick();
 
+	void on_pushButtonEndSession_clicked();
+
 private:
 	Ui::W_UserTesting *ui;
 	ScribbleArea *scribbleArea;
@@ -78,6 +80,7 @@ private:
 	void initTabSubject();
 	void initTabExperiment();
 	void initTimers();
+	void initTabs();
 };
 
 //****************************************************************************

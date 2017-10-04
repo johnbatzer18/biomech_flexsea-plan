@@ -342,7 +342,7 @@
           <item row="4" column="0" colspan="4">
            <widget class="QPushButton" name="pushButtonApprove">
             <property name="text">
-             <string>Save</string>
+             <string>Start Experimental Session</string>
             </property>
            </widget>
           </item>
@@ -373,29 +373,6 @@
        <string>Experiment</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="1" column="2">
-        <widget class="QGroupBox" name="groupBox_5">
-         <property name="title">
-          <string>Start/Stop</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QPushButton" name="pushButtonExpStart">
-            <property name="text">
-             <string>Start</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButtonExpStop">
-            <property name="text">
-             <string>Stop</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="0" colspan="4">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
@@ -434,9 +411,6 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0" colspan="3">
-        <widget class="QPlainTextEdit" name="plainTextEdit"/>
-       </item>
        <item row="1" column="3">
         <spacer name="horizontalSpacer">
          <property name="orientation">
@@ -450,30 +424,56 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_6">
-         <property name="title">
-          <string>Activity</string>
+       <item row="4" column="0" colspan="4">
+        <widget class="QPlainTextEdit" name="plainTextEdit"/>
+       </item>
+       <item row="7" column="0" colspan="4">
+        <widget class="QPushButton" name="pushButtonEndSession">
+         <property name="text">
+          <string>End Experimental Session</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>5</width>
+           <height>5</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="0">
+        <widget class="QPushButton" name="pushButtonClearNotes">
+         <property name="text">
+          <string>Clear notes</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLCDNumber" name="lcdNumberSeconds"/>
+       </item>
+       <item row="1" column="2">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Start/Stop</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QRadioButton" name="radioButtonActWalk">
+           <widget class="QPushButton" name="pushButtonExpStart">
             <property name="text">
-             <string>Walk</string>
+             <string>Start</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButtonActRun">
+           <widget class="QPushButton" name="pushButtonExpStop">
             <property name="text">
-             <string>Run</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButtonActOther">
-            <property name="text">
-             <string>Other</string>
+             <string>Stop</string>
             </property>
            </widget>
           </item>
@@ -579,28 +579,42 @@
          </layout>
         </widget>
        </item>
-       <item row="6" column="0">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Activity</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>5</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="0">
-        <widget class="QPushButton" name="pushButtonClearNotes">
-         <property name="text">
-          <string>Clear notes</string>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QRadioButton" name="radioButtonActWalk">
+            <property name="text">
+             <string>Walk</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButtonActRun">
+            <property name="text">
+             <string>Run</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButtonActOther">
+            <property name="text">
+             <string>Other</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QLCDNumber" name="lcdNumberSeconds"/>
+       <item row="6" column="0" colspan="4">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
