@@ -29,6 +29,8 @@
 #include <QColor>
 #include "scribblearea.h"
 #include <QMessageBox>
+#include <QTimer>
+#include <QElapsedTimer>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -43,8 +45,10 @@ W_UserTesting::W_UserTesting(QWidget *parent) :
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	ui->tabWidget->setCurrentIndex(0);
 	initTabSubject();
 	initTabExperiment();
+	initTimers();
 }
 
 W_UserTesting::~W_UserTesting()
@@ -84,6 +88,7 @@ void W_UserTesting::initTabExperiment(void)
 	//Start/Stop:
 	ui->pushButtonExpStart->setEnabled(true);
 	ui->pushButtonExpStop->setEnabled(false);
+	ongoingExperiment = false;
 }
 
 void W_UserTesting::initSigBox(void)
@@ -104,9 +109,26 @@ void W_UserTesting::initSigBox(void)
 	ui->frame->setMidLineWidth(1);
 }
 
+void W_UserTesting::initTimers(void)
+{
+	//Experiment: counts between Start and Stop
+	expTime = 0;
+
+	//Display refresh 10Hz:
+	dispTimer = new QTimer(this);
+	connect(dispTimer, SIGNAL(timeout()), this, SLOT(dispTimerTick()));
+	dispTimer->start(0.1);
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
+
+void W_UserTesting::dispTimerTick(void)
+{
+	if(ongoingExperiment){expTime = expTimer.elapsed() / 1000;}
+	ui->lcdNumberSeconds->display(expTime);
+}
 
 void W_UserTesting::on_pushButtonApprove_clicked()
 {
@@ -188,13 +210,16 @@ void W_UserTesting::on_pushButtonExpStart_clicked()
 {
 	ui->pushButtonExpStart->setEnabled(false);
 	ui->pushButtonExpStop->setEnabled(true);
+	ongoingExperiment = true;
 	emit startExperiment(7, true, true, true);
+	expTimer.start();
 }
 
 void W_UserTesting::on_pushButtonExpStop_clicked()
 {
 	ui->pushButtonExpStart->setEnabled(true);
 	ui->pushButtonExpStop->setEnabled(false);
+	ongoingExperiment = false;
 	emit startExperiment(0, false, false, false);
 }
 

@@ -24,6 +24,7 @@
 #include "counter.h"
 #include "flexsea_generic.h"
 #include "scribblearea.h"
+#include <QElapsedTimer>
 
 //class ScribbleArea;
 
@@ -57,11 +58,16 @@ private slots:
 	void on_doubleSpinBoxSpeed_valueChanged(double arg1);
 	void on_doubleSpinBoxIncline_valueChanged(double arg1);
 	void on_pushButtonClearNotes_clicked();
+	void dispTimerTick();
 
 private:
 	Ui::W_UserTesting *ui;
 	ScribbleArea *scribbleArea;
 	QString userID;
+	QElapsedTimer expTimer;
+	QTimer *dispTimer;
+	int expTime;
+	bool ongoingExperiment;
 
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
@@ -70,6 +76,7 @@ private:
 	void sliderToSpin(void);
 	void initTabSubject();
 	void initTabExperiment();
+	void initTimers();
 };
 
 //****************************************************************************
