@@ -179,8 +179,7 @@ QFile* DataLogger::openfile(QString name)
 		logFileStream.setDevice(logFile);
 		setStatus(tr("Opened '") + fullPathToFile + "'.");
 		//"fullPathToFile" has what I want. Name too.
-		emit logFileName();
-		emit logFileNameAndPath();
+		emit logFileName(name, fullPathToFile);
 	}
 
 	//If no file selected

@@ -1546,6 +1546,9 @@ void MainWindow::createUserTesting(void)
 				myViewSlaveComm[0] , SLOT(startExperiment(int, bool, bool, QString, QString)));
 		connect(myUserTesting[objectCount], SIGNAL(stopExperiment()), \
 				myViewSlaveComm[0] , SLOT(stopExperiment()));
+		//Link to Datalogger to get filenames:
+		connect(myDataLogger, SIGNAL(logFileName(QString, QString)), \
+				myUserTesting[objectCount] , SLOT(logFileName(QString, QString)));
 	}
 
 	else

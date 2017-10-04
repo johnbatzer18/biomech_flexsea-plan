@@ -69,6 +69,12 @@ W_UserTesting::~W_UserTesting()
 // Public slot(s):
 //****************************************************************************
 
+void W_UserTesting::logFileName(QString fn, QString fnp)
+{
+	logFn = fn;
+	logFnP = fnp;
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -216,6 +222,13 @@ void W_UserTesting::recordTimestampStartStop(bool start, int len)
 	//Write to file:
 	wtf = prefix + getTimestamp() + suffix;
 	*textStream << wtf << endl;
+
+	if(start)
+	{
+		//Filenames used:
+		*textStream << "Log file: " << logFn << endl;
+		*textStream << "Log file (full path): " << logFnP << endl;
+	}
 }
 
 QString W_UserTesting::getTimestamp(void)
@@ -235,6 +248,12 @@ void W_UserTesting::writeSubjectInfo(void)
 	*textStream << "Height: " << height[0] << "'" << height[1] << '"' << endl;
 	*textStream << "Weight (lbs): " << weight << endl;
 	*textStream << "---" << endl;
+}
+
+void W_UserTesting::writeNotes(void)
+{
+	*textStream << endl << "User notes begin >>>" << endl;
+	*textStream << ui->plainTextEdit->toPlainText() << endl << "<<< End of user notes." << endl;
 }
 
 void W_UserTesting::closeTextFile(void)
@@ -430,5 +449,6 @@ void W_UserTesting::on_pushButtonEndSession_clicked()
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
 
+	writeNotes();
 	closeTextFile();
 }

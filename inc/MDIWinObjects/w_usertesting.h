@@ -42,6 +42,8 @@ public:
 	explicit W_UserTesting(QWidget *parent = 0);
 	~W_UserTesting();
 
+public slots:
+	void logFileName(QString fn, QString fnp);
 signals:
 	void windowClosed(void);
 	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
@@ -84,6 +86,7 @@ private:
 	int height[2];
 	int weight;
 	QString sigFileName;
+	QString logFn, logFnP;
 
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
@@ -101,6 +104,7 @@ private:
 	void recordTimestampStartStop(bool start, int len);
 	QString getTimestamp();
 	void saveSignature();
+	void writeNotes();
 };
 
 //****************************************************************************

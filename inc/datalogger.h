@@ -137,8 +137,7 @@ private:
 
 signals:
 	void setStatusBarMessage(QString msg);
-	QString logFileName();
-	QString logFileNameAndPath();
+	void logFileName(QString fn, QString fnp);
 };
 
 //****************************************************************************
