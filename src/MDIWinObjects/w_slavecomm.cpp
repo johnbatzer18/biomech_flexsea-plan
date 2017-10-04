@@ -410,10 +410,6 @@ void W_SlaveComm::initSlaveCom(void)
 	//User notes:
 	ui->lineEdit_userNotes->setEnabled(true);
 
-	//Preset button starts Yellow:
-	ui->pushButtonPresets->setStyleSheet("background-color: rgb(255, 255, 0); \
-											   color: rgb(0, 0, 0)");
-
 	return;
 }
 
@@ -706,25 +702,4 @@ void W_SlaveComm::readCommandLine()
 void W_SlaveComm::dataTimeoutEvent(void)
 {
 	updateIndicatorTimeout(false);
-}
-
-void W_SlaveComm::on_pushButtonPresets_clicked()
-{
-	static int first = 1;
-
-	if(first == 1)
-	{
-		ui->pushButtonPresets->setStyleSheet("");	//Remove the Yellow
-		first = 0;
-	}
-
-	int row = 0;
-	//QString
-	comboBoxExpPtr[row]->setCurrentIndex(FlexSEA_Generic::var_list_exp.count()-2);
-	comboBoxRefreshPtr[row]->setCurrentIndex(7);	//200Hz
-	(log_cb_ptr[row])->setChecked(true);
-	(auto_checkbox[row])->setChecked(true);
-	defaultCmdLineText = "o=0;";
-	ui->lineEdit->setText(defaultCmdLineText);
-	manageSelectedExperimentChanged(row);
 }

@@ -31,6 +31,8 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QFileDialog>
+#include <QTextStream>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -136,6 +138,67 @@ void W_UserTesting::initTimers(void)
 	dispTimer->start(0.1);
 }
 
+void W_UserTesting::createNewFile(void)
+{
+	textFile = new QFile(this);
+	textStream = new QTextStream;
+
+	QString path = QDir::currentPath();
+	QString filename = path + "/uid.txt";	//ToDo better name
+
+	//Now we open it:
+	textFile->setFileName(filename);
+
+	//Check if the file was successfully opened
+	if(textFile->open(QIODevice::ReadWrite) == false)
+	{
+		qDebug() << "Couldn't RW open file " << filename;
+		return;
+	}
+
+	qDebug() << "Opened:" << filename;
+	textStream->setDevice(textFile);
+
+	//textFile->close();	//Done by other function
+}
+
+//Read all the input widgets and save data
+void W_UserTesting::latchSubjectInfo(void)
+{
+	name[0] = ui->lineEditNameFirst->text();
+	name[1] = ui->lineEditNameM->text();
+	name[2] = ui->lineEditNameLast->text();
+
+	sex = "Male";
+	if(ui->radioButtonSexF->isChecked()){sex = "Female";}
+	if(ui->radioButtonSexO->isChecked()){sex = "Other";}
+
+	DOB = "" + QString::number(ui->spinBoxDOB_YYYY->value()) + '-' \
+		  + QString::number(ui->spinBoxDOB_MM->value()) + '-' \
+		  + QString::number(ui->spinBoxDOB_DD->value());
+	height[0] = ui->spinBoxHeight_ft->value();
+	height[1] = ui->spinBoxHeightIn->value();
+	weight = ui->spinBoxWeight->value();
+	//QString sigFileName;
+}
+
+void W_UserTesting::writeSubjectInfo(void)
+{
+	*textStream << "UID: " << userID << endl;
+	*textStream << "First name: " << name[0] << endl;
+	*textStream << "Middle name: " << name[1] << endl;
+	*textStream << "Middle name: " << name[2] << endl;
+	*textStream << "Sex: " << sex << endl;
+	*textStream << "DOB (YYYY-MM-DD): " << DOB << endl;
+	*textStream << "Height: " << height[0] << "'" << height[1] << '"' << endl;
+	*textStream << "Weight (lbs): " << weight << endl;
+}
+
+void W_UserTesting::closeTextFile(void)
+{
+	textFile->close();
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -158,6 +221,10 @@ void W_UserTesting::on_pushButtonApprove_clicked()
 	ui->tabWidget->setCurrentIndex(1);
 	ui->tabWidget->setTabEnabled(0, false);
 	ui->tabWidget->setTabEnabled(1, true);
+
+	createNewFile();
+	latchSubjectInfo();
+	writeSubjectInfo();
 }
 
 void W_UserTesting::on_pushButtonSigClear_clicked()
@@ -322,4 +389,6 @@ void W_UserTesting::on_pushButtonEndSession_clicked()
 	ui->tabWidget->setCurrentIndex(0);
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
+
+	closeTextFile();
 }

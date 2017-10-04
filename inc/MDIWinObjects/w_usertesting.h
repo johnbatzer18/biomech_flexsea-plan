@@ -25,6 +25,8 @@
 #include "flexsea_generic.h"
 #include "scribblearea.h"
 #include <QElapsedTimer>
+#include <QFileDialog>
+#include <QTextStream>
 
 //class ScribbleArea;
 
@@ -71,6 +73,16 @@ private:
 	QTimer *dispTimer;
 	int expTime;
 	bool ongoingExperiment;
+	QFile *textFile;
+	QTextStream *textStream;
+
+	//Data to be written to file:
+	QString name[3];
+	QString sex;
+	QString DOB;
+	int height[2];
+	int weight;
+	QString sigFileName;
 
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
@@ -81,6 +93,10 @@ private:
 	void initTabExperiment();
 	void initTimers();
 	void initTabs();
+	void createNewFile();
+	void writeSubjectInfo();
+	void closeTextFile();
+	void latchSubjectInfo();
 };
 
 //****************************************************************************
