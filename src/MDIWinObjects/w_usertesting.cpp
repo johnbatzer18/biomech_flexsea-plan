@@ -224,23 +224,23 @@ void W_UserTesting::recordTimestampStartStop(bool start, int len)
 	QString prefix, suffix = "", wtf;
 	if(start)
 	{
-		prefix = "Started at ";
+		prefix = " Start";
 	}
 	else
 	{
-		prefix = "Stopped at ";
+		prefix = " Stop";
 		suffix = " (Length: " + QString::number(len) + "s)";
 	}
 
 	//Write to file:
-	wtf = prefix + getTimestamp() + suffix;
+	wtf = getTimestamp() + prefix + suffix;
 	*textStream << wtf << endl;
 
 	if(start)
 	{
 		//Filenames used:
-		*textStream << "Log file: " << logFn << endl;
-		*textStream << "Log file (full path): " << logFnP << endl;
+		*textStream << "#Log file: " << logFn << endl;
+		*textStream << "#Log file (full path): " << logFnP << endl;
 	}
 }
 
@@ -265,7 +265,7 @@ void W_UserTesting::writeSubjectInfo(void)
 
 void W_UserTesting::writeNotes(void)
 {
-	*textStream << endl << "User notes begin >>>" << endl;
+	*textStream << "---" << endl << "User notes begin >>>" << endl;
 	*textStream << ui->plainTextEdit->toPlainText() << endl << "<<< End of user notes." << endl;
 }
 
@@ -495,7 +495,7 @@ void W_UserTesting::flags(int index, bool external)
 	QString wtf = "", txt = "";
 	if(index == 0){txt = ui->lineEditFlagA->text();}
 
-	wtf = "Flag " + QString::number(index) + " " + getTimestamp() + " " + txt;
+	wtf = getTimestamp() + " Flag " + QString::number(index) + " " + txt;
 	*textStream << wtf << endl;
 
 	if(external == false){emit userFlags(index);}
