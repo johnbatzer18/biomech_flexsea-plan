@@ -44,6 +44,8 @@ public:
 
 public slots:
 	void logFileName(QString fn, QString fnp);
+	void extFlags(int index);
+
 signals:
 	void windowClosed(void);
 	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
@@ -109,7 +111,7 @@ private:
 	QString getTimestamp();
 	void saveSignature();
 	void writeNotes();
-	void flags(int index);
+	void flags(int index, bool external);
 };
 
 //****************************************************************************

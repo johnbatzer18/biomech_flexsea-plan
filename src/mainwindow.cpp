@@ -1549,6 +1549,18 @@ void MainWindow::createUserTesting(void)
 		//Link to Datalogger to get filenames:
 		connect(myDataLogger, SIGNAL(logFileName(QString, QString)), \
 				myUserTesting[objectCount] , SLOT(logFileName(QString, QString)));
+
+		//If there is no Event Flag window we create one:
+		if(W_Event::howManyInstance() == 0)
+		{
+			createToolEvent();
+		}
+
+		//Link to Event to add flags to the log. Not that clean, but it gets the job done...:
+		connect(myUserTesting[objectCount], SIGNAL(userFlags(int)), \
+				myEvent[0] , SLOT(externalButtonClick(int)));
+		connect(myEvent[0], SIGNAL(buttonClick(int)), \
+				 myUserTesting[objectCount], SLOT(extFlags(int)));
 	}
 
 	else

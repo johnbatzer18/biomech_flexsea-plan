@@ -83,6 +83,12 @@ int W_Event::getEventCode(void)
 // Public slot(s):
 //****************************************************************************
 
+void W_Event::externalButtonClick(int index)
+{
+	qDebug() << "Ext button: " << index;
+	pushButtonEvent(index);
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -189,6 +195,7 @@ void W_Event::pushButtonEvent(int pb)
 	flagText = buildList();
 	flagCode = buildCode();
 	qDebug() << "pbEvent:" << flagText << "'" << flagCode;
+	emit buttonClick(pb);
 }
 
 void W_Event::timeoutEvent(int pb)

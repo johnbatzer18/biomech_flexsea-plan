@@ -34,6 +34,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QDateTime>
+#include "w_event.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -73,6 +74,16 @@ void W_UserTesting::logFileName(QString fn, QString fnp)
 {
 	logFn = fn;
 	logFnP = fnp;
+}
+
+void W_UserTesting::extFlags(int index)
+{
+	qDebug() << "Received from Event" << index;
+	if(ui->tabWidget->currentIndex() != 0)
+	{
+		//We do not send flags before the session has started
+		flags(index, true);
+	}
 }
 
 //****************************************************************************
@@ -461,25 +472,25 @@ void W_UserTesting::on_pushButtonEndSession_clicked()
 
 void W_UserTesting::on_pushButtonFlagA_clicked()
 {
-	flags(0);
+	flags(0, false);
 }
 
 void W_UserTesting::on_pushButtonFlagB_clicked()
 {
-	flags(1);
+	flags(1, false);
 }
 
 void W_UserTesting::on_pushButtonFlagC_clicked()
 {
-	flags(2);
+	flags(2, false);
 }
 
 void W_UserTesting::on_pushButtonFlagD_clicked()
 {
-	flags(3);
+	flags(3, false);
 }
 
-void W_UserTesting::flags(int index)
+void W_UserTesting::flags(int index, bool external)
 {
 	QString wtf = "", txt = "";
 	if(index == 0){txt = ui->lineEditFlagA->text();}
@@ -487,5 +498,5 @@ void W_UserTesting::flags(int index)
 	wtf = "Flag " + QString::number(index) + " " + getTimestamp() + " " + txt;
 	*textStream << wtf << endl;
 
-	emit userFlags(index);
+	if(external == false){emit userFlags(index);}
 }
