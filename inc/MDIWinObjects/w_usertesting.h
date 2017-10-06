@@ -27,6 +27,7 @@
 #include <QElapsedTimer>
 #include <QFileDialog>
 #include <QTextStream>
+#include <QButtonGroup>
 
 //class ScribbleArea;
 
@@ -72,6 +73,7 @@ private slots:
 	void on_pushButtonFlagB_clicked();
 	void on_pushButtonFlagC_clicked();
 	void on_pushButtonFlagD_clicked();
+	void activityButton(QAbstractButton*);
 
 private:
 	Ui::W_UserTesting *ui;
@@ -84,6 +86,7 @@ private:
 	QFile *textFile;
 	QTextStream *textStream;
 	QString utPath;
+	QButtonGroup *qbgActivity;
 
 	//Data to be written to file:
 	QString name[3];
@@ -112,6 +115,8 @@ private:
 	void saveSignature();
 	void writeNotes();
 	void flags(int index, bool external);
+	void initTabTweaks();
+	void getAllInputs();
 };
 
 //****************************************************************************

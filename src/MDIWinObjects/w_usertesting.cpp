@@ -35,6 +35,7 @@
 #include <QTextStream>
 #include <QDateTime>
 #include "w_event.h"
+#include <QButtonGroup>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -52,6 +53,7 @@ W_UserTesting::W_UserTesting(QWidget *parent) :
 	initTabs();
 	initTabSubject();
 	initTabExperiment();
+	initTabTweaks();
 	initTimers();
 }
 
@@ -119,6 +121,7 @@ void W_UserTesting::initTabExperiment(void)
 	ui->label_ExpUID->setText(userID);
 
 	ui->radioButtonDataF->setChecked(true);
+	ui->radioButtonDUT_L->setChecked(true);
 
 	//Start/Stop:
 	ui->pushButtonExpStart->setEnabled(true);
@@ -127,6 +130,18 @@ void W_UserTesting::initTabExperiment(void)
 
 	ui->pushButtonEndSession->setStyleSheet("background-color: rgb(255, 0, 0); \
 											color: rgb(0, 0, 0)");
+
+	//Button groups:
+	qbgActivity = new QButtonGroup(this);
+	qbgActivity->addButton(ui->radioButtonActWalk);
+	qbgActivity->addButton(ui->radioButtonActRun);
+	qbgActivity->addButton(ui->radioButtonActOther);
+	connect(qbgActivity, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(activityButton(QAbstractButton*)));
+}
+
+void W_UserTesting::initTabTweaks(void)
+{
+
 }
 
 void W_UserTesting::initSigBox(void)
@@ -241,6 +256,8 @@ void W_UserTesting::recordTimestampStartStop(bool start, int len)
 		//Filenames used:
 		*textStream << "#Log file: " << logFn << endl;
 		*textStream << "#Log file (full path): " << logFnP << endl;
+		//All parameters:
+		getAllInputs();
 	}
 }
 
@@ -499,4 +516,46 @@ void W_UserTesting::flags(int index, bool external)
 	*textStream << wtf << endl;
 
 	if(external == false){emit userFlags(index);}
+}
+
+void W_UserTesting::activityButton(QAbstractButton* myb)
+{
+	QString actPrefixText = " Activity = ", actText = "Walk";
+	if(myb == ui->radioButtonActRun){actText = "Run";}
+	if(myb == ui->radioButtonActOther){actText = "Other";}
+	//qDebug() << (actPrefixText + actText);
+	*textStream << getTimestamp() << (actPrefixText + actText) << endl;
+}
+
+//Call this when it starts so we know the starting condition
+void W_UserTesting::getAllInputs(void)
+{
+	QString tmstp = getTimestamp();
+
+	//Activity:
+	QString actPre = "Activity = ", act = "Walk";
+	if(ui->radioButtonActRun->isChecked()){act = "Run";}
+	if(ui->radioButtonActOther->isChecked()){act = "Other";}
+
+	//Data:
+	QString dataPre = "Data = ", data = "Fast";
+	if(ui->radioButtonDataA->isChecked()){data = "All";}
+
+	//DUT:
+	QString dutPre = "DUT = ", dut = "Left";
+	if(ui->radioButtonDUT_R->isChecked()){dut = "Right";}
+	if(ui->radioButtonDUT_D->isChecked()){dut = "Dual";}
+
+	//Speed:
+	QString spdPre = "Speed = ", spd = "";
+	spd = QString::number((double)ui->horizontalSliderSpeed->value()/10);
+
+	//Incline
+	QString incPre = "Incline ", inc = "";
+	inc = QString::number((double)ui->horizontalSliderIncline->value()/10);
+
+	//Write to file:
+	*textStream << tmstp << " Starting conditions: " << (actPre + act) << ", " << \
+					(dataPre + data) << ", " << (dutPre + dut) << ", " << \
+					(spdPre + spd) << ", " << (incPre + inc) << endl;
 }
