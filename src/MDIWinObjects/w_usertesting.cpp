@@ -131,6 +131,9 @@ void W_UserTesting::initTabExperiment(void)
 	ui->pushButtonEndSession->setStyleSheet("background-color: rgb(255, 0, 0); \
 											color: rgb(0, 0, 0)");
 
+	currentSpeed = ui->doubleSpinBoxSpeed->value();
+	currentIncline = ui->doubleSpinBoxIncline->value();
+
 	//Button group - Activity:
 	qbgActivity = new QButtonGroup(this);
 	qbgActivity->addButton(ui->radioButtonActWalk);
@@ -293,6 +296,12 @@ void W_UserTesting::writeSubjectInfo(void)
 	*textStream << "---" << endl;
 }
 
+void W_UserTesting::writeSPeedIncline(double spd, double inc)
+{
+	*textStream << getTimestamp() << " Speed = " << QString::number(spd) <<\
+				", Incline = " << QString::number(inc) << endl;
+}
+
 void W_UserTesting::writeNotes(void)
 {
 	*textStream << "---" << endl << "User notes begin >>>" << endl;
@@ -310,8 +319,25 @@ void W_UserTesting::closeTextFile(void)
 
 void W_UserTesting::dispTimerTick(void)
 {
+	static uint8_t spdDiv = 0;
+
 	if(ongoingExperiment){expTime = expTimer.elapsed() / 1000;}
 	ui->lcdNumberSeconds->display(expTime);
+
+	//We use this slow refresh to filter out the speed and incline logs:
+	static double lastSpeed = currentSpeed;
+	static double lastIncline = currentIncline;
+	spdDiv++;
+	spdDiv %= 10;
+	if(!spdDiv)
+	{
+		if(currentSpeed != lastSpeed || currentIncline != lastIncline)
+		{
+			lastSpeed = currentSpeed;
+			lastIncline = currentIncline;
+			writeSPeedIncline(currentSpeed, currentIncline);
+		}
+	}
 }
 
 //This button is now named Start Experimental Session
@@ -456,6 +482,8 @@ void W_UserTesting::speed(int index, double val)
 		double rV = val*10;
 		ui->horizontalSliderSpeed->setValue((int)rV);
 	}
+
+	currentSpeed = val;
 }
 
 void W_UserTesting::incline(int index, double val)
@@ -472,6 +500,8 @@ void W_UserTesting::incline(int index, double val)
 		double rV = val*10;
 		ui->horizontalSliderIncline->setValue((int)rV);
 	}
+
+	currentIncline = val;
 }
 
 //Call this once at boot to match all the displays

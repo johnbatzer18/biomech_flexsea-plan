@@ -89,6 +89,7 @@ private:
 	QTextStream *textStream;
 	QString utPath;
 	QButtonGroup *qbgActivity, *qbgDUT, *qbgData;
+	double currentSpeed, currentIncline;
 
 	//Data to be written to file:
 	QString name[3];
@@ -119,6 +120,7 @@ private:
 	void flags(int index, bool external);
 	void initTabTweaks();
 	void getAllInputs();
+	void writeSPeedIncline(double spd, double inc);
 };
 
 //****************************************************************************
