@@ -131,12 +131,25 @@ void W_UserTesting::initTabExperiment(void)
 	ui->pushButtonEndSession->setStyleSheet("background-color: rgb(255, 0, 0); \
 											color: rgb(0, 0, 0)");
 
-	//Button groups:
+	//Button group - Activity:
 	qbgActivity = new QButtonGroup(this);
 	qbgActivity->addButton(ui->radioButtonActWalk);
 	qbgActivity->addButton(ui->radioButtonActRun);
 	qbgActivity->addButton(ui->radioButtonActOther);
 	connect(qbgActivity, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(activityButton(QAbstractButton*)));
+
+	//Button groups - DUT:
+	qbgDUT = new QButtonGroup(this);
+	qbgDUT->addButton(ui->radioButtonDUT_L);
+	qbgDUT->addButton(ui->radioButtonDUT_R);
+	qbgDUT->addButton(ui->radioButtonDUT_D);
+	connect(qbgDUT, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(dutButton(QAbstractButton*)));
+
+	//Button groups - Data:
+	qbgData = new QButtonGroup(this);
+	qbgData->addButton(ui->radioButtonDataF);
+	qbgData->addButton(ui->radioButtonDataA);
+	connect(qbgData, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(dataButton(QAbstractButton*)));
 }
 
 void W_UserTesting::initTabTweaks(void)
@@ -525,6 +538,23 @@ void W_UserTesting::activityButton(QAbstractButton* myb)
 	if(myb == ui->radioButtonActOther){actText = "Other";}
 	//qDebug() << (actPrefixText + actText);
 	*textStream << getTimestamp() << (actPrefixText + actText) << endl;
+}
+
+void W_UserTesting::dutButton(QAbstractButton* myb)
+{
+	QString dutPrefixText = " DUT = ", dutText = "Left";
+	if(myb == ui->radioButtonDUT_R){dutText = "Right";}
+	if(myb == ui->radioButtonDUT_D){dutText = "Dual";}
+
+	*textStream << getTimestamp() << (dutPrefixText + dutText) << endl;
+}
+
+void W_UserTesting::dataButton(QAbstractButton* myb)
+{
+	QString dataPrefixText = " Data = ", dataText = "Fast";
+	if(myb == ui->radioButtonDataF){dataText = "All";}
+
+	*textStream << getTimestamp() << (dataPrefixText + dataText) << endl;
 }
 
 //Call this when it starts so we know the starting condition

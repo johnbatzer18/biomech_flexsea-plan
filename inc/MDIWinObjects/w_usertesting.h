@@ -74,6 +74,8 @@ private slots:
 	void on_pushButtonFlagC_clicked();
 	void on_pushButtonFlagD_clicked();
 	void activityButton(QAbstractButton*);
+	void dutButton(QAbstractButton *myb);
+	void dataButton(QAbstractButton *myb);
 
 private:
 	Ui::W_UserTesting *ui;
@@ -86,7 +88,7 @@ private:
 	QFile *textFile;
 	QTextStream *textStream;
 	QString utPath;
-	QButtonGroup *qbgActivity;
+	QButtonGroup *qbgActivity, *qbgDUT, *qbgData;
 
 	//Data to be written to file:
 	QString name[3];
