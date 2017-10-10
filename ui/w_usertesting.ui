@@ -826,6 +826,9 @@
            </item>
            <item row="2" column="0" colspan="3">
             <widget class="QDial" name="dialAmplitude">
+             <property name="maximum">
+              <number>100</number>
+             </property>
              <property name="invertedAppearance">
               <bool>false</bool>
              </property>
@@ -841,7 +844,11 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QSpinBox" name="spinBoxTweaksAmp"/>
+            <widget class="QSpinBox" name="spinBoxTweaksAmp">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -894,7 +901,10 @@
            <item row="2" column="0" colspan="3">
             <widget class="QDial" name="dialTiming">
              <property name="minimum">
-              <number>-99</number>
+              <number>-100</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
              </property>
              <property name="invertedAppearance">
               <bool>false</bool>
@@ -911,7 +921,14 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QSpinBox" name="spinBoxTweaksTim"/>
+            <widget class="QSpinBox" name="spinBoxTweaksTim">
+             <property name="minimum">
+              <number>-100</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -984,7 +1001,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_15">
          <item row="1" column="0">
-          <widget class="QPushButton" name="pushButtonPowerOnOff">
+          <widget class="QPushButton" name="pushButtonPowerOff">
            <property name="text">
             <string>Power Off</string>
            </property>
@@ -1002,6 +1019,29 @@
             <size>
              <width>20</width>
              <height>5</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="pushButtonPowerOn">
+           <property name="text">
+            <string>Power On</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>25</width>
+             <height>20</height>
             </size>
            </property>
           </spacer>

@@ -155,7 +155,42 @@ void W_UserTesting::initTabExperiment(void)
 
 void W_UserTesting::initTabTweaks(void)
 {
+	//Controller list:
+	twController = 0;
+	ui->comboBoxTweaksController->addItem("Unknown");
+	ui->comboBoxTweaksController->addItem("No Motor");
+	ui->comboBoxTweaksController->addItem("Shadow");
+	ui->comboBoxTweaksController->addItem("Spring Only");
+	ui->comboBoxTweaksController->addItem("Power");
+	ui->comboBoxTweaksController->setCurrentIndex(twController);
 
+	//Controller Option list:
+	twControllerOption = 0;
+	ui->comboBoxTweaksControllerOptions->addItem("Unknown/None");
+	ui->comboBoxTweaksControllerOptions->addItem("Level 0");
+	ui->comboBoxTweaksControllerOptions->addItem("Level 1");
+	ui->comboBoxTweaksControllerOptions->addItem("Level 2");
+	ui->comboBoxTweaksControllerOptions->setCurrentIndex(twControllerOption);
+	ui->comboBoxTweaksControllerOptions->setEnabled(false);
+
+	//Auto & Write:
+	automaticMode = false;
+	ui->checkBoxTweaksAutomatic->setChecked(automaticMode);
+	ui->pushButtonTweaksWrite->setEnabled(true);
+
+	//Dials & inputs:
+	twAmplitude = 0;
+	ui->dialAmplitude->setValue(twAmplitude);
+	ui->spinBoxTweaksAmp->setValue(ui->dialAmplitude->value());
+	twTiming = 0;
+	ui->dialTiming->setValue(twTiming);
+	ui->spinBoxTweaksTim->setValue(ui->dialTiming->value());
+
+	//Power buttons:
+	ui->pushButtonPowerOff->setStyleSheet("background-color: rgb(255, 0, 0); \
+											color: rgb(0, 0, 0)");
+	ui->pushButtonPowerOn->setStyleSheet("background-color: rgb(0, 255, 0); \
+											color: rgb(0, 0, 0)");
 }
 
 void W_UserTesting::initSigBox(void)
@@ -620,37 +655,122 @@ void W_UserTesting::getAllInputs(void)
 
 void W_UserTesting::on_comboBoxTweaksController_currentIndexChanged(int index)
 {
+	//"Power" has sub-options:
+	bool enableOptions = false;
+	if(index == 4){enableOptions = true;}
+	else
+	{
+		ui->comboBoxTweaksControllerOptions->setCurrentIndex(0);
+	}
+	ui->comboBoxTweaksControllerOptions->setEnabled(enableOptions);
 
+	tweaksController(0, index);
 }
 
 void W_UserTesting::on_comboBoxTweaksControllerOptions_currentIndexChanged(int index)
 {
-
+	tweaksController(1, index);
 }
 
-void W_UserTesting::on_dialAmplitude_valueChanged(int value)
+void W_UserTesting::tweaksController(int source, int index)
 {
+	if(source == 0)
+	{
+		//Main controller:
+		twController = index;
+		if(index == 4)
+		{
+			twControllerOption = ui->comboBoxTweaksControllerOptions->currentIndex();
+		}
+		else
+		{
+			twControllerOption = 0;
+		}
+	}
+	else
+	{
+		//Sub:
+		twController = ui->comboBoxTweaksController->currentIndex();
+		twControllerOption = index;
+	}
 
+	qDebug() << "Controller:" << twController << " Option:" << twControllerOption;
 }
 
-void W_UserTesting::on_spinBoxTweaksAmp_valueChanged(int arg1)
-{
+void W_UserTesting::on_dialAmplitude_valueChanged(int value){tweaksAmplitude(0, value);}
+void W_UserTesting::on_spinBoxTweaksAmp_valueChanged(int arg1){tweaksAmplitude(1, arg1);}
 
+void W_UserTesting::tweaksAmplitude(int source, int val)
+{
+	//Protect against recursions:
+	static bool internal = false;
+	if(internal == true)
+	{
+		internal = false;
+		return;
+	}
+
+	if(source == 0)
+	{
+		//Change came from the dial:
+		internal = true;
+		ui->spinBoxTweaksAmp->setValue(val);
+	}
+	else
+	{
+		//Change came from the spinbox:
+		internal = true;
+		ui->dialAmplitude->setValue(val);
+	}
+
+	twAmplitude = val;
+	qDebug() << "Amplitude:" << twAmplitude;
 }
 
-void W_UserTesting::on_dialTiming_valueChanged(int value)
+void W_UserTesting::on_dialTiming_valueChanged(int value){tweaksTiming(0, value);}
+void W_UserTesting::on_spinBoxTweaksTim_valueChanged(int arg1){tweaksTiming(1, arg1);}
+
+void W_UserTesting::tweaksTiming(int source, int val)
 {
+	//Protect against recursions:
+	static bool internal = false;
+	if(internal == true)
+	{
+		internal = false;
+		return;
+	}
 
-}
+	if(source == 0)
+	{
+		//Change came from the dial:
+		internal = true;
+		ui->spinBoxTweaksTim->setValue(val);
+	}
+	else
+	{
+		//Change came from the spinbox:
+		internal = true;
+		ui->dialTiming->setValue(val);
+	}
 
-void W_UserTesting::on_spinBoxTweaksTim_valueChanged(int arg1)
-{
-
+	twTiming = val;
+	qDebug() << "Timing:" << twTiming;
 }
 
 void W_UserTesting::on_checkBoxTweaksAutomatic_stateChanged(int arg1)
 {
+	if(arg1 == 0)
+	{
+		//Unchecked: normal (non-automatic) mode
+		ui->pushButtonTweaksWrite->setEnabled(true);
+	}
+	else
+	{
+		ui->pushButtonTweaksWrite->setEnabled(false);
+	}
 
+	automaticMode = (bool)arg1;
+	qDebug() << "Automatic mode:" << automaticMode;
 }
 
 void W_UserTesting::on_pushButtonTweaksRead_clicked()
@@ -663,7 +783,12 @@ void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 
 }
 
-void W_UserTesting::on_pushButtonPowerOnOff_clicked()
+void W_UserTesting::on_pushButtonPowerOff_clicked()
+{
+
+}
+
+void W_UserTesting::on_pushButtonPowerOn_clicked()
 {
 
 }

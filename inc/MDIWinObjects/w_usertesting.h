@@ -76,26 +76,19 @@ private slots:
 	void activityButton(QAbstractButton*);
 	void dutButton(QAbstractButton *myb);
 	void dataButton(QAbstractButton *myb);
-
 	void on_comboBoxTweaksController_currentIndexChanged(int index);
-
 	void on_comboBoxTweaksControllerOptions_currentIndexChanged(int index);
-
 	void on_dialAmplitude_valueChanged(int value);
-
 	void on_spinBoxTweaksAmp_valueChanged(int arg1);
-
 	void on_dialTiming_valueChanged(int value);
-
 	void on_spinBoxTweaksTim_valueChanged(int arg1);
-
 	void on_checkBoxTweaksAutomatic_stateChanged(int arg1);
-
 	void on_pushButtonTweaksRead_clicked();
-
 	void on_pushButtonTweaksWrite_clicked();
 
-	void on_pushButtonPowerOnOff_clicked();
+	void on_pushButtonPowerOff_clicked();
+
+	void on_pushButtonPowerOn_clicked();
 
 private:
 	Ui::W_UserTesting *ui;
@@ -120,6 +113,11 @@ private:
 	QString sigFileName;
 	QString logFn, logFnP;
 
+	//Tweaks:
+	int twTiming, twAmplitude;
+	int twController, twControllerOption;
+	bool automaticMode;
+
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
 	void speed(int index, double val);
@@ -141,6 +139,9 @@ private:
 	void initTabTweaks();
 	void getAllInputs();
 	void writeSPeedIncline(double spd, double inc);
+	void tweaksAmplitude(int source, int val);
+	void tweaksTiming(int source, int val);
+	void tweaksController(int source, int index);
 };
 
 //****************************************************************************
