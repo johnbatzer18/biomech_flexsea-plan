@@ -10,6 +10,7 @@ TARGET = plan-gui
 TEMPLATE = app
 DEFINES += BOARD_TYPE_FLEXSEA_PLAN INCLUDE_UPROJ_RICNU_KNEE_V1
 DEFINES += INCLUDE_UPROJ_MIT_A2DOF INCLUDE_UPROJ_CYCLE_TESTER
+DEFINES += INCLUDE_UPROJ_DPEB31
 
 INCLUDEPATH += inc \
 				inc/MDIWinObjects \
@@ -131,7 +132,8 @@ SOURCES += src/main.cpp \
 				src/FlexSEADevice/rigidDevice.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
 				flexsea-user/Rigid/src/cmd-Rigid.c \
-				flexsea-user/DpEb31/src/cmd-DpEb31.c
+				flexsea-user/DpEb31/src/cmd-DpEb31.c \
+				flexsea-user/DpEb31/src/cmd-UTT.c
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -220,7 +222,8 @@ HEADERS += inc/main.h \
 				inc/FlexSEADevice/rigidDevice.h \
 				inc/MDIWinObjects/w_rigid.h \
 				flexsea-user/Rigid/inc/cmd-Rigid.h \
-				flexsea-user/DpEb31/inc/cmd-DpEb31.h
+				flexsea-user/DpEb31/inc/cmd-DpEb31.h \
+				flexsea-user/DpEb31/inc/cmd-UTT.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \

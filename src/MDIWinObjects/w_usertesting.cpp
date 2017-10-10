@@ -22,6 +22,7 @@
 #include "flexsea_generic.h"
 #include "w_usertesting.h"
 #include "ui_w_usertesting.h"
+#include <flexsea_system.h>
 #include <flexsea_comm.h>
 #include <flexsea_board.h>
 #include <QString>
@@ -36,7 +37,8 @@
 #include <QDateTime>
 #include "w_event.h"
 #include <QButtonGroup>
-#include "mainwindow.h"
+#include "cmd-UTT.h"
+
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -162,34 +164,35 @@ void W_UserTesting::initTabExperiment(void)
 void W_UserTesting::initTabTweaks(void)
 {
 	//Controller list:
-	twController = 0;
+	planUTT.ctrl = 0;
 	ui->comboBoxTweaksController->addItem("Unknown");
 	ui->comboBoxTweaksController->addItem("No Motor");
 	ui->comboBoxTweaksController->addItem("Shadow");
 	ui->comboBoxTweaksController->addItem("Spring Only");
 	ui->comboBoxTweaksController->addItem("Power");
-	ui->comboBoxTweaksController->setCurrentIndex(twController);
+	ui->comboBoxTweaksController->setCurrentIndex(planUTT.ctrl);
 
 	//Controller Option list:
-	twControllerOption = 0;
+	planUTT.ctrlOption = 0;
 	ui->comboBoxTweaksControllerOptions->addItem("Unknown/None");
 	ui->comboBoxTweaksControllerOptions->addItem("Level 0");
 	ui->comboBoxTweaksControllerOptions->addItem("Level 1");
 	ui->comboBoxTweaksControllerOptions->addItem("Level 2");
-	ui->comboBoxTweaksControllerOptions->setCurrentIndex(twControllerOption);
+	ui->comboBoxTweaksControllerOptions->setCurrentIndex(planUTT.ctrlOption);
 	ui->comboBoxTweaksControllerOptions->setEnabled(false);
 
 	//Auto & Write:
 	automaticMode = false;
 	ui->checkBoxTweaksAutomatic->setChecked(automaticMode);
 	ui->pushButtonTweaksWrite->setEnabled(true);
+	ui->checkBoxTweaksAutomatic->setEnabled(false);	//ToDo enable once programmed
 
 	//Dials & inputs:
-	twAmplitude = 0;
-	ui->dialAmplitude->setValue(twAmplitude);
+	planUTT.amplitude = 0;
+	ui->dialAmplitude->setValue(planUTT.amplitude);
 	ui->spinBoxTweaksAmp->setValue(ui->dialAmplitude->value());
-	twTiming = 0;
-	ui->dialTiming->setValue(twTiming);
+	planUTT.timing = 0;
+	ui->dialTiming->setValue(planUTT.timing);
 	ui->spinBoxTweaksTim->setValue(ui->dialTiming->value());
 
 	//Power buttons:
@@ -197,6 +200,9 @@ void W_UserTesting::initTabTweaks(void)
 											color: rgb(0, 0, 0)");
 	ui->pushButtonPowerOn->setStyleSheet("background-color: rgb(0, 255, 0); \
 											color: rgb(0, 0, 0)");
+
+	planUTT.powerOn = 0;
+
 }
 
 void W_UserTesting::initSigBox(void)
@@ -407,6 +413,17 @@ void W_UserTesting::endOfSession()
 	closeTextFile();
 }
 
+void W_UserTesting::writeUTT(void)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//Prep & send:
+	tx_cmd_utt_w(TX_N_DEFAULT, 0, &planUTT);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -434,17 +451,17 @@ void W_UserTesting::dispTimerTick(void)
 
 	//Same filtering for the Tweaks tab:
 	static uint8_t twDiv = 0;
-	static double lastAmplitude = twAmplitude;
-	static double lastTiming = twTiming;
+	static double lastAmplitude = planUTT.amplitude;
+	static double lastTiming = planUTT.timing;
 	twDiv++;
 	twDiv %= 10;
 	if(!twDiv)
 	{
-		if(twAmplitude != lastAmplitude || twTiming != lastTiming)
+		if(planUTT.amplitude != lastAmplitude || planUTT.timing != lastTiming)
 		{
-			lastAmplitude = twAmplitude;
-			lastTiming = twTiming;
-			writeAmplitudeTiming(twAmplitude, twTiming);
+			lastAmplitude = planUTT.amplitude;
+			lastTiming = planUTT.timing;
+			writeAmplitudeTiming(planUTT.amplitude, planUTT.timing);
 		}
 	}
 }
@@ -719,25 +736,25 @@ void W_UserTesting::tweaksController(int source, int index)
 	if(source == 0)
 	{
 		//Main controller:
-		twController = index;
+		planUTT.ctrl = index;
 		if(index == 4)
 		{
-			twControllerOption = ui->comboBoxTweaksControllerOptions->currentIndex();
+			planUTT.ctrlOption = ui->comboBoxTweaksControllerOptions->currentIndex();
 		}
 		else
 		{
-			twControllerOption = 0;
+			planUTT.ctrlOption = 0;
 		}
 	}
 	else
 	{
 		//Sub:
-		twController = ui->comboBoxTweaksController->currentIndex();
-		twControllerOption = index;
+		planUTT.ctrl = ui->comboBoxTweaksController->currentIndex();
+		planUTT.ctrlOption = index;
 	}
 
-	//qDebug() << "Controller:" << twController << " Option:" << twControllerOption;
-	wtf("Controller: " + QString::number(twController) + " (" + QString::number(twControllerOption) + ")");
+	//qDebug() << "Controller:" << planUTT.ctrl << " Option:" << planUTT.ctrlOption;
+	wtf("Controller: " + QString::number(planUTT.ctrl) + " (" + QString::number(planUTT.ctrlOption) + ")");
 }
 
 void W_UserTesting::on_dialAmplitude_valueChanged(int value){tweaksAmplitude(0, value);}
@@ -766,8 +783,8 @@ void W_UserTesting::tweaksAmplitude(int source, int val)
 		ui->dialAmplitude->setValue(val);
 	}
 
-	twAmplitude = val;
-	//qDebug() << "Amplitude:" << twAmplitude;
+	planUTT.amplitude = val;
+	//qDebug() << "Amplitude:" << planUTT.amplitude;
 }
 
 void W_UserTesting::on_dialTiming_valueChanged(int value){tweaksTiming(0, value);}
@@ -796,8 +813,8 @@ void W_UserTesting::tweaksTiming(int source, int val)
 		ui->dialTiming->setValue(val);
 	}
 
-	twTiming = val;
-	//qDebug() << "Timing:" << twTiming;
+	planUTT.timing = val;
+	//qDebug() << "Timing:" << planUTT.timing;
 }
 
 void W_UserTesting::on_checkBoxTweaksAutomatic_stateChanged(int arg1)
@@ -824,19 +841,32 @@ void W_UserTesting::on_checkBoxTweaksAutomatic_stateChanged(int arg1)
 void W_UserTesting::on_pushButtonTweaksRead_clicked()
 {
 	wtf("Read From Device was clicked");
+
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//Prep & send:
+	tx_cmd_utt_r(TX_N_DEFAULT, 0);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, READ);
 }
 
 void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 {
 	wtf("Write to Device was clicked");
+	writeUTT();
 }
 
 void W_UserTesting::on_pushButtonPowerOff_clicked()
 {
+	planUTT.powerOn = 0;
 	wtf("Power Off was clicked");
+	writeUTT();
 }
 
 void W_UserTesting::on_pushButtonPowerOn_clicked()
 {
+	planUTT.powerOn = 1;
 	wtf("Power On was clicked");
+	writeUTT();
 }

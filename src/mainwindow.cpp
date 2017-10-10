@@ -1549,6 +1549,8 @@ void MainWindow::createUserTesting(void)
 				myViewSlaveComm[0] , SLOT(startExperiment(int, bool, bool, QString, QString)));
 		connect(myUserTesting[objectCount], SIGNAL(stopExperiment()), \
 				myViewSlaveComm[0] , SLOT(stopExperiment()));
+		connect(myUserTesting[objectCount], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
+				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t)));
 		//Link to Datalogger to get filenames:
 		connect(myDataLogger, SIGNAL(logFileName(QString, QString)), \
 				myUserTesting[objectCount] , SLOT(logFileName(QString, QString)));

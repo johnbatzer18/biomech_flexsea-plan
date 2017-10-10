@@ -28,6 +28,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QButtonGroup>
+#include "flexsea_user_structs.h"
 
 //class ScribbleArea;
 
@@ -52,6 +53,7 @@ signals:
 	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
 	void stopExperiment(void);
 	void userFlags(int index);
+	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 private slots:
 	void on_pushButtonSigClear_clicked();
@@ -113,9 +115,8 @@ private:
 	QString logFn, logFnP;
 
 	//Tweaks:
-	int twTiming, twAmplitude;
-	int twController, twControllerOption;
 	bool automaticMode;
+	struct utt_s planUTT;
 
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
@@ -146,6 +147,7 @@ private:
 	void pbSession(bool ss);
 	void startOfSession();
 	void endOfSession();
+	void writeUTT();
 };
 
 //****************************************************************************
