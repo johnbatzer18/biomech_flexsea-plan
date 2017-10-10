@@ -283,7 +283,7 @@ void W_UserTesting::latchSubjectInfo(void)
 }
 
 //bool start = true for start, false for stop
-void W_UserTesting::recordTimestampStartStop(bool start, int len)
+void W_UserTesting::recordTimestampStartStop(bool start, int len, QString un)
 {
 	QString prefix, suffix = "", wtf;
 	if(start)
@@ -305,6 +305,7 @@ void W_UserTesting::recordTimestampStartStop(bool start, int len)
 		//Filenames used:
 		*textStream << "#Log file: " << logFn << endl;
 		*textStream << "#Log file (full path): " << logFnP << endl;
+		*textStream << "#Log file user notes: " << un << endl;
 		//All parameters:
 		getAllInputs();
 	}
@@ -465,9 +466,12 @@ void W_UserTesting::on_pushButtonExpStart_clicked()
 	QString offs = "";
 	if(ui->radioButtonDataA->isChecked()){offs = "o=0,1,2,3;";}
 	else{offs = "o=0;";}
-	emit startExperiment(refreshRate, true, true, offs, userID);	//ToDo pass better user notes
+
+	qint64 numericalTimestamp = QDateTime::currentMSecsSinceEpoch();
+	QString logTxt = userID + "-" + QString::number(numericalTimestamp);
+	emit startExperiment(refreshRate, true, true, offs, logTxt);
 	expTimer.start();
-	recordTimestampStartStop(true, 0);
+	recordTimestampStartStop(true, 0, logTxt);
 }
 
 void W_UserTesting::on_pushButtonExpStop_clicked()
@@ -476,7 +480,7 @@ void W_UserTesting::on_pushButtonExpStop_clicked()
 	ui->pushButtonExpStop->setEnabled(false);
 	ongoingExperiment = false;
 	emit stopExperiment();
-	recordTimestampStartStop(false, expTime);
+	recordTimestampStartStop(false, expTime, "");
 }
 
 void W_UserTesting::on_horizontalSliderSpeed_valueChanged(int value)

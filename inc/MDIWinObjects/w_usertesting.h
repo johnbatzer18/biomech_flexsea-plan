@@ -131,7 +131,7 @@ private:
 	void writeSubjectInfo();
 	void closeTextFile();
 	void latchSubjectInfo();
-	void recordTimestampStartStop(bool start, int len);
+	void recordTimestampStartStop(bool start, int len, QString un);
 	QString getTimestamp();
 	void saveSignature();
 	void writeNotes();
