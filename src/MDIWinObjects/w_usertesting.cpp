@@ -36,12 +36,14 @@
 #include <QDateTime>
 #include "w_event.h"
 #include <QButtonGroup>
+#include "mainwindow.h"
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
 
-W_UserTesting::W_UserTesting(QWidget *parent) :
+W_UserTesting::W_UserTesting(QWidget *parent,
+							QString appPath) :
 	QWidget(parent),
 	ui(new Ui::W_UserTesting)
 {
@@ -55,6 +57,8 @@ W_UserTesting::W_UserTesting(QWidget *parent) :
 	initTabExperiment();
 	initTabTweaks();
 	initTimers();
+
+	mwAppPath = appPath;
 }
 
 W_UserTesting::~W_UserTesting()
@@ -246,7 +250,7 @@ void W_UserTesting::createNewFile(void)
 	//Create directory if needed
 	if(!QDir().exists(dirName)){QDir().mkdir(dirName);}
 
-	QString path = QDir::currentPath();
+	QString path = mwAppPath; //QDir::currentPath();
 	QString pathExp = path + '/' +dirName + '/';
 	QString filename = pathExp + "Exp_" + getTimestamp() + '_' + userID + ".txt";
 	//Save path for other functions

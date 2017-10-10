@@ -150,6 +150,8 @@ private:
 
 	Ui::MainWindow *ui;
 
+	QString appPath;
+
 	// Device Object
 	QList<ExecuteDevice>	executeDevList;
 	QList<ManageDevice>		manageDevList;

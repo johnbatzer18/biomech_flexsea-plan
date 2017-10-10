@@ -40,7 +40,7 @@ class W_UserTesting : public QWidget, public Counter<W_UserTesting>
 	Q_OBJECT
 
 public:
-	explicit W_UserTesting(QWidget *parent = 0);
+	explicit W_UserTesting(QWidget *parent = 0, QString appPath = "");
 	~W_UserTesting();
 
 public slots:
@@ -89,6 +89,7 @@ private slots:
 
 private:
 	Ui::W_UserTesting *ui;
+	QString mwAppPath;
 	ScribbleArea *scribbleArea;
 	QString userID;
 	QElapsedTimer expTimer;

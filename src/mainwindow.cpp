@@ -65,6 +65,9 @@ MainWindow::MainWindow(QWidget *parent) :
 				+ QString(']');
 	setWindowTitle(winHeader);
 
+	//Save application's path:
+	appPath = QDir::currentPath();
+
 	ui->statusBar->showMessage("Program launched. COM: Not Connected. \
 								Stream status: N/A", 0);
 	setWindowIcon(QIcon(":icons/d_logo_small_outlined.png"));
@@ -1530,7 +1533,7 @@ void MainWindow::createUserTesting(void)
 	//Limited number of windows:
 	if(objectCount < (USER_TESTING_WINDOWS_MAX))
 	{
-		myUserTesting[objectCount] = new W_UserTesting(this);
+		myUserTesting[objectCount] = new W_UserTesting(this, appPath);
 		mdiState[USER_TESTING_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myUserTesting[objectCount]);
 		mdiState[USER_TESTING_WINDOWS_ID][objectCount].open = true;
 		myUserTesting[objectCount]->show();
