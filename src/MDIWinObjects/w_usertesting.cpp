@@ -97,9 +97,7 @@ void W_UserTesting::initTabs(void)
 	ui->tabWidget->setCurrentIndex(0);
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
-
-	//No Tweaks yet:
-	ui->tabWidget->setTabEnabled(2, false);
+	ui->tabWidget->setTabEnabled(2, true);
 }
 
 void W_UserTesting::initTabSubject(void)
@@ -618,4 +616,54 @@ void W_UserTesting::getAllInputs(void)
 	*textStream << tmstp << " Starting conditions: " << (actPre + act) << ", " << \
 					(dataPre + data) << ", " << (dutPre + dut) << ", " << \
 					(spdPre + spd) << ", " << (incPre + inc) << endl;
+}
+
+void W_UserTesting::on_comboBoxTweaksController_currentIndexChanged(int index)
+{
+
+}
+
+void W_UserTesting::on_comboBoxTweaksControllerOptions_currentIndexChanged(int index)
+{
+
+}
+
+void W_UserTesting::on_dialAmplitude_valueChanged(int value)
+{
+
+}
+
+void W_UserTesting::on_spinBoxTweaksAmp_valueChanged(int arg1)
+{
+
+}
+
+void W_UserTesting::on_dialTiming_valueChanged(int value)
+{
+
+}
+
+void W_UserTesting::on_spinBoxTweaksTim_valueChanged(int arg1)
+{
+
+}
+
+void W_UserTesting::on_checkBoxTweaksAutomatic_stateChanged(int arg1)
+{
+
+}
+
+void W_UserTesting::on_pushButtonTweaksRead_clicked()
+{
+
+}
+
+void W_UserTesting::on_pushButtonTweaksWrite_clicked()
+{
+
+}
+
+void W_UserTesting::on_pushButtonPowerOnOff_clicked()
+{
+
 }
