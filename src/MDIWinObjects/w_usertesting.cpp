@@ -98,6 +98,9 @@ void W_UserTesting::initTabs(void)
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
 	ui->tabWidget->setTabEnabled(2, false);
+
+	ongoingSession = false;
+	pbSession(true);
 }
 
 void W_UserTesting::initTabSubject(void)
@@ -106,9 +109,6 @@ void W_UserTesting::initTabSubject(void)
 	userID = "U-";
 	ui->lineEditNameUID->setText(userID);
 	initSigBox();
-
-	ui->pushButtonApprove->setStyleSheet("background-color: rgb(0, 255, 0); \
-											color: rgb(0, 0, 0)");
 }
 
 void W_UserTesting::initTabExperiment(void)
@@ -124,10 +124,8 @@ void W_UserTesting::initTabExperiment(void)
 	//Start/Stop:
 	ui->pushButtonExpStart->setEnabled(true);
 	ui->pushButtonExpStop->setEnabled(false);
-	ongoingExperiment = false;
 
-	ui->pushButtonEndSession->setStyleSheet("background-color: rgb(255, 0, 0); \
-											color: rgb(0, 0, 0)");
+	ongoingExperiment = false;
 
 	currentSpeed = ui->doubleSpinBoxSpeed->value();
 	currentIncline = ui->doubleSpinBoxIncline->value();
@@ -209,6 +207,23 @@ void W_UserTesting::initSigBox(void)
 	ui->frame->setFrameShadow(QFrame::Plain);
 	ui->frame->setLineWidth(2);
 	ui->frame->setMidLineWidth(1);
+}
+
+//Experimental session button: color & text
+void W_UserTesting::pbSession(bool ss)
+{
+	if(ss == true)
+	{
+		ui->pushButtonExpSession->setStyleSheet("background-color: rgb(0, 255, 0); \
+											color: rgb(0, 0, 0)");
+		ui->pushButtonExpSession->setText("Start Experimental Session");
+	}
+	else
+	{
+		ui->pushButtonExpSession->setStyleSheet("background-color: rgb(255, 0, 0); \
+											color: rgb(0, 0, 0)");
+		ui->pushButtonExpSession->setText("Stop Experimental Session");
+	}
 }
 
 void W_UserTesting::initTimers(void)
@@ -352,6 +367,33 @@ void W_UserTesting::closeTextFile(void)
 	textFile->close();
 }
 
+//Start of a session
+void W_UserTesting::startOfSession()
+{
+	//Move to the next tab, lock this one
+	ui->tabWidget->setCurrentIndex(1);
+	ui->tabWidget->setTabEnabled(0, false);
+	ui->tabWidget->setTabEnabled(1, true);
+	ui->tabWidget->setTabEnabled(2, true);
+
+	createNewFile();
+	latchSubjectInfo();
+	writeSubjectInfo();
+}
+
+//End of a session
+void W_UserTesting::endOfSession()
+{
+	//Move to the Subject tab, lock this one
+	ui->tabWidget->setCurrentIndex(0);
+	ui->tabWidget->setTabEnabled(0, true);
+	ui->tabWidget->setTabEnabled(1, false);
+	ui->tabWidget->setTabEnabled(2, false);
+
+	writeNotes();
+	closeTextFile();
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -379,31 +421,20 @@ void W_UserTesting::dispTimerTick(void)
 	}
 }
 
-//This button is now named Start Experimental Session
-void W_UserTesting::on_pushButtonApprove_clicked()
+void W_UserTesting::on_pushButtonExpSession_clicked()
 {
-	//Move to the next tab, lock this one
-	ui->tabWidget->setCurrentIndex(1);
-	ui->tabWidget->setTabEnabled(0, false);
-	ui->tabWidget->setTabEnabled(1, true);
-	ui->tabWidget->setTabEnabled(2, true);
-
-	createNewFile();
-	latchSubjectInfo();
-	writeSubjectInfo();
-}
-
-//End of a session
-void W_UserTesting::on_pushButtonEndSession_clicked()
-{
-	//Move to the Subject tab, lock this one
-	ui->tabWidget->setCurrentIndex(0);
-	ui->tabWidget->setTabEnabled(0, true);
-	ui->tabWidget->setTabEnabled(1, false);
-	ui->tabWidget->setTabEnabled(2, false);
-
-	writeNotes();
-	closeTextFile();
+	if(ongoingSession == false)
+	{
+		pbSession(false);
+		startOfSession();
+		ongoingSession = true;
+	}
+	else
+	{
+		pbSession(true);
+		endOfSession();
+		ongoingSession = false;
+	}
 }
 
 //****************************************************************************

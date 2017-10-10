@@ -54,7 +54,6 @@ signals:
 	void userFlags(int index);
 
 private slots:
-	void on_pushButtonApprove_clicked();
 	void on_pushButtonSigClear_clicked();
 	void on_lineEditNameFirst_editingFinished();
 	void on_lineEditNameM_editingFinished();
@@ -68,7 +67,6 @@ private slots:
 	void on_doubleSpinBoxIncline_valueChanged(double arg1);
 	void on_pushButtonClearNotes_clicked();
 	void dispTimerTick();
-	void on_pushButtonEndSession_clicked();
 	void on_pushButtonFlagA_clicked();
 	void on_pushButtonFlagB_clicked();
 	void on_pushButtonFlagC_clicked();
@@ -85,10 +83,9 @@ private slots:
 	void on_checkBoxTweaksAutomatic_stateChanged(int arg1);
 	void on_pushButtonTweaksRead_clicked();
 	void on_pushButtonTweaksWrite_clicked();
-
 	void on_pushButtonPowerOff_clicked();
-
 	void on_pushButtonPowerOn_clicked();
+	void on_pushButtonExpSession_clicked();
 
 private:
 	Ui::W_UserTesting *ui;
@@ -97,7 +94,7 @@ private:
 	QElapsedTimer expTimer;
 	QTimer *dispTimer;
 	int expTime;
-	bool ongoingExperiment;
+	bool ongoingSession, ongoingExperiment;
 	QFile *textFile;
 	QTextStream *textStream;
 	QString utPath;
@@ -143,6 +140,9 @@ private:
 	void tweaksTiming(int source, int val);
 	void tweaksController(int source, int index);
 	void wtf(QString txt);
+	void pbSession(bool ss);
+	void startOfSession();
+	void endOfSession();
 };
 
 //****************************************************************************
