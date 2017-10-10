@@ -63,7 +63,7 @@ W_UserTesting::W_UserTesting(QWidget *parent,
 	initTimers();
 
 	mwAppPath = appPath;
-
+	tweakHasChanged = false;
 	uiSetup = false;
 }
 
@@ -170,7 +170,7 @@ void W_UserTesting::initTabTweaks(void)
 	ui->comboBoxTweaksController->addItem("Shadow");
 	ui->comboBoxTweaksController->addItem("Spring Only");
 	ui->comboBoxTweaksController->addItem("Power");
-	ui->comboBoxTweaksController->setCurrentIndex(planUTT.ctrl);
+	//ui->comboBoxTweaksController->setCurrentIndex(planUTT.ctrl);
 
 	//Controller Option list:
 	planUTT.ctrlOption = 0;
@@ -178,8 +178,8 @@ void W_UserTesting::initTabTweaks(void)
 	ui->comboBoxTweaksControllerOptions->addItem("Level 0");
 	ui->comboBoxTweaksControllerOptions->addItem("Level 1");
 	ui->comboBoxTweaksControllerOptions->addItem("Level 2");
-	ui->comboBoxTweaksControllerOptions->setCurrentIndex(planUTT.ctrlOption);
-	ui->comboBoxTweaksControllerOptions->setEnabled(false);
+	//ui->comboBoxTweaksControllerOptions->setCurrentIndex(planUTT.ctrlOption);
+	//ui->comboBoxTweaksControllerOptions->setEnabled(false);
 
 	//Auto & Write:
 	automaticMode = false;
@@ -189,8 +189,8 @@ void W_UserTesting::initTabTweaks(void)
 
 	//Dials & inputs:
 	planUTT.amplitude = 0;
-	ui->dialAmplitude->setValue(planUTT.amplitude);
-	ui->spinBoxTweaksAmp->setValue(ui->dialAmplitude->value());
+	//ui->dialAmplitude->setValue(planUTT.amplitude);
+	//ui->spinBoxTweaksAmp->setValue(ui->dialAmplitude->value());
 	planUTT.timing = 0;
 	ui->dialTiming->setValue(planUTT.timing);
 	ui->spinBoxTweaksTim->setValue(ui->dialTiming->value());
@@ -202,7 +202,19 @@ void W_UserTesting::initTabTweaks(void)
 											color: rgb(0, 0, 0)");
 
 	planUTT.powerOn = 0;
+	setTweaksUI();
+}
 
+//Set all the Tweaks widgets according to planUTT
+void W_UserTesting::setTweaksUI(void)
+{
+	ui->comboBoxTweaksController->setCurrentIndex(planUTT.ctrl);
+	ui->comboBoxTweaksControllerOptions->setCurrentIndex(planUTT.ctrlOption);
+	ui->comboBoxTweaksControllerOptions->setEnabled(false);
+	ui->dialAmplitude->setValue(planUTT.amplitude);
+	ui->spinBoxTweaksAmp->setValue(planUTT.amplitude);
+	ui->dialTiming->setValue(planUTT.timing);
+	ui->spinBoxTweaksTim->setValue(planUTT.timing);
 }
 
 void W_UserTesting::initSigBox(void)
@@ -462,7 +474,32 @@ void W_UserTesting::dispTimerTick(void)
 			lastAmplitude = planUTT.amplitude;
 			lastTiming = planUTT.timing;
 			writeAmplitudeTiming(planUTT.amplitude, planUTT.timing);
+			tweakHasChanged = true;
 		}
+	}
+
+	//Read button:
+	if(readDisplayLag > 0)
+	{
+		readDisplayLag--;
+		if(!readDisplayLag)
+		{
+			//We have waited long enough
+			planUTT = utt;
+			qDebug() << "Refreshing display based on read data.";
+			setTweaksUI();
+		}
+	}
+
+	//Color-code Write to Device:
+	if(tweakHasChanged == true)
+	{
+		ui->pushButtonTweaksWrite->setStyleSheet("background-color: rgb(255, 255, 0); \
+												color: rgb(0, 0, 0)");
+	}
+	else
+	{
+		ui->pushButtonTweaksWrite->setStyleSheet("");
 	}
 }
 
@@ -755,6 +792,7 @@ void W_UserTesting::tweaksController(int source, int index)
 
 	//qDebug() << "Controller:" << planUTT.ctrl << " Option:" << planUTT.ctrlOption;
 	wtf("Controller: " + QString::number(planUTT.ctrl) + " (" + QString::number(planUTT.ctrlOption) + ")");
+	tweakHasChanged = true;
 }
 
 void W_UserTesting::on_dialAmplitude_valueChanged(int value){tweaksAmplitude(0, value);}
@@ -849,12 +887,15 @@ void W_UserTesting::on_pushButtonTweaksRead_clicked()
 	tx_cmd_utt_r(TX_N_DEFAULT, 0);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, READ);
+
+	readDisplayLag = 5;
 }
 
 void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 {
 	wtf("Write to Device was clicked");
 	writeUTT();
+	tweakHasChanged = false;
 }
 
 void W_UserTesting::on_pushButtonPowerOff_clicked()

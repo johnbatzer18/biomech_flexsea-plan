@@ -117,6 +117,8 @@ private:
 	//Tweaks:
 	bool automaticMode;
 	struct utt_s planUTT;
+	uint8_t readDisplayLag;
+	bool tweakHasChanged;
 
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
@@ -148,6 +150,7 @@ private:
 	void startOfSession();
 	void endOfSession();
 	void writeUTT();
+	void setTweaksUI();
 };
 
 //****************************************************************************
