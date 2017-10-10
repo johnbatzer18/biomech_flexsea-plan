@@ -90,6 +90,7 @@ private slots:
 private:
 	Ui::W_UserTesting *ui;
 	QString mwAppPath;
+	bool uiSetup;
 	ScribbleArea *scribbleArea;
 	QString userID;
 	QElapsedTimer expTimer;
@@ -136,7 +137,8 @@ private:
 	void flags(int index, bool external);
 	void initTabTweaks();
 	void getAllInputs();
-	void writeSPeedIncline(double spd, double inc);
+	void writeSpeedIncline(double spd, double inc);
+	void writeAmplitudeTiming(int amp, int tim);
 	void tweaksAmplitude(int source, int val);
 	void tweaksTiming(int source, int val);
 	void tweaksController(int source, int index);

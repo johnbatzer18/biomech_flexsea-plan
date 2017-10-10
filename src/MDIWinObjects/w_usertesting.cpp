@@ -52,6 +52,8 @@ W_UserTesting::W_UserTesting(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	uiSetup = true;
+
 	initTabs();
 	initTabSubject();
 	initTabExperiment();
@@ -59,6 +61,8 @@ W_UserTesting::W_UserTesting(QWidget *parent,
 	initTimers();
 
 	mwAppPath = appPath;
+
+	uiSetup = false;
 }
 
 W_UserTesting::~W_UserTesting()
@@ -250,7 +254,7 @@ void W_UserTesting::createNewFile(void)
 	//Create directory if needed
 	if(!QDir().exists(dirName)){QDir().mkdir(dirName);}
 
-	QString path = mwAppPath; //QDir::currentPath();
+	QString path = mwAppPath;
 	QString pathExp = path + '/' +dirName + '/';
 	QString filename = pathExp + "Exp_" + getTimestamp() + '_' + userID + ".txt";
 	//Save path for other functions
@@ -355,9 +359,14 @@ void W_UserTesting::writeSubjectInfo(void)
 	*textStream << "---" << endl;
 }
 
-void W_UserTesting::writeSPeedIncline(double spd, double inc)
+void W_UserTesting::writeSpeedIncline(double spd, double inc)
 {
 	wtf("Speed = " + QString::number(spd) + ", Incline = " + QString::number(inc));
+}
+
+void W_UserTesting::writeAmplitudeTiming(int amp, int tim)
+{
+	wtf("Amplitude = " + QString::number(amp) + "%, Timing = " + QString::number(tim) + "%");
 }
 
 void W_UserTesting::writeNotes(void)
@@ -404,12 +413,11 @@ void W_UserTesting::endOfSession()
 
 void W_UserTesting::dispTimerTick(void)
 {
-	static uint8_t spdDiv = 0;
-
 	if(ongoingExperiment){expTime = expTimer.elapsed() / 1000;}
 	ui->lcdNumberSeconds->display(expTime);
 
 	//We use this slow refresh to filter out the speed and incline logs:
+	static uint8_t spdDiv = 0;
 	static double lastSpeed = currentSpeed;
 	static double lastIncline = currentIncline;
 	spdDiv++;
@@ -420,7 +428,23 @@ void W_UserTesting::dispTimerTick(void)
 		{
 			lastSpeed = currentSpeed;
 			lastIncline = currentIncline;
-			writeSPeedIncline(currentSpeed, currentIncline);
+			writeSpeedIncline(currentSpeed, currentIncline);
+		}
+	}
+
+	//Same filtering for the Tweaks tab:
+	static uint8_t twDiv = 0;
+	static double lastAmplitude = twAmplitude;
+	static double lastTiming = twTiming;
+	twDiv++;
+	twDiv %= 10;
+	if(!twDiv)
+	{
+		if(twAmplitude != lastAmplitude || twTiming != lastTiming)
+		{
+			lastAmplitude = twAmplitude;
+			lastTiming = twTiming;
+			writeAmplitudeTiming(twAmplitude, twTiming);
 		}
 	}
 }
@@ -690,6 +714,8 @@ void W_UserTesting::on_comboBoxTweaksControllerOptions_currentIndexChanged(int i
 
 void W_UserTesting::tweaksController(int source, int index)
 {
+	if(uiSetup){return;}
+
 	if(source == 0)
 	{
 		//Main controller:
@@ -711,6 +737,7 @@ void W_UserTesting::tweaksController(int source, int index)
 	}
 
 	//qDebug() << "Controller:" << twController << " Option:" << twControllerOption;
+	wtf("Controller: " + QString::number(twController) + " (" + QString::number(twControllerOption) + ")");
 }
 
 void W_UserTesting::on_dialAmplitude_valueChanged(int value){tweaksAmplitude(0, value);}
