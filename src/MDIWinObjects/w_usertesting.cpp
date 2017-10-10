@@ -186,7 +186,7 @@ void W_UserTesting::initTimers(void)
 	//Display refresh 10Hz:
 	dispTimer = new QTimer(this);
 	connect(dispTimer, SIGNAL(timeout()), this, SLOT(dispTimerTick()));
-	dispTimer->start(0.1);
+	dispTimer->start(100);
 }
 
 void W_UserTesting::createNewFile(void)
