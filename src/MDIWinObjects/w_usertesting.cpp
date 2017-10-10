@@ -428,9 +428,18 @@ void W_UserTesting::on_pushButtonExpSession_clicked()
 		pbSession(false);
 		startOfSession();
 		ongoingSession = true;
+
+		//Clear the timer - cleaner start:
+		expTime = 0;
 	}
 	else
 	{
+		//End any ongoing experiment
+		if(ongoingExperiment)
+		{
+			emit on_pushButtonExpStop_clicked();
+		}
+
 		pbSession(true);
 		endOfSession();
 		ongoingSession = false;
