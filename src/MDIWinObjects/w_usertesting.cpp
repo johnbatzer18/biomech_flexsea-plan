@@ -97,7 +97,7 @@ void W_UserTesting::initTabs(void)
 	ui->tabWidget->setCurrentIndex(0);
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
-	ui->tabWidget->setTabEnabled(2, true);
+	ui->tabWidget->setTabEnabled(2, false);
 }
 
 void W_UserTesting::initTabSubject(void)
@@ -380,6 +380,7 @@ void W_UserTesting::on_pushButtonApprove_clicked()
 	ui->tabWidget->setCurrentIndex(1);
 	ui->tabWidget->setTabEnabled(0, false);
 	ui->tabWidget->setTabEnabled(1, true);
+	ui->tabWidget->setTabEnabled(2, true);
 
 	createNewFile();
 	latchSubjectInfo();
@@ -558,6 +559,7 @@ void W_UserTesting::on_pushButtonEndSession_clicked()
 	ui->tabWidget->setCurrentIndex(0);
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
+	ui->tabWidget->setTabEnabled(2, false);
 
 	writeNotes();
 	closeTextFile();
@@ -694,7 +696,7 @@ void W_UserTesting::tweaksController(int source, int index)
 		twControllerOption = index;
 	}
 
-	qDebug() << "Controller:" << twController << " Option:" << twControllerOption;
+	//qDebug() << "Controller:" << twController << " Option:" << twControllerOption;
 }
 
 void W_UserTesting::on_dialAmplitude_valueChanged(int value){tweaksAmplitude(0, value);}
@@ -724,7 +726,7 @@ void W_UserTesting::tweaksAmplitude(int source, int val)
 	}
 
 	twAmplitude = val;
-	qDebug() << "Amplitude:" << twAmplitude;
+	//qDebug() << "Amplitude:" << twAmplitude;
 }
 
 void W_UserTesting::on_dialTiming_valueChanged(int value){tweaksTiming(0, value);}
@@ -754,41 +756,46 @@ void W_UserTesting::tweaksTiming(int source, int val)
 	}
 
 	twTiming = val;
-	qDebug() << "Timing:" << twTiming;
+	//qDebug() << "Timing:" << twTiming;
 }
 
 void W_UserTesting::on_checkBoxTweaksAutomatic_stateChanged(int arg1)
 {
+	QString txt = "";
+
 	if(arg1 == 0)
 	{
 		//Unchecked: normal (non-automatic) mode
 		ui->pushButtonTweaksWrite->setEnabled(true);
+		txt = "Normal mode (unchecked)";
 	}
 	else
 	{
 		ui->pushButtonTweaksWrite->setEnabled(false);
+		txt = "Automatic mode (checked)";
 	}
 
 	automaticMode = (bool)arg1;
-	qDebug() << "Automatic mode:" << automaticMode;
+	*textStream << getTimestamp() << " Automatic checkbox clicked: " << txt << endl;
+	//qDebug() << "Automatic mode:" << automaticMode;
 }
 
 void W_UserTesting::on_pushButtonTweaksRead_clicked()
 {
-
+	*textStream << getTimestamp() << " Read From Device was clicked" << endl;
 }
 
 void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 {
-
+	*textStream << getTimestamp() << " Write to Device was clicked" << endl;
 }
 
 void W_UserTesting::on_pushButtonPowerOff_clicked()
 {
-
+	*textStream << getTimestamp() << " Power Off was clicked" << endl;
 }
 
 void W_UserTesting::on_pushButtonPowerOn_clicked()
 {
-
+	*textStream << getTimestamp() << " Power On was clicked" << endl;
 }
