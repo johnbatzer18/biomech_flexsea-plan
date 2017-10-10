@@ -317,6 +317,12 @@ QString W_UserTesting::getTimestamp(void)
 			QTime::currentTime().toString("HH'h'mm'm'ss's'"));
 }
 
+//Write 'txt' To File. Timestamp added automatically.
+void W_UserTesting::wtf(QString txt)
+{
+	*textStream << getTimestamp() << " " << txt << endl;
+}
+
 void W_UserTesting::writeSubjectInfo(void)
 {
 	*textStream << "UID: " << userID << endl;
@@ -332,8 +338,7 @@ void W_UserTesting::writeSubjectInfo(void)
 
 void W_UserTesting::writeSPeedIncline(double spd, double inc)
 {
-	*textStream << getTimestamp() << " Speed = " << QString::number(spd) <<\
-				", Incline = " << QString::number(inc) << endl;
+	wtf("Speed = " + QString::number(spd) + ", Incline = " + QString::number(inc));
 }
 
 void W_UserTesting::writeNotes(void)
@@ -388,49 +393,29 @@ void W_UserTesting::on_pushButtonApprove_clicked()
 	writeSubjectInfo();
 }
 
-void W_UserTesting::on_pushButtonSigClear_clicked()
+//End of a session
+void W_UserTesting::on_pushButtonEndSession_clicked()
 {
-	scribbleArea->clearImage();
+	//Move to the Subject tab, lock this one
+	ui->tabWidget->setCurrentIndex(0);
+	ui->tabWidget->setTabEnabled(0, true);
+	ui->tabWidget->setTabEnabled(1, false);
+	ui->tabWidget->setTabEnabled(2, false);
+
+	writeNotes();
+	closeTextFile();
 }
 
-void W_UserTesting::on_lineEditNameFirst_editingFinished()
-{
-	nameEditingFinished(0);
-}
+//****************************************************************************
+// Private slot(s) - Tab User:
+//****************************************************************************
 
-void W_UserTesting::on_lineEditNameM_editingFinished()
-{
-	nameEditingFinished(1);
-}
+void W_UserTesting::on_pushButtonSigClear_clicked(){scribbleArea->clearImage();}
 
-void W_UserTesting::on_lineEditNameLast_editingFinished()
-{
-	nameEditingFinished(2);
-
-	//<Messing with people:
-	QString lastNameEntered = ui->lineEditNameLast->text();
-	QString lm = "mooney";
-	QString jc = "cechmanek";
-	if(!QString::compare(lastNameEntered, lm, Qt::CaseInsensitive))
-	{
-		QMessageBox::warning(this, tr("Autocorrect"), \
-				tr("Misspelled named ‘Mooney’ automatically changed to ‘Money’."));
-		ui->lineEditNameLast->setText("Money");
-	}
-
-	if(!QString::compare(lastNameEntered, jc, Qt::CaseInsensitive))
-	{
-		QMessageBox::warning(this, tr("Autocorrect"), \
-				tr("Foreign-sounding name 'Cechmanek' automatically changed to the more patriotic ‘Smith’."));
-		ui->lineEditNameLast->setText("Smith");
-	}
-	//Messing with people>
-}
-
-void W_UserTesting::on_lineEditNameUID_editingFinished()
-{
-	nameEditingFinished(3);
-}
+void W_UserTesting::on_lineEditNameFirst_editingFinished(){nameEditingFinished(0);}
+void W_UserTesting::on_lineEditNameM_editingFinished(){nameEditingFinished(1);}
+void W_UserTesting::on_lineEditNameLast_editingFinished(){nameEditingFinished(2);}
+void W_UserTesting::on_lineEditNameUID_editingFinished(){nameEditingFinished(3);}
 
 void W_UserTesting::nameEditingFinished(uint8_t i)
 {
@@ -456,6 +441,10 @@ void W_UserTesting::nameEditingFinished(uint8_t i)
 
 	ui->label_ExpUID->setText(userID);	//Label on Exp tab
 }
+
+//****************************************************************************
+// Private slot(s) - Tab Experiment:
+//****************************************************************************
 
 void W_UserTesting::on_pushButtonExpStart_clicked()
 {
@@ -495,16 +484,8 @@ void W_UserTesting::on_horizontalSliderIncline_valueChanged(int value)
 	incline(0, realValue);
 }
 
-void W_UserTesting::on_doubleSpinBoxSpeed_valueChanged(double arg1)
-{
-	speed(1, arg1);
-}
-
-
-void W_UserTesting::on_doubleSpinBoxIncline_valueChanged(double arg1)
-{
-	incline(1, arg1);
-}
+void W_UserTesting::on_doubleSpinBoxSpeed_valueChanged(double arg1){speed(1, arg1);}
+void W_UserTesting::on_doubleSpinBoxIncline_valueChanged(double arg1){incline(1, arg1);}
 
 void W_UserTesting::speed(int index, double val)
 {
@@ -551,79 +532,60 @@ void W_UserTesting::sliderToSpin(void)
 	ui->doubleSpinBoxIncline->setValue(val);
 }
 
-void W_UserTesting::on_pushButtonClearNotes_clicked()
-{
-	ui->plainTextEdit->clear();
-}
+void W_UserTesting::on_pushButtonClearNotes_clicked(){	ui->plainTextEdit->clear();}
 
-//End of a session
-void W_UserTesting::on_pushButtonEndSession_clicked()
-{
-	//Move to the Subject tab, lock this one
-	ui->tabWidget->setCurrentIndex(0);
-	ui->tabWidget->setTabEnabled(0, true);
-	ui->tabWidget->setTabEnabled(1, false);
-	ui->tabWidget->setTabEnabled(2, false);
-
-	writeNotes();
-	closeTextFile();
-}
-
-void W_UserTesting::on_pushButtonFlagA_clicked()
-{
-	flags(0, false);
-}
-
-void W_UserTesting::on_pushButtonFlagB_clicked()
-{
-	flags(1, false);
-}
-
-void W_UserTesting::on_pushButtonFlagC_clicked()
-{
-	flags(2, false);
-}
-
-void W_UserTesting::on_pushButtonFlagD_clicked()
-{
-	flags(3, false);
-}
+void W_UserTesting::on_pushButtonFlagA_clicked(){flags(0, false);}
+void W_UserTesting::on_pushButtonFlagB_clicked(){flags(1, false);}
+void W_UserTesting::on_pushButtonFlagC_clicked(){flags(2, false);}
+void W_UserTesting::on_pushButtonFlagD_clicked(){flags(3, false);}
 
 void W_UserTesting::flags(int index, bool external)
 {
+	static bool butStat[4] = {false, false, false, false};
 	QString wtf = "", txt = "";
 	if(index == 0){txt = ui->lineEditFlagA->text();}
 
-	wtf = getTimestamp() + " Flag " + QString::number(index) + " " + txt;
+	if(external && butStat[index])
+	{
+		butStat[index] = false;
+		return;
+	}
+
+	wtf = getTimestamp() + " Flag " + QString::number(1 << index) + " " + txt;
 	*textStream << wtf << endl;
 
-	if(external == false){emit userFlags(index);}
+	if(external == false)
+	{
+		//qDebug() << "Internal flag";
+		butStat[index] = true;
+		emit userFlags(index);
+	}
 }
 
 void W_UserTesting::activityButton(QAbstractButton* myb)
 {
-	QString actPrefixText = " Activity = ", actText = "Walk";
+	QString actPrefixText = "Activity = ", actText = "Walk";
 	if(myb == ui->radioButtonActRun){actText = "Run";}
 	if(myb == ui->radioButtonActOther){actText = "Other";}
 	//qDebug() << (actPrefixText + actText);
-	*textStream << getTimestamp() << (actPrefixText + actText) << endl;
+	wtf(actPrefixText + actText);
 }
 
 void W_UserTesting::dutButton(QAbstractButton* myb)
 {
-	QString dutPrefixText = " DUT = ", dutText = "Left";
+	QString dutPrefixText = "DUT = ", dutText = "Left";
 	if(myb == ui->radioButtonDUT_R){dutText = "Right";}
 	if(myb == ui->radioButtonDUT_D){dutText = "Dual";}
 
-	*textStream << getTimestamp() << (dutPrefixText + dutText) << endl;
+	wtf(dutPrefixText + dutText);
 }
 
 void W_UserTesting::dataButton(QAbstractButton* myb)
 {
-	QString dataPrefixText = " Data = ", dataText = "Fast";
+	QString dataPrefixText = "Data = ", dataText = "Fast";
 	if(myb == ui->radioButtonDataF){dataText = "All";}
 
-	*textStream << getTimestamp() << (dataPrefixText + dataText) << endl;
+	wtf(dataPrefixText + dataText);
 }
 
 //Call this when it starts so we know the starting condition
@@ -658,6 +620,10 @@ void W_UserTesting::getAllInputs(void)
 					(dataPre + data) << ", " << (dutPre + dut) << ", " << \
 					(spdPre + spd) << ", " << (incPre + inc) << endl;
 }
+
+//****************************************************************************
+// Private slot(s) - Tab Tweaks:
+//****************************************************************************
 
 void W_UserTesting::on_comboBoxTweaksController_currentIndexChanged(int index)
 {
@@ -780,26 +746,26 @@ void W_UserTesting::on_checkBoxTweaksAutomatic_stateChanged(int arg1)
 	}
 
 	automaticMode = (bool)arg1;
-	*textStream << getTimestamp() << " Automatic checkbox clicked: " << txt << endl;
+	wtf("Automatic checkbox clicked: " + txt);
 	//qDebug() << "Automatic mode:" << automaticMode;
 }
 
 void W_UserTesting::on_pushButtonTweaksRead_clicked()
 {
-	*textStream << getTimestamp() << " Read From Device was clicked" << endl;
+	wtf("Read From Device was clicked");
 }
 
 void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 {
-	*textStream << getTimestamp() << " Write to Device was clicked" << endl;
+	wtf("Write to Device was clicked");
 }
 
 void W_UserTesting::on_pushButtonPowerOff_clicked()
 {
-	*textStream << getTimestamp() << " Power Off was clicked" << endl;
+	wtf("Power Off was clicked");
 }
 
 void W_UserTesting::on_pushButtonPowerOn_clicked()
 {
-	*textStream << getTimestamp() << " Power On was clicked" << endl;
+	wtf("Power On was clicked");
 }

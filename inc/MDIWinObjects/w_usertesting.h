@@ -142,6 +142,7 @@ private:
 	void tweaksAmplitude(int source, int val);
 	void tweaksTiming(int source, int val);
 	void tweaksController(int source, int index);
+	void wtf(QString txt);
 };
 
 //****************************************************************************
