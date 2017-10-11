@@ -116,7 +116,7 @@ private:
 
 	//Tweaks:
 	bool automaticMode;
-	struct utt_s planUTT;
+	struct dual_utt_s planUTT;
 	uint8_t readDisplayLag;
 	bool tweakHasChanged;
 
