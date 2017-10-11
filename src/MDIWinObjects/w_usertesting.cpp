@@ -1093,3 +1093,29 @@ void W_UserTesting::on_checkBoxIndependant_stateChanged(int arg1)
 	if(arg1){state = true;}
 	independantLegs(state);
 }
+
+void W_UserTesting::on_pushButtonRtoL_clicked(){copyLegToLeg(true);}
+void W_UserTesting::on_pushButtonLtoR_clicked(){copyLegToLeg(true);}
+
+void W_UserTesting::copyLegToLeg(bool RtL)
+{
+	uint8_t src = UTT_LEFT, dst = UTT_RIGHT;
+	QString txt = "Copied tweaks (Left to Right)";
+
+	if(RtL == true)
+	{
+		src = UTT_RIGHT;
+		dst = UTT_LEFT;
+		txt = "Copied tweaks (Right to Left)";
+	}
+
+	planUTT.leg[dst].ctrl = planUTT.leg[src].ctrl;
+	planUTT.leg[dst].ctrlOption = planUTT.leg[src].ctrlOption;
+	planUTT.leg[dst].amplitude = planUTT.leg[src].amplitude;
+	planUTT.leg[dst].timing = planUTT.leg[src].timing;
+	planUTT.leg[dst].powerOn = planUTT.leg[src].powerOn;
+
+	setTweaksUI(UTT_RIGHT);
+	setTweaksUI(UTT_LEFT);
+	wtf(txt);
+}

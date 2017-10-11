@@ -108,6 +108,10 @@ private slots:
 
 	void on_pushButtonPowerOffL_clicked();
 
+	void on_pushButtonRtoL_clicked();
+
+	void on_pushButtonLtoR_clicked();
+
 private:
 	Ui::W_UserTesting *ui;
 	QString mwAppPath;
@@ -171,6 +175,7 @@ private:
 	void writeUTT();
 	void setTweaksUI(uint8_t leg);
 	void independantLegs(bool i);
+	void copyLegToLeg(bool RtL);
 };
 
 //****************************************************************************
