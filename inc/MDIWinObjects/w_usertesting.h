@@ -76,17 +76,18 @@ private slots:
 	void activityButton(QAbstractButton*);
 	void dutButton(QAbstractButton *myb);
 	void dataButton(QAbstractButton *myb);
-	void on_comboBoxTweaksController_currentIndexChanged(int index);
-	void on_comboBoxTweaksControllerOptions_currentIndexChanged(int index);
-	void on_dialAmplitude_valueChanged(int value);
-	void on_spinBoxTweaksAmp_valueChanged(int arg1);
-	void on_dialTiming_valueChanged(int value);
-	void on_spinBoxTweaksTim_valueChanged(int arg1);
+	//Tweaks Tab:
+	void on_comboBoxTweaksControllerR_currentIndexChanged(int index);
+	void on_comboBoxTweaksControllerOptionsR_currentIndexChanged(int index);
+	void on_dialAmplitudeR_valueChanged(int value);
+	void on_spinBoxTweaksAmpR_valueChanged(int arg1);
+	void on_dialTimingR_valueChanged(int value);
+	void on_spinBoxTweaksTimR_valueChanged(int arg1);
 	void on_checkBoxTweaksAutomatic_stateChanged(int arg1);
 	void on_pushButtonTweaksRead_clicked();
 	void on_pushButtonTweaksWrite_clicked();
-	void on_pushButtonPowerOff_clicked();
-	void on_pushButtonPowerOn_clicked();
+	void on_pushButtonPowerOffR_clicked();
+	void on_pushButtonPowerOnR_clicked();
 	void on_pushButtonExpSession_clicked();
 
 private:

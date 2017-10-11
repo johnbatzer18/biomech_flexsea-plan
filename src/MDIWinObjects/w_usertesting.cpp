@@ -167,19 +167,19 @@ void W_UserTesting::initTabTweaks(void)
 {
 	//Controller list:
 	planUTT.leg[UTT_RIGHT].ctrl = 0;
-	ui->comboBoxTweaksController->addItem("Unknown");
-	ui->comboBoxTweaksController->addItem("No Motor");
-	ui->comboBoxTweaksController->addItem("Shadow");
-	ui->comboBoxTweaksController->addItem("Spring Only");
-	ui->comboBoxTweaksController->addItem("Power");
-	//ui->comboBoxTweaksController->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrl);
+	ui->comboBoxTweaksControllerR->addItem("Unknown");
+	ui->comboBoxTweaksControllerR->addItem("No Motor");
+	ui->comboBoxTweaksControllerR->addItem("Shadow");
+	ui->comboBoxTweaksControllerR->addItem("Spring Only");
+	ui->comboBoxTweaksControllerR->addItem("Power");
+	//ui->comboBoxTweaksControllerR->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrl);
 
 	//Controller Option list:
 	planUTT.leg[UTT_RIGHT].ctrlOption = 0;
-	ui->comboBoxTweaksControllerOptions->addItem("Unknown/None");
-	ui->comboBoxTweaksControllerOptions->addItem("Level 0");
-	ui->comboBoxTweaksControllerOptions->addItem("Level 1");
-	ui->comboBoxTweaksControllerOptions->addItem("Level 2");
+	ui->comboBoxTweaksControllerOptionsR->addItem("Unknown/None");
+	ui->comboBoxTweaksControllerOptionsR->addItem("Level 0");
+	ui->comboBoxTweaksControllerOptionsR->addItem("Level 1");
+	ui->comboBoxTweaksControllerOptionsR->addItem("Level 2");
 	//ui->comboBoxTweaksControllerOptions->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrlOption);
 	//ui->comboBoxTweaksControllerOptions->setEnabled(false);
 
@@ -194,13 +194,13 @@ void W_UserTesting::initTabTweaks(void)
 	//ui->dialAmplitude->setValue(planUTT.leg[UTT_RIGHT].amplitude);
 	//ui->spinBoxTweaksAmp->setValue(ui->dialAmplitude->value());
 	planUTT.leg[UTT_RIGHT].timing = 0;
-	ui->dialTiming->setValue(planUTT.leg[UTT_RIGHT].timing);
-	ui->spinBoxTweaksTim->setValue(ui->dialTiming->value());
+	ui->dialTimingR->setValue(planUTT.leg[UTT_RIGHT].timing);
+	ui->spinBoxTweaksTimR->setValue(ui->dialTimingR->value());
 
 	//Power buttons:
-	ui->pushButtonPowerOff->setStyleSheet("background-color: rgb(255, 0, 0); \
+	ui->pushButtonPowerOffR->setStyleSheet("background-color: rgb(255, 0, 0); \
 											color: rgb(0, 0, 0)");
-	ui->pushButtonPowerOn->setStyleSheet("background-color: rgb(0, 255, 0); \
+	ui->pushButtonPowerOnR->setStyleSheet("background-color: rgb(0, 255, 0); \
 											color: rgb(0, 0, 0)");
 
 	planUTT.leg[UTT_RIGHT].powerOn = 0;
@@ -210,13 +210,13 @@ void W_UserTesting::initTabTweaks(void)
 //Set all the Tweaks widgets according to planUTT.leg[UTT_RIGHT]
 void W_UserTesting::setTweaksUI(void)
 {
-	ui->comboBoxTweaksController->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrl);
-	ui->comboBoxTweaksControllerOptions->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrlOption);
-	ui->comboBoxTweaksControllerOptions->setEnabled(false);
-	ui->dialAmplitude->setValue(planUTT.leg[UTT_RIGHT].amplitude);
-	ui->spinBoxTweaksAmp->setValue(planUTT.leg[UTT_RIGHT].amplitude);
-	ui->dialTiming->setValue(planUTT.leg[UTT_RIGHT].timing);
-	ui->spinBoxTweaksTim->setValue(planUTT.leg[UTT_RIGHT].timing);
+	ui->comboBoxTweaksControllerR->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrl);
+	ui->comboBoxTweaksControllerOptionsR->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrlOption);
+	ui->comboBoxTweaksControllerOptionsR->setEnabled(false);
+	ui->dialAmplitudeR->setValue(planUTT.leg[UTT_RIGHT].amplitude);
+	ui->spinBoxTweaksAmpR->setValue(planUTT.leg[UTT_RIGHT].amplitude);
+	ui->dialTimingR->setValue(planUTT.leg[UTT_RIGHT].timing);
+	ui->spinBoxTweaksTimR->setValue(planUTT.leg[UTT_RIGHT].timing);
 }
 
 void W_UserTesting::initSigBox(void)
@@ -749,21 +749,21 @@ void W_UserTesting::getAllInputs(void)
 // Private slot(s) - Tab Tweaks:
 //****************************************************************************
 
-void W_UserTesting::on_comboBoxTweaksController_currentIndexChanged(int index)
+void W_UserTesting::on_comboBoxTweaksControllerR_currentIndexChanged(int index)
 {
 	//"Power" has sub-options:
 	bool enableOptions = false;
 	if(index == 4){enableOptions = true;}
 	else
 	{
-		ui->comboBoxTweaksControllerOptions->setCurrentIndex(0);
+		ui->comboBoxTweaksControllerOptionsR->setCurrentIndex(0);
 	}
-	ui->comboBoxTweaksControllerOptions->setEnabled(enableOptions);
+	ui->comboBoxTweaksControllerOptionsR->setEnabled(enableOptions);
 
 	tweaksController(0, index);
 }
 
-void W_UserTesting::on_comboBoxTweaksControllerOptions_currentIndexChanged(int index)
+void W_UserTesting::on_comboBoxTweaksControllerOptionsR_currentIndexChanged(int index)
 {
 	tweaksController(1, index);
 }
@@ -778,7 +778,7 @@ void W_UserTesting::tweaksController(int source, int index)
 		planUTT.leg[UTT_RIGHT].ctrl = index;
 		if(index == 4)
 		{
-			planUTT.leg[UTT_RIGHT].ctrlOption = ui->comboBoxTweaksControllerOptions->currentIndex();
+			planUTT.leg[UTT_RIGHT].ctrlOption = ui->comboBoxTweaksControllerOptionsR->currentIndex();
 		}
 		else
 		{
@@ -788,7 +788,7 @@ void W_UserTesting::tweaksController(int source, int index)
 	else
 	{
 		//Sub:
-		planUTT.leg[UTT_RIGHT].ctrl = ui->comboBoxTweaksController->currentIndex();
+		planUTT.leg[UTT_RIGHT].ctrl = ui->comboBoxTweaksControllerR->currentIndex();
 		planUTT.leg[UTT_RIGHT].ctrlOption = index;
 	}
 
@@ -797,8 +797,8 @@ void W_UserTesting::tweaksController(int source, int index)
 	tweakHasChanged = true;
 }
 
-void W_UserTesting::on_dialAmplitude_valueChanged(int value){tweaksAmplitude(0, value);}
-void W_UserTesting::on_spinBoxTweaksAmp_valueChanged(int arg1){tweaksAmplitude(1, arg1);}
+void W_UserTesting::on_dialAmplitudeR_valueChanged(int value){tweaksAmplitude(0, value);}
+void W_UserTesting::on_spinBoxTweaksAmpR_valueChanged(int arg1){tweaksAmplitude(1, arg1);}
 
 void W_UserTesting::tweaksAmplitude(int source, int val)
 {
@@ -814,21 +814,21 @@ void W_UserTesting::tweaksAmplitude(int source, int val)
 	{
 		//Change came from the dial:
 		internal = true;
-		ui->spinBoxTweaksAmp->setValue(val);
+		ui->spinBoxTweaksAmpR->setValue(val);
 	}
 	else
 	{
 		//Change came from the spinbox:
 		internal = true;
-		ui->dialAmplitude->setValue(val);
+		ui->dialAmplitudeR->setValue(val);
 	}
 
 	planUTT.leg[UTT_RIGHT].amplitude = val;
 	//qDebug() << "Amplitude:" << planUTT.leg[UTT_RIGHT].amplitude;
 }
 
-void W_UserTesting::on_dialTiming_valueChanged(int value){tweaksTiming(0, value);}
-void W_UserTesting::on_spinBoxTweaksTim_valueChanged(int arg1){tweaksTiming(1, arg1);}
+void W_UserTesting::on_dialTimingR_valueChanged(int value){tweaksTiming(0, value);}
+void W_UserTesting::on_spinBoxTweaksTimR_valueChanged(int arg1){tweaksTiming(1, arg1);}
 
 void W_UserTesting::tweaksTiming(int source, int val)
 {
@@ -844,13 +844,13 @@ void W_UserTesting::tweaksTiming(int source, int val)
 	{
 		//Change came from the dial:
 		internal = true;
-		ui->spinBoxTweaksTim->setValue(val);
+		ui->spinBoxTweaksTimR->setValue(val);
 	}
 	else
 	{
 		//Change came from the spinbox:
 		internal = true;
-		ui->dialTiming->setValue(val);
+		ui->dialTimingR->setValue(val);
 	}
 
 	planUTT.leg[UTT_RIGHT].timing = val;
@@ -900,14 +900,14 @@ void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 	tweakHasChanged = false;
 }
 
-void W_UserTesting::on_pushButtonPowerOff_clicked()
+void W_UserTesting::on_pushButtonPowerOffR_clicked()
 {
 	planUTT.leg[UTT_RIGHT].powerOn = 0;
 	wtf("Power Off was clicked");
 	writeUTT();
 }
 
-void W_UserTesting::on_pushButtonPowerOn_clicked()
+void W_UserTesting::on_pushButtonPowerOnR_clicked()
 {
 	planUTT.leg[UTT_RIGHT].powerOn = 1;
 	wtf("Power On was clicked");
