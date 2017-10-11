@@ -175,7 +175,7 @@ private:
 	void writeUTT();
 	void setTweaksUI(uint8_t leg);
 	void independantLegs(bool i);
-	void copyLegToLeg(bool RtL);
+	void copyLegToLeg(bool RtL, bool silent);
 };
 
 //****************************************************************************

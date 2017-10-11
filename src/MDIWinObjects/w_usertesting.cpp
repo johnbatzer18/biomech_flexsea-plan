@@ -1054,7 +1054,15 @@ void W_UserTesting::on_pushButtonTweaksRead_clicked()
 
 void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 {
-	wtf("Write to Device was clicked");
+	QString extraTxt = "";
+	if(ui->checkBoxIndependant->checkState() == false)
+	{
+		extraTxt = " (Left was copied from Right)";
+		copyLegToLeg(true, true);
+		setTweaksUI(UTT_LEFT);
+	}
+
+	wtf("Write to Device was clicked" + extraTxt);
 	writeUTT();
 	tweakHasChanged = false;
 }
@@ -1094,10 +1102,10 @@ void W_UserTesting::on_checkBoxIndependant_stateChanged(int arg1)
 	independantLegs(state);
 }
 
-void W_UserTesting::on_pushButtonRtoL_clicked(){copyLegToLeg(true);}
-void W_UserTesting::on_pushButtonLtoR_clicked(){copyLegToLeg(true);}
+void W_UserTesting::on_pushButtonRtoL_clicked(){copyLegToLeg(true, false);}
+void W_UserTesting::on_pushButtonLtoR_clicked(){copyLegToLeg(true, false);}
 
-void W_UserTesting::copyLegToLeg(bool RtL)
+void W_UserTesting::copyLegToLeg(bool RtL, bool silent)
 {
 	uint8_t src = UTT_LEFT, dst = UTT_RIGHT;
 	QString txt = "Copied tweaks (Left to Right)";
@@ -1115,7 +1123,10 @@ void W_UserTesting::copyLegToLeg(bool RtL)
 	planUTT.leg[dst].timing = planUTT.leg[src].timing;
 	planUTT.leg[dst].powerOn = planUTT.leg[src].powerOn;
 
-	setTweaksUI(UTT_RIGHT);
-	setTweaksUI(UTT_LEFT);
-	wtf(txt);
+	if(!silent)
+	{
+		setTweaksUI(UTT_RIGHT);
+		setTweaksUI(UTT_LEFT);
+		wtf(txt);
+	}
 }
