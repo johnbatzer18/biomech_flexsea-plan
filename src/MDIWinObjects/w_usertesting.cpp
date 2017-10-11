@@ -165,6 +165,10 @@ void W_UserTesting::initTabExperiment(void)
 
 void W_UserTesting::initTabTweaks(void)
 {
+	//Always start in Linked Legs mode
+	ui->checkBoxIndependant->setChecked(false);
+	independantLegs(false);
+
 	//Controller list:
 	planUTT.leg[UTT_RIGHT].ctrl = 0;
 	ui->comboBoxTweaksControllerR->addItem("Unknown");
@@ -172,7 +176,12 @@ void W_UserTesting::initTabTweaks(void)
 	ui->comboBoxTweaksControllerR->addItem("Shadow");
 	ui->comboBoxTweaksControllerR->addItem("Spring Only");
 	ui->comboBoxTweaksControllerR->addItem("Power");
-	//ui->comboBoxTweaksControllerR->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrl);
+	planUTT.leg[UTT_LEFT].ctrl = 0;
+	ui->comboBoxTweaksControllerL->addItem("Unknown");
+	ui->comboBoxTweaksControllerL->addItem("No Motor");
+	ui->comboBoxTweaksControllerL->addItem("Shadow");
+	ui->comboBoxTweaksControllerL->addItem("Spring Only");
+	ui->comboBoxTweaksControllerL->addItem("Power");
 
 	//Controller Option list:
 	planUTT.leg[UTT_RIGHT].ctrlOption = 0;
@@ -180,8 +189,11 @@ void W_UserTesting::initTabTweaks(void)
 	ui->comboBoxTweaksControllerOptionsR->addItem("Level 0");
 	ui->comboBoxTweaksControllerOptionsR->addItem("Level 1");
 	ui->comboBoxTweaksControllerOptionsR->addItem("Level 2");
-	//ui->comboBoxTweaksControllerOptions->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrlOption);
-	//ui->comboBoxTweaksControllerOptions->setEnabled(false);
+	planUTT.leg[UTT_LEFT].ctrlOption = 0;
+	ui->comboBoxTweaksControllerOptionsL->addItem("Unknown/None");
+	ui->comboBoxTweaksControllerOptionsL->addItem("Level 0");
+	ui->comboBoxTweaksControllerOptionsL->addItem("Level 1");
+	ui->comboBoxTweaksControllerOptionsL->addItem("Level 2");
 
 	//Auto & Write:
 	automaticMode = false;
@@ -191,32 +203,79 @@ void W_UserTesting::initTabTweaks(void)
 
 	//Dials & inputs:
 	planUTT.leg[UTT_RIGHT].amplitude = 0;
-	//ui->dialAmplitude->setValue(planUTT.leg[UTT_RIGHT].amplitude);
-	//ui->spinBoxTweaksAmp->setValue(ui->dialAmplitude->value());
+	//ui->dialAmplitudeR->setValue(planUTT.leg[UTT_RIGHT].amplitude);
+	//ui->spinBoxTweaksAmpR->setValue(ui->dialAmplitudeR->value());
 	planUTT.leg[UTT_RIGHT].timing = 0;
-	ui->dialTimingR->setValue(planUTT.leg[UTT_RIGHT].timing);
-	ui->spinBoxTweaksTimR->setValue(ui->dialTimingR->value());
+	//ui->dialTimingR->setValue(planUTT.leg[UTT_RIGHT].timing);
+	//ui->spinBoxTweaksTimR->setValue(ui->dialTimingR->value());
+	planUTT.leg[UTT_LEFT].amplitude = 0;
+	//ui->dialAmplitudeL->setValue(planUTT.leg[UTT_LEFT].amplitude);
+	//ui->spinBoxTweaksAmpL->setValue(ui->dialAmplitudeL->value());
+	planUTT.leg[UTT_LEFT].timing = 0;
+	//ui->dialTimingL->setValue(planUTT.leg[UTT_LEFT].timing);
+	//ui->spinBoxTweaksTimL->setValue(ui->dialTimingL->value());
 
 	//Power buttons:
 	ui->pushButtonPowerOffR->setStyleSheet("background-color: rgb(255, 0, 0); \
 											color: rgb(0, 0, 0)");
 	ui->pushButtonPowerOnR->setStyleSheet("background-color: rgb(0, 255, 0); \
 											color: rgb(0, 0, 0)");
+	ui->pushButtonPowerOffL->setStyleSheet("background-color: rgb(255, 0, 0); \
+										  color: rgb(0, 0, 0)");
+	ui->pushButtonPowerOnL->setStyleSheet("background-color: rgb(0, 255, 0); \
+										  color: rgb(0, 0, 0)");
 
 	planUTT.leg[UTT_RIGHT].powerOn = 0;
-	setTweaksUI();
+	planUTT.leg[UTT_LEFT].powerOn = 0;
+	setTweaksUI(UTT_RIGHT);
+	setTweaksUI(UTT_LEFT);
 }
 
-//Set all the Tweaks widgets according to planUTT.leg[UTT_RIGHT]
-void W_UserTesting::setTweaksUI(void)
+void W_UserTesting::independantLegs(bool i)
 {
-	ui->comboBoxTweaksControllerR->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrl);
-	ui->comboBoxTweaksControllerOptionsR->setCurrentIndex(planUTT.leg[UTT_RIGHT].ctrlOption);
-	ui->comboBoxTweaksControllerOptionsR->setEnabled(false);
-	ui->dialAmplitudeR->setValue(planUTT.leg[UTT_RIGHT].amplitude);
-	ui->spinBoxTweaksAmpR->setValue(planUTT.leg[UTT_RIGHT].amplitude);
-	ui->dialTimingR->setValue(planUTT.leg[UTT_RIGHT].timing);
-	ui->spinBoxTweaksTimR->setValue(planUTT.leg[UTT_RIGHT].timing);
+	if(i == false)
+	{
+		//Right is in charge, left tracks (dependant mode)
+		ui->tabWidgetTweaksLR->setCurrentIndex(0);
+		ui->tabWidgetTweaksLR->setTabEnabled(0, true);
+		ui->tabWidgetTweaksLR->setTabEnabled(1, false);
+		ui->pushButtonLtoR->setEnabled(false);
+		ui->pushButtonRtoL->setEnabled(false);
+		wtf("Leg tweaks are Dependant (linked)");
+	}
+	else
+	{
+		ui->tabWidgetTweaksLR->setTabEnabled(0, true);
+		ui->tabWidgetTweaksLR->setTabEnabled(1, true);
+		ui->pushButtonLtoR->setEnabled(true);
+		ui->pushButtonRtoL->setEnabled(true);
+		wtf("Leg tweaks are Independant");
+	}
+}
+
+//Set all the Tweaks widgets according to planUTT.leg[]
+void W_UserTesting::setTweaksUI(uint8_t leg)
+{
+	if(leg == UTT_RIGHT)
+	{
+		ui->comboBoxTweaksControllerR->setCurrentIndex(planUTT.leg[leg].ctrl);
+		ui->comboBoxTweaksControllerOptionsR->setCurrentIndex(planUTT.leg[leg].ctrlOption);
+		ui->comboBoxTweaksControllerOptionsR->setEnabled(false);
+		ui->dialAmplitudeR->setValue(planUTT.leg[leg].amplitude);
+		ui->spinBoxTweaksAmpR->setValue(planUTT.leg[leg].amplitude);
+		ui->dialTimingR->setValue(planUTT.leg[leg].timing);
+		ui->spinBoxTweaksTimR->setValue(planUTT.leg[leg].timing);
+	}
+	else
+	{
+		ui->comboBoxTweaksControllerL->setCurrentIndex(planUTT.leg[leg].ctrl);
+		ui->comboBoxTweaksControllerOptionsL->setCurrentIndex(planUTT.leg[leg].ctrlOption);
+		ui->comboBoxTweaksControllerOptionsL->setEnabled(false);
+		ui->dialAmplitudeL->setValue(planUTT.leg[leg].amplitude);
+		ui->spinBoxTweaksAmpL->setValue(planUTT.leg[leg].amplitude);
+		ui->dialTimingL->setValue(planUTT.leg[leg].timing);
+		ui->spinBoxTweaksTimL->setValue(planUTT.leg[leg].timing);
+	}
 }
 
 void W_UserTesting::initSigBox(void)
@@ -363,7 +422,7 @@ QString W_UserTesting::getTimestamp(void)
 //Write 'txt' To File. Timestamp added automatically.
 void W_UserTesting::wtf(QString txt)
 {
-	*textStream << getTimestamp() << " " << txt << endl;
+	if(!uiSetup){*textStream << getTimestamp() << " " << txt << endl;}
 }
 
 void W_UserTesting::writeSubjectInfo(void)
@@ -384,9 +443,11 @@ void W_UserTesting::writeSpeedIncline(double spd, double inc)
 	wtf("Speed = " + QString::number(spd) + ", Incline = " + QString::number(inc));
 }
 
-void W_UserTesting::writeAmplitudeTiming(int amp, int tim)
+void W_UserTesting::writeAmplitudeTiming(uint8_t leg, int amp, int tim)
 {
-	wtf("Amplitude = " + QString::number(amp) + "%, Timing = " + QString::number(tim) + "%");
+	QString l = " (Right or Dual)";
+	if(leg == UTT_LEFT){l = " (Left)";}
+	wtf("Amplitude = " + QString::number(amp) + "%, Timing = " + QString::number(tim) + "%" + l);
 }
 
 void W_UserTesting::writeNotes(void)
@@ -465,18 +526,21 @@ void W_UserTesting::dispTimerTick(void)
 
 	//Same filtering for the Tweaks tab:
 	static uint8_t twDiv = 0;
-	static double lastAmplitude = planUTT.leg[UTT_RIGHT].amplitude;
-	static double lastTiming = planUTT.leg[UTT_RIGHT].timing;
+	static uint8_t lastAmplitude[2] = {planUTT.leg[UTT_RIGHT].amplitude, planUTT.leg[UTT_LEFT].amplitude};
+	static int8_t lastTiming[2] = {planUTT.leg[UTT_RIGHT].timing, planUTT.leg[UTT_RIGHT].timing};
 	twDiv++;
 	twDiv %= 10;
 	if(!twDiv)
 	{
-		if(planUTT.leg[UTT_RIGHT].amplitude != lastAmplitude || planUTT.leg[UTT_RIGHT].timing != lastTiming)
+		for(int leg = 0; leg < 2; leg++)
 		{
-			lastAmplitude = planUTT.leg[UTT_RIGHT].amplitude;
-			lastTiming = planUTT.leg[UTT_RIGHT].timing;
-			writeAmplitudeTiming(planUTT.leg[UTT_RIGHT].amplitude, planUTT.leg[UTT_RIGHT].timing);
-			tweakHasChanged = true;
+			if(planUTT.leg[leg].amplitude != lastAmplitude[leg] || planUTT.leg[leg].timing != lastTiming[leg])
+			{
+				lastAmplitude[leg] = planUTT.leg[leg].amplitude;
+				lastTiming[leg] = planUTT.leg[leg].timing;
+				writeAmplitudeTiming(leg, planUTT.leg[leg].amplitude, planUTT.leg[leg].timing);
+				tweakHasChanged = true;
+			}
 		}
 	}
 
@@ -489,7 +553,8 @@ void W_UserTesting::dispTimerTick(void)
 			//We have waited long enough
 			planUTT = utt;
 			qDebug() << "Refreshing display based on read data.";
-			setTweaksUI();
+			setTweaksUI(UTT_RIGHT);
+			setTweaksUI(UTT_LEFT);
 		}
 	}
 
@@ -736,13 +801,18 @@ void W_UserTesting::getAllInputs(void)
 	spd = QString::number((double)ui->horizontalSliderSpeed->value()/10);
 
 	//Incline
-	QString incPre = "Incline ", inc = "";
+	QString incPre = "Incline = ", inc = "";
 	inc = QString::number((double)ui->horizontalSliderIncline->value()/10);
+
+	//Independant?
+	QString depPre = "Leg tweaks are ", dep = "Dependant (linked)";
+	if(ui->checkBoxIndependant->isChecked()){dep = "Independant";}
 
 	//Write to file:
 	*textStream << tmstp << " Starting conditions: " << (actPre + act) << ", " << \
 					(dataPre + data) << ", " << (dutPre + dut) << ", " << \
-					(spdPre + spd) << ", " << (incPre + inc) << endl;
+					(spdPre + spd) << ", " << (incPre + inc) << ", " << \
+					(depPre + dep) << endl;
 }
 
 //****************************************************************************
@@ -760,101 +830,190 @@ void W_UserTesting::on_comboBoxTweaksControllerR_currentIndexChanged(int index)
 	}
 	ui->comboBoxTweaksControllerOptionsR->setEnabled(enableOptions);
 
-	tweaksController(0, index);
+	tweaksController(UTT_RIGHT, 0, index);
 }
 
 void W_UserTesting::on_comboBoxTweaksControllerOptionsR_currentIndexChanged(int index)
 {
-	tweaksController(1, index);
+	tweaksController(UTT_RIGHT, 1, index);
 }
 
-void W_UserTesting::tweaksController(int source, int index)
+void W_UserTesting::on_comboBoxTweaksControllerL_currentIndexChanged(int index)
 {
+	//"Power" has sub-options:
+	bool enableOptions = false;
+	if(index == 4){enableOptions = true;}
+	else
+	{
+		ui->comboBoxTweaksControllerOptionsL->setCurrentIndex(0);
+	}
+	ui->comboBoxTweaksControllerOptionsL->setEnabled(enableOptions);
+
+	tweaksController(UTT_LEFT, 0, index);
+}
+
+void W_UserTesting::on_comboBoxTweaksControllerOptionsL_currentIndexChanged(int index)
+{
+	tweaksController(UTT_LEFT, 1, index);
+}
+
+void W_UserTesting::tweaksController(uint8_t leg, int source, int index)
+{
+	QString legTxt = "";
+
 	if(uiSetup){return;}
 
-	if(source == 0)
+	if(leg == UTT_RIGHT)
 	{
-		//Main controller:
-		planUTT.leg[UTT_RIGHT].ctrl = index;
-		if(index == 4)
+		legTxt = " (Right or Dual)";
+		if(source == 0)
 		{
-			planUTT.leg[UTT_RIGHT].ctrlOption = ui->comboBoxTweaksControllerOptionsR->currentIndex();
+			//Main controller:
+			planUTT.leg[leg].ctrl = index;
+			if(index == 4)
+			{
+				planUTT.leg[leg].ctrlOption = ui->comboBoxTweaksControllerOptionsR->currentIndex();
+			}
+			else
+			{
+				planUTT.leg[leg].ctrlOption = 0;
+			}
 		}
 		else
 		{
-			planUTT.leg[UTT_RIGHT].ctrlOption = 0;
+			//Sub:
+			planUTT.leg[leg].ctrl = ui->comboBoxTweaksControllerR->currentIndex();
+			planUTT.leg[leg].ctrlOption = index;
 		}
 	}
 	else
 	{
-		//Sub:
-		planUTT.leg[UTT_RIGHT].ctrl = ui->comboBoxTweaksControllerR->currentIndex();
-		planUTT.leg[UTT_RIGHT].ctrlOption = index;
+		legTxt = " (Left)";
+		if(source == 0)
+		{
+			//Main controller:
+			planUTT.leg[leg].ctrl = index;
+			if(index == 4)
+			{
+				planUTT.leg[leg].ctrlOption = ui->comboBoxTweaksControllerOptionsL->currentIndex();
+			}
+			else
+			{
+				planUTT.leg[leg].ctrlOption = 0;
+			}
+		}
+		else
+		{
+			//Sub:
+			planUTT.leg[leg].ctrl = ui->comboBoxTweaksControllerL->currentIndex();
+			planUTT.leg[leg].ctrlOption = index;
+		}
 	}
 
-	//qDebug() << "Controller:" << planUTT.leg[UTT_RIGHT].ctrl << " Option:" << planUTT.leg[UTT_RIGHT].ctrlOption;
-	wtf("Controller: " + QString::number(planUTT.leg[UTT_RIGHT].ctrl) + " (" + QString::number(planUTT.leg[UTT_RIGHT].ctrlOption) + ")");
+	//qDebug() << "Controller:" << planUTT.leg[leg].ctrl << " Option:" << planUTT.leg[leg].ctrlOption;
+	wtf("Controller: " + QString::number(planUTT.leg[leg].ctrl) + " (" + QString::number(planUTT.leg[leg].ctrlOption) + ")" + legTxt);
 	tweakHasChanged = true;
 }
 
-void W_UserTesting::on_dialAmplitudeR_valueChanged(int value){tweaksAmplitude(0, value);}
-void W_UserTesting::on_spinBoxTweaksAmpR_valueChanged(int arg1){tweaksAmplitude(1, arg1);}
+void W_UserTesting::on_dialAmplitudeR_valueChanged(int value){tweaksAmplitude(UTT_RIGHT, 0, value);}
+void W_UserTesting::on_spinBoxTweaksAmpR_valueChanged(int arg1){tweaksAmplitude(UTT_RIGHT, 1, arg1);}
+void W_UserTesting::on_dialAmplitudeL_valueChanged(int value){tweaksAmplitude(UTT_LEFT, 0, value);}
+void W_UserTesting::on_spinBoxTweaksAmpL_valueChanged(int arg1){tweaksAmplitude(UTT_LEFT, 1, arg1);}
 
-void W_UserTesting::tweaksAmplitude(int source, int val)
+void W_UserTesting::tweaksAmplitude(uint8_t leg, int source, int val)
 {
 	//Protect against recursions:
-	static bool internal = false;
-	if(internal == true)
+	static bool internal[2] = {false, false};
+	if(internal[leg] == true)
 	{
-		internal = false;
+		internal[leg] = false;
 		return;
 	}
 
-	if(source == 0)
+	if(leg == UTT_RIGHT)
 	{
-		//Change came from the dial:
-		internal = true;
-		ui->spinBoxTweaksAmpR->setValue(val);
+		if(source == 0)
+		{
+			//Change came from the dial:
+			internal[leg] = true;
+			ui->spinBoxTweaksAmpR->setValue(val);
+		}
+		else
+		{
+			//Change came from the spinbox:
+			internal[leg] = true;
+			ui->dialAmplitudeR->setValue(val);
+		}
 	}
 	else
 	{
-		//Change came from the spinbox:
-		internal = true;
-		ui->dialAmplitudeR->setValue(val);
+		if(source == 0)
+		{
+			//Change came from the dial:
+			internal[leg] = true;
+			ui->spinBoxTweaksAmpL->setValue(val);
+		}
+		else
+		{
+			//Change came from the spinbox:
+			internal[leg] = true;
+			ui->dialAmplitudeL->setValue(val);
+		}
 	}
 
-	planUTT.leg[UTT_RIGHT].amplitude = val;
-	//qDebug() << "Amplitude:" << planUTT.leg[UTT_RIGHT].amplitude;
+	planUTT.leg[leg].amplitude = val;
+	//qDebug() << "Amplitude:" << planUTT.leg[leg].amplitude;
 }
 
-void W_UserTesting::on_dialTimingR_valueChanged(int value){tweaksTiming(0, value);}
-void W_UserTesting::on_spinBoxTweaksTimR_valueChanged(int arg1){tweaksTiming(1, arg1);}
+void W_UserTesting::on_dialTimingR_valueChanged(int value){tweaksTiming(UTT_RIGHT, 0, value);}
+void W_UserTesting::on_spinBoxTweaksTimR_valueChanged(int arg1){tweaksTiming(UTT_RIGHT, 1, arg1);}
 
-void W_UserTesting::tweaksTiming(int source, int val)
+void W_UserTesting::on_dialTimingL_valueChanged(int value){tweaksTiming(UTT_LEFT, 0, value);}
+void W_UserTesting::on_spinBoxTweaksTimL_valueChanged(int arg1){tweaksTiming(UTT_LEFT, 1, arg1);}
+
+void W_UserTesting::tweaksTiming(uint8_t leg, int source, int val)
 {
 	//Protect against recursions:
-	static bool internal = false;
-	if(internal == true)
+	static bool internal[2] = {false, false};
+	if(internal[leg] == true)
 	{
-		internal = false;
+		internal[leg] = false;
 		return;
 	}
 
-	if(source == 0)
+	if(leg == UTT_RIGHT)
 	{
-		//Change came from the dial:
-		internal = true;
-		ui->spinBoxTweaksTimR->setValue(val);
+		if(source == 0)
+		{
+			//Change came from the dial:
+			internal[leg] = true;
+			ui->spinBoxTweaksTimR->setValue(val);
+		}
+		else
+		{
+			//Change came from the spinbox:
+			internal[leg] = true;
+			ui->dialTimingR->setValue(val);
+		}
 	}
 	else
 	{
-		//Change came from the spinbox:
-		internal = true;
-		ui->dialTimingR->setValue(val);
+		if(source == 0)
+		{
+			//Change came from the dial:
+			internal[leg] = true;
+			ui->spinBoxTweaksTimL->setValue(val);
+		}
+		else
+		{
+			//Change came from the spinbox:
+			internal[leg] = true;
+			ui->dialTimingL->setValue(val);
+		}
 	}
 
-	planUTT.leg[UTT_RIGHT].timing = val;
-	//qDebug() << "Timing:" << planUTT.leg[UTT_RIGHT].timing;
+	planUTT.leg[leg].timing = val;
+	//qDebug() << "Timing:" << planUTT.leg[leg].timing;
 }
 
 void W_UserTesting::on_checkBoxTweaksAutomatic_stateChanged(int arg1)
@@ -903,13 +1062,34 @@ void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 void W_UserTesting::on_pushButtonPowerOffR_clicked()
 {
 	planUTT.leg[UTT_RIGHT].powerOn = 0;
-	wtf("Power Off was clicked");
+	wtf("Power Off was clicked (Right or Dual)");
 	writeUTT();
 }
 
 void W_UserTesting::on_pushButtonPowerOnR_clicked()
 {
 	planUTT.leg[UTT_RIGHT].powerOn = 1;
-	wtf("Power On was clicked");
+	wtf("Power On was clicked (Right or Dual)");
 	writeUTT();
+}
+
+void W_UserTesting::on_pushButtonPowerOnL_clicked()
+{
+	planUTT.leg[UTT_LEFT].powerOn = 1;
+	wtf("Power On was clicked (Left)");
+	writeUTT();
+}
+
+void W_UserTesting::on_pushButtonPowerOffL_clicked()
+{
+	planUTT.leg[UTT_LEFT].powerOn = 0;
+	wtf("Power Off was clicked (Left)");
+	writeUTT();
+}
+
+void W_UserTesting::on_checkBoxIndependant_stateChanged(int arg1)
+{
+	bool state = false;
+	if(arg1){state = true;}
+	independantLegs(state);
 }

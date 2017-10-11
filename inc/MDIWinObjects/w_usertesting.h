@@ -90,6 +90,24 @@ private slots:
 	void on_pushButtonPowerOnR_clicked();
 	void on_pushButtonExpSession_clicked();
 
+	void on_checkBoxIndependant_stateChanged(int arg1);
+
+	void on_comboBoxTweaksControllerL_currentIndexChanged(int index);
+
+	void on_comboBoxTweaksControllerOptionsL_currentIndexChanged(int index);
+
+	void on_dialAmplitudeL_valueChanged(int value);
+
+	void on_spinBoxTweaksAmpL_valueChanged(int arg1);
+
+	void on_dialTimingL_valueChanged(int value);
+
+	void on_spinBoxTweaksTimL_valueChanged(int arg1);
+
+	void on_pushButtonPowerOnL_clicked();
+
+	void on_pushButtonPowerOffL_clicked();
+
 private:
 	Ui::W_UserTesting *ui;
 	QString mwAppPath;
@@ -142,16 +160,17 @@ private:
 	void initTabTweaks();
 	void getAllInputs();
 	void writeSpeedIncline(double spd, double inc);
-	void writeAmplitudeTiming(int amp, int tim);
-	void tweaksAmplitude(int source, int val);
-	void tweaksTiming(int source, int val);
-	void tweaksController(int source, int index);
+	void writeAmplitudeTiming(uint8_t leg, int amp, int tim);
+	void tweaksAmplitude(uint8_t leg, int source, int val);
+	void tweaksTiming(uint8_t leg, int source, int val);
+	void tweaksController(uint8_t leg, int source, int index);
 	void wtf(QString txt);
 	void pbSession(bool ss);
 	void startOfSession();
 	void endOfSession();
 	void writeUTT();
-	void setTweaksUI();
+	void setTweaksUI(uint8_t leg);
+	void independantLegs(bool i);
 };
 
 //****************************************************************************
