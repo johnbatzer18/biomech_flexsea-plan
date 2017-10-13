@@ -27,11 +27,9 @@
 #include <QElapsedTimer>
 #include "flexsea_generic.h"
 #include "main.h"
-
 #include "flexsea.h"
 #include "flexsea_board.h"
 #include "flexsea_system.h"
-#include "flexsea_cmd_angle_torque_profile.h"
 #include <QValidator>
 
 QT_CHARTS_USE_NAMESPACE
@@ -76,13 +74,6 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
 
-	timer = new QTimer();
-	timer->setInterval(50);
-	timer->setSingleShot(false);
-	connect(timer, &QTimer::timeout, this, &W_AnkleAnglePlot::requestProfileRead);
-	timer->start();
-	requestProfileRead();
-
 	const QValidator *validator = new QDoubleValidator(-1000, 1000, 2, this);
 	ui->lineEditXMin->setValidator(validator);
 	ui->lineEditXMax->setValidator(validator);
@@ -99,12 +90,6 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	ui->lineEditPersistentPoints->setText(QString::number(numPoints));
 }
 
-void W_AnkleAnglePlot::requestProfileRead()
-{
-	//We skip the TX/RX and simply set this flag:
-	atProfile_newProfileFlag = 1;
-}
-
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
 {
 	emit windowClosed();
@@ -119,17 +104,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
 
-	if(atProfile_newProfileFlag)
-	{
-		atProfile_newProfileFlag = 0;
-
-		chartView->isActive = true;
-		timer->stop();
-	}
-	if(atProfile_newDataFlag)
-	{
-		atProfile_newDataFlag = 0;
-	}
+	chartView->isActive = true;
 	chartView->update();
 	chart->update();
 

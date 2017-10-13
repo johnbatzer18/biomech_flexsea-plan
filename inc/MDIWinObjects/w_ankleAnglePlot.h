@@ -202,7 +202,6 @@ public:
 public slots:
 
 	void receiveNewData(void);
-	void requestProfileRead();
 	void resizeEvent(QResizeEvent *event)
 	{
 		if(chartView) chartView->forceRecomputeDrawnPoints = true;
@@ -225,7 +224,6 @@ private:
 	Ui::W_AnkleAnglePlot *ui;
 	QChart *chart;
 	AnkleAngleChartView *chartView;
-	QTimer* timer;
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
