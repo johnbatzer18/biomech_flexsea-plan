@@ -77,6 +77,7 @@ SOURCES += src/main.cpp \
 				src/MDIWinObjects/w_commtest.cpp \
 				src/MDIWinObjects/w_glplot.cpp \
 				src/MDIWinObjects/w_ankleTorque.cpp \
+				src/MDIWinObjects/w_ankleAnglePlot.cpp \
 				src/MDIWinObjects/w_cycletester.cpp \
 				src/MDIWinObjects/w_usertesting.cpp \
 				src/MDIWinObjects/scribblearea.cpp \
@@ -184,6 +185,7 @@ HEADERS += inc/main.h \
 				inc/MDIWinObjects/w_testbench.h \
 				inc/MDIWinObjects/w_glplot.h \
 				inc/MDIWinObjects/w_ankleTorque.h \
+				inc/MDIWinObjects/w_ankleAnglePlot.h \
 				inc/MDIWinObjects/w_cycletester.h \
 				inc/MDIWinObjects/w_usertesting.h \
 				inc/MDIWinObjects/scribblearea.h \
@@ -247,6 +249,7 @@ FORMS += ui/mainwindow.ui \
 				ui/w_event.ui \
 				ui/w_glplot.ui \
 				ui/w_ankleTorque.ui \
+				ui/w_ankleAnglePlot.ui \
 				ui/w_rigid.ui \
 				ui/w_cycletester.ui \
 				ui/w_usertesting.ui

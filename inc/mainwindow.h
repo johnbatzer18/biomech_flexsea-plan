@@ -54,6 +54,7 @@
 #include "w_incontrol.h"
 #include "w_event.h"
 #include "w_ankleTorque.h"
+#include "w_ankleAnglePlot.h"
 #include "w_rigid.h"
 #include "flexseaDevice.h"
 #include "w_testbench.h"
@@ -73,56 +74,58 @@ class MainWindow;
 }
 
 //MDI Objects: ID
-#define CONFIG_WINDOWS_ID			0
-#define LOGKEYPAD_WINDOWS_ID		1
-#define SLAVECOMM_WINDOWS_ID		2
-#define PLOT2D_WINDOWS_ID			3
-#define CONTROL_WINDOWS_ID			4
-#define INCONTROL_WINDOWS_ID		5
-#define USERRW_WINDOWS_ID			6
-#define EVENT_WINDOWS_ID			7
-#define ANYCOMMAND_WINDOWS_ID		8
-#define CONVERTER_WINDOWS_ID		9
-#define CALIB_WINDOWS_ID			10
-#define COMMTEST_WINDOWS_ID			11
-#define EX_VIEW_WINDOWS_ID			12
-#define MN_VIEW_WINDOWS_ID			13
-#define BATT_WINDOWS_ID				14
-#define GOSSIP_WINDOWS_ID			15
-#define STRAIN_WINDOWS_ID			16
-#define RICNU_VIEW_WINDOWS_ID		17
-#define TESTBENCH_WINDOWS_ID		18
-#define ANKLE_TORQUE_WINDOWS_ID		19
-#define RIGID_WINDOWS_ID			20
-#define CYCLE_TESTER_WINDOWS_ID		21
-#define USER_TESTING_WINDOWS_ID		22
-#define WINDOWS_TYPES				23 //(has to match the list above)
-#define WINDOWS_MAX_INSTANCES		5
+#define CONFIG_WINDOWS_ID				0
+#define LOGKEYPAD_WINDOWS_ID			1
+#define SLAVECOMM_WINDOWS_ID			2
+#define PLOT2D_WINDOWS_ID				3
+#define CONTROL_WINDOWS_ID				4
+#define INCONTROL_WINDOWS_ID			5
+#define USERRW_WINDOWS_ID				6
+#define EVENT_WINDOWS_ID				7
+#define ANYCOMMAND_WINDOWS_ID			8
+#define CONVERTER_WINDOWS_ID			9
+#define CALIB_WINDOWS_ID				10
+#define COMMTEST_WINDOWS_ID				11
+#define EX_VIEW_WINDOWS_ID				12
+#define MN_VIEW_WINDOWS_ID				13
+#define BATT_WINDOWS_ID					14
+#define GOSSIP_WINDOWS_ID				15
+#define STRAIN_WINDOWS_ID				16
+#define RICNU_VIEW_WINDOWS_ID			17
+#define TESTBENCH_WINDOWS_ID			18
+#define ANKLE_TORQUE_WINDOWS_ID			19
+#define RIGID_WINDOWS_ID				20
+#define CYCLE_TESTER_WINDOWS_ID			21
+#define USER_TESTING_WINDOWS_ID			22
+#define ANKLE_ANGLE_PLOT_WINDOWS_ID		20
+#define WINDOWS_TYPES					24 //(has to match the list above)
+#define WINDOWS_MAX_INSTANCES			5
 
 //MDI Objects: set maximums # of child
-#define EX_VIEW_WINDOWS_MAX			5
-#define MN_VIEW_WINDOWS_MAX			2
-#define CONFIG_WINDOWS_MAX			1
-#define SLAVECOMM_WINDOWS_MAX		1
-#define ANYCOMMAND_WINDOWS_MAX		1
-#define CONVERTER_WINDOWS_MAX		1
-#define CONTROL_WINDOWS_MAX			1
-#define PLOT2D_WINDOWS_MAX			2
-#define RICNU_VIEW_WINDOWS_MAX		1
-#define CALIB_WINDOWS_MAX			1
-#define BATT_WINDOWS_MAX			2
-#define LOGKEYPAD_WINDOWS_MAX		1
-#define GOSSIP_WINDOWS_MAX			2
-#define STRAIN_WINDOWS_MAX			2
-#define USERRW_WINDOWS_MAX			1
-#define TESTBENCH_WINDOWS_MAX		1
-#define COMMTEST_WINDOWS_MAX		1
-#define INCONTROL_WINDOWS_MAX		1
-#define EVENT_WINDOWS_MAX			1
-#define ANKLE_TORQUE_WINDOWS_MAX	1
-#define RIGID_WINDOWS_MAX			1
-#define CYCLE_TESTER_WINDOWS_MAX	1
-#define USER_TESTING_WINDOWS_MAX	1
+#define EX_VIEW_WINDOWS_MAX				5
+#define MN_VIEW_WINDOWS_MAX				2
+#define CONFIG_WINDOWS_MAX				1
+#define SLAVECOMM_WINDOWS_MAX			1
+#define ANYCOMMAND_WINDOWS_MAX			1
+#define CONVERTER_WINDOWS_MAX			1
+#define CONTROL_WINDOWS_MAX				1
+#define PLOT2D_WINDOWS_MAX				2
+#define RICNU_VIEW_WINDOWS_MAX			1
+#define CALIB_WINDOWS_MAX				1
+#define BATT_WINDOWS_MAX				2
+#define LOGKEYPAD_WINDOWS_MAX			1
+#define GOSSIP_WINDOWS_MAX				2
+#define STRAIN_WINDOWS_MAX				2
+#define USERRW_WINDOWS_MAX				1
+#define TESTBENCH_WINDOWS_MAX			1
+#define COMMTEST_WINDOWS_MAX			1
+#define INCONTROL_WINDOWS_MAX			1
+#define EVENT_WINDOWS_MAX				1
+#define ANKLE_TORQUE_WINDOWS_MAX		1
+#define RIGID_WINDOWS_MAX				1
+#define CYCLE_TESTER_WINDOWS_MAX		1
+#define USER_TESTING_WINDOWS_MAX		1
+#define ANKLE_ANGLE_PLOT_WINDOWS_MAX	1
 
 //Window information:
 typedef struct {
@@ -217,6 +220,7 @@ private:
 	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
 	W_AnkleTorque *myAnkleTorque[ANKLE_TORQUE_WINDOWS_MAX];
+	W_AnkleAnglePlot *myAnkleAnglePlot[ANKLE_ANGLE_PLOT_WINDOWS_MAX];
 	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
 	W_CycleTester *myCycleTester[CYCLE_TESTER_WINDOWS_MAX];
 	W_UserTesting *myUserTesting[USER_TESTING_WINDOWS_MAX];
@@ -275,6 +279,7 @@ public slots:
 	void createInControl(void);
 	void createToolEvent(void);
 	void createAnkleTorqueTool(void);
+	void createAnkleAnglePlot(void);
 	void createViewRigid(void);
 	void createCycleTester(void);
 	void createUserTesting(void);
@@ -300,6 +305,7 @@ public slots:
 	void closeToolEvent(void);
 	void closeInControl(void);
 	void closeAnkleTorqueTool(void);
+	void closeAnkleAnglePlot(void);
 	void closeViewRigid(void);
 	void closeCycleTester(void);
 	void closeUserTesting(void);

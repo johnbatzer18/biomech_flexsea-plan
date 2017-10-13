@@ -120,6 +120,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Rigid::setDescription("FlexSEA-Rigid");
 	W_CycleTester::setDescription("FlexSEA-Rigid Cycle Tester");
 	W_AnkleTorque::setDescription("Ankle Torque Tool");
+	W_AnkleAnglePlot::setDescription("Ankle Angle Plot");
 	W_UserTesting::setDescription("User Testing");
 
 	initFlexSeaDeviceObject();
@@ -222,6 +223,7 @@ void MainWindow::initMenus(void)
 
 	//Gait Lab:
 	ui->menuGL->addAction("Ankle Torque Tool", this, &MainWindow::createAnkleTorqueTool);
+	ui->menuGL->addAction("Ankle Angle Plot", this, &MainWindow::createAnkleAnglePlot);
 	//ui->menuGL->addAction("Chart Window", this, &MainWindow::triggerChartView);
 
 	//Help:
@@ -394,6 +396,7 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::createViewRicnu;
 	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &MainWindow::createViewTestBench;
 	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &MainWindow::createAnkleTorqueTool;
+	mdiCreateWinPtr[ANKLE_ANGLE_PLOT_WINDOWS_ID] = &MainWindow::createAnkleAnglePlot;
 	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;
 	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &MainWindow::createCycleTester;
 	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::createUserTesting;
@@ -428,6 +431,7 @@ void MainWindow::initializeCloseWindowFctPtr(void)
 	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::closeViewRicnu;
 	mdiCloseWinPtr[TESTBENCH_WINDOWS_ID] = &MainWindow::closeViewTestBench;
 	mdiCloseWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &MainWindow::closeAnkleTorqueTool;
+	mdiCloseWinPtr[ANKLE_ANGLE_PLOT_WINDOWS_ID] = &MainWindow::closeAnkleAnglePlot;
 	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &MainWindow::closeViewRigid;
 	mdiCloseWinPtr[CYCLE_TESTER_WINDOWS_ID] = &MainWindow::closeCycleTester;
 	mdiCloseWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::closeUserTesting;
@@ -568,6 +572,54 @@ void MainWindow::closeAnkleTorqueTool(void)
 {
 	sendCloseWindowMsg(W_AnkleTorque::getDescription());
 	mdiState[ANKLE_TORQUE_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
+}
+
+void MainWindow::createAnkleAnglePlot(void)
+{
+	int count = W_AnkleAnglePlot::howManyInstance();
+	if(count >= ANKLE_ANGLE_PLOT_WINDOWS_MAX)
+	{
+		sendWindowCreatedFailedMsg(W_AnkleAnglePlot::getDescription(),
+								   W_AnkleAnglePlot::getMaxWindow());
+		return;
+	}
+
+	W_AnkleAnglePlot* w = new W_AnkleAnglePlot(this, streamManager);
+	myAnkleAnglePlot[count] = w;
+
+	int slaveCommCount = W_SlaveComm::howManyInstance();
+	if(slaveCommCount)
+	{
+		connect(w,									&W_AnkleAnglePlot::getCurrentDevice,
+				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getCurrentDevice);
+		connect(w,									&W_AnkleAnglePlot::getSlaveId,
+				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getSlaveId);
+	}
+	else
+	{
+		qDebug() << "Unable to connect ankleAnglePlot to slave comm, ankleAnglePlot won't work";
+		delete w; //this gonna be bad
+		myAnkleAnglePlot[count] = nullptr;
+		return;
+	}
+
+	connect(mySerialDriver, &SerialDriver::newDataReady, w, &W_AnkleAnglePlot::receiveNewData);
+	connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleAnglePlot::comStatusChanged);
+	connect(w, &W_AnkleAnglePlot::writeCommand, this, &MainWindow::connectorWriteCommand);
+
+	//Link to MainWindow for the close signal:
+	connect(myAnkleAnglePlot[count], SIGNAL(windowClosed()), \
+			this, SLOT(closeAnkleAnglePlot()));
+
+	mdiState[ANKLE_ANGLE_PLOT_WINDOWS_ID][count].winPtr = ui->mdiArea->addSubWindow(w);
+	mdiState[ANKLE_ANGLE_PLOT_WINDOWS_ID][count].open = true;
+	w->show();
+}
+
+void MainWindow::closeAnkleAnglePlot(void)
+{
+	sendCloseWindowMsg(W_AnkleAnglePlot::getDescription());
+	mdiState[ANKLE_ANGLE_PLOT_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
 }
 
 //Creates a new View Execute window
@@ -868,6 +920,7 @@ void MainWindow::createSlaveComm(void)
 
 		//myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
 		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleTorque::getCommandCode());
+		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleAnglePlot::getCommandCode());
 		//myViewSlaveComm[objectCount]->addExperiment(&rigidFlexList, W_Rigid::getCommandCode());
 	}
 	else
