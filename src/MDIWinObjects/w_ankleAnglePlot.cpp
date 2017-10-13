@@ -67,9 +67,6 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	chartView->lineSeries = lineSeries;
 	chartView->setMaxDataPoints(500);
 
-	connect(chartView,	&AnkleAngleChartView::pointsChanged,
-				this,	&W_AnkleAnglePlot::handlePointChange);
-
 	ui->gridLayout_test->addWidget(chartView, 0,0);
 	chartView->setRenderHint(QPainter::Antialiasing);
 	chartView->setBaseSize(600,300);
@@ -102,54 +99,17 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	ui->lineEditPersistentPoints->setText(QString::number(numPoints));
 }
 
-void W_AnkleAnglePlot::comStatusChanged(bool open)
-{
-	isComPortOpen = open;
-	if(open)requestProfileRead();
-}
-
-
 void W_AnkleAnglePlot::requestProfileRead()
 {
-	int slaveId = -1;
-	emit getSlaveId(&slaveId);
-	if(slaveId < 0 || !isComPortOpen) return;
-
-	uint8_t info = PORT_USB;
-	uint16_t numb = 0;
-
-	tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 1);	//ToDo
-	pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, READ);
+	//We skip the TX/RX and simply set this flag:
+	atProfile_newProfileFlag = 1;
 }
-
 
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
 {
 	emit windowClosed();
 	delete ui;
 }
-
-int W_AnkleAnglePlot::getCommandCode() { return CMD_ANGLE_TORQUE_PROFILE; }
-
-
-void W_AnkleAnglePlot::handlePointChange()
-{
-	int slaveId = -1;
-	emit getSlaveId(&slaveId);
-	if(slaveId < 0) return;
-
-	uint8_t info = PORT_USB;
-	uint16_t numb = 0;
-
-	chartView->isActive = false;
-	timer->start();
-
-	tx_cmd_ankleTorqueProfile_rw(TX_N_DEFAULT);	//ToDo
-	pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
-}
-
 
 //****************************************************************************
 // Public slot(s):
@@ -158,8 +118,6 @@ void W_AnkleAnglePlot::handlePointChange()
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
-
-//	qDebug() << "AAP Received new data, " << *rigid1.ex.joint_ang;
 
 	if(atProfile_newProfileFlag)
 	{
@@ -183,9 +141,6 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	}
 	lastGstate = rigid1.ctrl.gaitState;
 	chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
-
-	//Test todo remove
-	//handlePointChange();
 }
 
 void W_AnkleAnglePlot::setAxesLimits()

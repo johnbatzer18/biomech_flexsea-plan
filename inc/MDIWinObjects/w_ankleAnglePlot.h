@@ -35,7 +35,7 @@
 // Include(s)
 //****************************************************************************
 
-#include <QApplication>
+//#include <QApplication>
 #include <QWidget>
 #include "counter.h"
 #include <QTimer>
@@ -197,13 +197,11 @@ public:
 	explicit W_AnkleAnglePlot(QWidget *parent = 0, StreamManager* sm = nullptr);
 	virtual ~W_AnkleAnglePlot();
 
-	static int getCommandCode();
+	//static int getCommandCode();
 
 public slots:
 
 	void receiveNewData(void);
-	void handlePointChange();
-	void comStatusChanged(bool open);
 	void requestProfileRead();
 	void resizeEvent(QResizeEvent *event)
 	{
@@ -220,9 +218,7 @@ public slots:
 signals:
 
 	void windowClosed(void);
-	void getSlaveId(int* slaveId);
 	void getCurrentDevice(FlexseaDevice** device);
-	void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
 
 private:
 

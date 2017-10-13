@@ -96,6 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
 	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
 	W_CycleTester::setMaxWindow(CYCLE_TESTER_WINDOWS_MAX);
+	W_AnkleAnglePlot::setMaxWindow(ANKLE_ANGLE_PLOT_WINDOWS_MAX);
 	W_UserTesting::setMaxWindow(USER_TESTING_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
@@ -592,8 +593,8 @@ void MainWindow::createAnkleAnglePlot(void)
 	{
 		connect(w,									&W_AnkleAnglePlot::getCurrentDevice,
 				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getCurrentDevice);
-		connect(w,									&W_AnkleAnglePlot::getSlaveId,
-				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getSlaveId);
+/*		connect(w,									&W_AnkleAnglePlot::getSlaveId,
+				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getSlaveId);*/
 	}
 	else
 	{
@@ -604,8 +605,8 @@ void MainWindow::createAnkleAnglePlot(void)
 	}
 
 	connect(mySerialDriver, &SerialDriver::newDataReady, w, &W_AnkleAnglePlot::receiveNewData);
-	connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleAnglePlot::comStatusChanged);
-	connect(w, &W_AnkleAnglePlot::writeCommand, this, &MainWindow::connectorWriteCommand);
+	//connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleAnglePlot::comStatusChanged);
+	//connect(w, &W_AnkleAnglePlot::writeCommand, this, &MainWindow::connectorWriteCommand);
 
 	//Link to MainWindow for the close signal:
 	connect(myAnkleAnglePlot[count], SIGNAL(windowClosed()), \
@@ -920,7 +921,6 @@ void MainWindow::createSlaveComm(void)
 
 		//myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
 		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleTorque::getCommandCode());
-		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleAnglePlot::getCommandCode());
 		//myViewSlaveComm[objectCount]->addExperiment(&rigidFlexList, W_Rigid::getCommandCode());
 	}
 	else

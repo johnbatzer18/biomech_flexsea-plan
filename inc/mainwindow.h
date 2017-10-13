@@ -97,7 +97,7 @@ class MainWindow;
 #define RIGID_WINDOWS_ID				20
 #define CYCLE_TESTER_WINDOWS_ID			21
 #define USER_TESTING_WINDOWS_ID			22
-#define ANKLE_ANGLE_PLOT_WINDOWS_ID		20
+#define ANKLE_ANGLE_PLOT_WINDOWS_ID		23
 #define WINDOWS_TYPES					24 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES			5
 
