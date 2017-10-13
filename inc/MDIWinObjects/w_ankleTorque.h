@@ -46,8 +46,6 @@
 #include "rigidDevice.h"
 #include "define.h"
 
-#define VA_DEMO_HACK_H
-
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
@@ -64,17 +62,10 @@ class AnkleTorqueChartView : public QChartView
 public:
 	explicit AnkleTorqueChartView(QChart* parent) : QChartView(parent), activeSetPoint(-1), activeDrag(0) {
 		qDebug() << "Updates " << this->updatesEnabled();
-		#ifndef VA_DEMO_HACK_H
 		xMin = -30;
 		xMax = 0;
 		yMin = 0;
 		yMax = 60;
-		#else
-		xMin = 0;
-		xMax = 1200;
-		yMin = 0;
-		yMax = 900;
-		#endif
 
 //		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
 //		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
@@ -114,47 +105,24 @@ public:
 		QChartView::drawForeground(painter, rect);
 
 		painter->setBrush(Qt::NoBrush);
-		#ifndef VA_DEMO_HACK_H
 		painter->setPen(QPen(QColor(58, 217, 242)));	//sky blue
-		#else
-		QPen myPen;
-		myPen.setColor(QColor(0, 255, 64));
-		myPen.setWidth(2);
-		painter->setPen(myPen);	//bright green
-		#endif
 
 		//draw data points
 		int numLines = dataPoints.size()-1;
-		for(int i = 1; i < numLines; i++)
+		for(int i = 1; i < numLines; i++)	//ToDo used to be 0. What's right?
 		{
-			#ifndef VA_DEMO_HACK_H
 			painter->setOpacity((i) / (float)numLines);
 			painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
-			#else
-
-			painter->setOpacity((i) / (float)numLines);
-			if(dataPoints.at(i).toPoint().x() > (dataPoints.at(i+1).toPoint().x()))
-			{
-				//qDebug() << "End of line.";
-				painter->setOpacity(0);
-				painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
-			}
-			else
-			{
-				painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
-			}
-
-			#endif
 		}
 		painter->setOpacity(1);
 
 		//draw bounds
-		painter->setPen(QPen(QColor(155, 35, 35)));		//dark red
+		//painter->setPen(QPen(QColor(155, 35, 35)));		//dark red
+		painter->setPen(QPen(QColor(204, 86, 0)));			//Same orange as dark theme
 		painter->drawRect(QRectF(
 							  chart()->mapToPosition(QPointF(xMin, yMin)),
 							  chart()->mapToPosition(QPointF(xMax, yMax))));
 
-		#ifndef VA_DEMO_HACK_H
 		//draw profile points
 		painter->setPen(QPen(QColor(220, 220, 220)));	//light grey
 		QPointF textPoint;
@@ -183,15 +151,12 @@ public:
 			//the circle
 			painter->drawEllipse(drawnPoints[i], radius, radius);
 		}
-		#endif
 
 		if(drawText)
 		{
 			painter->setBrush(QBrush(QColor(Qt::black)));
 			painter->setPen(QColor(Qt::white));
-			#ifndef VA_DEMO_HACK_H
 			painter->drawPath(path);
-			#endif
 		}
 	}
 

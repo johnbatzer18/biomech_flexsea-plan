@@ -91,7 +91,6 @@ int main(int argc, char *argv[])
 		darkPalette.setColor(QPalette::ButtonText, Qt::white);
 		darkPalette.setColor(QPalette::BrightText, Qt::red);
 
-
 		//darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
 		darkPalette.setColor(QPalette::Link, QColor(204, 86, 0));
 
@@ -100,6 +99,9 @@ int main(int argc, char *argv[])
 		darkPalette.setColor(QPalette::Highlight, QColor(204, 86, 0));
 
 		darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+
+		//Experimental:
+		//darkPalette.setColor(QPalette::, Qt::red);
 
 		qApp->setPalette(darkPalette);
 

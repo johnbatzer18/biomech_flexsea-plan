@@ -222,7 +222,7 @@ void MainWindow::initMenus(void)
 
 	//Gait Lab:
 	ui->menuGL->addAction("Ankle Torque Tool", this, &MainWindow::createAnkleTorqueTool);
-	ui->menuGL->addAction("Chart Window", this, &MainWindow::triggerChartView);
+	//ui->menuGL->addAction("Chart Window", this, &MainWindow::triggerChartView);
 
 	//Help:
 	ui->menuHelp->addAction("Documentation", this, &MainWindow::displayDocumentation);
