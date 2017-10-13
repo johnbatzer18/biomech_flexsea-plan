@@ -68,9 +68,6 @@ public:
 		yMin = 0;
 		yMax = 900;
 
-//		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
-//		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
-
 		parent->axisX()->setRange(xMin - 5, xMax + 5);
 		parent->axisY()->setRange(yMin - 5, yMax + 5);
 		QColor darkGray(100, 100, 100);
@@ -86,12 +83,6 @@ public:
 	int xMin, xMax, yMin, yMax;
 	bool drawText = false;
 
-	void recomputeProfileDrawPoints()
-	{
-		for(int i = 0; i < ATCV_NUMPOINTS; i++)
-			drawnPoints[i] = chart()->mapToPosition(points[i]);
-	}
-
 	virtual void drawForeground(QPainter* painter, const QRectF &rect)
 	{
 		if(!isActive) return;
@@ -100,7 +91,7 @@ public:
 		{
 			firstDraw = false;
 			forceRecomputeDrawnPoints = false;
-			recomputeProfileDrawPoints();
+			//recomputeProfileDrawPoints();
 		}
 
 		QChartView::drawForeground(painter, rect);
@@ -144,123 +135,6 @@ public:
 
 	int activeSetPoint;
 	int activeDrag;
-	virtual void mousePressEvent(QMouseEvent *event)
-	{
-		if(!(activeSetPoint < 0) || !isActive) return;
-
-		QPointF p = event->pos();
-		QPointF sp;
-		static int distThresh = radius*radius;
-		float xdist, ydist, dist;
-
-		for(int i = 0; i < ATCV_NUMPOINTS; i++)
-		{
-			sp = drawnPoints[i];
-
-			xdist = (p.x() - sp.x());
-			ydist = (p.y() - sp.y());
-
-			dist = xdist*xdist + ydist*ydist;
-
-			if( dist < distThresh )
-			{
-				activeSetPoint = i;
-				return;
-			}
-		}
-		activeSetPoint = -1;
-	}
-
-	virtual void mouseMoveEvent(QMouseEvent* event)
-	{
-		if(activeSetPoint < 0) return;
-
-		QPointF p = event->pos();
-		QPointF sp = drawnPoints[activeSetPoint];
-
-		float dist = (p - sp).manhattanLength();
-
-		static float distThresh = 0.25*radius;
-
-		if(dist > distThresh)
-		{
-			drawnPoints[activeSetPoint] = p;
-			this->update();
-			chart()->update();
-		}
-	}
-
-	void enforceBounds(QPointF* p)
-	{
-		if(!p) return;
-
-		if(p->x() > xMax) p->setX(xMax);
-		if(p->y() > yMax) p->setY(yMax);
-
-		if(p->x() < xMin) p->setX(xMin);
-		if(p->y() < yMin) p->setY(yMin);
-	}
-
-	virtual void mouseReleaseEvent(QMouseEvent* event)
-	{
-		if(activeSetPoint < 0) return;
-
-		drawnPoints[activeSetPoint] = event->pos();
-		QPointF* p = &points[activeSetPoint];
-		*p = chart()->mapToValue(drawnPoints[activeSetPoint]);
-
-		enforceBounds(p);
-
-		drawnPoints[activeSetPoint] = chart()->mapToPosition(*p);
-
-		this->update();
-		chart()->update();
-		activeSetPoint = -1;
-
-		emit pointsChanged();
-	}
-
-	void setPoints(QPointF p[ATCV_NUMPOINTS])
-	{
-		for(int i = 0; i < ATCV_NUMPOINTS; i++)
-		{
-			points[i] = p[i];
-			enforceBounds(&points[i]);
-			drawnPoints[i] = chart()->mapToPosition(p[i]);
-		}
-		this->update();
-		chart()->update();
-	}
-
-	void setPoint(int i, const QPointF &p)
-	{
-		if(i >= 0 && i < ATCV_NUMPOINTS)
-		{
-			points[i] = p;
-			enforceBounds(&points[i]);
-			drawnPoints[i] = chart()->mapToPosition(points[i]);
-			this->update();
-			chart()->update();
-		}
-	}
-
-	void setPoint(int i, float x, float y)
-	{
-		if(i >= 0 && i < ATCV_NUMPOINTS)
-		{
-			points[i] = QPointF(x, y);
-			enforceBounds(&points[i]);
-			drawnPoints[i] = chart()->mapToPosition(points[i]);
-			this->update();
-			chart()->update();
-		}
-	}
-
-	void getPoints(QPointF* p, int n)
-	{
-		for(int i = 0; i < n && i < ATCV_NUMPOINTS; i++)
-			p[i] = points[i];
-	}
 
 	uint16_t getMaxDataPoints() { return maxDataPoints; }
 	void setMaxDataPoints(uint16_t x)
@@ -342,8 +216,6 @@ public slots:
 	void on_lineEditYMin_returnPressed();
 	void on_lineEditYMax_returnPressed();
 	void on_lineEditPersistentPoints_returnPressed();
-	void on_streamButton_pressed();
-	void on_textToggleButton_pressed();
 
 signals:
 

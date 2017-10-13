@@ -66,6 +66,7 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	chartView->isActive = false;
 	chartView->lineSeries = lineSeries;
 	chartView->setMaxDataPoints(500);
+
 	connect(chartView,	&AnkleAngleChartView::pointsChanged,
 				this,	&W_AnkleAnglePlot::handlePointChange);
 
@@ -104,9 +105,9 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 void W_AnkleAnglePlot::comStatusChanged(bool open)
 {
 	isComPortOpen = open;
-	if(open)
-		requestProfileRead();
+	if(open)requestProfileRead();
 }
+
 
 void W_AnkleAnglePlot::requestProfileRead()
 {
@@ -122,6 +123,7 @@ void W_AnkleAnglePlot::requestProfileRead()
 	emit writeCommand(numb, comm_str_usb, READ);
 }
 
+
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
 {
 	emit windowClosed();
@@ -130,16 +132,9 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 
 int W_AnkleAnglePlot::getCommandCode() { return CMD_ANGLE_TORQUE_PROFILE; }
 
+
 void W_AnkleAnglePlot::handlePointChange()
 {
-	QPointF p[ATCV_NUMPOINTS];
-	chartView->getPoints(p, ATCV_NUMPOINTS);
-	for(int i = 0; i < ATCV_NUMPOINTS; i++)
-	{
-		atProfile_torques[i] = p[i].y()*10;
-		atProfile_angles[i] = p[i].x()*10;
-	}
-
 	int slaveId = -1;
 	emit getSlaveId(&slaveId);
 	if(slaveId < 0) return;
@@ -155,6 +150,7 @@ void W_AnkleAnglePlot::handlePointChange()
 	emit writeCommand(numb, comm_str_usb, WRITE);
 }
 
+
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
@@ -162,6 +158,8 @@ void W_AnkleAnglePlot::handlePointChange()
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
+
+//	qDebug() << "AAP Received new data, " << *rigid1.ex.joint_ang;
 
 	if(atProfile_newProfileFlag)
 	{
@@ -185,6 +183,9 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	}
 	lastGstate = rigid1.ctrl.gaitState;
 	chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
+
+	//Test todo remove
+	//handlePointChange();
 }
 
 void W_AnkleAnglePlot::setAxesLimits()
@@ -232,42 +233,4 @@ void W_AnkleAnglePlot::on_lineEditPersistentPoints_returnPressed() {
 	}
 	chart->update();
 	chartView->update();
-}
-
-void W_AnkleAnglePlot::on_streamButton_pressed()
-{
-	static bool isStreaming = false;
-	const int streamFreq = 33;
-	if(!streamManager) return;
-
-	int slaveId = -1;
-	FlexseaDevice* device = nullptr;
-	emit getSlaveId(&slaveId);
-	emit getCurrentDevice(&device);
-
-	if(slaveId < 0 || !device) return;
-
-	if(isStreaming)
-	{
-		streamManager->stopStreaming(getCommandCode(), slaveId, streamFreq);
-		chartView->clearOverlay();
-	}
-	else
-	{
-		streamManager->startAutoStreaming(getCommandCode(), slaveId, streamFreq, false, device, 0, 0);	//ToDo this has to be the index!!! not 0,0
-	}
-
-	QString btnText = "";
-	btnText.append(isStreaming ? "Start" : "Stop");
-	btnText.append(" Streaming Overlay");
-
-	ui->streamButton->setText(btnText);
-	isStreaming = !isStreaming;
-}
-
-void W_AnkleAnglePlot::on_textToggleButton_pressed()
-{
-	chartView->drawText = !(chartView->drawText);
-	chartView->update();
-	chart->update();
 }
