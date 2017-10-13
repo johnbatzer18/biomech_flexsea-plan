@@ -74,11 +74,12 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
 
-	const QValidator *validator = new QDoubleValidator(-1000, 1000, 2, this);
-	ui->lineEditXMin->setValidator(validator);
-	ui->lineEditXMax->setValidator(validator);
-	ui->lineEditYMin->setValidator(validator);
-	ui->lineEditYMax->setValidator(validator);
+	const QValidator *validatorX = new QDoubleValidator(-2000, 2000, 2, this);
+	const QValidator *validatorY = new QDoubleValidator(-9000, 9000, 2, this);
+	ui->lineEditXMin->setValidator(validatorX);
+	ui->lineEditXMax->setValidator(validatorX);
+	ui->lineEditYMin->setValidator(validatorY);
+	ui->lineEditYMax->setValidator(validatorY);
 
 	ui->lineEditXMin->setText(QString::number(chartView->xMin));
 	ui->lineEditXMax->setText(QString::number(chartView->xMax));
@@ -109,7 +110,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	chart->update();
 
 	idx += 10;
-	idx %= 1200;
+	idx %= 1500;	//ToDo should change with axis axis
 	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1)
 	{
 		idx = 0;

@@ -56,32 +56,27 @@ class AnkleAngleChartView : public QChartView
 {
 		Q_OBJECT
 
-		#define ATCV_NUMPOINTS 6
-		#define ATCV_ABS(x) ( (x) > 0 ? (x) : -(x) )
-
 public:
 	explicit AnkleAngleChartView(QChart* parent) : QChartView(parent), activeSetPoint(-1), activeDrag(0) {
 		qDebug() << "Updates " << this->updatesEnabled();
 
 		xMin = 0;
-		xMax = 1200;
+		xMax = 1500;
 		yMin = 0;
 		yMax = 900;
 
-		parent->axisX()->setRange(xMin - 5, xMax + 5);
-		parent->axisY()->setRange(yMin - 5, yMax + 5);
+		parent->axisX()->setRange(xMin, xMax);
+		parent->axisY()->setRange(yMin, yMax);
 		QColor darkGray(100, 100, 100);
 		parent->axisX()->setGridLineColor(darkGray);
 		parent->axisY()->setGridLineColor(darkGray);
 	}
 	virtual ~AnkleAngleChartView(){}
 
-	int radius = 12;
 	bool isActive = true;
 	QLineSeries* lineSeries;
 	bool forceRecomputeDrawnPoints = false;
 	int xMin, xMax, yMin, yMax;
-	bool drawText = false;
 
 	virtual void drawForeground(QPainter* painter, const QRectF &rect)
 	{
@@ -91,7 +86,6 @@ public:
 		{
 			firstDraw = false;
 			forceRecomputeDrawnPoints = false;
-			//recomputeProfileDrawPoints();
 		}
 
 		QChartView::drawForeground(painter, rect);
@@ -119,18 +113,6 @@ public:
 			}
 		}
 		painter->setOpacity(1);
-
-		//draw bounds
-		painter->setPen(QPen(QColor(155, 35, 35)));		//dark red
-		painter->drawRect(QRectF(
-							  chart()->mapToPosition(QPointF(xMin, yMin)),
-							  chart()->mapToPosition(QPointF(xMax, yMax))));
-
-		if(drawText)
-		{
-			painter->setBrush(QBrush(QColor(Qt::black)));
-			painter->setPen(QColor(Qt::white));
-		}
 	}
 
 	int activeSetPoint;
@@ -165,8 +147,8 @@ public:
 		this->yMin = yMin;
 		this->yMax = yMax;
 
-		chart()->axisX()->setRange(xMin - 5, xMax + 5);
-		chart()->axisY()->setRange(yMin - 5, yMax + 5);
+		chart()->axisX()->setRange(xMin, xMax);
+		chart()->axisY()->setRange(yMin, yMax);
 	}
 
 	void clearOverlay() { dataPoints.clear(); chart()->update(); this->update(); }
@@ -175,10 +157,7 @@ signals:
 	void pointsChanged();
 
 private:
-	QPointF points[ATCV_NUMPOINTS];
-	QPointF drawnPoints[ATCV_NUMPOINTS];
 	bool firstDraw = true;
-
 	unsigned int maxDataPoints = 20;
 	QVector<QPointF> dataPoints;
 
@@ -196,8 +175,6 @@ public:
 
 	explicit W_AnkleAnglePlot(QWidget *parent = 0, StreamManager* sm = nullptr);
 	virtual ~W_AnkleAnglePlot();
-
-	//static int getCommandCode();
 
 public slots:
 
