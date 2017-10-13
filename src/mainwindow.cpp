@@ -371,32 +371,32 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	//By default, point to empty function:
 	for(int i = 0; i < WINDOWS_TYPES; i++)
 	{
-		mdiCreateWinPtr[i] = &emptyWinFct;
+		mdiCreateWinPtr[i] = &MainWindow::emptyWinFct;
 	}
 
-	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &createConfig;
-	//mdiCreateWinPtr[LOGKEYPAD_WINDOWS_ID] = &createLogKeyPad();
-	mdiCreateWinPtr[SLAVECOMM_WINDOWS_ID] = &createSlaveComm;
-	mdiCreateWinPtr[PLOT2D_WINDOWS_ID] = &createView2DPlot;
-	mdiCreateWinPtr[CONTROL_WINDOWS_ID] = &createControlControl;
-	mdiCreateWinPtr[INCONTROL_WINDOWS_ID] = &createInControl;
-	mdiCreateWinPtr[USERRW_WINDOWS_ID] = &createUserRW;
-	mdiCreateWinPtr[EVENT_WINDOWS_ID] = &createToolEvent;
-	mdiCreateWinPtr[ANYCOMMAND_WINDOWS_ID] = &createAnyCommand;
-	mdiCreateWinPtr[CONVERTER_WINDOWS_ID] = &createConverter;
-	mdiCreateWinPtr[CALIB_WINDOWS_ID] = &createCalib;
-	mdiCreateWinPtr[COMMTEST_WINDOWS_ID] = &createViewCommTest;
-	mdiCreateWinPtr[EX_VIEW_WINDOWS_ID] = &createViewExecute;
-	mdiCreateWinPtr[MN_VIEW_WINDOWS_ID] = &createViewManage;
-	mdiCreateWinPtr[BATT_WINDOWS_ID] = &createViewBattery;
-	mdiCreateWinPtr[GOSSIP_WINDOWS_ID] = &createViewGossip;
-	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &createViewStrain;
-	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &createViewRicnu;
-	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &createViewTestBench;
-	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &createAnkleTorqueTool;
-	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &createViewRigid;
-	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &createCycleTester;
-	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &createUserTesting;
+	mdiCreateWinPtr[CONFIG_WINDOWS_ID] = &MainWindow::createConfig;
+	//mdiCreateWinPtr[LOGKEYPAD_WINDOWS_ID] = &MainWindow::createLogKeyPad();
+	mdiCreateWinPtr[SLAVECOMM_WINDOWS_ID] = &MainWindow::createSlaveComm;
+	mdiCreateWinPtr[PLOT2D_WINDOWS_ID] = &MainWindow::createView2DPlot;
+	mdiCreateWinPtr[CONTROL_WINDOWS_ID] = &MainWindow::createControlControl;
+	mdiCreateWinPtr[INCONTROL_WINDOWS_ID] = &MainWindow::createInControl;
+	mdiCreateWinPtr[USERRW_WINDOWS_ID] = &MainWindow::createUserRW;
+	mdiCreateWinPtr[EVENT_WINDOWS_ID] = &MainWindow::createToolEvent;
+	mdiCreateWinPtr[ANYCOMMAND_WINDOWS_ID] = &MainWindow::createAnyCommand;
+	mdiCreateWinPtr[CONVERTER_WINDOWS_ID] = &MainWindow::createConverter;
+	mdiCreateWinPtr[CALIB_WINDOWS_ID] = &MainWindow::createCalib;
+	mdiCreateWinPtr[COMMTEST_WINDOWS_ID] = &MainWindow::createViewCommTest;
+	mdiCreateWinPtr[EX_VIEW_WINDOWS_ID] = &MainWindow::createViewExecute;
+	mdiCreateWinPtr[MN_VIEW_WINDOWS_ID] = &MainWindow::createViewManage;
+	mdiCreateWinPtr[BATT_WINDOWS_ID] = &MainWindow::createViewBattery;
+	mdiCreateWinPtr[GOSSIP_WINDOWS_ID] = &MainWindow::createViewGossip;
+	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::createViewStrain;
+	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::createViewRicnu;
+	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &MainWindow::createViewTestBench;
+	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &MainWindow::createAnkleTorqueTool;
+	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;
+	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &MainWindow::createCycleTester;
+	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::createUserTesting;
 }
 
 /*
@@ -405,32 +405,32 @@ void MainWindow::initializeCloseWindowFctPtr(void)
 	//By default, point to empty function:
 	for(int i = 0; i < WINDOWS_TYPES; i++)
 	{
-		mdiCloseWinPtr[i] = &emptyWinFct;
+		mdiCloseWinPtr[i] = &MainWindow::emptyWinFct;
 	}
 
-	mdiCloseWinPtr[CONFIG_WINDOWS_ID] = &closeConfig;
-	//mdiCloseWinPtr[LOGKEYPAD_WINDOWS_ID] = &closeLogKeyPad();
-	mdiCloseWinPtr[SLAVECOMM_WINDOWS_ID] = &closeSlaveComm;
-	mdiCloseWinPtr[PLOT2D_WINDOWS_ID] = &closeView2DPlot;
-	mdiCloseWinPtr[CONTROL_WINDOWS_ID] = &closeControlControl;
-	mdiCloseWinPtr[INCONTROL_WINDOWS_ID] = &closeInControl;
-	mdiCloseWinPtr[USERRW_WINDOWS_ID] = &closeUserRW;
-	mdiCloseWinPtr[EVENT_WINDOWS_ID] = &closeToolEvent;
-	mdiCloseWinPtr[ANYCOMMAND_WINDOWS_ID] = &closeAnyCommand;
-	mdiCloseWinPtr[CONVERTER_WINDOWS_ID] = &closeConverter;
-	mdiCloseWinPtr[CALIB_WINDOWS_ID] = &closeCalib;
-	mdiCloseWinPtr[COMMTEST_WINDOWS_ID] = &closeViewCommTest;
-	mdiCloseWinPtr[EX_VIEW_WINDOWS_ID] = &closeViewExecute;
-	mdiCloseWinPtr[MN_VIEW_WINDOWS_ID] = &closeViewManage;
-	mdiCloseWinPtr[BATT_WINDOWS_ID] = &closeViewBattery;
-	mdiCloseWinPtr[GOSSIP_WINDOWS_ID] = &closeViewGossip;
-	mdiCloseWinPtr[STRAIN_WINDOWS_ID] = &closeViewStrain;
-	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &closeViewRicnu;
-	mdiCloseWinPtr[TESTBENCH_WINDOWS_ID] = &closeViewTestBench;
-	mdiCloseWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &closeAnkleTorqueTool;
-	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &closeViewRigid;
-	mdiCloseWinPtr[CYCLE_TESTER_WINDOWS_ID] = &closeCycleTester;
-	mdiCloseWinPtr[USER_TESTING_WINDOWS_ID] = &closeUserTesting;
+	mdiCloseWinPtr[CONFIG_WINDOWS_ID] = &MainWindow::closeConfig;
+	//mdiCloseWinPtr[LOGKEYPAD_WINDOWS_ID] = &MainWindow::closeLogKeyPad();
+	mdiCloseWinPtr[SLAVECOMM_WINDOWS_ID] = &MainWindow::closeSlaveComm;
+	mdiCloseWinPtr[PLOT2D_WINDOWS_ID] = &MainWindow::closeView2DPlot;
+	mdiCloseWinPtr[CONTROL_WINDOWS_ID] = &MainWindow::closeControlControl;
+	mdiCloseWinPtr[INCONTROL_WINDOWS_ID] = &MainWindow::closeInControl;
+	mdiCloseWinPtr[USERRW_WINDOWS_ID] = &MainWindow::closeUserRW;
+	mdiCloseWinPtr[EVENT_WINDOWS_ID] = &MainWindow::closeToolEvent;
+	mdiCloseWinPtr[ANYCOMMAND_WINDOWS_ID] = &MainWindow::closeAnyCommand;
+	mdiCloseWinPtr[CONVERTER_WINDOWS_ID] = &MainWindow::closeConverter;
+	mdiCloseWinPtr[CALIB_WINDOWS_ID] = &MainWindow::closeCalib;
+	mdiCloseWinPtr[COMMTEST_WINDOWS_ID] = &MainWindow::closeViewCommTest;
+	mdiCloseWinPtr[EX_VIEW_WINDOWS_ID] = &MainWindow::closeViewExecute;
+	mdiCloseWinPtr[MN_VIEW_WINDOWS_ID] = &MainWindow::closeViewManage;
+	mdiCloseWinPtr[BATT_WINDOWS_ID] = &MainWindow::closeViewBattery;
+	mdiCloseWinPtr[GOSSIP_WINDOWS_ID] = &MainWindow::closeViewGossip;
+	mdiCloseWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::closeViewStrain;
+	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::closeViewRicnu;
+	mdiCloseWinPtr[TESTBENCH_WINDOWS_ID] = &MainWindow::closeViewTestBench;
+	mdiCloseWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &MainWindow::closeAnkleTorqueTool;
+	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &MainWindow::closeViewRigid;
+	mdiCloseWinPtr[CYCLE_TESTER_WINDOWS_ID] = &MainWindow::closeCycleTester;
+	mdiCloseWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::closeUserTesting;
 }
 */
 
