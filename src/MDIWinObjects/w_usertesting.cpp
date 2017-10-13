@@ -330,11 +330,9 @@ void W_UserTesting::createNewFile(void)
 	textFile = new QFile(this);
 	textStream = new QTextStream;
 
-	//Create directory if needed
-	if(!QDir().exists(dirName)){QDir().mkdir(dirName);}
-
 	QString path = mwAppPath;
 	QString pathExp = path + '/' +dirName + '/';
+	QDir().mkpath(pathExp);	//Create the directory if it didn't already exist
 	QString filename = pathExp + "Exp_" + getTimestamp() + '_' + userID + ".txt";
 	//Save path for other functions
 	utPath = pathExp;
