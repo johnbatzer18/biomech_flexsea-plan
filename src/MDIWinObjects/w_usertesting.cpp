@@ -56,6 +56,8 @@ W_UserTesting::W_UserTesting(QWidget *parent,
 
 	uiSetup = true;
 
+	ui->tabWidget->setStyleSheet(":disabled {color: black}");
+
 	init_utt();
 
 	initTabs();
@@ -136,6 +138,10 @@ void W_UserTesting::initTabExperiment(void)
 	//Start/Stop:
 	ui->pushButtonExpStart->setEnabled(true);
 	ui->pushButtonExpStop->setEnabled(false);
+	ui->pushButtonExpStart->setStyleSheet("background-color: rgb(0, 255, 0); \
+												color: rgb(0, 0, 0)");
+	ui->pushButtonExpStop->setStyleSheet("background-color: rgb(255, 0, 0); \
+											  color: rgb(0, 0, 0)");
 
 	ongoingExperiment = false;
 
@@ -154,6 +160,7 @@ void W_UserTesting::initTabExperiment(void)
 	qbgDUT->addButton(ui->radioButtonDUT_L);
 	qbgDUT->addButton(ui->radioButtonDUT_R);
 	qbgDUT->addButton(ui->radioButtonDUT_D);
+	ui->radioButtonDUT_D->setChecked(true);
 	connect(qbgDUT, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(dutButton(QAbstractButton*)));
 
 	//Button groups - Data:

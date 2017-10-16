@@ -39,11 +39,14 @@
 #include "mainwindow.h"
 #include <QApplication>
 
-#define USE_DARK_THEME
+#define STYLE_DEFAULT		0
+#define STYLE_DARK			1
 
 //****************************************************************************
 // Main
 //****************************************************************************
+
+void style(uint8_t s);
 
 int main(int argc, char *argv[])
 {
@@ -76,7 +79,24 @@ int main(int argc, char *argv[])
 
 	#else
 
-		#ifdef USE_DARK_THEME
+		//Apply style/theme:
+		style(STYLE_DARK);
+
+		initLocalComm();
+		initializeGlobalStructs();
+
+		QApplication a(argc, argv);
+		MainWindow w;
+		w.show();
+		return a.exec();
+
+	#endif
+}
+
+void style(uint8_t s)
+{
+	if(s == STYLE_DARK)
+	{
 		qApp->setStyle(QStyleFactory::create("Fusion"));
 
 		QPalette darkPalette;
@@ -91,30 +111,21 @@ int main(int argc, char *argv[])
 		darkPalette.setColor(QPalette::ButtonText, Qt::white);
 		darkPalette.setColor(QPalette::BrightText, Qt::red);
 
-		//darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
 		darkPalette.setColor(QPalette::Link, QColor(204, 86, 0));
 
 		//Window selected bar
-		//darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
 		darkPalette.setColor(QPalette::Highlight, QColor(204, 86, 0));
 
 		darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+		darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
+		darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
 
 		//Experimental:
 		//darkPalette.setColor(QPalette::, Qt::red);
+		//darkPalette.setColor(QPalette::Border, Qt::darkRed);
+
 
 		qApp->setPalette(darkPalette);
-
 		qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
-		#endif //USE_DARK_THEME
-
-		initLocalComm();
-		initializeGlobalStructs();
-
-		QApplication a(argc, argv);
-		MainWindow w;
-		w.show();
-		return a.exec();
-
-	#endif
+	}
 }
