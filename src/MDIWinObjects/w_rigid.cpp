@@ -131,6 +131,16 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_mn_stat->setText(QString::number(ri->mn.status));
 	ui->label_mn_stat->setText("Status: ToDo.");
 
+	ui->dispGV0->setText(QString::number(ri->mn.genVar[0]));
+	ui->dispGV1->setText(QString::number(ri->mn.genVar[1]));
+	ui->dispGV2->setText(QString::number(ri->mn.genVar[2]));
+	ui->dispGV3->setText(QString::number(ri->mn.genVar[3]));
+	ui->dispGV4->setText(QString::number(ri->mn.genVar[4]));
+	ui->dispGV5->setText(QString::number(ri->mn.genVar[5]));
+	ui->dispGV6->setText(QString::number(ri->mn.genVar[6]));
+	ui->dispGV7->setText(QString::number(ri->mn.genVar[7]));
+	ui->dispGV8->setText(QString::number(ri->mn.genVar[8]));
+
 	//Raw values - Execute:
 	//=====================
 
