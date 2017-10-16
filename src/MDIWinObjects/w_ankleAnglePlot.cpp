@@ -35,7 +35,7 @@
 QT_CHARTS_USE_NAMESPACE
 
 //Enable this to test without a valid ankle angle sensor
-//#define USE_FAKE_DATA
+#define USE_FAKE_DATA
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -154,6 +154,11 @@ void W_AnkleAnglePlot::receiveNewData(void)
 
 	displayOrNot();
 	chartView->addDataPoints(pts);
+
+	//Debugging:
+	QString dbg = "Freq: " + QString::number(streamingFreq) + " Rollover: " + \
+			QString::number(rollover) + " Index: " + QString::number(idx);
+	ui->labelDebug->setText(dbg);
 }
 
 //Suppress values that we do not want to display:
@@ -170,11 +175,11 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 {
 	struct rigid_s *ri = &rigid1;
 
-	if(ui->comboBoxLeg->currentIndex() == 1){ri = &rigid2;}
+	//if(ui->comboBoxLeg->currentIndex() == 1){ri = &rigid2;}	//ToDo
 
 	pts[0] = QPointF(idx, *ri->ex.joint_ang);
-	pts[1] = QPointF(idx, ri->ctrl.gaitState);
-	pts[2] = QPointF(idx, ri->ctrl.walkingState);
+	pts[1] = QPointF(idx, 100*ri->ctrl.gaitState);
+	pts[2] = QPointF(idx, 100*ri->ctrl.walkingState);
 	pts[3] = QPointF(idx, ri->mn.genVar[7]);
 	pts[4] = QPointF(idx, ri->mn.genVar[8]);
 }
