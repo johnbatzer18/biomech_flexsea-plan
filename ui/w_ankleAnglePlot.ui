@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>139</height>
+    <width>763</width>
+    <height>162</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -48,9 +48,6 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="3">
-      <widget class="QComboBox" name="comboBoxLeg"/>
-     </item>
      <item row="1" column="2">
       <widget class="QLineEdit" name="lineEditYMax">
        <property name="sizePolicy">
@@ -139,19 +136,6 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>200</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item row="2" column="2">
       <widget class="QPushButton" name="pushButtonOneCycle">
        <property name="text">
@@ -165,6 +149,54 @@
         <string>Disable fading</string>
        </property>
       </widget>
+     </item>
+     <item row="2" column="3">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>200</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="4" rowspan="4">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="checkBoxWS">
+         <property name="text">
+          <string>Walking State</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="checkBoxP">
+         <property name="text">
+          <string>Power</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="checkBoxGS">
+         <property name="text">
+          <string>Gait State</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="checkBoxCLHS">
+         <property name="text">
+          <string>Contralateral Heel Strike</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QComboBox" name="comboBoxLeg"/>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

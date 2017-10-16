@@ -52,7 +52,7 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-#define A2PLOT_VAR_NUM						3
+#define A2PLOT_VAR_NUM						5
 
 class AnkleAngleChartView : public QChartView
 {
@@ -95,15 +95,17 @@ public:
 
 		painter->setBrush(Qt::NoBrush);
 		QPen myPen[A2PLOT_VAR_NUM];
-		myPen[0].setColor(QColor(0, 255, 64));	//bright green
+		myPen[0].setColor(QColor(0, 255, 64));	//green
 		myPen[0].setWidth(2);
 		painter->setPen(myPen[0]);
-		myPen[1].setColor(QColor(255, 0, 0));	//bright red
+		myPen[1].setColor(QColor(255, 0, 0));	//red
 		myPen[1].setWidth(2);
-		//painter->setPen(myPen[0]);
-		myPen[2].setColor(QColor(0, 0, 255));	//bright blue
+		myPen[2].setColor(QColor(0, 0, 255));	//blue
 		myPen[2].setWidth(2);
-		//painter->setPen(myPen[0]);
+		myPen[3].setColor(QColor(255, 128, 0));	//orange
+		myPen[3].setWidth(2);
+		myPen[4].setColor(QColor(255, 255, 0));	//yellow
+		myPen[4].setWidth(2);
 
 		//draw data points
 		int numLines = dataPoints[0].size()-1;
@@ -143,6 +145,7 @@ public:
 		while(dataPoints[0].size() > 0 && dataPoints[0].size() > (int)x)
 			dataPoints[0].removeFirst();
 	}
+	/*
 	void addDataPoint(QPointF p)
 	{
 		while(dataPoints[0].size() > 0 && dataPoints[0].size() >= (int)maxDataPoints)
@@ -160,6 +163,7 @@ public:
 			dataPoints[y].push_back(QPointF(angle, torque));
 		}
 	}
+	*/
 
 	void addDataPoints(QPointF p[A2PLOT_VAR_NUM])
 	{
@@ -239,6 +243,8 @@ private:
 	QChart *chart;
 	AnkleAngleChartView *chartView;
 	QLineSeries* lineSeries[A2PLOT_VAR_NUM];
+	QPointF pts[A2PLOT_VAR_NUM];
+	QCheckBox **cbVar[A2PLOT_VAR_NUM];
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
@@ -253,6 +259,9 @@ private:
 
 	void setAxesLimits();
 	StreamManager* streamManager = nullptr;
+	void displayOrNot(void);
+	void mapSensorsToPoints(int idx);
+	void fakeDataToPoints(int idx);
 };
 
 #endif // W_ANKLE_ANGLE_PLOT_H

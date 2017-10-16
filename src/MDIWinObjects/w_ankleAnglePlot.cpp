@@ -35,7 +35,7 @@
 QT_CHARTS_USE_NAMESPACE
 
 //Enable this to test without a valid ankle angle sensor
-#define USE_FAKE_DATA
+//#define USE_FAKE_DATA
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -106,6 +106,17 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 
 	ui->checkBoxDisableFading->setChecked(false);
 	emit on_checkBoxDisableFading_toggled(false);
+
+	//Enable/disable variables:
+	ui->checkBoxGS->setChecked(false);
+	ui->checkBoxWS->setChecked(false);
+	ui->checkBoxP->setChecked(false);
+	ui->checkBoxCLHS->setChecked(false);
+	//Array of cBoxes:
+	cbVar[1] = &ui->checkBoxGS;
+	cbVar[2] = &ui->checkBoxWS;
+	cbVar[3] = &ui->checkBoxP;
+	cbVar[4] = &ui->checkBoxCLHS;
 }
 
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
@@ -120,13 +131,7 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 
 void W_AnkleAnglePlot::receiveNewData(void)
 {
-	#ifdef USE_FAKE_DATA
-	static int trig[2] = {0,0};
-	int lim = 0;
-	#endif
-
 	static uint16_t idx = 0, lastGstate = 0;
-	QPointF pts[3];
 
 	chartView->isActive = true;
 	chartView->update();
@@ -136,20 +141,51 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	if(streamingFreq <= 0){streamingFreq = 1;}
 	idx += (rollover / streamingFreq);
 	idx %= rollover;
+
+	//Fixed trigger: gaitState
 	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1){idx = 0;}
 	lastGstate = rigid1.ctrl.gaitState;
 
 	#ifndef USE_FAKE_DATA
-	if(ui->comboBoxLeg->currentIndex() == 0)
-	{
-		chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
-	}
-	else
-	{
-		//ToDo use different value
-		chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
-	}
+	mapSensorsToPoints(idx);
 	#else
+	fakeDataToPoints(idx);
+	#endif
+
+	displayOrNot();
+	chartView->addDataPoints(pts);
+}
+
+//Suppress values that we do not want to display:
+void W_AnkleAnglePlot::displayOrNot(void)
+{
+	for(int i = 1; i < A2PLOT_VAR_NUM; i++)
+	{
+		if((*cbVar[i])->isChecked() == false){pts[i] = QPointF(0,0);}
+	}
+}
+
+//This links rigid1 (or other) values to points
+void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
+{
+	struct rigid_s *ri = &rigid1;
+
+	if(ui->comboBoxLeg->currentIndex() == 1){ri = &rigid2;}
+
+	pts[0] = QPointF(idx, *ri->ex.joint_ang);
+	pts[1] = QPointF(idx, ri->ctrl.gaitState);
+	pts[2] = QPointF(idx, ri->ctrl.walkingState);
+	pts[3] = QPointF(idx, ri->mn.genVar[7]);
+	pts[4] = QPointF(idx, ri->mn.genVar[8]);
+}
+
+//This generates fake data and maps it to points
+void W_AnkleAnglePlot::fakeDataToPoints(int idx)
+{
+	static int trig[2] = {0,0};
+	int lim = 0;
+	int p = 0;
+	static bool k = false;
 
 	if(ui->comboBoxLeg->currentIndex() == 0){lim = 200;}
 	else{lim = 500;}
@@ -159,12 +195,17 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	if(idx > rollover/2) {trig[1] = 110;}
 	else{trig[1] = 0;}
 
+	if(idx < rollover/2){p = idx;}
+	else{p = 0;}
+	p = p/33;
+	p = pow(p, 2);
+
 	pts[0] = QPointF(idx, idx);
 	pts[1] = QPointF(idx, trig[0]);
 	pts[2] = QPointF(idx, trig[1]);
-	chartView->addDataPoints(pts);
-
-	#endif
+	pts[3] = QPointF(idx, p);
+	if(!k){pts[4] = QPointF(idx, 50); k = true;}
+	else{pts[4] = QPointF(idx, 0); k = false;}
 }
 
 void W_AnkleAnglePlot::streamingFrequency(int f)
