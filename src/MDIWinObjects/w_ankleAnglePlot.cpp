@@ -103,6 +103,9 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	ui->comboBoxLeg->addItem("Right Leg");
 	ui->comboBoxLeg	->addItem("Left Leg");
 	ui->comboBoxLeg->setCurrentIndex(0);
+
+	ui->checkBoxDisableFading->setChecked(false);
+	emit on_checkBoxDisableFading_toggled(false);
 }
 
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
@@ -117,6 +120,11 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 
 void W_AnkleAnglePlot::receiveNewData(void)
 {
+	#ifdef USE_FAKE_DATA
+	static int trig[2] = {0,0};
+	int lim = 0;
+	#endif
+
 	static uint16_t idx = 0, lastGstate = 0;
 	QPointF pts[3];
 
@@ -142,18 +150,20 @@ void W_AnkleAnglePlot::receiveNewData(void)
 		chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
 	}
 	#else
-	if(ui->comboBoxLeg->currentIndex() == 0)
-	{
-		//chartView->addDataPoint(idx, idx);
-		pts[0] = QPointF(idx, idx);
-		pts[1] = QPointF(idx, 0.8*idx);
-		pts[2] = QPointF(idx, 1.2*idx);
-		chartView->addDataPoints(pts);
-	}
-	else
-	{
-		//chartView->addDataPoint(idx, idx/2);
-	}
+
+	if(ui->comboBoxLeg->currentIndex() == 0){lim = 200;}
+	else{lim = 500;}
+
+	if(idx > lim && idx < lim+100){trig[0] = 100;}
+	else{trig[0] = 0;}
+	if(idx > rollover/2) {trig[1] = 110;}
+	else{trig[1] = 0;}
+
+	pts[0] = QPointF(idx, idx);
+	pts[1] = QPointF(idx, trig[0]);
+	pts[2] = QPointF(idx, trig[1]);
+	chartView->addDataPoints(pts);
+
 	#endif
 }
 
@@ -207,4 +217,18 @@ void W_AnkleAnglePlot::on_lineEditPersistentPoints_returnPressed() {
 	}
 	chart->update();
 	chartView->update();
+}
+
+void W_AnkleAnglePlot::on_pushButtonOneCycle_clicked()
+{
+	int pts = 10*rollover / streamingFreq;
+	QString str = QString::number(pts);
+	ui->lineEditPersistentPoints->setText(str);
+	emit on_lineEditPersistentPoints_returnPressed();
+}
+
+void W_AnkleAnglePlot::on_checkBoxDisableFading_toggled(bool checked)
+{
+	fadePoints = !checked;
+	chartView->fadePoints = fadePoints;
 }

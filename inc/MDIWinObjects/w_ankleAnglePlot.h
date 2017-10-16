@@ -79,6 +79,7 @@ public:
 	QLineSeries* lineSeries[A2PLOT_VAR_NUM];
 	bool forceRecomputeDrawnPoints = false;
 	int xMin, xMax, yMin, yMax;
+	bool fadePoints = true;
 
 	virtual void drawForeground(QPainter* painter, const QRectF &rect)
 	{
@@ -111,7 +112,9 @@ public:
 			painter->setPen(myPen[y]);
 			for(int i = 1; i < numLines; i++)
 			{
-				painter->setOpacity((i) / (float)numLines);
+				if(fadePoints == true){painter->setOpacity((i) / (float)numLines);}
+				else{painter->setOpacity(1.0);}
+
 				if(dataPoints[y].at(i).toPoint().x() > (dataPoints[y].at(i+1).toPoint().x()))
 				{
 					//qDebug() << "End of line.";
@@ -225,6 +228,11 @@ signals:
 	void windowClosed(void);
 	void getCurrentDevice(FlexseaDevice** device);
 
+private slots:
+	void on_pushButtonOneCycle_clicked();
+
+	void on_checkBoxDisableFading_toggled(bool checked);
+
 private:
 
 	Ui::W_AnkleAnglePlot *ui;
@@ -238,6 +246,7 @@ private:
 	bool isComPortOpen = true;
 	int streamingFreq = 1;
 	int rollover = 1;
+	bool fadePoints = true;
 
 	//Scaling:
 	int32_t scaling[2];
