@@ -34,6 +34,9 @@
 
 QT_CHARTS_USE_NAMESPACE
 
+//Enable this to test without a valid ankle angle sensor
+#define USE_FAKE_DATA
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -88,6 +91,11 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	int numPoints = chartView->getMaxDataPoints();
 	ui->lineEditPersistentPoints->clear();
 	ui->lineEditPersistentPoints->setText(QString::number(numPoints));
+
+	//ComboBox leg:
+	ui->comboBoxLeg->addItem("Right Leg");
+	ui->comboBoxLeg	->addItem("Left Leg");
+	ui->comboBoxLeg->setCurrentIndex(0);
 }
 
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
@@ -114,12 +122,31 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	idx %= rollover;
 	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1){idx = 0;}
 	lastGstate = rigid1.ctrl.gaitState;
-	chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
+
+	#ifndef USE_FAKE_DATA
+	if(ui->comboBoxLeg->currentIndex() == 0)
+	{
+		chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
+	}
+	else
+	{
+		//ToDo use different value
+		chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
+	}
+	#else
+	if(ui->comboBoxLeg->currentIndex() == 0)
+	{
+		chartView->addDataPoint(idx, idx);
+	}
+	else
+	{
+		chartView->addDataPoint(idx, idx/2);
+	}
+	#endif
 }
 
 void W_AnkleAnglePlot::streamingFrequency(int f)
 {
-	//qDebug() << "AnkleAnglePlot streaming f:" << f;
 	streamingFreq = f;
 }
 
