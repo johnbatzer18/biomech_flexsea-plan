@@ -104,6 +104,7 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
+	QString txt = "gaitState = " + QString::number(rigid1.ctrl.gaitState) + " (last was " + QString::number(lastGstate) + ")";
 
 	chartView->isActive = true;
 	chartView->update();
@@ -114,9 +115,13 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1)
 	{
 		idx = 0;
+		txt = "Triggered!";
 	}
 	lastGstate = rigid1.ctrl.gaitState;
 	chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
+
+
+	ui->label_dbg->setText(txt);
 }
 
 void W_AnkleAnglePlot::setAxesLimits()
