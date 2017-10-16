@@ -68,6 +68,7 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 		streamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 		clockTimer->start();
+		emit streamingFrequency(freq);
 	}
 	else
 	{

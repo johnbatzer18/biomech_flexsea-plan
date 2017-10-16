@@ -179,13 +179,13 @@ public:
 public slots:
 
 	void receiveNewData(void);
+	void streamingFrequency(int f);
 	void resizeEvent(QResizeEvent *event)
 	{
 		if(chartView) chartView->forceRecomputeDrawnPoints = true;
 		QWidget::resizeEvent(event);
 	}
 
-	void on_lineEditXMin_returnPressed();
 	void on_lineEditXMax_returnPressed();
 	void on_lineEditYMin_returnPressed();
 	void on_lineEditYMax_returnPressed();
@@ -206,6 +206,8 @@ private:
 	bool pointsVisible;
 
 	bool isComPortOpen = true;
+	int streamingFreq = 1;
+	int rollover = 1;
 
 	//Scaling:
 	int32_t scaling[2];

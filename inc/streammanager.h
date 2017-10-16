@@ -36,6 +36,7 @@ signals:
 	void sentRead(int cmd, int slave);
 	void openRecordingFile(FlexseaDevice* device);
 	void closeRecordingFile(FlexseaDevice* device);
+	void streamingFrequency(int f);
 
 public slots:
 	void receiveClock();

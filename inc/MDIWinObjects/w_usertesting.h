@@ -124,6 +124,7 @@ private:
 	bool ongoingSession, ongoingExperiment;
 	QFile *textFile;
 	QTextStream *textStream;
+	bool tfOpen = false;
 	QString utPath;
 	QButtonGroup *qbgActivity, *qbgDUT, *qbgData;
 	double currentSpeed, currentIncline;

@@ -124,7 +124,6 @@ void style(uint8_t s)
 		//darkPalette.setColor(QPalette::, Qt::red);
 		//darkPalette.setColor(QPalette::Border, Qt::darkRed);
 
-
 		qApp->setPalette(darkPalette);
 		qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
 	}

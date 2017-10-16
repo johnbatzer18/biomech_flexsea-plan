@@ -427,7 +427,7 @@ QString W_UserTesting::getTimestamp(void)
 //Write 'txt' To File. Timestamp added automatically.
 void W_UserTesting::wtf(QString txt)
 {
-	if(!uiSetup){*textStream << getTimestamp() << " " << txt << endl;}
+	if(!uiSetup && tfOpen){*textStream << getTimestamp() << " " << txt << endl;}
 }
 
 void W_UserTesting::writeSubjectInfo(void)
@@ -478,6 +478,7 @@ void W_UserTesting::startOfSession()
 	createNewFile();
 	latchSubjectInfo();
 	writeSubjectInfo();
+	tfOpen = true;	//Allows wtf() to write data
 }
 
 //End of a session
@@ -491,6 +492,7 @@ void W_UserTesting::endOfSession()
 
 	writeNotes();
 	closeTextFile();
+	tfOpen = false;	//Prevents wtf() to write data
 }
 
 void W_UserTesting::writeUTT(void)

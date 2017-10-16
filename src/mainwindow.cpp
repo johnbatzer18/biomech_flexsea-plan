@@ -593,8 +593,6 @@ void MainWindow::createAnkleAnglePlot(void)
 	{
 		connect(w,									&W_AnkleAnglePlot::getCurrentDevice,
 				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getCurrentDevice);
-/*		connect(w,									&W_AnkleAnglePlot::getSlaveId,
-				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getSlaveId);*/
 	}
 	else
 	{
@@ -605,8 +603,7 @@ void MainWindow::createAnkleAnglePlot(void)
 	}
 
 	connect(mySerialDriver, &SerialDriver::newDataReady, w, &W_AnkleAnglePlot::receiveNewData);
-	//connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleAnglePlot::comStatusChanged);
-	//connect(w, &W_AnkleAnglePlot::writeCommand, this, &MainWindow::connectorWriteCommand);
+	connect(streamManager, &StreamManager::streamingFrequency, w, &W_AnkleAnglePlot::streamingFrequency);
 
 	//Link to MainWindow for the close signal:
 	connect(myAnkleAnglePlot[count], SIGNAL(windowClosed()), \

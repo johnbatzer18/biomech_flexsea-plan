@@ -76,15 +76,14 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 
 	const QValidator *validatorX = new QDoubleValidator(-2000, 2000, 2, this);
 	const QValidator *validatorY = new QDoubleValidator(-9000, 9000, 2, this);
-	ui->lineEditXMin->setValidator(validatorX);
 	ui->lineEditXMax->setValidator(validatorX);
 	ui->lineEditYMin->setValidator(validatorY);
 	ui->lineEditYMax->setValidator(validatorY);
 
-	ui->lineEditXMin->setText(QString::number(chartView->xMin));
 	ui->lineEditXMax->setText(QString::number(chartView->xMax));
 	ui->lineEditYMin->setText(QString::number(chartView->yMin));
 	ui->lineEditYMax->setText(QString::number(chartView->yMax));
+	rollover = chartView->xMax;
 
 	int numPoints = chartView->getMaxDataPoints();
 	ui->lineEditPersistentPoints->clear();
@@ -104,29 +103,29 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
-	QString txt = "gaitState = " + QString::number(rigid1.ctrl.gaitState) + " (last was " + QString::number(lastGstate) + ")";
 
 	chartView->isActive = true;
 	chartView->update();
 	chart->update();
 
-	idx += 10;
-	idx %= 1500;	//ToDo should change with axis axis
-	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1)
-	{
-		idx = 0;
-		txt = "Triggered!";
-	}
+	if(rollover <= 0){rollover = 1;}
+	if(streamingFreq <= 0){streamingFreq = 1;}
+	idx += (rollover / streamingFreq);
+	idx %= rollover;
+	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1){idx = 0;}
 	lastGstate = rigid1.ctrl.gaitState;
 	chartView->addDataPoint(idx, *rigid1.ex.joint_ang);
+}
 
-
-	ui->label_dbg->setText(txt);
+void W_AnkleAnglePlot::streamingFrequency(int f)
+{
+	//qDebug() << "AnkleAnglePlot streaming f:" << f;
+	streamingFreq = f;
 }
 
 void W_AnkleAnglePlot::setAxesLimits()
 {
-	QString xMinText = ui->lineEditXMin->text();
+	QString xMinText = "0";
 	QString xMaxText = ui->lineEditXMax->text();
 	QString yMinText = ui->lineEditYMin->text();
 	QString yMaxText = ui->lineEditYMax->text();
@@ -140,6 +139,7 @@ void W_AnkleAnglePlot::setAxesLimits()
 
 	if(success)
 	{
+		rollover = xmax;
 		chartView->setAxisLimits(xmin, xmax, ymin, ymax);
 		chartView->forceRecomputeDrawnPoints = true;
 		chartView->update();
@@ -147,7 +147,6 @@ void W_AnkleAnglePlot::setAxesLimits()
 	}
 }
 
-void W_AnkleAnglePlot::on_lineEditXMin_returnPressed() {setAxesLimits();}
 void W_AnkleAnglePlot::on_lineEditXMax_returnPressed() {setAxesLimits();}
 void W_AnkleAnglePlot::on_lineEditYMin_returnPressed() {setAxesLimits();}
 void W_AnkleAnglePlot::on_lineEditYMax_returnPressed() {setAxesLimits();}
