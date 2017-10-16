@@ -52,6 +52,8 @@
 
 QT_CHARTS_USE_NAMESPACE
 
+#define A2PLOT_VAR_NUM						3
+
 class AnkleAngleChartView : public QChartView
 {
 		Q_OBJECT
@@ -74,7 +76,7 @@ public:
 	virtual ~AnkleAngleChartView(){}
 
 	bool isActive = true;
-	QLineSeries* lineSeries;
+	QLineSeries* lineSeries[A2PLOT_VAR_NUM];
 	bool forceRecomputeDrawnPoints = false;
 	int xMin, xMax, yMin, yMax;
 
@@ -91,25 +93,38 @@ public:
 		QChartView::drawForeground(painter, rect);
 
 		painter->setBrush(Qt::NoBrush);
-		QPen myPen;
-		myPen.setColor(QColor(0, 255, 64));
-		myPen.setWidth(2);
-		painter->setPen(myPen);	//bright green
+		QPen myPen[A2PLOT_VAR_NUM];
+		myPen[0].setColor(QColor(0, 255, 64));	//bright green
+		myPen[0].setWidth(2);
+		painter->setPen(myPen[0]);
+		myPen[1].setColor(QColor(255, 0, 0));	//bright red
+		myPen[1].setWidth(2);
+		//painter->setPen(myPen[0]);
+		myPen[2].setColor(QColor(0, 0, 255));	//bright blue
+		myPen[2].setWidth(2);
+		//painter->setPen(myPen[0]);
 
 		//draw data points
-		int numLines = dataPoints.size()-1;
-		for(int i = 1; i < numLines; i++)
+		int numLines = dataPoints[0].size()-1;
+		for(int y = 0; y < A2PLOT_VAR_NUM; y++)
 		{
-			painter->setOpacity((i) / (float)numLines);
-			if(dataPoints.at(i).toPoint().x() > (dataPoints.at(i+1).toPoint().x()))
+			painter->setPen(myPen[y]);
+			for(int i = 1; i < numLines; i++)
 			{
-				//qDebug() << "End of line.";
-				painter->setOpacity(0);
-				painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
-			}
-			else
-			{
-				painter->drawLine(chart()->mapToPosition(dataPoints.at(i)), chart()->mapToPosition(dataPoints.at(i+1)));
+				painter->setOpacity((i) / (float)numLines);
+				if(dataPoints[y].at(i).toPoint().x() > (dataPoints[y].at(i+1).toPoint().x()))
+				{
+					//qDebug() << "End of line.";
+					painter->setOpacity(0);
+					painter->drawLine(chart()->mapToPosition(dataPoints[y].at(i)), chart()->mapToPosition(dataPoints[y].at(i+1)));
+				}
+				else
+				{
+					painter->drawLine(chart()->mapToPosition(dataPoints[y].at(i)), chart()->mapToPosition(dataPoints[y].at(i+1)));
+
+					//Test - todo Remove:
+					//painter->drawLine(chart()->mapToPosition(QPointF(0,0)), chart()->mapToPosition(QPointF(500,100)));
+				}
 			}
 		}
 		painter->setOpacity(1);
@@ -122,22 +137,36 @@ public:
 	void setMaxDataPoints(uint16_t x)
 	{
 		maxDataPoints = x;
-		while(dataPoints.size() > 0 && dataPoints.size() > (int)x)
-			dataPoints.removeFirst();
+		while(dataPoints[0].size() > 0 && dataPoints[0].size() > (int)x)
+			dataPoints[0].removeFirst();
 	}
 	void addDataPoint(QPointF p)
 	{
-		while(dataPoints.size() > 0 && dataPoints.size() >= (int)maxDataPoints)
-			dataPoints.removeFirst();
+		while(dataPoints[0].size() > 0 && dataPoints[0].size() >= (int)maxDataPoints)
+			dataPoints[0].removeFirst();
 
-		dataPoints.push_back(p);
+		dataPoints[0].push_back(p);
 	}
 	void addDataPoint(float angle, float torque)
 	{
-		while(dataPoints.size() > 0 && dataPoints.size() >= (int)maxDataPoints)
-			dataPoints.removeFirst();
+		for(int y = 0; y < A2PLOT_VAR_NUM; y++)
+		{
+			while(dataPoints[y].size() > 0 && dataPoints[y].size() >= (int)maxDataPoints)
+				dataPoints[y].removeFirst();
 
-		dataPoints.push_back(QPointF(angle, torque));
+			dataPoints[y].push_back(QPointF(angle, torque));
+		}
+	}
+
+	void addDataPoints(QPointF p[A2PLOT_VAR_NUM])
+	{
+		for(int y = 0; y < A2PLOT_VAR_NUM; y++)
+		{
+			while(dataPoints[y].size() > 0 && dataPoints[y].size() >= (int)maxDataPoints)
+				dataPoints[y].removeFirst();
+
+			dataPoints[y].push_back(p[y]);
+		}
 	}
 
 	void setAxisLimits(float xMin, float xMax, float yMin, float yMax)
@@ -151,7 +180,7 @@ public:
 		chart()->axisY()->setRange(yMin, yMax);
 	}
 
-	void clearOverlay() { dataPoints.clear(); chart()->update(); this->update(); }
+	void clearOverlay() { dataPoints[0].clear(); chart()->update(); this->update(); }
 
 signals:
 	void pointsChanged();
@@ -159,7 +188,7 @@ signals:
 private:
 	bool firstDraw = true;
 	unsigned int maxDataPoints = 20;
-	QVector<QPointF> dataPoints;
+	QVector<QPointF> dataPoints[A2PLOT_VAR_NUM];
 
 };
 
@@ -201,6 +230,7 @@ private:
 	Ui::W_AnkleAnglePlot *ui;
 	QChart *chart;
 	AnkleAngleChartView *chartView;
+	QLineSeries* lineSeries[A2PLOT_VAR_NUM];
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;

@@ -54,9 +54,13 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	chart = new QChart();
 	chart->legend()->hide();
 
-	QLineSeries* lineSeries = new QLineSeries();
-	lineSeries->append(0, 0);
-	chart->addSeries(lineSeries);
+	for(int i = 0; i < A2PLOT_VAR_NUM; i++)
+	{
+		lineSeries[i] = new QLineSeries();
+		lineSeries[i]->append(0, 0);
+		chart->addSeries(lineSeries[i]);
+	}
+
 	chart->createDefaultAxes();
 
 	//Colors:
@@ -65,7 +69,10 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	//Chart view:
 	chartView = new AnkleAngleChartView(chart);
 	chartView->isActive = false;
-	chartView->lineSeries = lineSeries;
+	for(int i = 0; i < A2PLOT_VAR_NUM; i++)
+	{
+		chartView->lineSeries[0] = lineSeries[0];
+	}
 	chartView->setMaxDataPoints(500);
 
 	ui->gridLayout_test->addWidget(chartView, 0,0);
@@ -111,6 +118,7 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
+	QPointF pts[3];
 
 	chartView->isActive = true;
 	chartView->update();
@@ -136,11 +144,15 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	#else
 	if(ui->comboBoxLeg->currentIndex() == 0)
 	{
-		chartView->addDataPoint(idx, idx);
+		//chartView->addDataPoint(idx, idx);
+		pts[0] = QPointF(idx, idx);
+		pts[1] = QPointF(idx, 0.8*idx);
+		pts[2] = QPointF(idx, 1.2*idx);
+		chartView->addDataPoints(pts);
 	}
 	else
 	{
-		chartView->addDataPoint(idx, idx/2);
+		//chartView->addDataPoint(idx, idx/2);
 	}
 	#endif
 }
