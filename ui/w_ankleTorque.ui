@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>799</width>
-    <height>311</height>
+    <width>600</width>
+    <height>120</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -48,72 +48,37 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>xMax</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
+     <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>xMin</string>
+        <string>Min/max angle:</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>yMax</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>yMin</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
+     <item row="0" column="2">
       <widget class="QLineEdit" name="lineEditXMax"/>
      </item>
-     <item row="2" column="3">
-      <widget class="QLineEdit" name="lineEditYMax"/>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditXMin"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEditYMin"/>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_5">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string># persistent points</string>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
+        <string>Min/max torque:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="lineEditPersistentPoints"/>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEditXMin"/>
      </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <spacer name="horizontalSpacer">
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEditYMin"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLineEdit" name="lineEditYMax"/>
+     </item>
+     <item row="0" column="4">
+      <widget class="QComboBox" name="comboBoxLeg"/>
+     </item>
+     <item row="0" column="3">
+      <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -125,17 +90,40 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="streamButton">
-       <property name="text">
-        <string>Start Streaming Overlay</string>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEditPersistentPoints">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="textToggleButton">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Toggle Text</string>
+        <string>Persistent points:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QCheckBox" name="checkBoxLabels">
+       <property name="text">
+        <string>Labels</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QCheckBox" name="checkBoxOverlay">
+       <property name="text">
+        <string>Overlay</string>
        </property>
       </widget>
      </item>

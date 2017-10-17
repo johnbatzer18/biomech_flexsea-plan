@@ -116,6 +116,19 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	ui->lineEditXMax->setText(QString::number(chartView->xMax));
 	ui->lineEditYMin->setText(QString::number(chartView->yMin));
 	ui->lineEditYMax->setText(QString::number(chartView->yMax));
+
+	ui->checkBoxOverlay->setChecked(false);
+	ui->checkBoxOverlay->setEnabled(false);
+
+	ui->checkBoxLabels->setChecked(true);
+	chartView->drawText = true;
+
+	ui->lineEditPersistentPoints->setEnabled(false);
+
+	//ComboBox leg:
+	ui->comboBoxLeg->addItem("Right Leg");
+	ui->comboBoxLeg	->addItem("Left Leg");
+	ui->comboBoxLeg->setCurrentIndex(0);
 }
 
 void W_AnkleTorque::comStatusChanged(bool open)
@@ -243,6 +256,7 @@ void W_AnkleTorque::on_lineEditPersistentPoints_returnPressed() {
 	chartView->update();
 }
 
+/*
 void W_AnkleTorque::on_streamButton_pressed()
 {
 	static bool isStreaming = false;
@@ -273,10 +287,11 @@ void W_AnkleTorque::on_streamButton_pressed()
 	ui->streamButton->setText(btnText);
 	isStreaming = !isStreaming;
 }
+*/
 
-void W_AnkleTorque::on_textToggleButton_pressed()
+void W_AnkleTorque::on_checkBoxLabels_toggled(bool checked)
 {
-	chartView->drawText = !(chartView->drawText);
+	chartView->drawText = checked;
 	chartView->update();
 	chart->update();
 }

@@ -117,7 +117,6 @@ public:
 		painter->setOpacity(1);
 
 		//draw bounds
-		//painter->setPen(QPen(QColor(155, 35, 35)));		//dark red
 		painter->setPen(QPen(QColor(204, 86, 0)));			//Same orange as dark theme
 		painter->drawRect(QRectF(
 							  chart()->mapToPosition(QPointF(xMin, yMin)),
@@ -133,13 +132,15 @@ public:
 		{
 			//line to the next point
 			if(i + 1 < ATCV_NUMPOINTS)
+			{
 				painter->drawLine(drawnPoints[i], drawnPoints[i+1]);
+			}
 
 			//text labeling the index
 			textPoint = drawnPoints[i];
 			textPoint.setY(textPoint.y() - radius - 2);
 
-			path.addText(textPoint, font, QString::number(i+1));
+			path.addText(textPoint, font, QString::number(i));
 
 			//text labeling the position
 			textPoint.setY(textPoint.y() + 14 + 2 * radius);
@@ -360,8 +361,6 @@ public slots:
 	void on_lineEditYMin_returnPressed();
 	void on_lineEditYMax_returnPressed();
 	void on_lineEditPersistentPoints_returnPressed();
-	void on_streamButton_pressed();
-	void on_textToggleButton_pressed();
 
 signals:
 
@@ -369,6 +368,9 @@ signals:
 	void getSlaveId(int* slaveId);
 	void getCurrentDevice(FlexseaDevice** device);
 	void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
+
+private slots:
+	void on_checkBoxLabels_toggled(bool checked);
 
 private:
 
