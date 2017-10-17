@@ -103,6 +103,7 @@ void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool should
 		autoStreamLists[indexOfFreq].push_back(record);
 		qDebug() << "Started streaming cmd: " << cmd << ", for slave id: " << slave << "at frequency: " << freq;
 		qDebug() << "Covering indexes" << firstIndex << "to" << lastIndex << ".";
+		emit streamingFrequency(freq);
 	}
 	else
 	{

@@ -605,6 +605,9 @@ void MainWindow::createAnkleAnglePlot(void)
 	connect(mySerialDriver, &SerialDriver::newDataReady, w, &W_AnkleAnglePlot::receiveNewData);
 	connect(streamManager, &StreamManager::streamingFrequency, w, &W_AnkleAnglePlot::streamingFrequency);
 
+	connect(this, SIGNAL(connectorRefreshLogTimeSlider(int, FlexseaDevice *)), \
+			myAnkleAnglePlot[count], SLOT(refreshDisplayLog(int, FlexseaDevice *)));
+
 	//Link to MainWindow for the close signal:
 	connect(myAnkleAnglePlot[count], SIGNAL(windowClosed()), \
 			this, SLOT(closeAnkleAnglePlot()));

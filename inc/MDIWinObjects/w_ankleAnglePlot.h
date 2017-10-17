@@ -215,6 +215,7 @@ public:
 public slots:
 
 	void receiveNewData(void);
+	void refreshDisplayLog(int index, FlexseaDevice * devPtr);
 	void streamingFrequency(int f);
 	void resizeEvent(QResizeEvent *event)
 	{

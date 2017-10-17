@@ -35,7 +35,7 @@
 QT_CHARTS_USE_NAMESPACE
 
 //Enable this to test without a valid ankle angle sensor
-#define USE_FAKE_DATA
+//#define USE_FAKE_DATA
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -132,6 +132,7 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
+	int gain = ui->spinBoxOffs->value();
 
 	chartView->isActive = true;
 	chartView->update();
@@ -139,8 +140,8 @@ void W_AnkleAnglePlot::receiveNewData(void)
 
 	if(rollover <= 0){rollover = 1;}
 	if(streamingFreq <= 0){streamingFreq = 1;}
-	idx += (rollover / streamingFreq);
-	idx %= rollover;
+	idx += (rollover / (streamingFreq*gain));
+	idx %= rollover * gain;
 
 	//Fixed trigger: gaitState
 	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1){idx = 0;}
@@ -159,6 +160,21 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	QString dbg = "Freq: " + QString::number(streamingFreq) + " Rollover: " + \
 			QString::number(rollover) + " Index: " + QString::number(idx);
 	ui->labelDebug->setText(dbg);
+}
+
+void W_AnkleAnglePlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
+{
+	//Work in Progress - doesn't work yet
+	//qDebug() << "A2Plot refreshDisplayLog()";
+	/*
+	(void)devPtr;
+	logIndex = index;
+
+	saveNewPointsLog(index);
+	refresh2DPlot();
+	*/
+
+	receiveNewData();
 }
 
 //Suppress values that we do not want to display:
