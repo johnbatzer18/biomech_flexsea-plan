@@ -29,7 +29,7 @@
 
 RigidDevice::RigidDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Rigid!";
 	}
@@ -41,7 +41,7 @@ RigidDevice::RigidDevice(void): FlexseaDevice()
 
 RigidDevice::RigidDevice(rigid_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Rigid!";
 	}
@@ -101,11 +101,6 @@ RigidDevice::~RigidDevice()
 // Public function(s):
 //****************************************************************************
 
-QString RigidDevice::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 QStringList RigidDevice::header = QStringList()
 	<< "Timestamp"
 	<< "Timestamp (ms)"
@@ -150,7 +145,7 @@ QStringList RigidDevice::header = QStringList()
 	<< "genVar[8]"
 	<< "genVar[9]";
 
-QStringList RigidDevice::headerDecoded = QStringList()
+QStringList RigidDevice::headerUnitList = QStringList()
 	<< "Raw Value Only"
 	<< "Raw Value Only"
 	<< "Raw Value Only"
@@ -196,7 +191,7 @@ QStringList RigidDevice::headerDecoded = QStringList()
 	<< "Raw value only"
 	<< "Raw value only";
 
-QString RigidDevice::getLastSerializedStr(void)
+QString RigidDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) << \

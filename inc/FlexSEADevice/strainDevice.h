@@ -59,14 +59,14 @@ namespace Ui
 class StrainDevice : public FlexseaDevice
 {
 public:
+	// Constructor & Destructor
 	explicit StrainDevice(void);
 	explicit StrainDevice(strain_s *devicePtr);
 
 	// Interface implementation
-	QString getHeaderStr(void);
-	QStringList getHeaderList(void) {return header;}
-	QStringList getHeaderDecList(void) {return headerDecoded;}
-	QString getLastSerializedStr(void);
+	QStringList getHeader(void) {return header;}
+	QStringList getHeaderUnit(void) {return headerUnitList;}
+	QString getLastDataEntry(void);
 	struct std_variable getSerializedVar(int parameter);
 	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
@@ -75,15 +75,18 @@ public:
 	int length(void) {return stList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getStatusStr(int index);
 
-	QList<struct strain_s*> stList;
+	// Class Function
+	QString getStatusStr(int index);
 	static void decode(struct strain_s *stPtr);
 	static void decompressRawBytes(struct strain_s *stPtr);
 
+	// Class Variable
+	QList<struct strain_s*> stList;
+
 private:
 	static QStringList header;
-	static QStringList headerDecoded;
+	static QStringList headerUnitList;
 };
 
 

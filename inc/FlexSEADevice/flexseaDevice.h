@@ -77,13 +77,26 @@ struct TimeStamp
 class FlexseaDevice
 {
 public:
+	// Constructor & Destructor
 	explicit FlexseaDevice();
 	virtual ~FlexseaDevice(){}
 
-	virtual QString getHeaderStr(void) = 0;
-	virtual QStringList getHeaderList(void) = 0;
-	virtual QStringList getHeaderDecList(void) = 0;
-	virtual QString getLastSerializedStr(void) = 0;
+	/*!
+		Return the header of the raw data structure
+		\return A QstringList containing the headers of the raw data structure
+	*/
+	virtual QStringList getHeader(void) = 0;
+	/*!
+		Return the decoded mesure unit of the data structure
+		\return A QstringList containing the decoded mesure unit of the data
+		structure
+	*/
+	virtual QStringList getHeaderUnit(void) = 0;
+	/*!
+		Return the most recent raw data entry line.
+		\return A QString containing last raw data entry line.
+	*/
+	virtual QString getLastDataEntry(void) = 0;
 	virtual struct std_variable getSerializedVar(int parameter, int index) = 0;
 	virtual struct std_variable getSerializedVar(int parameter) { return getSerializedVar(parameter, 0); }
 	virtual void appendSerializedStr(QStringList *splitLine) = 0;

@@ -72,15 +72,15 @@ struct testBench_s_plan
 class TestBenchProject : public FlexseaDevice
 {
 public:
+	// Constructor & Destructor
 	explicit TestBenchProject(void);
 	explicit TestBenchProject(execute_s *ex1Ptr, execute_s *ex2Ptr,
 							  motortb_s *motbPtr, battery_s *baPtr);
 
 	// Interface implementation
-	QString getHeaderStr(void);
-	QStringList getHeaderList(void) {return header;}
-	QStringList getHeaderDecList(void) {return headerDecoded;}
-	QString getLastSerializedStr(void);
+	QStringList getHeader(void) {return header;}
+	QStringList getHeaderUnit(void) {return headerUnitList;}
+	QString getLastDataEntry(void);
 	struct std_variable getSerializedVar(int parameter);
 	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
@@ -89,16 +89,18 @@ public:
 	int length(void) {return tbList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getStatusStr(int index);
 
+	// Class Function
+	QString getStatusStr(int index);
+	static void decode(struct testBench_s_plan *tbPtr);
 	void appendEmptyLineWithStruct(void);
 
+	// Class Variable
 	QList<struct testBench_s_plan*> tbList;
-	static void decode(struct testBench_s_plan *tbPtr);
 
 private:
 	static QStringList header;
-	static QStringList headerDecoded;
+	static QStringList headerUnitList;
 };
 
 

@@ -43,7 +43,7 @@
 
 ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Execute!";
 	}
@@ -55,7 +55,7 @@ ExecuteDevice::ExecuteDevice(void): FlexseaDevice()
 
 ExecuteDevice::ExecuteDevice(execute_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Execute!";
 	}
@@ -101,11 +101,6 @@ ExecuteDevice::~ExecuteDevice()
 // Public function(s):
 //****************************************************************************
 
-QString ExecuteDevice::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 QStringList ExecuteDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -135,7 +130,7 @@ QStringList ExecuteDevice::header = QStringList()
 								<< "Status2"
 								<< "Sine Commut PWM";
 
-QStringList ExecuteDevice::headerDecoded = QStringList()
+QStringList ExecuteDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Raw Value Only"
@@ -165,7 +160,7 @@ QStringList ExecuteDevice::headerDecoded = QStringList()
 								<< "Raw value only"
 								<< "Raw value only";
 
-QString ExecuteDevice::getLastSerializedStr(void)
+QString ExecuteDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \

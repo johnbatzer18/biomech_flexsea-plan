@@ -43,7 +43,7 @@
 
 Ankle2DofProject::Ankle2DofProject(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header lenght Ankle2DOF!";
 	}
@@ -55,7 +55,7 @@ Ankle2DofProject::Ankle2DofProject(void): FlexseaDevice()
 
 Ankle2DofProject::Ankle2DofProject(execute_s *ex1Ptr, execute_s *ex2Ptr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Ankle2DOF!";
 	}
@@ -109,11 +109,6 @@ Ankle2DofProject::~Ankle2DofProject()
 // Public function(s):
 //****************************************************************************
 
-QString Ankle2DofProject::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 QStringList Ankle2DofProject::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -154,7 +149,7 @@ QStringList Ankle2DofProject::header = QStringList()
 								<< "ex2 Status1"
 								<< "ex2 Status2";
 
-QStringList Ankle2DofProject::headerDecoded = QStringList()
+QStringList Ankle2DofProject::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 
@@ -194,7 +189,7 @@ QStringList Ankle2DofProject::headerDecoded = QStringList()
 								<< "Raw value only"
 								<< "Raw value only";
 
-QString Ankle2DofProject::getLastSerializedStr(void)
+QString Ankle2DofProject::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \

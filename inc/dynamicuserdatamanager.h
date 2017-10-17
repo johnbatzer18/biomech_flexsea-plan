@@ -13,10 +13,9 @@ public:
 	explicit DynamicDevice();
 	virtual ~DynamicDevice(){}
 
-	QString getHeaderStr(void);
-	QStringList getHeaderList(void);
-	QStringList getHeaderDecList(void);
-	QString getLastSerializedStr(void);
+	QStringList getHeader(void);
+	QStringList getHeaderUnit(void);
+	QString getLastDataEntry(void);
 	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastLine(void);

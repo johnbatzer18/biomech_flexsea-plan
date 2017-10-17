@@ -1149,8 +1149,8 @@ void W_2DPlot::updateVarList(uint8_t item)
 	(*cbVar[item])->clear();
 	(*cbVar[item])->setToolTipDuration(350);
 
-	QStringList headerList(selectedDevList[item]->getHeaderList());
-	QStringList headerDecList(selectedDevList[item]->getHeaderDecList());
+	QStringList headerList(selectedDevList[item]->getHeader());
+	QStringList headerDecList(selectedDevList[item]->getHeaderUnit());
 
 	(*cbVar[item])->addItem("**Unused**");
 	(*cbVar[item])->setItemData(0, "Unused", Qt::ToolTipRole);

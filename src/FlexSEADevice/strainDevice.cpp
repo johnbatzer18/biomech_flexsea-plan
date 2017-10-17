@@ -42,7 +42,7 @@
 
 StrainDevice::StrainDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header lenght Strain!";
 	}
@@ -54,7 +54,7 @@ StrainDevice::StrainDevice(void): FlexseaDevice()
 
 StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header lenght Strain!";
 	}
@@ -70,11 +70,6 @@ StrainDevice::StrainDevice(strain_s *devicePtr): FlexseaDevice()
 // Public function(s):
 //****************************************************************************
 
-QString StrainDevice::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 QStringList StrainDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -86,7 +81,7 @@ QStringList StrainDevice::header = QStringList()
 								<< "Strain ch[5]"
 								<< "Strain ch[6]";
 
-QStringList StrainDevice::headerDecoded = QStringList()
+QStringList StrainDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 
@@ -97,7 +92,7 @@ QStringList StrainDevice::headerDecoded = QStringList()
 								<< "Decoded: ±100%"
 								<< "Decoded: ±100%";
 
-QString StrainDevice::getLastSerializedStr(void)
+QString StrainDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date					<< ',' << \

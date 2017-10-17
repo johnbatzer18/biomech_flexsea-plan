@@ -88,15 +88,15 @@ namespace Ui
 class ExecuteDevice : public FlexseaDevice
 {
 public:
+	// Constructor & Destructor
 	explicit ExecuteDevice(void);
 	explicit ExecuteDevice(execute_s *devicePtr);
 	virtual ~ExecuteDevice();
 
 	// Interface implementation
-	QString getHeaderStr(void);
-	QStringList getHeaderList(void) {return header;}
-	QStringList getHeaderDecList(void) {return headerDecoded;}
-	QString getLastSerializedStr(void);
+	QStringList getHeader(void) {return header;}
+	QStringList getHeaderUnit(void) {return headerUnitList;}
+	QString getLastDataEntry(void);
 	struct std_variable getSerializedVar(int parameter);
 	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
@@ -105,17 +105,19 @@ public:
 	int length(void) {return exList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
-	static QString getStatusStr(struct execute_s *ex);
 
+	// Class Function
+	static QString getStatusStr(struct execute_s *ex);
+	static void decode(struct execute_s *exPtr);
+
+	// Class Variable
 	QList<struct execute_s*> exList;
 	QList<bool> ownershipList;
 	//QList<int> eventFlags;
 
-	static void decode(struct execute_s *exPtr);
-
 private:
 	static QStringList header;
-	static QStringList headerDecoded;
+	static QStringList headerUnitList;
 };
 
 
