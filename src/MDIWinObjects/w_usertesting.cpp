@@ -167,6 +167,7 @@ void W_UserTesting::initTabExperiment(void)
 	qbgData = new QButtonGroup(this);
 	qbgData->addButton(ui->radioButtonDataF);
 	qbgData->addButton(ui->radioButtonDataA);
+	ui->radioButtonDataA->setChecked(true);
 	connect(qbgData, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(dataButton(QAbstractButton*)));
 }
 

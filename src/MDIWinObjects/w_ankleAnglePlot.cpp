@@ -148,7 +148,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	if(streamingFreq <= 0){streamingFreq = 1;}
 
 	//Protection against changing rollover that could lock it up:
-	if(lastRollover != rollover){idx = 0; qDebug() << "Roll protect";}
+	if(lastRollover != rollover){idx = 0;}
 	lastRollover = rollover;
 
 	step = rollover / (seconds * streamingFreq);
@@ -157,7 +157,6 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	{
 		idx = 0;
 		rollCnt = TRIG_DISP_LATCH;
-		qDebug() << "Rollover";
 	}
 
 	if(ui->checkBoxFake->isChecked() == false)
@@ -196,7 +195,6 @@ void W_AnkleAnglePlot::receiveNewData(void)
 		ui->label_Trigger->setText("Trig! " + QString::number(triggerPoint));
 		ui->label_Trigger->setStyleSheet("background-color: rgb(0, 255, 0); \
 									   color: rgb(0, 0, 0)");
-		qDebug() << "Trig cnt = " + QString::number(trigCnt);
 	}
 	else
 	{
@@ -225,7 +223,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	QString dbg = "Freq: " + QString::number(streamingFreq) + ", Rollover: " + \
 			QString::number(rollover) + ", Index: " + QString::number(idx) + \
 			", Step: " + QString::number(step);
-	qDebug() << dbg;
+	//qDebug() << dbg;
 	ui->labelDebug->setText(dbg);
 }
 
@@ -241,6 +239,8 @@ void W_AnkleAnglePlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
 	refresh2DPlot();
 	*/
 
+	(void)index;
+	(void)devPtr;
 	receiveNewData();
 }
 
