@@ -48,6 +48,13 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="3" column="1">
+      <widget class="QCheckBox" name="checkBoxFake">
+       <property name="text">
+        <string>Fake Data</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="2">
       <widget class="QLineEdit" name="lineEditYMax">
        <property name="sizePolicy">
@@ -71,6 +78,36 @@
        </property>
        <property name="wordWrap">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Min/max angle:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEditXMax">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Max stride length (ms):</string>
        </property>
       </widget>
      </item>
@@ -103,36 +140,6 @@
          <width>75</width>
          <height>0</height>
         </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditXMax">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>75</width>
-         <height>0</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Max stride length (ms):</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Min/max angle:</string>
        </property>
       </widget>
      </item>
@@ -171,13 +178,6 @@
        </item>
       </layout>
      </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="pushButtonOneCycle">
-       <property name="text">
-        <string>1 cycle</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="3">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
@@ -191,6 +191,13 @@
        </property>
       </spacer>
      </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="pushButtonOneCycle">
+       <property name="text">
+        <string>1 cycle</string>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="0">
       <widget class="QCheckBox" name="checkBoxDisableFading">
        <property name="text">
@@ -198,27 +205,42 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Offsets:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QSpinBox" name="spinBoxOffs">
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>10</number>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="5">
+     <item row="5" column="0" colspan="5">
       <widget class="QLabel" name="labelDebug">
        <property name="text">
         <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="label_Rollover">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_Trigger">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>

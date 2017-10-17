@@ -34,9 +34,6 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-//Enable this to test without a valid ankle angle sensor
-//#define USE_FAKE_DATA
-
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -84,7 +81,7 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
 
-	const QValidator *validatorX = new QDoubleValidator(-2000, 2000, 2, this);
+	const QValidator *validatorX = new QDoubleValidator(-2000, 3000, 2, this);
 	const QValidator *validatorY = new QDoubleValidator(-9000, 9000, 2, this);
 	ui->lineEditXMax->setValidator(validatorX);
 	ui->lineEditYMin->setValidator(validatorY);
@@ -129,36 +126,106 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 // Public slot(s):
 //****************************************************************************
 
+//#define TRIG_ZERO	50
+#define TRIG_DISP_LATCH	25
+
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
-	int gain = ui->spinBoxOffs->value();
+	uint16_t newGstate = 0;
+	uint16_t step = 0;
+	static int lastRollover = 0, triggerPoint = 0, trigCnt = 0, rollCnt = 0;
+	int seconds = rollover / 1000;
+	if(seconds <= 0){seconds = 1;}
+	//ToDo: this could be done with floats
 
 	chartView->isActive = true;
 	chartView->update();
 	chart->update();
 
+	//Protection against 0 div:
 	if(rollover <= 0){rollover = 1;}
 	if(streamingFreq <= 0){streamingFreq = 1;}
-	idx += (rollover / (streamingFreq*gain));
-	idx %= rollover * gain;
 
-	//Fixed trigger: gaitState
-	if(lastGstate == 0 && rigid1.ctrl.gaitState == 1){idx = 0;}
-	lastGstate = rigid1.ctrl.gaitState;
+	//Protection against changing rollover that could lock it up:
+	if(lastRollover != rollover){idx = 0; qDebug() << "Roll protect";}
+	lastRollover = rollover;
 
-	#ifndef USE_FAKE_DATA
-	mapSensorsToPoints(idx);
-	#else
-	fakeDataToPoints(idx);
-	#endif
+	step = rollover / (seconds * streamingFreq);
+	idx += step;
+	if(idx > rollover)
+	{
+		idx = 0;
+		rollCnt = TRIG_DISP_LATCH;
+		qDebug() << "Rollover";
+	}
+
+	if(ui->checkBoxFake->isChecked() == false)
+	{
+		//Normal operation - real data:
+		//Fixed trigger: gaitState
+		newGstate = rigid1.ctrl.gaitState;
+		if(lastGstate == 0 &&  newGstate == 1)
+		{
+			//Triggered
+			triggerPoint = idx;
+			trigCnt = TRIG_DISP_LATCH;
+			idx = 0;
+			qDebug() << "trigger latched";
+		}
+		lastGstate = newGstate;
+		mapSensorsToPoints(idx);
+	}
+	else
+	{
+		//Fake data - test, demo & dev:
+		if(lastGstate == 0 && pts[1].y())
+		{
+			triggerPoint = idx;
+			trigCnt = TRIG_DISP_LATCH;
+			idx = 0;
+		}
+		lastGstate = pts[1].y() ;
+		fakeDataToPoints(idx);
+	}
+
+	//Display trigger events:
+	if(trigCnt > 0)
+	{
+		trigCnt--;
+		ui->label_Trigger->setText("Trig! " + QString::number(triggerPoint));
+		ui->label_Trigger->setStyleSheet("background-color: rgb(0, 255, 0); \
+									   color: rgb(0, 0, 0)");
+		qDebug() << "Trig cnt = " + QString::number(trigCnt);
+	}
+	else
+	{
+		ui->label_Trigger->setText("");
+		ui->label_Trigger->setStyleSheet("");
+	}
+
+	//Display rollover events:
+	if(rollCnt > 0)
+	{
+		rollCnt--;
+		ui->label_Rollover->setText("Rollover!");
+		ui->label_Rollover->setStyleSheet("background-color: rgb(255, 0, 0); \
+									   color: rgb(0, 0, 0)");
+	}
+	else
+	{
+		ui->label_Rollover->setText("");
+		ui->label_Rollover->setStyleSheet("");
+	}
 
 	displayOrNot();
 	chartView->addDataPoints(pts);
 
 	//Debugging:
-	QString dbg = "Freq: " + QString::number(streamingFreq) + " Rollover: " + \
-			QString::number(rollover) + " Index: " + QString::number(idx);
+	QString dbg = "Freq: " + QString::number(streamingFreq) + ", Rollover: " + \
+			QString::number(rollover) + ", Index: " + QString::number(idx) + \
+			", Step: " + QString::number(step);
+	qDebug() << dbg;
 	ui->labelDebug->setText(dbg);
 }
 
@@ -208,8 +275,8 @@ void W_AnkleAnglePlot::fakeDataToPoints(int idx)
 	int p = 0;
 	static bool k = false;
 
-	if(ui->comboBoxLeg->currentIndex() == 0){lim = 200;}
-	else{lim = 500;}
+	if(ui->comboBoxLeg->currentIndex() == 0){lim = 1000;}
+	else{lim = 1500;}
 
 	if(idx > lim && idx < lim+100){trig[0] = 100;}
 	else{trig[0] = 0;}
