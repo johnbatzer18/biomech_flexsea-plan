@@ -540,6 +540,7 @@ void MainWindow::createAnkleTorqueTool(void)
 	W_AnkleTorque* w = new W_AnkleTorque(this, streamManager);
 	myAnkleTorque[count] = w;
 
+	/*
 	int slaveCommCount = W_SlaveComm::howManyInstance();
 	if(slaveCommCount)
 	{
@@ -555,10 +556,11 @@ void MainWindow::createAnkleTorqueTool(void)
 		myAnkleTorque[count] = nullptr;
 		return;
 	}
+	*/
 
 	connect(mySerialDriver, &SerialDriver::newDataReady, w, &W_AnkleTorque::receiveNewData);
-	connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleTorque::comStatusChanged);
-	connect(w, &W_AnkleTorque::writeCommand, this, &MainWindow::connectorWriteCommand);
+	//connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleTorque::comStatusChanged);
+	//connect(w, &W_AnkleTorque::writeCommand, this, &MainWindow::connectorWriteCommand);
 
 	//Link to MainWindow for the close signal:
 	connect(myAnkleTorque[count], SIGNAL(windowClosed()), \
@@ -1609,10 +1611,13 @@ void MainWindow::createUserTesting(void)
 				myUserTesting[objectCount] , SLOT(logFileName(QString, QString)));
 
 		//If there is no Event Flag window we create one:
-		if(W_Event::howManyInstance() == 0)
-		{
-			createToolEvent();
-		}
+		if(W_Event::howManyInstance() == 0){createToolEvent();}
+		//Same for Ankle Torque Tool:
+		//If there is no Event Flag window we create one:
+		if(W_AnkleTorque::howManyInstance() == 0){createAnkleTorqueTool();}
+
+		//UserTesting & Ankle Torque Tool:
+		connect(myUserTesting[0], &W_UserTesting::torquePointsChanged, myAnkleTorque[0], &W_AnkleTorque::torquePointsChanged);
 
 		//Link to Event to add flags to the log. Not that clean, but it gets the job done...:
 		connect(myUserTesting[objectCount], SIGNAL(userFlags(int)), \

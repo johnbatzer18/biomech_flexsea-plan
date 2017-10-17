@@ -67,9 +67,6 @@ public:
 		yMin = 0;
 		yMax = 60;
 
-//		int xAxisExtent5Percent = (5 * (xMax - xMin) + 50) / 100;
-//		int yAxisExtent5Percent = (5 * (yMax - yMin) + 50) / 100;
-
 		parent->axisX()->setRange(xMin - 5, xMax + 5);
 		parent->axisY()->setRange(yMin - 5, yMax + 5);
 		QColor darkGray(100, 100, 100);
@@ -348,8 +345,10 @@ public slots:
 
 	void receiveNewData(void);
 	void handlePointChange();
-	void comStatusChanged(bool open);
-	void requestProfileRead();
+	//void comStatusChanged(bool open);
+	//void requestProfileRead();
+	void torquePointsChanged(void);
+
 	void resizeEvent(QResizeEvent *event)
 	{
 		if(chartView) chartView->forceRecomputeDrawnPoints = true;
@@ -365,9 +364,9 @@ public slots:
 signals:
 
 	void windowClosed(void);
-	void getSlaveId(int* slaveId);
-	void getCurrentDevice(FlexseaDevice** device);
-	void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
+	//void getSlaveId(int* slaveId);
+	//void getCurrentDevice(FlexseaDevice** device);
+	//void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
 
 private slots:
 	void on_checkBoxLabels_toggled(bool checked);

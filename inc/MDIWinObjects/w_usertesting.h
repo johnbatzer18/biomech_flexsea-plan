@@ -54,6 +54,7 @@ signals:
 	void stopExperiment(void);
 	void userFlags(int index);
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void torquePointsChanged(void);
 
 private slots:
 	void on_pushButtonSigClear_clicked();
@@ -89,27 +90,16 @@ private slots:
 	void on_pushButtonPowerOffR_clicked();
 	void on_pushButtonPowerOnR_clicked();
 	void on_pushButtonExpSession_clicked();
-
 	void on_checkBoxIndependant_stateChanged(int arg1);
-
 	void on_comboBoxTweaksControllerL_currentIndexChanged(int index);
-
 	void on_comboBoxTweaksControllerOptionsL_currentIndexChanged(int index);
-
 	void on_dialAmplitudeL_valueChanged(int value);
-
 	void on_spinBoxTweaksAmpL_valueChanged(int arg1);
-
 	void on_dialTimingL_valueChanged(int value);
-
 	void on_spinBoxTweaksTimL_valueChanged(int arg1);
-
 	void on_pushButtonPowerOnL_clicked();
-
 	void on_pushButtonPowerOffL_clicked();
-
 	void on_pushButtonRtoL_clicked();
-
 	void on_pushButtonLtoR_clicked();
 
 private:

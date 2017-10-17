@@ -82,10 +82,7 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	chartView->isActive = false;
 	chartView->lineSeries = lineSeries;
 	chartView->setMaxDataPoints(150);
-	for(int i = 0; i < ATCV_NUMPOINTS; i++)
-	{
-		chartView->setPoint(i, 0.0f, 0.0f);
-	}
+	for(int i = 0; i < ATCV_NUMPOINTS; i++){chartView->setPoint(i, 0.0f, 0.0f);}
 
 	connect(chartView,	&AnkleTorqueChartView::pointsChanged,
 				this,	&W_AnkleTorque::handlePointChange);
@@ -99,12 +96,14 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
 
+	/*
 	timer = new QTimer();
 	timer->setInterval(50);
 	timer->setSingleShot(false);
 	connect(timer, &QTimer::timeout, this, &W_AnkleTorque::requestProfileRead);
 	timer->start();
 	requestProfileRead();
+	*/
 
 	const QValidator *validator = new QDoubleValidator(-1000, 1000, 2, this);
 	ui->lineEditXMin->setValidator(validator);
@@ -131,15 +130,18 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	ui->comboBoxLeg->setCurrentIndex(0);
 }
 
+/*
 void W_AnkleTorque::comStatusChanged(bool open)
 {
 	isComPortOpen = open;
 	if(open)
 		requestProfileRead();
 }
+*/
 
-void W_AnkleTorque::requestProfileRead()
-{
+//void W_AnkleTorque::requestProfileRead()
+//{
+	/*
 	int slaveId = -1;
 	emit getSlaveId(&slaveId);
 	if(slaveId < 0 || !isComPortOpen) return;
@@ -150,7 +152,8 @@ void W_AnkleTorque::requestProfileRead()
 	tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 1);
 	pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, READ);
-}
+	*/
+//}
 
 W_AnkleTorque::~W_AnkleTorque()
 {
@@ -171,18 +174,18 @@ void W_AnkleTorque::handlePointChange()
 	}
 
 	int slaveId = -1;
-	emit getSlaveId(&slaveId);
+	//emit getSlaveId(&slaveId);
 	if(slaveId < 0) return;
 
-	uint8_t info = PORT_USB;
-	uint16_t numb = 0;
+	//uint8_t info = PORT_USB;
+	//uint16_t numb = 0;
 
 	chartView->isActive = false;
 	timer->start();
 
-	tx_cmd_ankleTorqueProfile_rw(TX_N_DEFAULT);
-	pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	//tx_cmd_ankleTorqueProfile_rw(TX_N_DEFAULT);
+	//pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
+	//emit writeCommand(numb, comm_str_usb, WRITE);
 }
 
 //****************************************************************************
@@ -205,6 +208,24 @@ void W_AnkleTorque::receiveNewData(void)
 		atProfile_newDataFlag = 0;
 		chartView->addDataPoint(angleBuf[indexOfLastBuffered] / 10.0f, torqueBuf[indexOfLastBuffered] / 10.0f);
 	}
+	chartView->update();
+	chart->update();
+}
+
+void W_AnkleTorque::torquePointsChanged(void)
+{
+	qDebug() << "UserTesting has new points for AnkleTorqueTool...";
+
+	for(int i = 0; i < ATCV_NUMPOINTS; i++)
+	{
+		atProfile_angles[i] = utt.leg[0].torquePoints[i][0];	//ToDo left vs right for all of these
+		atProfile_torques[i] = utt.leg[0].torquePoints[i][1];
+		qDebug() << "Point = " + QString::number(utt.leg[0].torquePoints[i][0]) + "," + QString::number(utt.leg[0].torquePoints[i][1]);
+
+		chartView->setPoint(i, atProfile_angles[i] , atProfile_torques[i] );
+	}
+
+	chartView->isActive = true;
 	chartView->update();
 	chart->update();
 }

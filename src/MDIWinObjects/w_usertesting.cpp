@@ -563,6 +563,13 @@ void W_UserTesting::dispTimerTick(void)
 			qDebug() << "Refreshing display based on read data.";
 			setTweaksUI(UTT_RIGHT);
 			setTweaksUI(UTT_LEFT);
+			//Send points to Ankle Torque Tool
+			//ToDo remove - faking points as a 1st test:
+			utt.leg[0].torquePoints[0][0] = -20;
+			utt.leg[0].torquePoints[0][1] = 10;
+			utt.leg[0].torquePoints[1][0] = -10;
+			utt.leg[0].torquePoints[1][1] = 20;
+			emit torquePointsChanged();
 		}
 	}
 
