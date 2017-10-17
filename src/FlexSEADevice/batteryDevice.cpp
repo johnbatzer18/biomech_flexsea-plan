@@ -42,7 +42,7 @@
 
 BatteryDevice::BatteryDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Battery!";
 	}
@@ -54,7 +54,7 @@ BatteryDevice::BatteryDevice(void): FlexseaDevice()
 
 BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Battery!";
 	}
@@ -70,11 +70,6 @@ BatteryDevice::BatteryDevice(battery_s *devicePtr): FlexseaDevice()
 // Public function(s):
 //****************************************************************************
 
-QString BatteryDevice::getHeaderStr(void)
-{
-		return header.join(',');
-}
-
 QStringList BatteryDevice::header =	QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -87,7 +82,7 @@ QStringList BatteryDevice::header =	QStringList()
 								<< "Pushbutton"
 								<< "Status";
 
-QStringList BatteryDevice::headerDecoded = QStringList()
+QStringList BatteryDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Decoded: mV"
@@ -98,7 +93,7 @@ QStringList BatteryDevice::headerDecoded = QStringList()
 								<< "Raw Values Only"
 								<< "Raw Values Only";
 
-QString BatteryDevice::getLastSerializedStr(void)
+QString BatteryDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \

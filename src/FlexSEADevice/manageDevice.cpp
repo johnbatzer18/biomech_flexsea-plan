@@ -42,7 +42,7 @@
 
 ManageDevice::ManageDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Manage!";
 	}
@@ -54,7 +54,7 @@ ManageDevice::ManageDevice(void): FlexseaDevice()
 
 ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Manage!";
 	}
@@ -71,10 +71,6 @@ ManageDevice::ManageDevice(manage_s *devicePtr): FlexseaDevice()
 // Public function(s):
 //****************************************************************************
 
-QString ManageDevice::getHeaderStr(void)
-{
-	return header.join(',');
-}
 QStringList ManageDevice::header = QStringList()
 								<< "Timestamp"
 								<< "Timestamp (ms)"
@@ -97,7 +93,7 @@ QStringList ManageDevice::header = QStringList()
 								<< "Analog[7]"
 								<< "Status";
 
-QStringList ManageDevice::headerDecoded = QStringList()
+QStringList ManageDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Raw Value Only"
@@ -119,7 +115,7 @@ QStringList ManageDevice::headerDecoded = QStringList()
 								<< "Decoded: mV"
 								<< "Raw Value Only";
 
-QString ManageDevice::getLastSerializedStr(void)
+QString ManageDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \
@@ -148,7 +144,7 @@ QString ManageDevice::getLastSerializedStr(void)
 void ManageDevice::appendSerializedStr(QStringList *splitLine)
 {
 	uint8_t idx = 0;
-	
+
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{

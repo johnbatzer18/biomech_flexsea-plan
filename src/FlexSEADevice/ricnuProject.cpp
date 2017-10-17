@@ -46,7 +46,7 @@
 
 RicnuProject::RicnuProject(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Ricnu!";
 	}
@@ -58,7 +58,7 @@ RicnuProject::RicnuProject(void): FlexseaDevice()
 
 RicnuProject::RicnuProject(execute_s *exPtr, strain_s *stPtr, battery_s *baPtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Ricnu!";
 	}
@@ -103,11 +103,6 @@ RicnuProject::~RicnuProject()
 // Public function(s):
 //****************************************************************************
 
-QString RicnuProject::getHeaderStr(void)
-{
-	return header.join(',');
-}
-
 //ToDo Add Battery board to this list
 QStringList RicnuProject::header = QStringList()
 								<< "Timestamp"
@@ -131,7 +126,7 @@ QStringList RicnuProject::header = QStringList()
 								<< "PWM";
 
 //ToDo Add Battery board to this list
-QStringList RicnuProject::headerDecoded = QStringList()
+QStringList RicnuProject::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 
@@ -153,7 +148,7 @@ QStringList RicnuProject::headerDecoded = QStringList()
 								<< "PWM, -1024 to 1024";
 
 //ToDo Add Battery board to this list
-QString RicnuProject::getLastSerializedStr(void)
+QString RicnuProject::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date						<< ',' << \

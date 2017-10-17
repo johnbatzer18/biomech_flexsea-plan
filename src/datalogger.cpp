@@ -329,7 +329,7 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr)
 		{
 			//Header:
 			logFileStream << devicePtr->getIdentifierStr() << endl;
-			logFileStream << devicePtr->getHeaderStr() << endl;
+			logFileStream << devicePtr->getHeader().join(',') << endl;
 		}
 
 		// If the stream write has failed, reset the flag. (This can happen when
@@ -343,7 +343,7 @@ void DataLogger::writeToFile(FlexseaDevice *devicePtr)
 		}
 
 		//And we add to the text file:
-		logFileStream << devicePtr->getLastSerializedStr() << endl;
+		logFileStream << devicePtr->getLastDataEntry() << endl;
 		(*numLinesWritten)++;
 
 	}

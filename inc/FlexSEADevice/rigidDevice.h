@@ -44,15 +44,15 @@ namespace Ui
 class RigidDevice : public FlexseaDevice
 {
 public:
+	// Constructor & Destructor
 	explicit RigidDevice(void);
 	explicit RigidDevice(rigid_s *devicePtr);
 	virtual ~RigidDevice();
 
 	// Interface implementation
-	QString getHeaderStr(void);
-	QStringList getHeaderList(void) {return header;}
-	QStringList getHeaderDecList(void) {return headerDecoded;}
-	QString getLastSerializedStr(void);
+	QStringList getHeader(void) {return header;}
+	QStringList getHeaderUnit(void) {return headerUnitList;}
+	QString getLastDataEntry(void);
 	struct std_variable getSerializedVar(int parameter);
 	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
@@ -61,15 +61,18 @@ public:
 	int length(void) {return riList.length();}
 	void clear(void);
 	void appendEmptyLine(void);
-	QString getStatusStr(int index);
 
+	// Class Function
+	QString getStatusStr(int index);
+	static void decode(struct rigid_s *riPtr);
+
+	// Class Variable
 	QList<struct rigid_s *> riList;
 	QList<bool> ownershipList;
-	static void decode(struct rigid_s *riPtr);
 
 private:
 	static QStringList header;
-	static QStringList headerDecoded;
+	static QStringList headerUnitList;
 	int32_t enc_ang, enc_vel;
 	int16_t joint_ang, joint_ang_vel, joint_ang_from_mot;
 };

@@ -42,7 +42,7 @@
 
 GossipDevice::GossipDevice(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Gossip!";
 	}
@@ -54,7 +54,7 @@ GossipDevice::GossipDevice(void): FlexseaDevice()
 
 GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header length Gossip!";
 	}
@@ -70,11 +70,6 @@ GossipDevice::GossipDevice(gossip_s *devicePtr): FlexseaDevice()
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
-
-QString GossipDevice::getHeaderStr(void)
-{
-	return header.join(',');
-}
 
 QStringList GossipDevice::header = QStringList()
 								<< "Timestamp"
@@ -97,7 +92,7 @@ QStringList GossipDevice::header = QStringList()
 								<< "CapSense[4]"
 								<< "Status";
 
-QStringList GossipDevice::headerDecoded = QStringList()
+QStringList GossipDevice::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 								<< "Raw Value Only"
@@ -118,7 +113,7 @@ QStringList GossipDevice::headerDecoded = QStringList()
 								<< "Raw value only"
 								<< "Raw value only";
 
-QString GossipDevice::getLastSerializedStr(void)
+QString GossipDevice::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date		<< ',' << \

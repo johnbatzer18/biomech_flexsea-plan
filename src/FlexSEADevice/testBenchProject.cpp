@@ -44,7 +44,7 @@
 
 TestBenchProject::TestBenchProject(void): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header lenght TestBench!";
 	}
@@ -57,7 +57,7 @@ TestBenchProject::TestBenchProject(void): FlexseaDevice()
 TestBenchProject::TestBenchProject(execute_s *ex1Ptr, execute_s *ex2Ptr,
 								   motortb_s *motbPtr, battery_s *baPtr): FlexseaDevice()
 {
-	if(header.length() != headerDecoded.length())
+	if(header.length() != headerUnitList.length())
 	{
 		qDebug() << "Mismatch between header lenght TestBench!";
 	}
@@ -77,11 +77,6 @@ TestBenchProject::TestBenchProject(execute_s *ex1Ptr, execute_s *ex2Ptr,
 //****************************************************************************
 // Public function(s):
 //****************************************************************************
-
-QString TestBenchProject::getHeaderStr(void)
-{
-	return header.join(',');
-}
 
 QStringList TestBenchProject::header = QStringList()
 								<< "Timestamp"
@@ -133,7 +128,7 @@ QStringList TestBenchProject::header = QStringList()
 								<< "Batt.power"
 								<< "Batt.temp";
 
-QStringList TestBenchProject::headerDecoded = QStringList()
+QStringList TestBenchProject::headerUnitList = QStringList()
 								<< "Raw Value Only"
 								<< "Raw Value Only"
 
@@ -183,7 +178,7 @@ QStringList TestBenchProject::headerDecoded = QStringList()
 								<< "Decoded: mW"
 								<< "Decoded: 10x C";
 
-QString TestBenchProject::getLastSerializedStr(void)
+QString TestBenchProject::getLastDataEntry(void)
 {
 	QString str;
 	QTextStream(&str) <<	timeStamp.last().date			<< ',' << \
