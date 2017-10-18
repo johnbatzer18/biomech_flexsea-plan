@@ -102,9 +102,8 @@ void W_UserTesting::extFlags(int index)
 	}
 }
 
-void W_UserTesting::pointsChanged(uint8_t leg, int8_t pts[6][2])
+void W_UserTesting::pointsChanged(int8_t pts[6][2])
 {
-	qDebug() << "ATorque changed points for leg " << QString::number(leg);
 	tweakHasChanged = true;
 }
 
@@ -251,19 +250,23 @@ void W_UserTesting::independantLegs(bool i)
 	{
 		//Right is in charge, left tracks (dependant mode)
 		ui->tabWidgetTweaksLR->setCurrentIndex(0);
+		ui->tabWidgetTweaksLR->setTabText(0, "Both Legs");
 		ui->tabWidgetTweaksLR->setTabEnabled(0, true);
 		ui->tabWidgetTweaksLR->setTabEnabled(1, false);
 		ui->pushButtonLtoR->setEnabled(false);
 		ui->pushButtonRtoL->setEnabled(false);
 		wtf("Leg tweaks are Dependant (linked)");
+		emit legs(false, 0);
 	}
 	else
 	{
+		ui->tabWidgetTweaksLR->setTabText(0, "Right Leg");
 		ui->tabWidgetTweaksLR->setTabEnabled(0, true);
 		ui->tabWidgetTweaksLR->setTabEnabled(1, true);
 		ui->pushButtonLtoR->setEnabled(true);
 		ui->pushButtonRtoL->setEnabled(true);
 		wtf("Leg tweaks are Independant");
+		emit legs(true, ui->tabWidgetTweaksLR->currentIndex());
 	}
 }
 
@@ -486,6 +489,8 @@ void W_UserTesting::startOfSession()
 	latchSubjectInfo();
 	writeSubjectInfo();
 	tfOpen = true;	//Allows wtf() to write data
+
+	emit legs(false, 0);
 }
 
 //End of a session
@@ -1150,4 +1155,9 @@ void W_UserTesting::copyLegToLeg(bool RtL, bool silent)
 		setTweaksUI(UTT_LEFT);
 		wtf(txt);
 	}
+}
+
+void W_UserTesting::on_tabWidgetTweaksLR_currentChanged(int index)
+{
+	emit legs(ui->checkBoxIndependant->isChecked(), index);
 }

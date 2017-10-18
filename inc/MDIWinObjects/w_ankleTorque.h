@@ -68,7 +68,7 @@ public:
 		yMax = 127;
 
 		parent->axisX()->setRange(xMin - 5, xMax + 5);
-		parent->axisY()->setRange(yMin - 5, yMax + 5);
+		parent->axisY()->setRange(yMin - 10, yMax + 10);
 		QColor darkGray(100, 100, 100);
 		parent->axisX()->setGridLineColor(darkGray);
 		parent->axisY()->setGridLineColor(darkGray);
@@ -423,6 +423,7 @@ public slots:
 	//void comStatusChanged(bool open);
 	//void requestProfileRead();
 	void torquePointsChanged(void);
+	void legs(bool ind, uint8_t LR);
 
 	void resizeEvent(QResizeEvent *event)
 	{
@@ -442,7 +443,7 @@ signals:
 	//void getSlaveId(int* slaveId);
 	//void getCurrentDevice(FlexseaDevice** device);
 	//void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
-	void pointsChanged(uint8_t leg, int8_t pts[ATCV_NUMPOINTS][2]);
+	void pointsChanged(int8_t pts[ATCV_NUMPOINTS][2]);
 
 private slots:
 	void on_checkBoxLabels_toggled(bool checked);

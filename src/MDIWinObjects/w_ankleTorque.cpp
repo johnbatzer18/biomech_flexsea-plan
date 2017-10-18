@@ -123,11 +123,6 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	chartView->drawText = true;
 
 	ui->lineEditPersistentPoints->setEnabled(false);
-
-	//ComboBox leg:
-	ui->comboBoxLeg->addItem("Right Leg");
-	ui->comboBoxLeg	->addItem("Left Leg");
-	ui->comboBoxLeg->setCurrentIndex(0);
 }
 
 /*
@@ -177,7 +172,7 @@ void W_AnkleTorque::handlePointChange()
 		ptArray[i][1] = (int8_t) p[i].y();
 	}
 
-	emit pointsChanged(ui->comboBoxLeg->currentIndex(), ptArray);
+	emit pointsChanged(ptArray);
 
 	int slaveId = -1;
 	//emit getSlaveId(&slaveId);
@@ -234,6 +229,17 @@ void W_AnkleTorque::torquePointsChanged(void)
 	chartView->isActive = true;
 	chartView->update();
 	chart->update();
+}
+
+void W_AnkleTorque::legs(bool ind, uint8_t LR)
+{
+	QString txt = "Both legs";
+	if(ind)
+	{
+		if(!LR){txt = "Right Leg";}
+		else{txt = "Left Leg";}
+	}
+	ui->labelLeg->setText(txt);
 }
 
 void W_AnkleTorque::setAxesLimits()

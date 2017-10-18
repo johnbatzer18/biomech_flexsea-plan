@@ -47,7 +47,7 @@ public:
 public slots:
 	void logFileName(QString fn, QString fnp);
 	void extFlags(int index);
-	void pointsChanged(uint8_t leg, int8_t pts[6][2]);
+	void pointsChanged(int8_t pts[6][2]);
 
 signals:
 	void windowClosed(void);
@@ -56,6 +56,7 @@ signals:
 	void userFlags(int index);
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 	void torquePointsChanged(void);
+	void legs(bool ind, uint8_t LR);
 
 private slots:
 	void on_pushButtonSigClear_clicked();
@@ -102,6 +103,8 @@ private slots:
 	void on_pushButtonPowerOffL_clicked();
 	void on_pushButtonRtoL_clicked();
 	void on_pushButtonLtoR_clicked();
+
+	void on_tabWidgetTweaksLR_currentChanged(int index);
 
 private:
 	Ui::W_UserTesting *ui;
