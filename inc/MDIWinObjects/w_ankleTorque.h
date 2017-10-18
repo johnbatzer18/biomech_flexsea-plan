@@ -142,7 +142,8 @@ public:
 			//text labeling the position
 			textPoint.setY(textPoint.y() + 14 + 2 * radius);
 			textPoint.setX(textPoint.x() - radius);
-			positionLabel = QString::number(points[i].x()) + ", " + QString::number(points[i].y());
+			positionLabel = QString::number(points[i].x(), 'f', 2) + ", " \
+							+ QString::number(points[i].y(), 'f', 2);
 
 			path.addText(textPoint, font, positionLabel);
 
@@ -367,6 +368,7 @@ signals:
 	//void getSlaveId(int* slaveId);
 	//void getCurrentDevice(FlexseaDevice** device);
 	//void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
+	void pointsChanged(uint8_t leg, int8_t pts[ATCV_NUMPOINTS][2]);
 
 private slots:
 	void on_checkBoxLabels_toggled(bool checked);

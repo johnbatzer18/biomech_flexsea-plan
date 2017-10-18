@@ -166,12 +166,18 @@ int W_AnkleTorque::getCommandCode() { return CMD_ANGLE_TORQUE_PROFILE; }
 void W_AnkleTorque::handlePointChange()
 {
 	QPointF p[ATCV_NUMPOINTS];
+	int8_t ptArray[ATCV_NUMPOINTS][2];
 	chartView->getPoints(p, ATCV_NUMPOINTS);
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
 		atProfile_torques[i] = p[i].y()*10;
 		atProfile_angles[i] = p[i].x()*10;
+
+		ptArray[i][0] = (int8_t) p[i].x();
+		ptArray[i][1] = (int8_t) p[i].y();
 	}
+
+	emit pointsChanged(ui->comboBoxLeg->currentIndex(), ptArray);
 
 	int slaveId = -1;
 	//emit getSlaveId(&slaveId);

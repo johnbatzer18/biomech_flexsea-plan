@@ -102,6 +102,12 @@ void W_UserTesting::extFlags(int index)
 	}
 }
 
+void W_UserTesting::pointsChanged(uint8_t leg, int8_t pts[6][2])
+{
+	qDebug() << "ATorque changed points for leg " << QString::number(leg);
+	tweakHasChanged = true;
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************

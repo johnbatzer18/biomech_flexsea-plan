@@ -47,6 +47,7 @@ public:
 public slots:
 	void logFileName(QString fn, QString fnp);
 	void extFlags(int index);
+	void pointsChanged(uint8_t leg, int8_t pts[6][2]);
 
 signals:
 	void windowClosed(void);

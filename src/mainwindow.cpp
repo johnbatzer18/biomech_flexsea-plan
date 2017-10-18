@@ -1618,6 +1618,7 @@ void MainWindow::createUserTesting(void)
 
 		//UserTesting & Ankle Torque Tool:
 		connect(myUserTesting[0], &W_UserTesting::torquePointsChanged, myAnkleTorque[0], &W_AnkleTorque::torquePointsChanged);
+		connect(myAnkleTorque[0], &W_AnkleTorque::pointsChanged, myUserTesting[0], &W_UserTesting::pointsChanged);
 
 		//Link to Event to add flags to the log. Not that clean, but it gets the job done...:
 		connect(myUserTesting[objectCount], SIGNAL(userFlags(int)), \
