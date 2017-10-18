@@ -68,14 +68,13 @@ public:
 	QStringList getHeader(void) {return header;}
 	QStringList getHeaderUnit(void) {return headerUnitList;}
 	QString getLastDataEntry(void);
-	struct std_variable getSerializedVar(int parameter);
-	struct std_variable getSerializedVar(int parameter, int index);
+	struct std_variable getSerializedVar(int headerIndex, int index);
 	void appendSerializedStr(QStringList *splitLine);
-	void decodeLastLine(void);
-	void decodeAllLine(void);
+	void decodeLastElement(void);
+	void decodeAllElement(void);
 	int length(void) {return mnList.length();}
 	void clear(void);
-	void appendEmptyLine(void);
+	void appendEmptyElement(void);
 
 	// Class Function
 	QString getStatusStr(int index);

@@ -148,7 +148,7 @@ void ManageDevice::appendSerializedStr(QStringList *splitLine)
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		appendEmptyLine();
+		appendEmptyElement();
 		timeStamp.last().date		= (*splitLine)[idx++];
 		timeStamp.last().ms			= (*splitLine)[idx++].toInt();
 		eventFlags.last()			= (*splitLine)[idx++].toInt();
@@ -173,22 +173,17 @@ void ManageDevice::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable ManageDevice::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable ManageDevice::getSerializedVar(int parameter, int index)
+struct std_variable ManageDevice::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= mnList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -313,19 +308,19 @@ void ManageDevice::clear(void)
 	eventFlags.clear();
 }
 
-void ManageDevice::appendEmptyLine(void)
+void ManageDevice::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	mnList.append(new manage_s());
 	eventFlags.append(0);
 }
 
-void ManageDevice::decodeLastLine(void)
+void ManageDevice::decodeLastElement(void)
 {
 	decode(mnList.last());
 }
 
-void ManageDevice::decodeAllLine(void)
+void ManageDevice::decodeAllElement(void)
 {
 	for(int i = 0; i < mnList.size(); ++i)
 	{

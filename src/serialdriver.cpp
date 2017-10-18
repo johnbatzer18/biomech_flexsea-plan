@@ -217,7 +217,7 @@ void SerialDriver::signalSuccessfulParse()
 
 	if(device)
 	{
-		device->decodeLastLine();
+		device->decodeLastElement();
 		if(device->isCurrentlyLogging)
 		{
 			device->applyTimestamp();

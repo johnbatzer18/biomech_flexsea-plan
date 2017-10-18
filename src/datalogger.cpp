@@ -294,7 +294,7 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 		flexSEAPtr->appendSerializedStr(&splitLine);
 	}
 
-	flexSEAPtr->decodeAllLine();
+	flexSEAPtr->decodeAllElement();
 
 	setStatus(tr("Opened '") + filename + "'.");
 

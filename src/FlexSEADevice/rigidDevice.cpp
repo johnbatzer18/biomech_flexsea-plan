@@ -256,7 +256,7 @@ void RigidDevice::appendSerializedStr(QStringList *splitLine)
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		appendEmptyLine();
+		appendEmptyElement();
 		timeStamp.last().date						= (*splitLine)[idx++];
 		timeStamp.last().ms							= (*splitLine)[idx++].toInt();
 		eventFlags.last()							= (*splitLine)[idx++].toInt();
@@ -310,22 +310,17 @@ void RigidDevice::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable RigidDevice::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable RigidDevice::getSerializedVar(int parameter, int index)
+struct std_variable RigidDevice::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= riList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -561,7 +556,7 @@ void RigidDevice::clear(void)
 	eventFlags.clear();
 }
 
-void RigidDevice::appendEmptyLine(void)
+void RigidDevice::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 
@@ -576,12 +571,12 @@ void RigidDevice::appendEmptyLine(void)
 	eventFlags.append(0);
 }
 
-void RigidDevice::decodeLastLine(void)
+void RigidDevice::decodeLastElement(void)
 {
 	decode(riList.last());
 }
 
-void RigidDevice::decodeAllLine(void)
+void RigidDevice::decodeAllElement(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{

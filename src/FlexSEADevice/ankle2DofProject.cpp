@@ -286,22 +286,17 @@ void Ankle2DofProject::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable Ankle2DofProject::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable Ankle2DofProject::getSerializedVar(int parameter, int index)
+struct std_variable Ankle2DofProject::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= akList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -516,7 +511,7 @@ void Ankle2DofProject::clear(void)
 	timeStamp.clear();
 }
 
-void Ankle2DofProject::appendEmptyLine(void)
+void Ankle2DofProject::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	akList.append(new ankle2Dof_s_plan());
@@ -525,7 +520,7 @@ void Ankle2DofProject::appendEmptyLine(void)
 
 void Ankle2DofProject::appendEmptyLineWithStruct(void)
 {
-	appendEmptyLine();
+	appendEmptyElement();
 	execute_s* emptyEx = new execute_s();
 	emptyEx->enc_ang = new int32_t();
 	emptyEx->enc_ang_vel = new int32_t();
@@ -537,12 +532,12 @@ void Ankle2DofProject::appendEmptyLineWithStruct(void)
 	akList.last()->ex2 = emptyEx;
 }
 
-void Ankle2DofProject::decodeLastLine(void)
+void Ankle2DofProject::decodeLastElement(void)
 {
 	decode(akList.last());
 }
 
-void Ankle2DofProject::decodeAllLine(void)
+void Ankle2DofProject::decodeAllElement(void)
 {
 	for(int i = 0; i < akList.size(); ++i)
 	{

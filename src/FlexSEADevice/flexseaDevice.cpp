@@ -126,7 +126,7 @@ void FlexseaDevice::applyTimestamp()
 {
 	if(this->timeStamp.size() < 1)
 	{
-		this->appendEmptyLine();
+		this->appendEmptyElement();
 	}
 
 	if(this->timeStamp.isEmpty())

@@ -292,22 +292,17 @@ void TestBenchProject::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable TestBenchProject::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable TestBenchProject::getSerializedVar(int parameter, int index)
+struct std_variable TestBenchProject::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= tbList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -548,7 +543,7 @@ void TestBenchProject::clear(void)
 	timeStamp.clear();
 }
 
-void TestBenchProject::appendEmptyLine(void)
+void TestBenchProject::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	tbList.append(new testBench_s_plan());
@@ -556,21 +551,21 @@ void TestBenchProject::appendEmptyLine(void)
 
 void TestBenchProject::appendEmptyLineWithStruct(void)
 {
-	appendEmptyLine();
+	appendEmptyElement();
 	tbList.last()->ex1 = new execute_s();
 	tbList.last()->ex2 = new execute_s();
 	tbList.last()->mb  = new motortb_s();
 	tbList.last()->ba  = new battery_s();
 }
 
-void TestBenchProject::decodeLastLine(void)
+void TestBenchProject::decodeLastElement(void)
 {
 	if(dataSource == LiveDataFile)
 		{BatteryDevice::decompressRawBytes(tbList.last()->ba);}
 	decode(tbList.last());
 }
 
-void TestBenchProject::decodeAllLine(void)
+void TestBenchProject::decodeAllElement(void)
 {
 	for(int i = 0; i < tbList.size(); ++i)
 	{

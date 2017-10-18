@@ -205,23 +205,18 @@ void RicnuProject::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable RicnuProject::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
 //ToDo Add Battery board to this list
-struct std_variable RicnuProject::getSerializedVar(int parameter, int index)
+struct std_variable RicnuProject::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= riList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -337,7 +332,7 @@ void RicnuProject::clear(void)
 	timeStamp.clear();
 }
 
-void RicnuProject::appendEmptyLine(void)
+void RicnuProject::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 
@@ -356,10 +351,10 @@ void RicnuProject::appendEmptyLine(void)
 
 void RicnuProject::appendEmptyLineWithStruct(void)
 {
-	appendEmptyLine();
+	appendEmptyElement();
 }
 
-void RicnuProject::decodeLastLine(void)
+void RicnuProject::decodeLastElement(void)
 {
 	if(dataSource == LiveDataFile)
 	{
@@ -369,7 +364,7 @@ void RicnuProject::decodeLastLine(void)
 	decode(riList.last());
 }
 
-void RicnuProject::decodeAllLine(void)
+void RicnuProject::decodeAllElement(void)
 {
 	for(int i = 0; i < riList.size(); ++i)
 	{

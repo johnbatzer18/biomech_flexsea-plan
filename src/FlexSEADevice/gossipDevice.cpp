@@ -145,7 +145,7 @@ void GossipDevice::appendSerializedStr(QStringList *splitLine)
 	//Check if data line contain the number of data expected
 	if(splitLine->length() >= serializedLength)
 	{
-		appendEmptyLine();
+		appendEmptyElement();
 		timeStamp.last().date		= (*splitLine)[idx++];
 		timeStamp.last().ms			= (*splitLine)[idx++].toInt();
 		eventFlags.last()			= (*splitLine)[idx++].toInt();
@@ -169,22 +169,17 @@ void GossipDevice::appendSerializedStr(QStringList *splitLine)
 	}
 }
 
-struct std_variable GossipDevice::getSerializedVar(int parameter)
-{
-	return getSerializedVar(parameter, 0);
-}
-
-struct std_variable GossipDevice::getSerializedVar(int parameter, int index)
+struct std_variable GossipDevice::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
 	if(index >= goList.length())
 	{
-		parameter = INT_MAX;
+		headerIndex = INT_MAX;
 	}
 
 	//Assign pointer:
-	switch(parameter)
+	switch(headerIndex)
 	{
 		/*Format: (every Case except Unused)
 		 * Line 1: data format, raw variable
@@ -301,19 +296,19 @@ void GossipDevice::clear(void)
 	eventFlags.clear();
 }
 
-void GossipDevice::appendEmptyLine(void)
+void GossipDevice::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 	goList.append(new gossip_s());
 	eventFlags.append(0);
 }
 
-void GossipDevice::decodeLastLine(void)
+void GossipDevice::decodeLastElement(void)
 {
 	decode(goList.last());
 }
 
-void GossipDevice::decodeAllLine(void)
+void GossipDevice::decodeAllElement(void)
 {
 	for(int i = 0; i < goList.size(); ++i)
 	{

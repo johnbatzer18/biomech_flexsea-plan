@@ -18,9 +18,9 @@ public:
 	QString getLastDataEntry(void);
 	struct std_variable getSerializedVar(int parameter, int index);
 	void appendSerializedStr(QStringList *splitLine);
-	void decodeLastLine(void);
-	void decodeAllLine(void);
-	void appendEmptyLine(void);
+	void decodeLastElement(void);
+	void decodeAllElement(void);
+	void appendEmptyElement(void);
 	int length();
 	void clear(void);
 

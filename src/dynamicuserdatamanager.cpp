@@ -255,18 +255,18 @@ QString DynamicDevice::getLastDataEntry(void)
 	return result;
 }
 
-struct std_variable DynamicDevice::getSerializedVar(int parameter, int index)
+struct std_variable DynamicDevice::getSerializedVar(int headerIndex, int index)
 {
 	(void)index;
 	struct std_variable v;
-	parameter -= 3;	//Tweak this if 2DPlot and UserR/W are offseted
-	if(parameter < 0 || parameter >= dynamicUser_numFields) return v;
+	headerIndex -= 3;	//Tweak this if 2DPlot and UserR/W are offseted
+	if(headerIndex < 0 || headerIndex >= dynamicUser_numFields) return v;
 	if(dynamicUser_numFields < 1 || !dynamicUser_data || !dynamicUser_fieldTypes)
 		return v;
 
 	uint8_t* data = dynamicUser_data;
 	int i;
-	for(i = 0; i < parameter; i++)
+	for(i = 0; i < headerIndex; i++)
 	{
 		int dataSize = FORMAT_SIZE_MAP[dynamicUser_fieldTypes[i]];
 		if(dataSize < 1)
@@ -285,9 +285,9 @@ struct std_variable DynamicDevice::getSerializedVar(int parameter, int index)
 }
 
 void DynamicDevice::appendSerializedStr(QStringList *splitLine) {(void)splitLine;}
-void DynamicDevice::decodeLastLine(void){}
-void DynamicDevice::decodeAllLine(void){}
-void DynamicDevice::appendEmptyLine(void) {
+void DynamicDevice::decodeLastElement(void){}
+void DynamicDevice::decodeAllElement(void){}
+void DynamicDevice::appendEmptyElement(void) {
 	timeStamp.append(TimeStamp());
 	eventFlags.append(0);
 }
