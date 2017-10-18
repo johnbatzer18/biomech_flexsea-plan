@@ -65,7 +65,7 @@ public:
 		xMin = -30;
 		xMax = 0;
 		yMin = 0;
-		yMax = 60;
+		yMax = 127;
 
 		parent->axisX()->setRange(xMin - 5, xMax + 5);
 		parent->axisY()->setRange(yMin - 5, yMax + 5);
@@ -133,6 +133,13 @@ public:
 				painter->drawLine(drawnPoints[i], drawnPoints[i+1]);
 			}
 
+			//Mid-line handle:
+			QPointF lineMidPval;
+			lineMidP.setX(drawnPoints[1].x() + (drawnPoints[2].x() - drawnPoints[1].x())/2);
+			lineMidP.setY(drawnPoints[1].y() + (drawnPoints[2].y() - drawnPoints[1].y())/2);
+			painter->drawText(lineMidP, "o");
+			lineMidPval = chart()->mapToValue(lineMidP);
+
 			//text labeling the index
 			textPoint = drawnPoints[i];
 			textPoint.setY(textPoint.y() - radius - 2);
@@ -161,6 +168,8 @@ public:
 
 	int activeSetPoint;
 	int activeDrag;
+	bool activeMidPoint = false;
+	QPointF latchPt1, latchPt2, latchMid;
 	virtual void mousePressEvent(QMouseEvent *event)
 	{
 		if(!(activeSetPoint < 0) || !isActive) return;
@@ -170,6 +179,7 @@ public:
 		static int distThresh = radius*radius;
 		float xdist, ydist, dist;
 
+		//6 points:
 		for(int i = 0; i < ATCV_NUMPOINTS; i++)
 		{
 			sp = drawnPoints[i];
@@ -185,25 +195,74 @@ public:
 				return;
 			}
 		}
+		//Extra handle, vertical line:
+		sp = lineMidP;
+
+		xdist = (p.x() - sp.x());
+		ydist = (p.y() - sp.y());
+
+		dist = xdist*xdist + ydist*ydist;
+
+		if( dist < distThresh )
+		{
+			activeMidPoint = true;
+			latchMid = lineMidP;
+			latchPt1 = drawnPoints[1];
+			latchPt2 = drawnPoints[2];
+			return;
+		}
+		else
+		{
+			activeMidPoint = false;
+		}
+
 		activeSetPoint = -1;
 	}
 
 	virtual void mouseMoveEvent(QMouseEvent* event)
 	{
-		if(activeSetPoint < 0) return;
+		if(activeSetPoint < 0 && !activeMidPoint) return;
 
-		QPointF p = event->pos();
-		QPointF sp = drawnPoints[activeSetPoint];
-
-		float dist = (p - sp).manhattanLength();
-
-		static float distThresh = 0.25*radius;
-
-		if(dist > distThresh)
+		if(!activeMidPoint)
 		{
-			drawnPoints[activeSetPoint] = p;
-			this->update();
-			chart()->update();
+			//Normal points
+			QPointF p = event->pos();
+			QPointF sp = drawnPoints[activeSetPoint];
+
+			float dist = (p - sp).manhattanLength();
+
+			static float distThresh = 0.25*radius;
+
+			if(dist > distThresh)
+			{
+				drawnPoints[activeSetPoint] = p;
+				this->update();
+				chart()->update();
+			}
+		}
+		else
+		{
+			//Midpoint
+			QPointF p = event->pos();
+			QPointF sp = lineMidP;
+			float vDistMidP = 0.0;
+
+			float dist = (p - sp).manhattanLength();
+
+			static float distThresh = 0.25*radius;
+
+			if(dist > distThresh)
+			{
+				vDistMidP = p.y() - latchMid.y();
+				drawnPoints[1].setX(latchPt1.x());
+				drawnPoints[1].setY(latchPt1.y() + vDistMidP);
+				drawnPoints[2].setX(latchPt2.x());
+				drawnPoints[2].setY(latchPt2.y() + vDistMidP);
+
+				lineMidP = p;
+				this->update();
+				chart()->update();
+			}
 		}
 	}
 
@@ -220,7 +279,7 @@ public:
 
 	virtual void mouseReleaseEvent(QMouseEvent* event)
 	{
-		if(activeSetPoint < 0) return;
+		if(activeSetPoint < 0 && !activeMidPoint) return;
 
 		drawnPoints[activeSetPoint] = event->pos();
 		QPointF* p = &points[activeSetPoint];
@@ -228,11 +287,25 @@ public:
 
 		enforceBounds(p);
 
+		if(activeMidPoint)
+		{
+			p = &points[1];
+			*p = chart()->mapToValue(drawnPoints[1]);
+			enforceBounds(p);
+			drawnPoints[1] = chart()->mapToPosition(*p);
+
+			p = &points[2];
+			*p = chart()->mapToValue(drawnPoints[2]);
+			enforceBounds(p);
+			drawnPoints[2] = chart()->mapToPosition(*p);
+		}
+
 		drawnPoints[activeSetPoint] = chart()->mapToPosition(*p);
 
 		this->update();
 		chart()->update();
 		activeSetPoint = -1;
+		activeMidPoint = false;
 
 		emit pointsChanged();
 	}
@@ -321,6 +394,7 @@ private:
 	QPointF points[ATCV_NUMPOINTS];
 	QPointF drawnPoints[ATCV_NUMPOINTS];
 	bool firstDraw = true;
+	QPointF lineMidP;
 
 	unsigned int maxDataPoints = 20;
 	QVector<QPointF> dataPoints;
