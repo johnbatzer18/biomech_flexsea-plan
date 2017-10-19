@@ -155,7 +155,7 @@
        <item row="3" column="0">
         <widget class="QCheckBox" name="checkBoxP">
          <property name="text">
-          <string>Power</string>
+          <string>Step Energy</string>
          </property>
         </widget>
        </item>

@@ -74,6 +74,7 @@ private:
 	static QStringList headerUnitList;
 	int32_t enc_ang, enc_vel;
 	int16_t joint_ang, joint_ang_vel, joint_ang_from_mot;
+	int16_t ank_ang_deg, ank_ang_from_mot;
 };
 
 //****************************************************************************

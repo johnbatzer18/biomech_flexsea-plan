@@ -55,6 +55,9 @@ RigidDevice::RigidDevice(rigid_s *devicePtr): FlexseaDevice()
 	riList.last()->ex.joint_ang = &joint_ang;
 	riList.last()->ex.joint_ang_vel = &joint_ang_vel;
 	riList.last()->ex.joint_ang_from_mot = &joint_ang_from_mot;
+	riList.last()->ctrl.ank_ang_deg = &ank_ang_deg;
+	riList.last()->ctrl.ank_ang_from_mot = &ank_ang_from_mot;
+
 	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
 	eventFlags.append(0);
 
@@ -91,6 +94,12 @@ RigidDevice::~RigidDevice()
 
 			delete readyToDelete->ex.joint_ang_from_mot;
 			readyToDelete->ex.joint_ang_from_mot = nullptr;
+
+			delete readyToDelete->ctrl.ank_ang_deg;
+			readyToDelete->ctrl.ank_ang_deg = nullptr;
+
+			delete readyToDelete->ex.joint_ang_from_mot;
+			readyToDelete->ctrl.ank_ang_from_mot = nullptr;
 
 			delete readyToDelete;
 		}
@@ -566,6 +575,10 @@ void RigidDevice::appendEmptyElement(void)
 	emptyStruct->ex.joint_ang = new int16_t();
 	emptyStruct->ex.joint_ang_vel = new int16_t();
 	emptyStruct->ex.joint_ang_from_mot = new int16_t();
+
+	emptyStruct->ctrl.ank_ang_deg = new int16_t();
+	emptyStruct->ctrl.ank_ang_from_mot = new int16_t();
+
 	riList.append(emptyStruct);
 	ownershipList.append(true); // we own this struct, so we must delete it in destructor
 	eventFlags.append(0);

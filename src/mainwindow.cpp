@@ -43,6 +43,7 @@
 #include <flexsea_system.h>
 #include <passthroughprovider.h>
 #include <sineprovider3.h>
+#include "cmd-Rigid.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -339,6 +340,16 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	rigidDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&rigidDevList.last());
 	rigidFlexList.append(&rigidDevList.last());
+
+	init_rigid();
+
+	/*
+	rigidDevList.append(RigidDevice(&rigid2));
+	rigidDevList.last().slaveName = "Rigid 2";
+	rigidDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
+	flexseaPtrlist.append(&rigidDevList.last());
+	rigidFlexList.append(&rigidDevList.last());
+	*/
 
 	return;
 }

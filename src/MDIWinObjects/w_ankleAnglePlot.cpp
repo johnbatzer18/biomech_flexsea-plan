@@ -258,13 +258,15 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 {
 	struct rigid_s *ri = &rigid1;
 
-	//if(ui->comboBoxLeg->currentIndex() == 1){ri = &rigid2;}	//ToDo
+	if(ui->comboBoxLeg->currentIndex() == 1){ri = &rigid2;}
 
 	pts[0] = QPointF(idx, *ri->ex.joint_ang);
 	pts[1] = QPointF(idx, 100*ri->ctrl.gaitState);
 	pts[2] = QPointF(idx, 100*ri->ctrl.walkingState);
-	pts[3] = QPointF(idx, ri->mn.genVar[7]);
-	pts[4] = QPointF(idx, ri->mn.genVar[8]);
+	//pts[3] = QPointF(idx, ri->mn.genVar[7]);
+	//pts[4] = QPointF(idx, ri->mn.genVar[8]);
+	pts[3] = QPointF(idx, ri->ctrl.step_energy);
+	pts[4] = QPointF(idx, ri->ctrl.contra_hs);
 }
 
 //This generates fake data and maps it to points

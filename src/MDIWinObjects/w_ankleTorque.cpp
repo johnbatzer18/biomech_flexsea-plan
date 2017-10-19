@@ -214,7 +214,7 @@ void W_AnkleTorque::receiveNewData(void)
 	chart->update();
 	*/
 
-	qDebug() << "receiveNewData is called - but all the code is disabled";
+	//qDebug() << "receiveNewData is called - but all the code is disabled";
 }
 
 void W_AnkleTorque::torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2])
