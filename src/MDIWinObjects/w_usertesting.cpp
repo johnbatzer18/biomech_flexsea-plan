@@ -105,15 +105,17 @@ void W_UserTesting::extFlags(int index)
 void W_UserTesting::pointsChanged(int8_t pts[6][2])
 {
 	QString txt = "Torque points = ";
+	int idx = activeLeg;
+
+	if(idx == 2){idx = 0;}
+
 	for(int i = 0; i < 6; i++)
 	{
-		txt += ("[" + QString::number(pts[i][0]) + "," + QString::number(pts[i][1]) + "] ");
-
-		//ToDo change leg! Now = always right
-		planUTT.leg[0].torquePoints[i][0] = pts[i][0];
-		planUTT.leg[0].torquePoints[i][1] = pts[i][1];
+		planUTT.leg[idx].torquePoints[i][0] = pts[i][0];
+		planUTT.leg[idx].torquePoints[i][1] = pts[i][1];
+		txt += ("[" + QString::number(pts[i][0]) + "," \
+				+ QString::number(pts[i][1]) + "] ");
 	}
-	qDebug() << txt;
 
 	wtf(txt);
 	tweakHasChanged = true;
@@ -503,6 +505,35 @@ void W_UserTesting::startOfSession()
 	tfOpen = true;	//Allows wtf() to write data
 
 	emit legs(false, 0);
+
+	//Place all points in line:
+	planUTT.leg[0].torquePoints[0][0] = -30;
+	planUTT.leg[0].torquePoints[0][1] = 64;
+	planUTT.leg[0].torquePoints[1][0] = -25;
+	planUTT.leg[0].torquePoints[1][1] = 64;
+	planUTT.leg[0].torquePoints[2][0] = -20;
+	planUTT.leg[0].torquePoints[2][1] = 64;
+	planUTT.leg[0].torquePoints[3][0] = -15;
+	planUTT.leg[0].torquePoints[3][1] = 64;
+	planUTT.leg[0].torquePoints[4][0] = -10;
+	planUTT.leg[0].torquePoints[4][1] = 64;
+	planUTT.leg[0].torquePoints[5][0] = -5;
+	planUTT.leg[0].torquePoints[5][1] = 64;
+
+	planUTT.leg[1].torquePoints[0][0] = -30;
+	planUTT.leg[1].torquePoints[0][1] = 90;
+	planUTT.leg[1].torquePoints[1][0] = -25;
+	planUTT.leg[1].torquePoints[1][1] = 90;
+	planUTT.leg[1].torquePoints[2][0] = -20;
+	planUTT.leg[1].torquePoints[2][1] = 90;
+	planUTT.leg[1].torquePoints[3][0] = -15;
+	planUTT.leg[1].torquePoints[3][1] = 90;
+	planUTT.leg[1].torquePoints[4][0] = -10;
+	planUTT.leg[1].torquePoints[4][1] = 90;
+	planUTT.leg[1].torquePoints[5][0] = -5;
+	planUTT.leg[1].torquePoints[5][1] = 90;
+
+	emit torquePointsChanged(planUTT.leg[0].torquePoints, planUTT.leg[1].torquePoints);
 }
 
 //End of a session
@@ -586,8 +617,9 @@ void W_UserTesting::dispTimerTick(void)
 			qDebug() << "Refreshing display based on read data.";
 			setTweaksUI(UTT_RIGHT);
 			setTweaksUI(UTT_LEFT);
+
 			//Send points to Ankle Torque Tool
-			emit torquePointsChanged();
+			emit torquePointsChanged(planUTT.leg[0].torquePoints, planUTT.leg[1].torquePoints);
 		}
 	}
 
@@ -1156,6 +1188,22 @@ void W_UserTesting::copyLegToLeg(bool RtL, bool silent)
 	planUTT.leg[dst].timing = planUTT.leg[src].timing;
 	planUTT.leg[dst].powerOn = planUTT.leg[src].powerOn;
 
+	/*
+	planUTT.leg[dst].torquePoints[0][0] = planUTT.leg[src].torquePoints[0][0];
+	planUTT.leg[dst].torquePoints[0][1] = planUTT.leg[src].torquePoints[0][1];
+	planUTT.leg[dst].torquePoints[1][0] = planUTT.leg[src].torquePoints[1][0];
+	planUTT.leg[dst].torquePoints[1][1] = planUTT.leg[src].torquePoints[1][1];
+	planUTT.leg[dst].torquePoints[2][0] = planUTT.leg[src].torquePoints[2][0];
+	planUTT.leg[dst].torquePoints[2][1] = planUTT.leg[src].torquePoints[2][1];
+	planUTT.leg[dst].torquePoints[3][0] = planUTT.leg[src].torquePoints[3][0];
+	planUTT.leg[dst].torquePoints[3][1] = planUTT.leg[src].torquePoints[3][1];
+	planUTT.leg[dst].torquePoints[4][0] = planUTT.leg[src].torquePoints[4][0];
+	planUTT.leg[dst].torquePoints[4][1] = planUTT.leg[0].torquePoints[4][1];
+	planUTT.leg[dst].torquePoints[5][0] = planUTT.leg[0].torquePoints[5][0];
+	planUTT.leg[dst].torquePoints[5][1] = planUTT.leg[0].torquePoints[5][1];
+	*/
+	memcpy(planUTT.leg[dst].torquePoints, planUTT.leg[src].torquePoints, sizeof(planUTT.leg[src].torquePoints));
+
 	if(!silent)
 	{
 		setTweaksUI(UTT_RIGHT);
@@ -1167,4 +1215,8 @@ void W_UserTesting::copyLegToLeg(bool RtL, bool silent)
 void W_UserTesting::on_tabWidgetTweaksLR_currentChanged(int index)
 {
 	emit legs(ui->checkBoxIndependant->isChecked(), index);
+	emit torquePointsChanged(planUTT.leg[0].torquePoints, planUTT.leg[1].torquePoints);
+
+	if(!ui->checkBoxIndependant->isChecked()){activeLeg = 2;}
+	else{activeLeg = index;}
 }

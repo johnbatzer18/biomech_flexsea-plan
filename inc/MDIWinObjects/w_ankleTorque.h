@@ -422,7 +422,8 @@ public slots:
 	void handlePointChange();
 	//void comStatusChanged(bool open);
 	//void requestProfileRead();
-	void torquePointsChanged(void);
+    //void torquePointsChanged(void);
+    void torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2]);
 	void legs(bool ind, uint8_t LR);
 
 	void resizeEvent(QResizeEvent *event)
@@ -457,6 +458,7 @@ private:
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
+    int activeLeg = 0;
 
 	bool isComPortOpen = true;
 

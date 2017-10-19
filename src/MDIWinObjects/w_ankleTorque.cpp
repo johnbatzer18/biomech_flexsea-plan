@@ -195,6 +195,7 @@ void W_AnkleTorque::handlePointChange()
 
 void W_AnkleTorque::receiveNewData(void)
 {
+	/*
 	if(atProfile_newProfileFlag)
 	{
 		atProfile_newProfileFlag = 0;
@@ -211,16 +212,32 @@ void W_AnkleTorque::receiveNewData(void)
 	}
 	chartView->update();
 	chart->update();
+	*/
+
+	qDebug() << "receiveNewData is called - but all the code is disabled";
 }
 
-void W_AnkleTorque::torquePointsChanged(void)
+void W_AnkleTorque::torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2])
 {
+	qDebug() << "UserTesting has new points for AnkleTorqueTool... (leg = " << activeLeg << ")";
+
+	int idx = activeLeg;
+	if(activeLeg == 2){idx = 0;}
+
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
-		atProfile_angles[i] = utt.leg[0].torquePoints[i][0];	//ToDo left vs right for all of these
-		atProfile_torques[i] = utt.leg[0].torquePoints[i][1];
+		if(idx == 0)
+		{
+			atProfile_angles[i] = pts0[i][0];
+			atProfile_torques[i] = pts0[i][1];
+		}
+		else
+		{
+			atProfile_angles[i] = pts1[i][0];
+			atProfile_torques[i] = pts1[i][1];
+		}
 
-		chartView->setPoint(i, atProfile_angles[i] , atProfile_torques[i] );
+		chartView->setPoint(i, atProfile_angles[i], atProfile_torques[i]);
 	}
 
 	chartView->isActive = true;
@@ -231,10 +248,19 @@ void W_AnkleTorque::torquePointsChanged(void)
 void W_AnkleTorque::legs(bool ind, uint8_t LR)
 {
 	QString txt = "Both legs";
+	activeLeg = 2;
 	if(ind)
 	{
-		if(!LR){txt = "Right Leg";}
-		else{txt = "Left Leg";}
+		if(!LR)
+		{
+			txt = "Right Leg";
+			activeLeg = 0;
+		}
+		else
+		{
+			txt = "Left Leg";
+			activeLeg = 1;
+		}
 	}
 	ui->labelLeg->setText(txt);
 }
