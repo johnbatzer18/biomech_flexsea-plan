@@ -55,7 +55,7 @@ signals:
 	void stopExperiment(void);
 	void userFlags(int index);
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
-    void torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2]);
+	void torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2]);
 	void legs(bool ind, uint8_t LR);
 
 private slots:
@@ -136,8 +136,8 @@ private:
 	bool automaticMode;
 	struct dual_utt_s planUTT;
 	uint8_t readDisplayLag;
-    bool tweakHasChanged;
-    uint8_t activeLeg = 2;
+	bool tweakHasChanged;
+	uint8_t activeLeg = 2;
 
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
@@ -172,6 +172,7 @@ private:
 	void setTweaksUI(uint8_t leg);
 	void independantLegs(bool i);
 	void copyLegToLeg(bool RtL, bool silent);
+	void writeTorquePointsToFile();
 };
 
 //****************************************************************************
