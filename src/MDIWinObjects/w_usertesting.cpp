@@ -104,6 +104,18 @@ void W_UserTesting::extFlags(int index)
 
 void W_UserTesting::pointsChanged(int8_t pts[6][2])
 {
+	QString txt = "Torque points = ";
+	for(int i = 0; i < 6; i++)
+	{
+		txt += ("[" + QString::number(pts[i][0]) + "," + QString::number(pts[i][1]) + "] ");
+
+		//ToDo change leg! Now = always right
+		planUTT.leg[0].torquePoints[i][0] = pts[i][0];
+		planUTT.leg[0].torquePoints[i][1] = pts[i][1];
+	}
+	qDebug() << txt;
+
+	wtf(txt);
 	tweakHasChanged = true;
 }
 
@@ -575,11 +587,6 @@ void W_UserTesting::dispTimerTick(void)
 			setTweaksUI(UTT_RIGHT);
 			setTweaksUI(UTT_LEFT);
 			//Send points to Ankle Torque Tool
-			//ToDo remove - faking points as a 1st test:
-			utt.leg[0].torquePoints[0][0] = -20;
-			utt.leg[0].torquePoints[0][1] = 10;
-			utt.leg[0].torquePoints[1][0] = -10;
-			utt.leg[0].torquePoints[1][1] = 20;
 			emit torquePointsChanged();
 		}
 	}

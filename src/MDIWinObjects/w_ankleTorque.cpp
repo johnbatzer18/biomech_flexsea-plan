@@ -215,13 +215,10 @@ void W_AnkleTorque::receiveNewData(void)
 
 void W_AnkleTorque::torquePointsChanged(void)
 {
-	qDebug() << "UserTesting has new points for AnkleTorqueTool...";
-
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
 		atProfile_angles[i] = utt.leg[0].torquePoints[i][0];	//ToDo left vs right for all of these
 		atProfile_torques[i] = utt.leg[0].torquePoints[i][1];
-		qDebug() << "Point = " + QString::number(utt.leg[0].torquePoints[i][0]) + "," + QString::number(utt.leg[0].torquePoints[i][1]);
 
 		chartView->setPoint(i, atProfile_angles[i] , atProfile_torques[i] );
 	}
