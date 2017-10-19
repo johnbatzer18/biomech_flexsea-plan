@@ -1181,8 +1181,24 @@ void W_UserTesting::copyLegToLeg(bool RtL, bool silent)
 	planUTT.leg[dst].ctrl = planUTT.leg[src].ctrl;
 	planUTT.leg[dst].ctrlOption = planUTT.leg[src].ctrlOption;
 	planUTT.leg[dst].amplitude = planUTT.leg[src].amplitude;
-	planUTT.leg[dst].timing = planUTT.leg[src].timing;
+    planUTT.leg[dst].timing = planUTT.leg[src].timing;
 	planUTT.leg[dst].powerOn = planUTT.leg[src].powerOn;
+
+    /*
+    planUTT.leg[dst].torquePoints[0][0] = planUTT.leg[src].torquePoints[0][0];
+    planUTT.leg[dst].torquePoints[0][1] = planUTT.leg[src].torquePoints[0][1];
+    planUTT.leg[dst].torquePoints[1][0] = planUTT.leg[src].torquePoints[1][0];
+    planUTT.leg[dst].torquePoints[1][1] = planUTT.leg[src].torquePoints[1][1];
+    planUTT.leg[dst].torquePoints[2][0] = planUTT.leg[src].torquePoints[2][0];
+    planUTT.leg[dst].torquePoints[2][1] = planUTT.leg[src].torquePoints[2][1];
+    planUTT.leg[dst].torquePoints[3][0] = planUTT.leg[src].torquePoints[3][0];
+    planUTT.leg[dst].torquePoints[3][1] = planUTT.leg[src].torquePoints[3][1];
+    planUTT.leg[dst].torquePoints[4][0] = planUTT.leg[src].torquePoints[4][0];
+    planUTT.leg[dst].torquePoints[4][1] = planUTT.leg[0].torquePoints[4][1];
+    planUTT.leg[dst].torquePoints[5][0] = planUTT.leg[0].torquePoints[5][0];
+    planUTT.leg[dst].torquePoints[5][1] = planUTT.leg[0].torquePoints[5][1];
+    */
+    memcpy(planUTT.leg[dst].torquePoints, planUTT.leg[src].torquePoints, sizeof(planUTT.leg[src].torquePoints));
 
 	if(!silent)
 	{
