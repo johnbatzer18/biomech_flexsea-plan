@@ -343,14 +343,6 @@ void MainWindow::initFlexSeaDeviceObject(void)
 
 	init_rigid();
 
-	/*
-	rigidDevList.append(RigidDevice(&rigid2));
-	rigidDevList.last().slaveName = "Rigid 2";
-	rigidDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
-	flexseaPtrlist.append(&rigidDevList.last());
-	rigidFlexList.append(&rigidDevList.last());
-	*/
-
 	return;
 }
 
@@ -550,28 +542,6 @@ void MainWindow::createAnkleTorqueTool(void)
 
 	W_AnkleTorque* w = new W_AnkleTorque(this, streamManager);
 	myAnkleTorque[count] = w;
-
-	/*
-	int slaveCommCount = W_SlaveComm::howManyInstance();
-	if(slaveCommCount)
-	{
-		connect(w,									&W_AnkleTorque::getCurrentDevice,
-				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getCurrentDevice);
-		connect(w,									&W_AnkleTorque::getSlaveId,
-				myViewSlaveComm[slaveCommCount-1],	&W_SlaveComm::getSlaveId);
-	}
-	else
-	{
-		qDebug() << "Unable to connect ankletorque to slave comm, ankletorque won't work";
-		delete w; //this gonna be bad
-		myAnkleTorque[count] = nullptr;
-		return;
-	}
-	*/
-
-	connect(mySerialDriver, &SerialDriver::newDataReady, w, &W_AnkleTorque::receiveNewData);
-	//connect(mySerialDriver, &SerialDriver::openStatus, w, &W_AnkleTorque::comStatusChanged);
-	//connect(w, &W_AnkleTorque::writeCommand, this, &MainWindow::connectorWriteCommand);
 
 	//Link to MainWindow for the close signal:
 	connect(myAnkleTorque[count], SIGNAL(windowClosed()), \
@@ -933,7 +903,7 @@ void MainWindow::createSlaveComm(void)
 				myViewSlaveComm[0], SLOT(updateIndicatorTimeout(bool)));
 
 		//myViewSlaveComm[objectCount]->addExperiment(&dynamicDeviceList, userDataManager->getCommandCode());
-		myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleTorque::getCommandCode());
+		//myViewSlaveComm[objectCount]->addExperiment(&executeFlexList, W_AnkleTorque::getCommandCode());
 		//myViewSlaveComm[objectCount]->addExperiment(&rigidFlexList, W_Rigid::getCommandCode());
 	}
 	else

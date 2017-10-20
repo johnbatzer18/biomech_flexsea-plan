@@ -126,9 +126,6 @@ public:
 				else
 				{
 					painter->drawLine(chart()->mapToPosition(dataPoints[y].at(i)), chart()->mapToPosition(dataPoints[y].at(i+1)));
-
-					//Test - todo Remove:
-					//painter->drawLine(chart()->mapToPosition(QPointF(0,0)), chart()->mapToPosition(QPointF(500,100)));
 				}
 			}
 		}
@@ -145,25 +142,6 @@ public:
 		while(dataPoints[0].size() > 0 && dataPoints[0].size() > (int)x)
 			dataPoints[0].removeFirst();
 	}
-	/*
-	void addDataPoint(QPointF p)
-	{
-		while(dataPoints[0].size() > 0 && dataPoints[0].size() >= (int)maxDataPoints)
-			dataPoints[0].removeFirst();
-
-		dataPoints[0].push_back(p);
-	}
-	void addDataPoint(float angle, float torque)
-	{
-		for(int y = 0; y < A2PLOT_VAR_NUM; y++)
-		{
-			while(dataPoints[y].size() > 0 && dataPoints[y].size() >= (int)maxDataPoints)
-				dataPoints[y].removeFirst();
-
-			dataPoints[y].push_back(QPointF(angle, torque));
-		}
-	}
-	*/
 
 	void addDataPoints(QPointF p[A2PLOT_VAR_NUM])
 	{

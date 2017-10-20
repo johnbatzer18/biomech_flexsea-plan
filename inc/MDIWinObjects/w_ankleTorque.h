@@ -414,16 +414,10 @@ public:
 	explicit W_AnkleTorque(QWidget *parent = 0, StreamManager* sm = nullptr);
 	virtual ~W_AnkleTorque();
 
-	static int getCommandCode();
-
 public slots:
 
-	void receiveNewData(void);
 	void handlePointChange();
-	//void comStatusChanged(bool open);
-	//void requestProfileRead();
-    //void torquePointsChanged(void);
-    void torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2]);
+	void torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2]);
 	void legs(bool ind, uint8_t LR);
 
 	void resizeEvent(QResizeEvent *event)
@@ -441,9 +435,6 @@ public slots:
 signals:
 
 	void windowClosed(void);
-	//void getSlaveId(int* slaveId);
-	//void getCurrentDevice(FlexseaDevice** device);
-	//void writeCommand(uint16_t numBytes, uint8_t* bytes, uint8_t readWrite);
 	void pointsChanged(int8_t pts[ATCV_NUMPOINTS][2]);
 
 private slots:
@@ -458,7 +449,7 @@ private:
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
-    int activeLeg = 0;
+	int activeLeg = 0;
 
 	bool isComPortOpen = true;
 

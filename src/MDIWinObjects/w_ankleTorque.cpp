@@ -41,14 +41,9 @@
 #include <QtCharts/QSplineSeries>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QValidator>
 #include "flexsea_generic.h"
 #include "main.h"
-
-#include "flexsea.h"
-#include "flexsea_board.h"
-#include "flexsea_system.h"
-#include "flexsea_cmd_angle_torque_profile.h"
-#include <QValidator>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -96,15 +91,6 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
 
-	/*
-	timer = new QTimer();
-	timer->setInterval(50);
-	timer->setSingleShot(false);
-	connect(timer, &QTimer::timeout, this, &W_AnkleTorque::requestProfileRead);
-	timer->start();
-	requestProfileRead();
-	*/
-
 	const QValidator *validator = new QDoubleValidator(-1000, 1000, 2, this);
 	ui->lineEditXMin->setValidator(validator);
 	ui->lineEditXMax->setValidator(validator);
@@ -125,102 +111,36 @@ W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
 	ui->lineEditPersistentPoints->setEnabled(false);
 }
 
-/*
-void W_AnkleTorque::comStatusChanged(bool open)
-{
-	isComPortOpen = open;
-	if(open)
-		requestProfileRead();
-}
-*/
-
-//void W_AnkleTorque::requestProfileRead()
-//{
-	/*
-	int slaveId = -1;
-	emit getSlaveId(&slaveId);
-	if(slaveId < 0 || !isComPortOpen) return;
-
-	uint8_t info = PORT_USB;
-	uint16_t numb = 0;
-
-	tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 1);
-	pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, READ);
-	*/
-//}
-
 W_AnkleTorque::~W_AnkleTorque()
 {
 	emit windowClosed();
 	delete ui;
 }
 
-int W_AnkleTorque::getCommandCode() { return CMD_ANGLE_TORQUE_PROFILE; }
-
 void W_AnkleTorque::handlePointChange()
 {
 	QPointF p[ATCV_NUMPOINTS];
 	int8_t ptArray[ATCV_NUMPOINTS][2];
 	chartView->getPoints(p, ATCV_NUMPOINTS);
+
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
-		atProfile_torques[i] = p[i].y();
-		atProfile_angles[i] = p[i].x();
-
 		ptArray[i][0] = (int8_t) p[i].x();
 		ptArray[i][1] = (int8_t) p[i].y();
 	}
 
 	emit pointsChanged(ptArray);
-
-	int slaveId = -1;
-	//emit getSlaveId(&slaveId);
-	if(slaveId < 0) return;
-
-	//uint8_t info = PORT_USB;
-	//uint16_t numb = 0;
-
-	chartView->isActive = false;
-	timer->start();
-
-	//tx_cmd_ankleTorqueProfile_rw(TX_N_DEFAULT);
-	//pack(P_AND_S_DEFAULT, slaveId, &info, &numb, comm_str_usb);
-	//emit writeCommand(numb, comm_str_usb, WRITE);
 }
 
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
 
-void W_AnkleTorque::receiveNewData(void)
-{
-	/*
-	if(atProfile_newProfileFlag)
-	{
-		atProfile_newProfileFlag = 0;
-		for(int i = 0; i < ATCV_NUMPOINTS; i++)
-			chartView->setPoint(i, atProfile_angles[i] / 10.0f, atProfile_torques[i] / 10.0f);
-
-		chartView->isActive = true;
-		timer->stop();
-	}
-	if(atProfile_newDataFlag)
-	{
-		atProfile_newDataFlag = 0;
-		chartView->addDataPoint(angleBuf[indexOfLastBuffered] / 10.0f, torqueBuf[indexOfLastBuffered] / 10.0f);
-	}
-	chartView->update();
-	chart->update();
-	*/
-
-	//qDebug() << "receiveNewData is called - but all the code is disabled";
-}
-
 void W_AnkleTorque::torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2])
 {
 	qDebug() << "UserTesting has new points for AnkleTorqueTool... (leg = " << activeLeg << ")";
 
+	int8_t atAngle[6], atTorque[6];
 	int idx = activeLeg;
 	if(activeLeg == 2){idx = 0;}
 
@@ -228,16 +148,16 @@ void W_AnkleTorque::torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2])
 	{
 		if(idx == 0)
 		{
-			atProfile_angles[i] = pts0[i][0];
-			atProfile_torques[i] = pts0[i][1];
+			atAngle[i] = pts0[i][0];
+			atTorque[i] = pts0[i][1];
 		}
 		else
 		{
-			atProfile_angles[i] = pts1[i][0];
-			atProfile_torques[i] = pts1[i][1];
+			atAngle[i] = pts1[i][0];
+			atTorque[i] = pts1[i][1];
 		}
 
-		chartView->setPoint(i, atProfile_angles[i], atProfile_torques[i]);
+		chartView->setPoint(i, atAngle[i], atTorque[i]);
 	}
 
 	chartView->isActive = true;
@@ -311,39 +231,6 @@ void W_AnkleTorque::on_lineEditPersistentPoints_returnPressed() {
 	chart->update();
 	chartView->update();
 }
-
-/*
-void W_AnkleTorque::on_streamButton_pressed()
-{
-	static bool isStreaming = false;
-	const int streamFreq = 33;
-	if(!streamManager) return;
-
-	int slaveId = -1;
-	FlexseaDevice* device = nullptr;
-	emit getSlaveId(&slaveId);
-	emit getCurrentDevice(&device);
-
-	if(slaveId < 0 || !device) return;
-
-	if(isStreaming)
-	{
-		streamManager->stopStreaming(getCommandCode(), slaveId, streamFreq);
-		chartView->clearOverlay();
-	}
-	else
-	{
-		streamManager->startAutoStreaming(getCommandCode(), slaveId, streamFreq, false, device, 0, 0);	//ToDo this has to be the index!!! not 0,0
-	}
-
-	QString btnText = "";
-	btnText.append(isStreaming ? "Start" : "Stop");
-	btnText.append(" Streaming Overlay");
-
-	ui->streamButton->setText(btnText);
-	isStreaming = !isStreaming;
-}
-*/
 
 void W_AnkleTorque::on_checkBoxLabels_toggled(bool checked)
 {
