@@ -135,7 +135,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	uint16_t newGstate = 0;
 	uint16_t step = 0;
 	static int lastRollover = 0, triggerPoint = 0, trigCnt = 0, rollCnt = 0;
-	int seconds = rollover / 1000;
+	int seconds = rollover / 100;
 	if(seconds <= 0){seconds = 1;}
 	//ToDo: this could be done with floats
 
@@ -151,7 +151,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	if(lastRollover != rollover){idx = 0;}
 	lastRollover = rollover;
 
-	step = rollover / (seconds * streamingFreq);
+	step = rollover / ((seconds * streamingFreq) / 10);
 	idx += step;
 	if(idx > rollover)
 	{
