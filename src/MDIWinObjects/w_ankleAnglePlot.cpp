@@ -352,7 +352,7 @@ void W_AnkleAnglePlot::on_lineEditPersistentPoints_returnPressed() {
 
 void W_AnkleAnglePlot::on_pushButtonOneCycle_clicked()
 {
-	int pts = 10*rollover / streamingFreq;
+	int pts = (rollover * streamingFreq) / 1000;
 	QString str = QString::number(pts);
 	ui->lineEditPersistentPoints->setText(str);
 	emit on_lineEditPersistentPoints_returnPressed();
