@@ -164,6 +164,8 @@ void W_AnkleAnglePlot::receiveNewData(void)
 		//Normal operation - real data:
 		//Fixed trigger: gaitState
 		newGstate = rigid1.ctrl.gaitState;
+		if(ui->comboBoxLeg->currentIndex() == 1){newGstate = rigid2.ctrl.gaitState;}
+
 		if(lastGstate == 0 &&  newGstate == 1)
 		{
 			//Triggered
@@ -263,8 +265,6 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 	pts[0] = QPointF(idx, *ri->ex.joint_ang);
 	pts[1] = QPointF(idx, 100*ri->ctrl.gaitState);
 	pts[2] = QPointF(idx, 100*ri->ctrl.walkingState);
-	//pts[3] = QPointF(idx, ri->mn.genVar[7]);
-	//pts[4] = QPointF(idx, ri->mn.genVar[8]);
 	pts[3] = QPointF(idx, ri->ctrl.step_energy);
 	pts[4] = QPointF(idx, ri->ctrl.contra_hs);
 }

@@ -69,6 +69,18 @@ W_UserTesting::W_UserTesting(QWidget *parent,
 	mwAppPath = appPath;
 	tweakHasChanged = false;
 	uiSetup = false;
+
+	/*
+	//Test code - ToDo remove
+	uint32_t d = 0;
+	struct dual_utt_s testUTT;
+	testUTT.leg[0].torquePoints[5][0] = -30;
+	testUTT.leg[0].torquePoints[5][1] = 127;
+	qDebug() << QString::number(testUTT.leg[0].torquePoints[5][0]) << ", " <<  QString::number(testUTT.leg[0].torquePoints[5][1]);
+	d = compTorqueX(&testUTT, 0);
+	decompTorqueX(&testUTT, 0, d);
+	qDebug() << QString::number(testUTT.leg[0].torquePoints[5][0]) << ", " <<  QString::number(testUTT.leg[0].torquePoints[5][1]);
+	*/
 }
 
 W_UserTesting::~W_UserTesting()

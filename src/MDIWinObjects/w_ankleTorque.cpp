@@ -165,8 +165,8 @@ void W_AnkleTorque::handlePointChange()
 	chartView->getPoints(p, ATCV_NUMPOINTS);
 	for(int i = 0; i < ATCV_NUMPOINTS; i++)
 	{
-		atProfile_torques[i] = p[i].y()*10;
-		atProfile_angles[i] = p[i].x()*10;
+		atProfile_torques[i] = p[i].y();
+		atProfile_angles[i] = p[i].x();
 
 		ptArray[i][0] = (int8_t) p[i].x();
 		ptArray[i][1] = (int8_t) p[i].y();
