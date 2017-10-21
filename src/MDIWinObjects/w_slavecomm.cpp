@@ -325,8 +325,15 @@ void W_SlaveComm::initSlaveCom(void)
 	QString log_cb_ptr_ttip = "<html><head/><body><p>Check this box to log the stream. \
 			</p><p>It will log under the folder &quot;Plan-GUI-Logs&quot; \
 			when the stream is active.</p></body></html>";
+	QString auto_cb_ptr_ttip = "<html><head/><body><p>In Auto mode, Plan sends one\
+							  read request and the slave starts streaming data at \
+							  the desired frequency (unidirectional communication).</p>\
+							  <p>In Normal mode one Read request is needed per Reply\
+							  (bidirectional communication).</p></body></html>";
 	QString on_off_pb_ttip = "<html><head/><body><p>Turn streaming on/off</p></body></html>";
 	QString labelStatusttip = "<html><head/><body><p>Stream Status.</p></body></html>";
+	QString labelOnOffTitle = "<html><head/><body><p>Activate the data stream\
+							  for analysing window.</p></body></html>";
 	QString lineEdit_ttip = "<html><head/><body><p>In regular mode entering '0,3' will read 2 \
 							values (0 and 3). In Auto mode, it will take the min and max. \
 							With the same input, it will read 4 values.</p></body></html>";
@@ -367,9 +374,12 @@ void W_SlaveComm::initSlaveCom(void)
 		(log_cb_ptr[row])->setChecked(false);
 		(log_cb_ptr[row])->setEnabled(false);
 		(log_cb_ptr[row])->setToolTip(log_cb_ptr_ttip);
+		ui->labelLog->setToolTip(log_cb_ptr_ttip);
 
 		(auto_checkbox[row])->setChecked(false);
 		(auto_checkbox[row])->setEnabled(false);
+		(auto_checkbox[row])->setToolTip(auto_cb_ptr_ttip);
+		ui->labelAuto->setToolTip(auto_cb_ptr_ttip);
 
 		//On/Off Button init:
 		(on_off_pb_ptr[row])->setText(QChar(0x2718));
@@ -378,6 +388,7 @@ void W_SlaveComm::initSlaveCom(void)
 										color: rgb(0, 0, 0)");
 		(on_off_pb_ptr[row])->setToolTip(on_off_pb_ttip);
 		(on_off_pb_ptr[row])->setDisabled(true);
+		ui->labelOnOffTitle->setToolTip(labelOnOffTitle);
 
 		// Label int:
 		// Whites space are to allow balanced scale-up between on-off and label.
