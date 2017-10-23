@@ -132,11 +132,11 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
-    static int16_t gaitEnergyLog[GAIT_ENERGY_LOG_PTS], gaitEnergyIndex = 0;
-    static int16_t dispEnergy = 0;
+	static int16_t gaitEnergyLog[GAIT_ENERGY_LOG_PTS], gaitEnergyIndex = 0;
+	static int16_t dispEnergy = 0;
 	uint16_t newGstate = 0;
 	uint16_t step = 0;
-    int32_t energySum = 0;
+	int32_t energySum = 0;
 	static int lastRollover = 0, triggerPoint = 0, trigCnt = 0, rollCnt = 0;
 	int seconds = rollover / 100;
 	if(seconds <= 0){seconds = 1;}
@@ -161,10 +161,10 @@ void W_AnkleAnglePlot::receiveNewData(void)
 		rollCnt = TRIG_DISP_LATCH;
 	}
 
-    //Gait Energy display - save last 10 points:
-    gaitEnergyIndex++;
-    gaitEnergyIndex %= GAIT_ENERGY_LOG_PTS;
-    gaitEnergyLog[gaitEnergyIndex] = instantStepEnergy;
+	//Gait Energy display - save last 10 points:
+	gaitEnergyIndex++;
+	gaitEnergyIndex %= GAIT_ENERGY_LOG_PTS;
+	gaitEnergyLog[gaitEnergyIndex] = instantStepEnergy;
 
 	if(ui->checkBoxFake->isChecked() == false)
 	{
@@ -181,15 +181,15 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			idx = 0;
 			qDebug() << "trigger latched";
 
-            //Average energy:
-            energySum = 0;
-            for(int i = 0; i < GAIT_ENERGY_LOG_PTS; i++)
-            {
-                energySum += gaitEnergyLog[i];
-            }
-            dispEnergy = energySum / GAIT_ENERGY_LOG_PTS;
-            ui->label_Joules->setText(QString::number(dispEnergy));
-            qDebug() << "Last cycle's energy:" << dispEnergy << "J.";
+			//Average energy:
+			energySum = 0;
+			for(int i = 0; i < GAIT_ENERGY_LOG_PTS; i++)
+			{
+				energySum += gaitEnergyLog[i];
+			}
+			dispEnergy = energySum / GAIT_ENERGY_LOG_PTS;
+			ui->label_Joules->setText(QString::number((float)dispEnergy/10, 'f',1) + "J");
+			qDebug() << "Last cycle's energy:" << dispEnergy << "J.";
 		}
 		lastGstate = newGstate;
 		mapSensorsToPoints(idx);
@@ -202,6 +202,16 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			triggerPoint = idx;
 			trigCnt = TRIG_DISP_LATCH;
 			idx = 0;
+
+			//Average energy:
+			energySum = 0;
+			for(int i = 0; i < GAIT_ENERGY_LOG_PTS; i++)
+			{
+				energySum += gaitEnergyLog[i];
+			}
+			dispEnergy = energySum / GAIT_ENERGY_LOG_PTS;
+			ui->label_Joules->setText(QString::number((float)dispEnergy/10, 'f',1) + "J");
+			qDebug() << "Last cycle's energy:" << dispEnergy << "J.";
 		}
 		lastGstate = pts[1].y() ;
 		fakeDataToPoints(idx);
@@ -285,14 +295,15 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 	pts[3] = QPointF(idx, ri->ctrl.step_energy);
 	pts[4] = QPointF(idx, ri->ctrl.contra_hs);
 
-    //Latch step energy:
-    instantStepEnergy = ri->ctrl.step_energy;
+	//Latch step energy:
+	instantStepEnergy = ri->ctrl.step_energy;
 }
 
 //This generates fake data and maps it to points
 void W_AnkleAnglePlot::fakeDataToPoints(int idx)
 {
 	static int trig[2] = {0,0};
+	static int latchP = 0;
 	int lim = 0;
 	int p = 0;
 	static bool k = false;
@@ -305,8 +316,8 @@ void W_AnkleAnglePlot::fakeDataToPoints(int idx)
 	if(idx > rollover/2) {trig[1] = 110;}
 	else{trig[1] = 0;}
 
-	if(idx < rollover/2){p = idx;}
-	else{p = 0;}
+	if(idx < rollover/2){p = idx; latchP = idx;}
+	else{p = latchP;}
 	p = p/33;
 	p = pow(p, 2);
 
@@ -316,6 +327,10 @@ void W_AnkleAnglePlot::fakeDataToPoints(int idx)
 	pts[3] = QPointF(idx, p);
 	if(!k){pts[4] = QPointF(idx, 50); k = true;}
 	else{pts[4] = QPointF(idx, 0); k = false;}
+
+	//Latch step energy:
+	instantStepEnergy = p;
+	qDebug() << instantStepEnergy;
 }
 
 void W_AnkleAnglePlot::streamingFrequency(int f)
