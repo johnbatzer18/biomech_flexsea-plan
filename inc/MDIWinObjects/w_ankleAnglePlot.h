@@ -224,6 +224,7 @@ private:
 	QLineSeries* lineSeries[A2PLOT_VAR_NUM];
 	QPointF pts[A2PLOT_VAR_NUM];
 	QCheckBox **cbVar[A2PLOT_VAR_NUM];
+    int16_t instantStepEnergy = 0;
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;

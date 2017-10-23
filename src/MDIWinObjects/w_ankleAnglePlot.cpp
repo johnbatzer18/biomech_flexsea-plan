@@ -126,18 +126,20 @@ W_AnkleAnglePlot::~W_AnkleAnglePlot()
 // Public slot(s):
 //****************************************************************************
 
-//#define TRIG_ZERO	50
-#define TRIG_DISP_LATCH	25
+#define TRIG_DISP_LATCH         25
+#define GAIT_ENERGY_LOG_PTS     10
 
 void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
+    static int16_t gaitEnergyLog[GAIT_ENERGY_LOG_PTS], gaitEnergyIndex = 0;
+    static int16_t dispEnergy = 0;
 	uint16_t newGstate = 0;
 	uint16_t step = 0;
+    int32_t energySum = 0;
 	static int lastRollover = 0, triggerPoint = 0, trigCnt = 0, rollCnt = 0;
 	int seconds = rollover / 100;
 	if(seconds <= 0){seconds = 1;}
-	//ToDo: this could be done with floats
 
 	chartView->isActive = true;
 	chartView->update();
@@ -159,6 +161,11 @@ void W_AnkleAnglePlot::receiveNewData(void)
 		rollCnt = TRIG_DISP_LATCH;
 	}
 
+    //Gait Energy display - save last 10 points:
+    gaitEnergyIndex++;
+    gaitEnergyIndex %= GAIT_ENERGY_LOG_PTS;
+    gaitEnergyLog[gaitEnergyIndex] = instantStepEnergy;
+
 	if(ui->checkBoxFake->isChecked() == false)
 	{
 		//Normal operation - real data:
@@ -173,6 +180,16 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			trigCnt = TRIG_DISP_LATCH;
 			idx = 0;
 			qDebug() << "trigger latched";
+
+            //Average energy:
+            energySum = 0;
+            for(int i = 0; i < GAIT_ENERGY_LOG_PTS; i++)
+            {
+                energySum += gaitEnergyLog[i];
+            }
+            dispEnergy = energySum / GAIT_ENERGY_LOG_PTS;
+            ui->label_Joules->setText(QString::number(dispEnergy));
+            qDebug() << "Last cycle's energy:" << dispEnergy << "J.";
 		}
 		lastGstate = newGstate;
 		mapSensorsToPoints(idx);
@@ -267,6 +284,9 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 	pts[2] = QPointF(idx, 100*ri->ctrl.walkingState);
 	pts[3] = QPointF(idx, ri->ctrl.step_energy);
 	pts[4] = QPointF(idx, ri->ctrl.contra_hs);
+
+    //Latch step energy:
+    instantStepEnergy = ri->ctrl.step_energy;
 }
 
 //This generates fake data and maps it to points
