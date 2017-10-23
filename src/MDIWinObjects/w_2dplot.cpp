@@ -616,28 +616,13 @@ void W_2DPlot::saveNewPointsLog(int index)
 
 	for(int item = 0; item < VAR_NUM; item++)
 	{
-		int dataIter = 0;
+
 		// Manage the starting point for parsing the data
+		// set the data iterator to start with the index desired
+		int dataIter = index;
 
-		// set the data iterator to start with an half
-		// the plot filled to the right (oscilloscope style)
-		if(index > plot_len / 2)
-		{
-			dataIter = index - (plot_len / 2);
-		}
-		// if the index is higher thant plot-len/2, plot normally
-		else
-		{
-			dataIter = 0;
-		}
-
-		// Set the plot iterator
-		int graphIter = (plot_len / 2) - index;
-
-		if(graphIter < 0)
-		{
-			graphIter = 0;
-		}
+		// Set the plot iterator to the begining
+		int graphIter = 0;
 
 		// Add data until one of the limit is reached.
 		while(dataIter < selectedDevList[item]->length() &&
