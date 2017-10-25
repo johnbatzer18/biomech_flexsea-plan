@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>763</width>
-    <height>200</height>
+    <height>225</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -145,6 +145,13 @@
      </item>
      <item row="0" column="4" rowspan="4">
       <layout class="QGridLayout" name="gridLayout_2">
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="checkBoxP">
+         <property name="text">
+          <string>Step Energy</string>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="0">
         <widget class="QCheckBox" name="checkBoxWS">
          <property name="text">
@@ -152,12 +159,8 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QCheckBox" name="checkBoxP">
-         <property name="text">
-          <string>Step Energy</string>
-         </property>
-        </widget>
+       <item row="0" column="0">
+        <widget class="QComboBox" name="comboBoxLeg"/>
        </item>
        <item row="1" column="0">
         <widget class="QCheckBox" name="checkBoxGS">
@@ -173,8 +176,12 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QComboBox" name="comboBoxLeg"/>
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="checkBoxCurrent">
+         <property name="text">
+          <string>Current</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
