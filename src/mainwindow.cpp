@@ -348,10 +348,11 @@ void MainWindow::initFlexSeaDeviceObject(void)
 
 void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 {
-//	serialThread = new QThread(this);
-//	driver->moveToThread(serialThread);
-//	manager->moveToThread(serialThread);
-//	serialThread->start(QThread::HighestPriority);
+	serialThread = new QThread(this);
+	driver->moveToThread(serialThread);
+	driver->init();
+	connect(serialThread, SIGNAL(finished()), serialThread, SLOT(deleteLater()));
+
 
 	connect(driver, &SerialDriver::aboutToClose, manager, &StreamManager::onComPortClosing, Qt::DirectConnection);
 
@@ -370,6 +371,8 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 			this, SLOT(setStatusBar(QString)));
 	connect(driver, SIGNAL(openStatus(bool)), \
 			this, SLOT(saveComPortStatus(bool)));
+
+	serialThread->start(QThread::HighestPriority);
 }
 
 void MainWindow::initializeCreateWindowFctPtr(void)
@@ -1717,6 +1720,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 	qDebug() << "Closing, see you soon!";
 	//writeSettings();
+	serialThread->quit();
+	serialThread->wait();
 	event->accept();
 }
 

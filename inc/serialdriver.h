@@ -65,6 +65,10 @@ public:
 	explicit SerialDriver(QObject *parent = 0);
 	virtual ~SerialDriver();
 
+
+
+public slots:
+
 	void init(void);
 	bool isOpen() { return USBSerialPort.isOpen(); }
 	void flush(void);
@@ -72,7 +76,6 @@ public:
 
 	void addDevice(FlexseaDevice* device);
 
-public slots:
 	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
 	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);

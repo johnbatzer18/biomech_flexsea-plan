@@ -52,19 +52,10 @@
 
 SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 {
-	comPortOpen = false;
-
-	//QThread *thread1 = new QThread; // First thread
-	//thread1->start();
-
-	//Timer:
-	clockTimer = new QTimer();
-	clockTimer->setTimerType(Qt::CoarseTimer);
-	clockTimer->setSingleShot(false);
-	//clockTimer->setInterval(CLOCK_TIMER_PERIOD);
-	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::timerEvent);
-
-	//clockTimer->moveToThread(thread1);
+	// Because this class is used in a thread, init is called after the class
+	// has been passed to the thread. This avoid allocating heap in the
+	// "creator thread" instead of the "SerialDriver thread".
+	// see https://wiki.qt.io/QThreads_general_usage
 }
 
 SerialDriver::~SerialDriver() {
@@ -367,6 +358,12 @@ void SerialDriver::addDevice(FlexseaDevice* device)
 void SerialDriver::init(void)
 {
 	comPortOpen = false;
+
+	//Timer:
+	clockTimer = new QTimer();
+	clockTimer->setTimerType(Qt::CoarseTimer);
+	clockTimer->setSingleShot(false);
+	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::timerEvent);
 }
 
 //****************************************************************************

@@ -212,6 +212,7 @@ void W_Config::on_openComButton_clicked()
 	n1 = nAll.section(" ", 0, 0, QString::SectionSkipEmpty);
 	emit openCom(n1, 25, 100000, &success);
 
+
 	//Connection is successful.
 	if(success)
 	{
