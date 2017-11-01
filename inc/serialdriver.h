@@ -68,7 +68,7 @@ public:
 public slots:
 
 	void init(void);
-	bool isOpen() { return USBSerialPort.isOpen(); }
+	bool isOpen() { return USBSerialPort->isOpen(); }
 	void flush(void);
 	void clear(void);
 
@@ -82,7 +82,7 @@ public slots:
 
 private:
 
-	QSerialPort USBSerialPort;
+	QSerialPort* USBSerialPort;
 	bool comPortOpen;
 	unsigned char usb_rx[256];
 	uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
