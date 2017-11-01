@@ -87,6 +87,29 @@ void W_Config::setComProgress(int val)
 	ui->comProgressBar->setValue(val);
 }
 
+void W_Config::on_openComButtonReturn(bool success)
+{
+	//Connection is successful.
+	if(success)
+	{
+		dataSourceState = LiveCOM;
+		emit updateDataSourceStatus(dataSourceState, nullptr);
+
+		ui->openComButton->setDisabled(true);
+		ui->closeComButton->setDisabled(false);
+		ui->comPortComboBox->setDisabled(true);
+
+		ui->pbLoadLogFile->setDisabled(true);
+
+		//Enable Bluetooth button:
+		ui->pbBTmode->setEnabled(true);
+	}
+	else
+	{
+		ui->pbLoadLogFile->setDisabled(false);
+	}
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -211,27 +234,10 @@ void W_Config::on_openComButton_clicked()
 	nAll = ui->comPortComboBox->currentText();
 	n1 = nAll.section(" ", 0, 0, QString::SectionSkipEmpty);
 	emit openCom(n1, 25, 100000, &success);
+	comPortRefreshTimer->start(REFRESH_PERIOD);
 
-
-	//Connection is successful.
-	if(success)
-	{
-		dataSourceState = LiveCOM;
-		emit updateDataSourceStatus(dataSourceState, nullptr);
-
-		ui->openComButton->setDisabled(true);
-		ui->closeComButton->setDisabled(false);
-		ui->comPortComboBox->setDisabled(true);
-
-		ui->pbLoadLogFile->setDisabled(true);
-
-		//Enable Bluetooth button:
-		ui->pbBTmode->setEnabled(true);
-	}
-	else
-	{
-		comPortRefreshTimer->start(REFRESH_PERIOD);
-	}
+	// Disable the log button during the port opening
+	ui->pbLoadLogFile->setDisabled(true);
 }
 
 void W_Config::on_closeComButton_clicked()

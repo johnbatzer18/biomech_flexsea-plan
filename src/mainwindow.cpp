@@ -349,10 +349,9 @@ void MainWindow::initFlexSeaDeviceObject(void)
 void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 {
 	serialThread = new QThread(this);
+	connect(serialThread, SIGNAL(started()), driver, SLOT(init()));
 	driver->moveToThread(serialThread);
-	driver->init();
-	connect(serialThread, SIGNAL(finished()), serialThread, SLOT(deleteLater()));
-
+	serialThread->start(QThread::HighestPriority);
 
 	connect(driver, &SerialDriver::aboutToClose, manager, &StreamManager::onComPortClosing, Qt::DirectConnection);
 
@@ -371,8 +370,6 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 			this, SLOT(setStatusBar(QString)));
 	connect(driver, SIGNAL(openStatus(bool)), \
 			this, SLOT(saveComPortStatus(bool)));
-
-	serialThread->start(QThread::HighestPriority);
 }
 
 void MainWindow::initializeCreateWindowFctPtr(void)
@@ -744,6 +741,8 @@ void MainWindow::createConfig(void)
 		// Link to SerialDriver
 		connect(myViewConfig[0], SIGNAL(openCom(QString,int,int, bool*)), \
 				mySerialDriver, SLOT(open(QString,int,int, bool*)));
+		connect(mySerialDriver, SIGNAL(openStatus(bool)), \
+				myViewConfig[0], SLOT(on_openComButtonReturn(bool)));
 		connect(myViewConfig[0], SIGNAL(closeCom()), \
 				mySerialDriver, SLOT(close()));
 		connect(mySerialDriver, SIGNAL(openProgress(int)), \

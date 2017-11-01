@@ -360,7 +360,7 @@ void SerialDriver::init(void)
 	comPortOpen = false;
 
 	//Timer:
-	clockTimer = new QTimer();
+	clockTimer = new QTimer(this);
 	clockTimer->setTimerType(Qt::CoarseTimer);
 	clockTimer->setSingleShot(false);
 	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::timerEvent);

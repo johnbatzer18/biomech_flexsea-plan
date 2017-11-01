@@ -92,6 +92,7 @@ private slots:
 
 public slots:
 	void setComProgress(int val);
+	void on_openComButtonReturn(bool success);
 
 private:
 	//Variables & Objects:

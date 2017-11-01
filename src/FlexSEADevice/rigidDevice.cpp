@@ -196,8 +196,6 @@ QStringList RigidDevice::headerUnitList = QStringList()
 	<< "Raw value only"
 	<< "Raw value only"
 	<< "Raw value only"
-	<< "Raw value only"
-	<< "Raw value only"
 	<< "Raw value only";
 
 QString RigidDevice::getLastDataEntry(void)

@@ -65,8 +65,6 @@ public:
 	explicit SerialDriver(QObject *parent = 0);
 	virtual ~SerialDriver();
 
-
-
 public slots:
 
 	void init(void);
