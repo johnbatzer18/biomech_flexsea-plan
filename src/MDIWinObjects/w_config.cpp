@@ -70,6 +70,10 @@ W_Config::W_Config(QWidget *parent) :
 
 W_Config::~W_Config()
 {
+	if(dataSourceState != None)
+	{
+		emit closeCom();
+	}
 	emit windowClosed();
 	delete ui;
 }
@@ -137,7 +141,6 @@ void W_Config::initCom(void)
  * then plug COM1, it will display COM1. That's confusing for the users.*/
 void W_Config::getComList(void)
 {
-	static int lastComPortCounts = 0;
 	int ComPortCounts = 0;
 	QString nn;
 

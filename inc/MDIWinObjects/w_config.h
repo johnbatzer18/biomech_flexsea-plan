@@ -100,6 +100,7 @@ private:
 	DataSource dataSourceState;
 	bool btDataMode;
 	int btConfigField;
+	int lastComPortCounts = 0;
 
 	QTimer *comPortRefreshTimer, *btConfigTimer;
 
