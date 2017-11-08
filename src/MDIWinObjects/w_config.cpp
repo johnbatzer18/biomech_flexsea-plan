@@ -248,6 +248,16 @@ void W_Config::on_closeComButton_clicked()
 	//Emit signal:
 	emit closeCom();
 
+	closingPortRoutine();
+}
+
+void W_Config::serialAboutToClose()
+{
+	closingPortRoutine();
+}
+
+void W_Config::closingPortRoutine(void)
+{
 	//Enable Open COM button:
 	ui->openComButton->setDisabled(false);
 	ui->closeComButton->setDisabled(true);

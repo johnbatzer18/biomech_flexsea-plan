@@ -751,6 +751,8 @@ void MainWindow::createConfig(void)
 				this, SLOT(translatorUpdateDataSourceStatus(DataSource, FlexseaDevice *)));
 		connect(myViewConfig[0], SIGNAL(createLogKeypad(DataSource, FlexseaDevice *)),
 				this, SLOT(manageLogKeyPad(DataSource, FlexseaDevice *)));
+		connect(mySerialDriver, SIGNAL(aboutToClose()), \
+				myViewConfig[0], SLOT(serialAboutToClose()));
 
 		/*connect(myViewConfig[0], SIGNAL(writeCommand(uint8_t,uint8_t*,uint8_t)), \
 				this, SIGNAL(connectorWriteCommand(uint8_t,uint8_t*,uint8_t))); */

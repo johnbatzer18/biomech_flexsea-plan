@@ -89,6 +89,7 @@ private slots:
 	void on_pbBTreset_clicked();
 
 	void on_pbBTfast_clicked();
+	void serialAboutToClose();
 
 public slots:
 	void setComProgress(int val);
@@ -109,6 +110,7 @@ private:
 	void defaultComOffUi(void);
 	void enableBluetoothCommandButtons(void);
 	void disableBluetoothCommandButtons(void);
+	void closingPortRoutine(void);
 
  signals:
 	void openCom(QString name, int tries, int delay, bool *success);

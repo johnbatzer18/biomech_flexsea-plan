@@ -88,14 +88,14 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	//USBSerialPort->setFlowControl(QSerialPort::NoFlowControl);
 
 	connect(USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
+	// Handle a deconnection event
+	connect(USBSerialPort, &QSerialPort::errorOccurred, this,  &SerialDriver::serialPortErrorEvent);
 
 	//Start timer:
 	timerCount = 0;
-	clockTimer->start(CLOCK_TIMER_PERIOD);
 
 	do
 	{
-		int lalalla =2;
 		isPortOpen = USBSerialPort->open(QIODevice::ReadWrite);  //returns true if successful
 		cnt++;
 		if(cnt >= tries)
@@ -360,11 +360,6 @@ void SerialDriver::init(void)
 {
 	comPortOpen = false;
 
-	//Timer:
-	clockTimer = new QTimer(this);
-	clockTimer->setTimerType(Qt::CoarseTimer);
-	clockTimer->setSingleShot(false);
-	connect(clockTimer, &QTimer::timeout, this, &SerialDriver::timerEvent);
 	USBSerialPort = new QSerialPort(this);
 }
 
@@ -372,20 +367,12 @@ void SerialDriver::init(void)
 // Private slot(s):
 //****************************************************************************
 
-void SerialDriver::timerEvent(void)
+void SerialDriver::serialPortErrorEvent(QSerialPort::SerialPortError error)
 {
-	if(timerCount < CLOCK_TIMER_MAX_COUNT && comPortOpen == false)
+	if (comPortOpen == true &&
+		error == QSerialPort::ResourceError)
 	{
-		timerCount++;
-		emit openProgress(100*(timerCount/CLOCK_TIMER_MAX_COUNT));
-		qDebug() << "Tick...";
-	}
-	else
-	{
-		//We have reached the maximum count, or the port opened.
-
-		qDebug() << "Timer expired or port opened";
-
-		clockTimer->stop();
+		comPortOpen = false;
+		close();
 	}
 }

@@ -86,7 +86,6 @@ private:
 	bool comPortOpen;
 	unsigned char usb_rx[256];
 	uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
-	QTimer* clockTimer;
 	uint16_t timerCount;
 
 	std::vector<FlexseaDevice*> devices;
@@ -94,7 +93,6 @@ private:
 
 	void signalSuccessfulParse();
 	void debugStats(int,int);
-	void timerEvent(void);
 
 signals:
 	void timerClocked(void);
@@ -106,6 +104,10 @@ signals:
 	void setStatusBarMessage(QString msg);
 	void writeToLogFile(FlexseaDevice*);
 	void aboutToClose(void);
+
+private slots:
+	void serialPortErrorEvent(QSerialPort::SerialPortError error);
+
 };
 
 //****************************************************************************
