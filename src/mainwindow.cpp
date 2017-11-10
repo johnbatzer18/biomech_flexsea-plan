@@ -718,7 +718,7 @@ void MainWindow::createConfig(void)
 	//Limited number of windows:
 	if(objectCount < (CONFIG_WINDOWS_MAX))
 	{
-		myViewConfig[objectCount] = new W_Config(this);
+		myViewConfig[objectCount] = new W_Config(this, &favoritePort);
 		mdiState[CONFIG_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewConfig[objectCount]);
 		mdiState[CONFIG_WINDOWS_ID][objectCount].open = true;
 		myViewConfig[objectCount]->show();
@@ -1762,24 +1762,29 @@ void MainWindow::loadCSVconfigFile(void)
 		line = configFile.readLine();
 		splitLine = line.split(',', QString::KeepEmptyParts);
 		qDebug() << splitLine;
-
-		id = splitLine.at(1).toInt();
-		obj = splitLine.at(2).toInt();
-		on = splitLine.at(3).toInt();
-		x = splitLine.at(4).toInt();
-		y = splitLine.at(5).toInt();
-		w = splitLine.at(6).toInt();
-		h = splitLine.at(7).toInt();
-		if(on == 1)
+		if(splitLine.at(0) != "Favorite Com List")
 		{
-			if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
+			id = splitLine.at(1).toInt();
+			obj = splitLine.at(2).toInt();
+			on = splitLine.at(3).toInt();
+			x = splitLine.at(4).toInt();
+			y = splitLine.at(5).toInt();
+			w = splitLine.at(6).toInt();
+			h = splitLine.at(7).toInt();
+			if(on == 1)
 			{
-				//Create any extra windows:
-				(this->*mdiCreateWinPtr[id])();	//Create window
+				if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
+				{
+					//Create any extra windows:
+					(this->*mdiCreateWinPtr[id])();	//Create window
+				}
+				setWinGeo(id, obj, x, y, w, h);	//Position it
 			}
-			setWinGeo(id, obj, x, y, w, h);	//Position it
 		}
 	}
+	splitLine.removeDuplicates();
+	splitLine.removeOne("\n");
+	favoritePort = splitLine.mid(1);
 }
 
 void MainWindow::saveCSVconfigFile(void)
@@ -1827,6 +1832,15 @@ void MainWindow::saveCSVconfigFile(void)
 			}
 		}
 	}
+
+	cfStream << "Favorite Com List,";
+	//We scan the favorite com port list, and we save the info:
+	for ( QStringList::Iterator it = favoritePort.begin(); it != favoritePort.end(); ++it )
+	{
+		cfStream << *it << ",";
+	}
+
+	cfStream << endl;
 
 	//Close file:
 	configFile.close();

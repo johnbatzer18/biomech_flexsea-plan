@@ -67,7 +67,7 @@ class W_Config : public QWidget, public Counter<W_Config>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Config(QWidget *parent = 0);
+	explicit W_Config(QWidget *parent = 0, QStringList *initFavoritePort = 0);
 	~W_Config();
 
 	SerialDriver* serialDriver;
@@ -106,7 +106,7 @@ private:
 	int btConfigField;
 	int lastComPortCounts = 0;
 	QString noPortString = "No Port";
-	QStringList favoritePort;
+	QStringList *favoritePort;
 
 	QTimer *comPortRefreshTimer, *btConfigTimer;
 

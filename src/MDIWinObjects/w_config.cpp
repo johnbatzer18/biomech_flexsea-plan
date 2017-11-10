@@ -44,7 +44,7 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Config::W_Config(QWidget *parent) :
+W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 	QWidget(parent),
 	serialDriver(nullptr),
 	ui(new Ui::W_Config)
@@ -57,6 +57,7 @@ W_Config::W_Config(QWidget *parent) :
 	//Init code:
 	dataSourceState = None;
 	initCom();
+	favoritePort = initFavoritePort;
 
 	comPortRefreshTimer = new QTimer(this);
 	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
@@ -175,7 +176,7 @@ void W_Config::getComList(void)
 				ui->comPortComboBox->addItem(info.portName() + " " + nn);
 
 				// If it's a favorite, select it.
-				if(favoritePort.contains(info.portName(), Qt::CaseInsensitive))
+				if(favoritePort->contains(info.portName(), Qt::CaseInsensitive))
 				{
 					ui->comPortComboBox->setCurrentText(info.portName() + " " + nn);
 					ui->checkBoxFavoritePort->setChecked(true);
@@ -420,16 +421,16 @@ void W_Config::on_checkBoxFavoritePort_clicked()
 	{
 		if(ui->checkBoxFavoritePort->isChecked())
 		{
-			if(!favoritePort.contains(n1, Qt::CaseInsensitive))
+			if(!favoritePort->contains(n1, Qt::CaseInsensitive))
 			{
-				favoritePort.append(n1);
+				favoritePort->append(n1);
 			}
 		}
 		else
 		{
-			if(favoritePort.contains(n1, Qt::CaseInsensitive))
+			if(favoritePort->contains(n1, Qt::CaseInsensitive))
 			{
-				favoritePort.removeOne(n1);
+				favoritePort->removeOne(n1);
 			}
 		}
 	}
@@ -441,7 +442,7 @@ void W_Config::on_comPortComboBox_currentIndexChanged(const QString &arg1)
 
 	if(dataSourceState == None)
 	{
-		if(favoritePort.contains(n1, Qt::CaseInsensitive))
+		if(favoritePort->contains(n1, Qt::CaseInsensitive))
 		{
 			ui->checkBoxFavoritePort->setChecked(true);
 		}

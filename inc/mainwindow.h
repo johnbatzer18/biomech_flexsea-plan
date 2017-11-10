@@ -228,7 +228,9 @@ private:
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
 	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
-	//void (MainWindow::*mdiCloseWinPtr[WINDOWS_TYPES])(void);
+
+	// Favorite Port list
+	QStringList favoritePort;
 
 	// Objects
 	ChartController *chartController;
