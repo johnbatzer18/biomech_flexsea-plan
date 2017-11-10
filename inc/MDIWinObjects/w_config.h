@@ -91,6 +91,9 @@ private slots:
 	void on_pbBTfast_clicked();
 	void serialAboutToClose();
 
+	void on_checkBoxFavoritePort_clicked();
+	void on_comPortComboBox_currentIndexChanged(const QString &arg1);
+
 public slots:
 	void setComProgress(int val);
 	void on_openComButtonReturn(bool success);
@@ -102,6 +105,8 @@ private:
 	bool btDataMode;
 	int btConfigField;
 	int lastComPortCounts = 0;
+	QString noPortString = "No Port";
+	QStringList favoritePort;
 
 	QTimer *comPortRefreshTimer, *btConfigTimer;
 

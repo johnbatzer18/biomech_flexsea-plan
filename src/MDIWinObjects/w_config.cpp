@@ -110,6 +110,7 @@ void W_Config::on_openComButtonReturn(bool success)
 	}
 	else
 	{
+		dataSourceState = None;
 		ui->pbLoadLogFile->setDisabled(false);
 	}
 }
@@ -149,8 +150,11 @@ void W_Config::getComList(void)
 	ComPortCounts = comPortInfo.length();
 
 	//Did it change?
-	if(ComPortCounts != lastComPortCounts)
+	if(ComPortCounts != lastComPortCounts &&
+	   dataSourceState == None)
 	{
+		ui->checkBoxFavoritePort->setChecked(false);
+
 		//Yes.
 		qDebug() << "COM Port list changed.";
 
@@ -160,7 +164,7 @@ void W_Config::getComList(void)
 		if(ComPortCounts == 0)
 		{
 			//Empty, add the No Port option
-			ui->comPortComboBox->addItem("No Port");
+			ui->comPortComboBox->addItem(noPortString);
 		}
 		else
 		{
@@ -169,10 +173,19 @@ void W_Config::getComList(void)
 			{
 				nn = getCOMnickname(&info);
 				ui->comPortComboBox->addItem(info.portName() + " " + nn);
+
+				// If it's a favorite, select it.
+				if(favoritePort.contains(info.portName(), Qt::CaseInsensitive))
+				{
+					ui->comPortComboBox->setCurrentText(info.portName() + " " + nn);
+					ui->checkBoxFavoritePort->setChecked(true);
+				}
 			}
 		}
+
+		lastComPortCounts = ComPortCounts;
 	}
-	lastComPortCounts = ComPortCounts;
+
 }
 
 QString W_Config::getCOMnickname(const QSerialPortInfo *c)
@@ -231,16 +244,23 @@ void W_Config::on_openComButton_clicked()
 	bool success = false;
 	QString nAll, n1;
 
-	//Stop port refresh
-	comPortRefreshTimer->stop();
-	//Emit signal:
 	nAll = ui->comPortComboBox->currentText();
 	n1 = nAll.section(" ", 0, 0, QString::SectionSkipEmpty);
-	emit openCom(n1, 25, 100000, &success);
-	comPortRefreshTimer->start(REFRESH_PERIOD);
 
-	// Disable the log button during the port opening
-	ui->pbLoadLogFile->setDisabled(true);
+	// Check if there is a port to open
+	if(nAll != noPortString)
+	{
+		dataSourceState = LiveCOM;
+		//Stop port refresh
+		comPortRefreshTimer->stop();
+		//Emit signal:
+
+		emit openCom(n1, 25, 100000, &success);
+
+		// Disable the log button during the port opening
+		ui->pbLoadLogFile->setDisabled(true);
+	}
+
 }
 
 void W_Config::on_closeComButton_clicked()
@@ -387,3 +407,49 @@ void W_Config::on_pbBTfast_clicked()
 
 	emit on_pbBTmode_clicked();
 }
+
+void W_Config::on_checkBoxFavoritePort_clicked()
+{
+	QString nAll, n1;
+
+	nAll = ui->comPortComboBox->currentText();
+	n1 = nAll.section(" ", 0, 0, QString::SectionSkipEmpty);
+
+	if(n1 != noPortString &&
+	   dataSourceState == None)
+	{
+		if(ui->checkBoxFavoritePort->isChecked())
+		{
+			if(!favoritePort.contains(n1, Qt::CaseInsensitive))
+			{
+				favoritePort.append(n1);
+			}
+		}
+		else
+		{
+			if(favoritePort.contains(n1, Qt::CaseInsensitive))
+			{
+				favoritePort.removeOne(n1);
+			}
+		}
+	}
+}
+
+void W_Config::on_comPortComboBox_currentIndexChanged(const QString &arg1)
+{
+	QString n1 = arg1.section(" ", 0, 0, QString::SectionSkipEmpty);
+
+	if(dataSourceState == None)
+	{
+		if(favoritePort.contains(n1, Qt::CaseInsensitive))
+		{
+			ui->checkBoxFavoritePort->setChecked(true);
+		}
+		else
+		{
+			ui->checkBoxFavoritePort->setChecked(false);
+		}
+	}
+}
+
+
