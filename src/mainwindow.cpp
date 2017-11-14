@@ -167,6 +167,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	initializeCreateWindowFctPtr();
 	loadCSVconfigFile();	//By default we load the last saved settings
+	applyLoadedConfig();
 }
 
 MainWindow::~MainWindow()
@@ -482,6 +483,7 @@ void MainWindow::loadConfig(void)
 
 	//From CSV:
 	loadCSVconfigFile();
+	applyLoadedConfig();
 }
 
 void MainWindow::defaultConfig(void)
@@ -731,6 +733,9 @@ void MainWindow::createConfig(void)
 		//Link to MainWindow for the close signal:
 		connect(myViewConfig[objectCount], SIGNAL(windowClosed()), \
 				this, SLOT(closeConfig()));
+
+		connect(this, SIGNAL(connectorRefresh()), \
+				myViewConfig[objectCount], SLOT(refresh()));
 
 		//Link to DataLogger
 		connect(myViewConfig[0], SIGNAL(openReadingFile(bool *, FlexseaDevice **)), \
@@ -1755,36 +1760,56 @@ void MainWindow::loadCSVconfigFile(void)
 	QString line;
 	QStringList splitLine;
 
-	int on = 0, obj = 0, id = 0, x = 0, y = 0, w = 0, h = 0;
 	line = configFile.readLine();	//Get rid of header
+
+	// Clear the old config
+	loadedConfig.clear();
+
+	// Save the new config
 	while(!configFile.atEnd())
 	{
 		line = configFile.readLine();
 		splitLine = line.split(',', QString::KeepEmptyParts);
-		qDebug() << splitLine;
 		if(splitLine.at(0) != "Favorite Com List")
 		{
-			id = splitLine.at(1).toInt();
-			obj = splitLine.at(2).toInt();
-			on = splitLine.at(3).toInt();
-			x = splitLine.at(4).toInt();
-			y = splitLine.at(5).toInt();
-			w = splitLine.at(6).toInt();
-			h = splitLine.at(7).toInt();
-			if(on == 1)
-			{
-				if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
-				{
-					//Create any extra windows:
-					(this->*mdiCreateWinPtr[id])();	//Create window
-				}
-				setWinGeo(id, obj, x, y, w, h);	//Position it
-			}
+			loadedConfig.append(splitLine);
 		}
 	}
+
+	// Save the favorite port configuration
 	splitLine.removeDuplicates();
 	splitLine.removeOne("\n");
 	favoritePort = splitLine.mid(1);
+}
+
+void MainWindow::applyLoadedConfig(void)
+{
+	// Open the differents windows according to configuration file loaded
+	int on = 0, obj = 0, id = 0, x = 0, y = 0, w = 0, h = 0;
+
+	for (int i = 0; i < loadedConfig.size(); ++i)
+	{
+		id	= loadedConfig.at(i).at(1).toInt();
+		obj = loadedConfig.at(i).at(2).toInt();
+		on	= loadedConfig.at(i).at(3).toInt();
+		x	= loadedConfig.at(i).at(4).toInt();
+		y	= loadedConfig.at(i).at(5).toInt();
+		w	= loadedConfig.at(i).at(6).toInt();
+		h	= loadedConfig.at(i).at(7).toInt();
+
+		if(on == 1)
+		{
+			if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
+			{
+				//Create any extra windows:
+				(this->*mdiCreateWinPtr[id])();	//Create window
+			}
+			setWinGeo(id, obj, x, y, w, h);	//Position it
+		}
+	}
+
+	// Update the Favorite port listing if a config window is opened.
+	emit connectorRefresh();
 }
 
 void MainWindow::saveCSVconfigFile(void)

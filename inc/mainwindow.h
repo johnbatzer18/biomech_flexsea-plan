@@ -230,6 +230,7 @@ private:
 	void (MainWindow::*mdiCreateWinPtr[WINDOWS_TYPES])(void);
 
 	// Favorite Port list
+	QList<QStringList> loadedConfig;
 	QStringList favoritePort;
 
 	// Objects
@@ -250,6 +251,7 @@ signals:
 	void connectorUpdateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
 	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 	void connectorCurrentSlaveStreaming(QString slaveName);
+	void connectorRefresh(void);
 
 
 public slots:
@@ -339,6 +341,7 @@ public slots:
 	void closeEvent(QCloseEvent *event);
 	void loadCSVconfigFile(void);
 	void saveCSVconfigFile(void);
+	void applyLoadedConfig(void);
 };
 
 #endif // MAINWINDOW_H

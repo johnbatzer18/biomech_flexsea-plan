@@ -62,7 +62,7 @@ W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 	comPortRefreshTimer = new QTimer(this);
 	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
 	comPortRefreshTimer->start(REFRESH_PERIOD); //ms
-	getComList();	//Call now to avoid lag when a new window is opened.
+	getComList(true);	//Call now to avoid lag when a new window is opened.
 
 	//Timer for sequential configuration, BT module:
 	btConfigTimer = new QTimer(this);
@@ -116,6 +116,11 @@ void W_Config::on_openComButtonReturn(bool success)
 	}
 }
 
+void W_Config::refresh(void)
+{
+	getComList(true);
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -141,7 +146,7 @@ void W_Config::initCom(void)
 //This gets called by a timer (currently every 750ms)
 /*Note: the list is always ordered by port number. If you connect to COM2 and
  * then plug COM1, it will display COM1. That's confusing for the users.*/
-void W_Config::getComList(void)
+void W_Config::getComList(bool forceRefresh)
 {
 	int ComPortCounts = 0;
 	QString nn;
@@ -151,7 +156,7 @@ void W_Config::getComList(void)
 	ComPortCounts = comPortInfo.length();
 
 	//Did it change?
-	if(ComPortCounts != lastComPortCounts &&
+	if((ComPortCounts != lastComPortCounts || forceRefresh)  &&
 	   dataSourceState == None)
 	{
 		ui->checkBoxFavoritePort->setChecked(false);
@@ -292,7 +297,7 @@ void W_Config::closingPortRoutine(void)
 	emit updateDataSourceStatus(dataSourceState, nullptr);
 
 	// Avoid refresh lag
-	getComList();
+	getComList(true);
 	// Restart the auto-Refresh
 	comPortRefreshTimer->start(REFRESH_PERIOD);
 
@@ -416,8 +421,7 @@ void W_Config::on_checkBoxFavoritePort_clicked()
 	nAll = ui->comPortComboBox->currentText();
 	n1 = nAll.section(" ", 0, 0, QString::SectionSkipEmpty);
 
-	if(n1 != noPortString &&
-	   dataSourceState == None)
+	if(n1 != noPortString)
 	{
 		if(ui->checkBoxFavoritePort->isChecked())
 		{
