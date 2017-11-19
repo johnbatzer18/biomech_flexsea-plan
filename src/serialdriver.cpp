@@ -87,6 +87,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	USBSerialPort->setFlowControl(QSerialPort::HardwareControl);
 	//USBSerialPort->setFlowControl(QSerialPort::NoFlowControl);
 
+	// Handle data received.
 	connect(USBSerialPort, &QSerialPort::readyRead, this, &SerialDriver::handleReadyRead);
 	// Handle a deconnection event
 	connect(USBSerialPort, &QSerialPort::errorOccurred, this,  &SerialDriver::serialPortErrorEvent);
@@ -94,12 +95,9 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	//Start timer:
 	timerCount = 0;
 
-	do
+	while(isPortOpen == false && cnt < tries)
 	{
 		isPortOpen = USBSerialPort->open(QIODevice::ReadWrite);  //returns true if successful
-		cnt++;
-		if(cnt >= tries)
-			break;
 
 		//When false, print error code:
 		if(!isPortOpen)
@@ -110,7 +108,8 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 		}
 
 		usleep(delay);
-	} while(!isPortOpen);
+		cnt++;
+	}
 
 	if (!isPortOpen)
 	{
