@@ -75,7 +75,8 @@ public:
 	DataSource getDataSourceStatus(void) {return dataSourceState;}
 
 private slots:
-	void getComList(bool forceRefresh = false);
+	void refreshComList(bool forceRefresh = false, \
+						bool keepCurrentSelection = false);
 	QString getCOMnickname(const QSerialPortInfo *c);
 	void btConfig(void);
 	void on_openComButton_clicked();

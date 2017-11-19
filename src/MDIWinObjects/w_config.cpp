@@ -60,9 +60,9 @@ W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 	favoritePort = initFavoritePort;
 
 	comPortRefreshTimer = new QTimer(this);
-	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(getComList()));
+	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(refreshComList()));
 	comPortRefreshTimer->start(REFRESH_PERIOD); //ms
-	getComList(true);	//Call now to avoid lag when a new window is opened.
+	refreshComList(true);	//Call now to avoid lag when a new window is opened.
 
 	//Timer for sequential configuration, BT module:
 	btConfigTimer = new QTimer(this);
@@ -118,7 +118,7 @@ void W_Config::on_openComButtonReturn(bool success)
 
 void W_Config::refresh(void)
 {
-	getComList(true);
+	refreshComList(true);
 }
 
 //****************************************************************************
@@ -146,7 +146,7 @@ void W_Config::initCom(void)
 //This gets called by a timer (currently every 750ms)
 /*Note: the list is always ordered by port number. If you connect to COM2 and
  * then plug COM1, it will display COM1. That's confusing for the users.*/
-void W_Config::getComList(bool forceRefresh)
+void W_Config::refreshComList(bool forceRefresh, bool keepCurrentSelection)
 {
 	int ComPortCounts = 0;
 	QString nn;
@@ -159,6 +159,11 @@ void W_Config::getComList(bool forceRefresh)
 	if((ComPortCounts != lastComPortCounts || forceRefresh)  &&
 	   dataSourceState == None)
 	{
+		// Save the currentPort
+		QString currentPortAll = ui->comPortComboBox->currentText();
+		QString currentPort = currentPortAll.section(" ", 0, 0, \
+													 QString::SectionSkipEmpty);
+
 		ui->checkBoxFavoritePort->setChecked(false);
 
 		//Yes.
@@ -169,19 +174,35 @@ void W_Config::getComList(bool forceRefresh)
 		//No port?
 		if(ComPortCounts == 0)
 		{
-			//Empty, add the No Port option
+			ui->checkBoxFavoritePort->setDisabled(true);
+
+			//Empty, add the No Port indicator
 			ui->comPortComboBox->addItem(noPortString);
 		}
 		else
 		{
+			ui->checkBoxFavoritePort->setDisabled(false);
+
 			//Rewrite the list:
 			for(const QSerialPortInfo &info : comPortInfo)
 			{
 				nn = getCOMnickname(&info);
-				ui->comPortComboBox->addItem(info.portName() + " " + nn);
+				bool isFavorite = favoritePort->contains(info.portName(),
+														 Qt::CaseInsensitive);
+				if(isFavorite)
+				{
+					ui->comPortComboBox->addItem(info.portName() + " " + nn + QString::fromUtf8(" [\u2605]"));
+				}
+				else
+				{
+					ui->comPortComboBox->addItem(info.portName() + " " + nn + QString::fromUtf8(" [\u2606]"));
+				}
 
 				// If it's a favorite, select it.
-				if(favoritePort->contains(info.portName(), Qt::CaseInsensitive))
+				// If more than one port is favorite, the lower one in the list
+				// will be selected.
+
+				if(isFavorite)
 				{
 					ui->comPortComboBox->setCurrentText(info.portName() + " " + nn);
 					ui->checkBoxFavoritePort->setChecked(true);
@@ -190,8 +211,16 @@ void W_Config::getComList(bool forceRefresh)
 		}
 
 		lastComPortCounts = ComPortCounts;
-	}
 
+		if(keepCurrentSelection == true)
+		{
+			int portIndex = ui->comPortComboBox->findText(currentPort);
+			if(portIndex >= 0)
+			{
+				ui->comPortComboBox->setCurrentIndex(portIndex);
+			}
+		}
+	}
 }
 
 QString W_Config::getCOMnickname(const QSerialPortInfo *c)
@@ -297,7 +326,8 @@ void W_Config::closingPortRoutine(void)
 	emit updateDataSourceStatus(dataSourceState, nullptr);
 
 	// Avoid refresh lag
-	getComList(true);
+	refreshComList(true);
+
 	// Restart the auto-Refresh
 	comPortRefreshTimer->start(REFRESH_PERIOD);
 
@@ -438,6 +468,7 @@ void W_Config::on_checkBoxFavoritePort_clicked()
 			}
 		}
 	}
+	refreshComList(true, true);
 }
 
 void W_Config::on_comPortComboBox_currentIndexChanged(const QString &arg1)
