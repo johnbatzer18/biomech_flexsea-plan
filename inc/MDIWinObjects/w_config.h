@@ -89,7 +89,6 @@ private slots:
 	void on_pbBTreset_clicked();
 
 	void on_pbBTfast_clicked();
-	void serialAboutToClose();
 
 	void on_checkBoxFavoritePort_clicked();
 	void on_comPortComboBox_currentIndexChanged(const QString &arg1);
@@ -98,6 +97,7 @@ public slots:
 	void setComProgress(int val);
 	void on_openComButtonReturn(bool success);
 	void refresh(void);
+	void serialAboutToClose();
 
 private:
 	//Variables & Objects:
