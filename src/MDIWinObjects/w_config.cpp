@@ -270,6 +270,40 @@ void W_Config::btConfig(void)
 	ui->btProgressBar->setValue(100*btConfigField/BT_FIELDS);
 }
 
+void W_Config::toggleBtDataMode(bool forceDataMode)
+{
+	uint8_t config[4] = {0,0,0,0};
+
+	if(btDataMode == false || forceDataMode)
+	{
+		btDataMode = true;
+		ui->pbBTmode->setText("Set mode: Cmd");
+		config[0] = '-';
+		config[1] = '-';
+		config[2] = '-';
+		config[3] = '\n';
+		//writeCommand(4, config, 0);
+		serialDriver->write(4, config);
+		//We are now in Data mode:
+		disableBluetoothCommandButtons();
+		ui->btProgressBar->setValue(0);
+		ui->btProgressBar->setEnabled(false);
+	}
+	else
+	{
+		btDataMode = false;
+		ui->pbBTmode->setText("Set mode: Data");
+		config[0] = '$';
+		config[1] = '$';
+		config[2] = '$';
+		//writeCommand(3,config, 0);
+		serialDriver->write(3, config);
+		//We are now in CMD mode:
+		enableBluetoothCommandButtons();
+		ui->btProgressBar->setEnabled(true);
+	}
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -366,36 +400,7 @@ void W_Config::on_pbCloseLogFile_clicked()
 
 void W_Config::on_pbBTmode_clicked()
 {
-	uint8_t config[4] = {0,0,0,0};
-
-	if(btDataMode == false)
-	{
-		btDataMode = true;
-		ui->pbBTmode->setText("Set mode: Cmd");
-		config[0] = '-';
-		config[1] = '-';
-		config[2] = '-';
-		config[3] = '\n';
-		//writeCommand(4, config, 0);
-		serialDriver->write(4, config);
-		//We are now in Data mode:
-		disableBluetoothCommandButtons();
-		ui->btProgressBar->setValue(0);
-		ui->btProgressBar->setEnabled(false);
-	}
-	else
-	{
-		btDataMode = false;
-		ui->pbBTmode->setText("Set mode: Data");
-		config[0] = '$';
-		config[1] = '$';
-		config[2] = '$';
-		//writeCommand(3,config, 0);
-		serialDriver->write(3, config);
-		//We are now in CMD mode:
-		enableBluetoothCommandButtons();
-		ui->btProgressBar->setEnabled(true);
-	}
+	toggleBtDataMode();
 }
 
 void W_Config::on_pbBTdefault_clicked()
@@ -417,6 +422,7 @@ void W_Config::on_pbBTreset_clicked()
 	uint8_t config[5] = "R,1\n";
 	serialDriver->write(4, config);
 	serialDriver->flush();
+	toggleBtDataMode(true);
 }
 
 void W_Config::enableBluetoothCommandButtons(void)

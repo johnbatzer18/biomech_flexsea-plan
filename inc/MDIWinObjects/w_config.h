@@ -117,6 +117,7 @@ private:
 	void enableBluetoothCommandButtons(void);
 	void disableBluetoothCommandButtons(void);
 	void closingPortRoutine(void);
+	void toggleBtDataMode(bool forceDataMode = false);
 
  signals:
 	void openCom(QString name, int tries, int delay, bool *success);
