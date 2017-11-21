@@ -40,9 +40,12 @@
 #include "flexseaDevice.h"
 #include <serialdriver.h>
 
-#define REFRESH_PERIOD	750 //Port list refresh in ms
-#define BT_CONF_DELAY	500
-#define BT_FIELDS		6
+#define REFRESH_PERIOD		100 //Port list refresh in ms
+#define BT_CONF_DELAY		500
+#define BT_FIELDS			6
+
+#define COM_OPEN_TRIES		5
+#define COM_OPEN_DELAY		1000
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -87,11 +90,8 @@ private slots:
 	void on_pbBTdefault_clicked();
 	void on_pbBTfactory_clicked();
 	void on_pbBTreset_clicked();
-
 	void on_pbBTfast_clicked();
-
 	void on_checkBoxFavoritePort_clicked();
-	void on_comPortComboBox_currentIndexChanged(const QString &arg1);
 
 public slots:
 	void setComProgress(int val);
@@ -118,8 +118,9 @@ private:
 	void disableBluetoothCommandButtons(void);
 	void closingPortRoutine(void);
 	void toggleBtDataMode(bool forceDataMode = false);
+	void favoritePortManagement(int ComPortCounts);
 
- signals:
+signals:
 	void openCom(QString name, int tries, int delay, bool *success);
 	void closeCom(void);
 	void openReadingFile(bool *, FlexseaDevice **);

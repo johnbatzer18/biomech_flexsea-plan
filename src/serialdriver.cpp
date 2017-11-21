@@ -75,7 +75,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
 	int cnt = 0;
 	bool isPortOpen = false;
-	int comProgress = 0;
+	int comProgress = 5;	//Start with a small number to give user some feedback
 
 	emit openProgress(comProgress);
 
@@ -104,7 +104,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 		{
 			qDebug() << "Try #" << cnt << " failed. Error: " << \
 						USBSerialPort->errorString() << ".\n";
-			emit openProgress(100*cnt/tries);
+			emit openProgress(100*(cnt+1)/tries);
 		}
 
 		usleep(delay);

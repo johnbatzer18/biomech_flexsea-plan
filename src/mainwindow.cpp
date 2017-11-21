@@ -1790,10 +1790,10 @@ void MainWindow::loadCSVconfigFile(void)
 
 	line = configFile.readLine();	//Get rid of header
 
-	// Clear the old config
+	//Clear the old config
 	loadedConfig.clear();
 
-	// Save the new config
+	//Save the new config
 	while(!configFile.atEnd())
 	{
 		line = configFile.readLine();
@@ -1804,7 +1804,7 @@ void MainWindow::loadCSVconfigFile(void)
 		}
 	}
 
-	// Save the favorite port configuration
+	//Save the favorite port configuration
 	splitLine.removeDuplicates();
 	splitLine.removeOne("\n");
 	favoritePort = splitLine.mid(1);
@@ -1812,7 +1812,7 @@ void MainWindow::loadCSVconfigFile(void)
 
 void MainWindow::applyLoadedConfig(void)
 {
-	// Open the differents windows according to configuration file loaded
+	//Open the differents windows according to configuration file loaded
 	int on = 0, obj = 0, id = 0, x = 0, y = 0, w = 0, h = 0;
 
 	for (int i = 0; i < loadedConfig.size(); ++i)
@@ -1836,7 +1836,7 @@ void MainWindow::applyLoadedConfig(void)
 		}
 	}
 
-	// Update the Favorite port listing if a config window is opened.
+	//Update the Favorite port listing if a config window is opened.
 	emit connectorRefresh();
 }
 

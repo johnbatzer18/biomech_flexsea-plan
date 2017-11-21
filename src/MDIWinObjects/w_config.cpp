@@ -141,86 +141,99 @@ void W_Config::initCom(void)
 	ui->closeComButton->setDisabled(true);
 	ui->pbLoadLogFile->setDisabled(false);
 	ui->pbCloseLogFile->setDisabled(true);
+
+	ui->checkBoxFavoritePort->setChecked(false);
 }
 
-//This gets called by a timer (currently every 750ms)
-/*Note: the list is always ordered by port number. If you connect to COM2 and
- * then plug COM1, it will display COM1. That's confusing for the users.*/
+//This gets called by a timer
 void W_Config::refreshComList(bool forceRefresh, bool keepCurrentSelection)
 {
+	static int refreshDivide = 0;
 	int ComPortCounts = 0;
 	QString nn;
 
-	//Available ports?
-	QList<QSerialPortInfo> comPortInfo = QSerialPortInfo::availablePorts();
-	ComPortCounts = comPortInfo.length();
-
-	//Did it change?
-	if((ComPortCounts != lastComPortCounts || forceRefresh)  &&
-	   dataSourceState == None)
+	refreshDivide++;
+	refreshDivide %= 8;
+	if(!refreshDivide)
 	{
-		// Save the currentPort
-		QString currentPortAll = ui->comPortComboBox->currentText();
-		QString currentPort = currentPortAll.section(" ", 0, 0, \
-													 QString::SectionSkipEmpty);
+		//Available ports?
+		QList<QSerialPortInfo> comPortInfo = QSerialPortInfo::availablePorts();
+		ComPortCounts = comPortInfo.length();
 
-		ui->checkBoxFavoritePort->setChecked(false);
-
-		//Yes.
-		qDebug() << "COM Port list changed.";
-
-		ui->comPortComboBox->clear();
-
-		//No port?
-		if(ComPortCounts == 0)
+		//Did it change?
+		if((ComPortCounts != lastComPortCounts || forceRefresh)  &&
+			dataSourceState == None)
 		{
-			ui->checkBoxFavoritePort->setDisabled(true);
+			//Save the currentPort
+			QString currentPortAll = ui->comPortComboBox->currentText();
+			QString currentPort = currentPortAll.section(" ", 0, 0, \
+														 QString::SectionSkipEmpty);
 
-			//Empty, add the No Port indicator
-			ui->comPortComboBox->addItem(noPortString);
-		}
-		else
-		{
-			ui->checkBoxFavoritePort->setDisabled(false);
+			qDebug() << "COM Port list changed.";
 
-			//Rewrite the list:
-			for(const QSerialPortInfo &info : comPortInfo)
+			ui->comPortComboBox->clear();
+
+			//No port?
+			if(ComPortCounts == 0){ui->comPortComboBox->addItem(noPortString);}
+			else
 			{
-				nn = getCOMnickname(&info);
-				bool isFavorite = favoritePort->contains(info.portName(),
-														 Qt::CaseInsensitive);
-				if(isFavorite)
+				//Rewrite the list:
+				for(const QSerialPortInfo &info : comPortInfo)
 				{
-					ui->comPortComboBox->addItem(info.portName() + " " + nn + QString::fromUtf8(" [\u2605]"));
-				}
-				else
-				{
-					ui->comPortComboBox->addItem(info.portName() + " " + nn + QString::fromUtf8(" [\u2606]"));
-				}
-
-				// If it's a favorite, select it.
-				// If more than one port is favorite, the lower one in the list
-				// will be selected.
-
-				if(isFavorite)
-				{
-					ui->comPortComboBox->setCurrentText(info.portName() + " " + nn);
-					ui->checkBoxFavoritePort->setChecked(true);
+					nn = getCOMnickname(&info);
+					ui->comPortComboBox->addItem(info.portName() + " " + nn);
 				}
 			}
-		}
 
-		lastComPortCounts = ComPortCounts;
+			lastComPortCounts = ComPortCounts;
 
-		if(keepCurrentSelection == true)
-		{
-			int portIndex = ui->comPortComboBox->findText(currentPort);
-			if(portIndex >= 0)
+			if(keepCurrentSelection == true)
 			{
-				ui->comPortComboBox->setCurrentIndex(portIndex);
+				int portIndex = ui->comPortComboBox->findText(currentPort);
+				if(portIndex >= 0)
+				{
+					ui->comPortComboBox->setCurrentIndex(portIndex);
+				}
 			}
 		}
 	}
+
+	//Handles the Favorite Ports:
+	favoritePortManagement(lastComPortCounts);
+}
+
+void W_Config::favoritePortManagement(int ComPortCounts)
+{
+	bool isFavorite = false, cIFav = false;
+	QString name = "";
+	QStringList fullTxt;
+
+	for(int i = 0; i < ComPortCounts; i++)
+	{
+		name = ui->comPortComboBox->itemText(i).split(" ").first();
+		isFavorite = favoritePort->contains(name, Qt::CaseInsensitive);
+		fullTxt = ui->comPortComboBox->itemText(i).split(" ");
+
+		if(isFavorite)
+		{
+			//We add a star to the text
+			ui->comPortComboBox->setItemText(i, fullTxt.at(0) + " " + fullTxt.at(1) + QString::fromUtf8(" [\u2605]"));
+
+			//Checkbox star:
+			if(ui->comPortComboBox->currentIndex() == i){cIFav = true;}
+		}
+		else
+		{
+			//Old star ready to be deleted?
+			if(fullTxt.length() == 3)
+			{
+				ui->comPortComboBox->setItemText(i, fullTxt.at(0) + " " + fullTxt.at(1));
+			}
+		}
+	}
+
+	if(cIFav){ui->checkBoxFavoritePort->setChecked(true);}
+	else{ui->checkBoxFavoritePort->setChecked(false);}
 }
 
 QString W_Config::getCOMnickname(const QSerialPortInfo *c)
@@ -324,12 +337,11 @@ void W_Config::on_openComButton_clicked()
 		comPortRefreshTimer->stop();
 		//Emit signal:
 
-		emit openCom(n1, 25, 100000, &success);
+		emit openCom(n1, COM_OPEN_TRIES, COM_OPEN_DELAY, &success);
 
 		// Disable the log button during the port opening
 		ui->pbLoadLogFile->setDisabled(true);
 	}
-
 }
 
 void W_Config::on_closeComButton_clicked()
@@ -474,24 +486,4 @@ void W_Config::on_checkBoxFavoritePort_clicked()
 			}
 		}
 	}
-	refreshComList(true, true);
 }
-
-void W_Config::on_comPortComboBox_currentIndexChanged(const QString &arg1)
-{
-	QString n1 = arg1.section(" ", 0, 0, QString::SectionSkipEmpty);
-
-	if(dataSourceState == None)
-	{
-		if(favoritePort->contains(n1, Qt::CaseInsensitive))
-		{
-			ui->checkBoxFavoritePort->setChecked(true);
-		}
-		else
-		{
-			ui->checkBoxFavoritePort->setChecked(false);
-		}
-	}
-}
-
-
