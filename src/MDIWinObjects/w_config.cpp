@@ -346,6 +346,8 @@ void W_Config::on_openComButton_clicked()
 
 void W_Config::on_closeComButton_clicked()
 {
+	toggleBtDataMode(true);
+
 	//Emit signal:
 	emit closeCom();
 
@@ -435,6 +437,7 @@ void W_Config::on_pbBTreset_clicked()
 	serialDriver->write(4, config);
 	serialDriver->flush();
 	toggleBtDataMode(true);
+	emit on_closeComButton_clicked();
 }
 
 void W_Config::enableBluetoothCommandButtons(void)
