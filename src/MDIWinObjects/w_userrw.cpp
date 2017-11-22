@@ -105,7 +105,8 @@ void W_UserRW::init(void)
 
 	//Timer used to refresh the received data:
 	refreshDelayTimer = new QTimer(this);
-	connect(refreshDelayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
+	connect(refreshDelayTimer,	&QTimer::timeout,
+			this,				&W_UserRW::refreshDisplay);
 
 	userDataMan->requestMetaData(active_slave);
 	connect(userDataMan, &DynamicUserDataManager::newData, this, &W_UserRW::receiveNewData);

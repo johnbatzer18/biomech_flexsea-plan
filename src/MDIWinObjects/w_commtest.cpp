@@ -183,11 +183,13 @@ void W_CommTest::initTimers(void)
 	experimentTimerFreq = DEFAULT_EXPERIMENT_TIMER_FREQ;
 
 	displayTimer = new QTimer(this);
-	connect(displayTimer, SIGNAL(timeout()), this, SLOT(refreshDisplay()));
+	connect(displayTimer,	&QTimer::timeout,
+			this,			&W_CommTest::refreshDisplay);
 	displayTimer->start(TIM_FREQ_TO_P(DISPLAY_TIMER));
 
 	experimentTimer = new QTimer(this);
-	connect(experimentTimer, SIGNAL(timeout()), this, SLOT(readCommTest()));
+	connect(experimentTimer,	&QTimer::timeout,
+			this,				&W_CommTest::readCommTest);
 	experimentTimer->stop();
 
 	statsTimer = new QDateTime;

@@ -388,18 +388,18 @@ void W_2DPlot::initChart(void)
 	chart->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	QPixmapCache::setCacheLimit(100000);
 	//Data indicator:
-	connect(qlsChart[0], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler0(QPointF, bool)));
-	connect(qlsChart[1], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler1(QPointF, bool)));
-	connect(qlsChart[2], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler2(QPointF, bool)));
-	connect(qlsChart[3], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler3(QPointF, bool)));
-	connect(qlsChart[4], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler4(QPointF, bool)));
-	connect(qlsChart[5], SIGNAL(hovered(const QPointF, bool)),\
-			this, SLOT(myHoverHandler5(QPointF, bool)));
+	connect(qlsChart[0],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler0);
+	connect(qlsChart[1],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler1);
+	connect(qlsChart[2],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler2);
+	connect(qlsChart[3],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler3);
+	connect(qlsChart[4],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler4);
+	connect(qlsChart[5],	&QLineSeries::hovered,\
+			this,			&W_2DPlot::myHoverHandler5);
 }
 
 //Fills the fields and combo boxes:

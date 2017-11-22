@@ -163,10 +163,12 @@ void W_Control::initTabSlider(void)
 void W_Control::initTimers(void)
 {
 	timerCtrl = new QTimer(this);
-	connect(timerCtrl, SIGNAL(timeout()), this, SLOT(timerCtrlEvent()));
+	connect(timerCtrl,	&QTimer::timeout,
+			this,		&W_Control::timerCtrlEvent);
 
 	timerDisplay = new QTimer(this);
-	connect(timerDisplay, SIGNAL(timeout()), this, SLOT(timerDisplayEvent()));
+	connect(timerDisplay,	&QTimer::timeout,
+			this,			&W_Control::timerDisplayEvent);
 	timerDisplay->start(75);
 }
 

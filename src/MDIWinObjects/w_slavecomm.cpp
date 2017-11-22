@@ -287,7 +287,8 @@ void W_SlaveComm::initializeMaps()
 void W_SlaveComm::initTimers(void)
 {
 	dataTimeout = new QTimer(this);
-	connect(dataTimeout, SIGNAL(timeout()), this, SLOT(dataTimeoutEvent()));
+	connect(dataTimeout,	&QTimer::timeout,
+			this,			&W_SlaveComm::dataTimeoutEvent);
 	dataTimeout->start(DATA_TIMEOUT);
 }
 

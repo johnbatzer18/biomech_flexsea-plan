@@ -81,9 +81,11 @@ void W_CycleTester::init(void)
 
 	//Timers:
 	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
+	connect(timer,	&QTimer::timeout,
+			this,	&W_CycleTester::timerEvent);
 	buttonTimer = new QTimer(this);
-	connect(buttonTimer, SIGNAL(timeout()), this, SLOT(buttonTimerEvent()));
+	connect(buttonTimer,	&QTimer::timeout,
+			this,			&W_CycleTester::buttonTimerEvent);
 }
 
 void W_CycleTester::initCtrlTab(void)

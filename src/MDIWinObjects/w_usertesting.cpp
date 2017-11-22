@@ -181,7 +181,8 @@ void W_UserTesting::initTabExperiment(void)
 	qbgActivity->addButton(ui->radioButtonActWalk);
 	qbgActivity->addButton(ui->radioButtonActRun);
 	qbgActivity->addButton(ui->radioButtonActOther);
-	connect(qbgActivity, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(activityButton(QAbstractButton*)));
+	connect(qbgActivity,	QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
+			this,			&W_UserTesting::activityButton);
 
 	//Button groups - DUT:
 	qbgDUT = new QButtonGroup(this);
@@ -189,14 +190,16 @@ void W_UserTesting::initTabExperiment(void)
 	qbgDUT->addButton(ui->radioButtonDUT_R);
 	qbgDUT->addButton(ui->radioButtonDUT_D);
 	ui->radioButtonDUT_D->setChecked(true);
-	connect(qbgDUT, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(dutButton(QAbstractButton*)));
+	connect(qbgDUT, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
+			this,	&W_UserTesting::dutButton);
 
 	//Button groups - Data:
 	qbgData = new QButtonGroup(this);
 	qbgData->addButton(ui->radioButtonDataF);
 	qbgData->addButton(ui->radioButtonDataA);
 	ui->radioButtonDataA->setChecked(true);
-	connect(qbgData, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(dataButton(QAbstractButton*)));
+	connect(qbgData,	QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
+			this,		&W_UserTesting::dataButton);
 }
 
 void W_UserTesting::initTabTweaks(void)
@@ -360,7 +363,8 @@ void W_UserTesting::initTimers(void)
 
 	//Display refresh 10Hz:
 	dispTimer = new QTimer(this);
-	connect(dispTimer, SIGNAL(timeout()), this, SLOT(dispTimerTick()));
+	connect(dispTimer,	&QTimer::timeout,
+			this,		&W_UserTesting::dispTimerTick);
 	dispTimer->start(100);
 }
 
