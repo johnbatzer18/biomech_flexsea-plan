@@ -196,7 +196,7 @@ private:
 
 	FlexseaDevice* currentFlexLog;
 
-	bool comPortStatus;
+	SerialPortStatus comPortStatus;
 	QString activeSlaveNameStreaming;
 
 	// Sub-Windows
@@ -258,7 +258,7 @@ public slots:
 	void triggerChartView();
 
 	void translatorActiveSlaveStreaming(QString slaveName);
-	void saveComPortStatus(bool status);
+	void saveComPortStatus(SerialPortStatus status);
 	void translatorUpdateDataSourceStatus(DataSource status, FlexseaDevice* devPtr);
 	void manageLogKeyPad(DataSource status, FlexseaDevice *);
 

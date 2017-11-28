@@ -231,9 +231,9 @@ void W_UserRW::receiveNewData()
 	}
 }
 
-void W_UserRW::comStatusChanged(bool isOpen)
+void W_UserRW::comStatusChanged(SerialPortStatus status,int nbTries)
 {
-	if(isOpen)
+	if(status == PortOpeningSucceed)
 		userDataMan->requestMetaData(active_slave);
 }
 

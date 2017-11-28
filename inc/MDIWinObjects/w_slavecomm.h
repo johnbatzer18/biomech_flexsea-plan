@@ -99,7 +99,7 @@ public:
 
 public slots:
 	void displayDataReceived(int idx, int status);
-	void receiveComPortStatus(bool status);
+	void receiveComPortStatus(SerialPortStatus status,int nbTries);
 	void updateIndicatorTimeout(bool rst);
 	void getSlaveId(int* slaveId);
 	void getCurrentDevice(FlexseaDevice** device);

@@ -127,7 +127,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	initFlexSeaDeviceObject();
 	//SerialDriver:
-	mySerialDriver = new SerialDriver();
+	mySerialDriver = new SerialDriver(this);
 	streamManager = new StreamManager(nullptr, mySerialDriver);
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
@@ -158,7 +158,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(myDataLogger, &DataLogger::setStatusBarMessage, \
 			this, &MainWindow::setStatusBar);
 
-	comPortStatus = false;
+	comPortStatus = PortClosed;
 
 	initializeDataProviders();
 	chartController = new ChartController(this);
@@ -355,7 +355,7 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 	connect(serialThread, &QThread::started,
 			driver, &SerialDriver::init);
 	driver->moveToThread(serialThread);
-	serialThread->start(QThread::HighestPriority);
+	serialThread->start(QThread::HighPriority);
 
 	connect(driver,		&SerialDriver::aboutToClose,
 			manager,	&StreamManager::onComPortClosing, Qt::DirectConnection);
@@ -466,7 +466,7 @@ void MainWindow::translatorActiveSlaveStreaming(QString slaveName)
 	emit connectorCurrentSlaveStreaming(slaveName);
 }
 
-void MainWindow::saveComPortStatus(bool status)
+void MainWindow::saveComPortStatus(SerialPortStatus status)
 {
 	comPortStatus = status;
 }
@@ -758,13 +758,10 @@ void MainWindow::createConfig(void)
 				mySerialDriver, &SerialDriver::open);
 
 		connect(mySerialDriver, &SerialDriver::openStatus, \
-				myViewConfig[0],&W_Config::on_openComButtonReturn);
+				myViewConfig[0],&W_Config::on_openStatusUpdate);
 
 		connect(myViewConfig[0],&W_Config::closeCom, \
 				mySerialDriver, &SerialDriver::close);
-
-		connect(mySerialDriver, &SerialDriver::openProgress, \
-				myViewConfig[0],&W_Config::setComProgress);
 
 		connect(myViewConfig[0],&W_Config::updateDataSourceStatus,
 				this,			&MainWindow::translatorUpdateDataSourceStatus);

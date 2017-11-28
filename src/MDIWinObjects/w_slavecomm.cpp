@@ -149,9 +149,9 @@ void W_SlaveComm::getSlaveId(int* slaveId)
 //****************************************************************************
 
 //This slot gets called when the port status changes (turned On or Off)
-void W_SlaveComm::receiveComPortStatus(bool status)
+void W_SlaveComm::receiveComPortStatus(SerialPortStatus status,int nbTries)
 {
-	if(status == false)
+	if(status == PortClosed)
 	{
 		qDebug() << "COM port was closed";
 
@@ -161,7 +161,7 @@ void W_SlaveComm::receiveComPortStatus(bool status)
 		log_cb_ptr[0]->setDisabled(true);
 		auto_checkbox[0]->setDisabled(true);
 	}
-	else
+	else if(status == PortOpeningSucceed)
 	{
 		qDebug() << "COM port was opened";
 

@@ -50,7 +50,7 @@
 //****************************************************************************
 
 W_CommTest::W_CommTest(QWidget *parent,
-					   bool comStatusInit) :
+					   SerialPortStatus comStatusInit) :
 	QWidget(parent),
 	serialDriver(nullptr),
 	ui(new Ui::W_CommTest)
@@ -63,7 +63,7 @@ W_CommTest::W_CommTest(QWidget *parent,
 	init();
 	initTimers();
 
-	receiveComPortStatus(comStatusInit);
+	receiveComPortStatus(comStatusInit, -1);
 }
 
 W_CommTest::~W_CommTest()
@@ -81,16 +81,16 @@ W_CommTest::~W_CommTest()
 //****************************************************************************
 
 //This slot gets called when the port status changes (turned On or Off)
-void W_CommTest::receiveComPortStatus(bool status)
+void W_CommTest::receiveComPortStatus(SerialPortStatus status,int nbTries)
 {
-	if(!status)
+	if(status == PortClosed)
 	{
 		//PushButton:
 		ui->pushButtonReset->setDisabled(true);
 		ui->pushButtonStartStop->setDisabled(true);
 		startStopComTest(true);
 	}
-	else
+	else if(status == PortOpeningSucceed)
 	{
 		//PushButton:
 		ui->pushButtonReset->setDisabled(false);

@@ -34,6 +34,7 @@
 
 #include "w_config.h"
 #include "ui_w_config.h"
+#include "serialdriver.h"
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QDebug>
@@ -89,13 +90,17 @@ W_Config::~W_Config()
 
 void W_Config::setComProgress(int val)
 {
-	ui->comProgressBar->setValue(val);
+
 }
 
-void W_Config::on_openComButtonReturn(bool success)
+void W_Config::on_openStatusUpdate(SerialPortStatus status, int nbTries)
 {
 	//Connection is successful.
-	if(success)
+	if(status == WhileOpening)
+	{
+		ui->comProgressBar->setValue(((float)nbTries / COM_OPEN_TRIES) * 100);
+	}
+	else if(status == PortOpeningSucceed)
 	{
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState, nullptr);
@@ -109,10 +114,15 @@ void W_Config::on_openComButtonReturn(bool success)
 		//Enable Bluetooth button:
 		ui->pbBTmode->setEnabled(true);
 	}
-	else
+	else if(PortOpeningFailed||
+			PortClosed)
 	{
 		dataSourceState = None;
 		ui->pbLoadLogFile->setDisabled(false);
+	}
+	else
+	{
+		qDebug() << "SerialDriver Open status return not handled : ""Idle""";
 	}
 }
 

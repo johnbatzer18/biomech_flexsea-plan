@@ -95,7 +95,7 @@ private slots:
 
 public slots:
 	void setComProgress(int val);
-	void on_openComButtonReturn(bool success);
+	void on_openStatusUpdate(SerialPortStatus status, int nbTries);
 	void refresh(void);
 	void serialAboutToClose();
 

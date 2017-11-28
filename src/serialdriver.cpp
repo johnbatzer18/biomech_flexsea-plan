@@ -75,9 +75,6 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 {
 	int cnt = 0;
 	bool isPortOpen = false;
-	int comProgress = 5;	//Start with a small number to give user some feedback
-
-	emit openProgress(comProgress);
 
 	USBSerialPort->setPortName(name);
 	USBSerialPort->setBaudRate(400000);
@@ -104,32 +101,30 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 		{
 			qDebug() << "Try #" << cnt << " failed. Error: " << \
 						USBSerialPort->errorString() << ".\n";
-			emit openProgress(100*(cnt+1)/tries);
+			emit openStatus(WhileOpening, cnt);
 		}
 
-		usleep(delay);
+		sleep(3);
 		cnt++;
 	}
 
 	if (!isPortOpen)
 	{
 		qDebug() << "Tried " << cnt << " times, couldn't open " << name << ".\n";
-		emit openProgress(0);
 		comPortOpen = false;
-		emit openStatus(comPortOpen);
+		emit openStatus(PortOpeningFailed, -1);
 
 		*success = false;
 	}
 	else
 	{
 		qDebug() << "Successfully opened " << name << ".\n";
-		emit openProgress(100);
 
 		//Clear any data that was already in the buffers:
 		USBSerialPort->clear((QSerialPort::AllDirections));
 
 		comPortOpen = true;
-		emit openStatus(comPortOpen);
+		emit openStatus(PortOpeningSucceed, -1);
 
 		*success = true;
 	}
@@ -142,7 +137,7 @@ void SerialDriver::close(void)
 
 	//Turn comm. off
 	comPortOpen = false;
-	emit openStatus(comPortOpen);
+	emit openStatus(PortClosed, -1);
 
 	circularBuffer_t* cb = commPeriph[PORT_USB].rx.circularBuff;
 	circ_buff_move_head(cb, circ_buff_get_size(cb));

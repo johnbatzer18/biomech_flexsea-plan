@@ -57,6 +57,14 @@ namespace Ui {
 class SerialDriver;
 }
 
+typedef enum SerialPortStatus {
+	Idle = -1,
+	PortOpeningFailed = 0,
+	WhileOpening = 1,
+	PortOpeningSucceed = 2,
+	PortClosed = 3
+}SerialPortStatus;
+
 class SerialDriver : public QObject
 {
 	Q_OBJECT
@@ -80,6 +88,8 @@ public slots:
 	void handleReadyRead();
 	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
 
+public:
+
 private:
 
 	QSerialPort* USBSerialPort;
@@ -96,8 +106,7 @@ private:
 
 signals:
 	void timerClocked(void);
-	void openProgress(int val);
-	void openStatus(bool status);
+	void openStatus(SerialPortStatus status,int nbTries);
 	void newDataReady(void);
 	void dataStatus(int idx, int status);
 	void newDataTimeout(bool rst);

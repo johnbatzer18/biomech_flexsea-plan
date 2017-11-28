@@ -55,13 +55,13 @@ class W_CommTest : public QWidget, public Counter<W_CommTest>
 public:
 	//Constructor & Destructor:
 	explicit W_CommTest(QWidget *parent = 0,
-						bool comStatusInit = false);
+						SerialPortStatus comStatusInit = PortClosed);
 	~W_CommTest();
 
 	SerialDriver* serialDriver;
 
 public slots:
-	void receiveComPortStatus(bool status);
+	void receiveComPortStatus(SerialPortStatus status,int nbTries);
 	void receivedData(void);
 
 signals:
