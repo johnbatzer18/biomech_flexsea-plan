@@ -64,10 +64,13 @@ typedef enum SerialPortStatus {
 	PortOpeningSucceed = 2,
 	PortClosed = 3
 }SerialPortStatus;
+Q_DECLARE_METATYPE(SerialPortStatus)
 
 class SerialDriver : public QObject
 {
 	Q_OBJECT
+
+
 
 public:
 	explicit SerialDriver(QObject *parent = 0);

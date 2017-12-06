@@ -127,7 +127,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	initFlexSeaDeviceObject();
 	//SerialDriver:
-	mySerialDriver = new SerialDriver(this);
+	mySerialDriver = new SerialDriver();
 	streamManager = new StreamManager(nullptr, mySerialDriver);
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
@@ -355,7 +355,7 @@ void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
 	connect(serialThread, &QThread::started,
 			driver, &SerialDriver::init);
 	driver->moveToThread(serialThread);
-	serialThread->start(QThread::HighPriority);
+	serialThread->start(QThread::HighestPriority);
 
 	connect(driver,		&SerialDriver::aboutToClose,
 			manager,	&StreamManager::onComPortClosing, Qt::DirectConnection);

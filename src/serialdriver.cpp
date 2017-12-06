@@ -56,6 +56,7 @@ SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 	// has been passed to the thread. This avoid allocating heap in the
 	// "creator thread" instead of the "SerialDriver thread".
 	// see https://wiki.qt.io/QThreads_general_usage
+	qRegisterMetaType<SerialPortStatus>();
 }
 
 SerialDriver::~SerialDriver() {
