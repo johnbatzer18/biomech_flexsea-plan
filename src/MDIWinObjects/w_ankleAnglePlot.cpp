@@ -326,11 +326,10 @@ void W_AnkleAnglePlot::fakeDataToPoints(int idx)
 	pts[2] = QPointF(idx, trig[1]);
 	pts[3] = QPointF(idx, p);
 	if(!k){pts[4] = QPointF(idx, 50); k = true;}
-	else{pts[4] = QPointF(idx, 0); k = false;}
+	else{pts[4] = QPointF(idx, -50); k = false;}
 
 	//Latch step energy:
 	instantStepEnergy = p;
-	qDebug() << instantStepEnergy;
 }
 
 void W_AnkleAnglePlot::streamingFrequency(int f)
