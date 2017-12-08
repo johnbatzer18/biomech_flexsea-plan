@@ -108,12 +108,14 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, StreamManager* sm) :
 	ui->checkBoxGS->setChecked(false);
 	ui->checkBoxWS->setChecked(false);
 	ui->checkBoxP->setChecked(false);
-	ui->checkBoxCLHS->setChecked(false);
+	ui->checkBoxCLHS->setChecked(true);
+	ui->checkBoxCurrent->setChecked(false);
 	//Array of cBoxes:
 	cbVar[1] = &ui->checkBoxGS;
 	cbVar[2] = &ui->checkBoxWS;
 	cbVar[3] = &ui->checkBoxP;
 	cbVar[4] = &ui->checkBoxCLHS;
+	cbVar[5] = &ui->checkBoxCurrent;
 }
 
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
@@ -294,6 +296,7 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 	pts[2] = QPointF(idx, 100*ri->ctrl.walkingState);
 	pts[3] = QPointF(idx, ri->ctrl.step_energy);
 	pts[4] = QPointF(idx, ri->ctrl.contra_hs);
+	pts[5] = QPointF(idx, ri->ex.mot_current/50);
 
 	//Latch step energy:
 	instantStepEnergy = ri->ctrl.step_energy;
@@ -327,6 +330,7 @@ void W_AnkleAnglePlot::fakeDataToPoints(int idx)
 	pts[3] = QPointF(idx, p);
 	if(!k){pts[4] = QPointF(idx, 50); k = true;}
 	else{pts[4] = QPointF(idx, -50); k = false;}
+	pts[5] = QPointF(idx, 20);
 
 	//Latch step energy:
 	instantStepEnergy = p;
