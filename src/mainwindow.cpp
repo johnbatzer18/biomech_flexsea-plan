@@ -53,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
+	qRegisterMetaType<uint8_t>("uint8_t");
+
 	ui->setupUi(this);
 	QMainWindow::showMaximized();
 
@@ -734,8 +736,6 @@ void MainWindow::createConfig(void)
 		mdiState[CONFIG_WINDOWS_ID][objectCount].open = true;
 		myViewConfig[objectCount]->show();
 
-		myViewConfig[objectCount]->serialDriver = mySerialDriver;
-
 		sendWindowCreatedMsg(W_Config::getDescription(), objectCount,
 							 W_Config::getMaxWindow() - 1);
 
@@ -762,6 +762,12 @@ void MainWindow::createConfig(void)
 
 		connect(myViewConfig[0],&W_Config::closeCom, \
 				mySerialDriver, &SerialDriver::close);
+
+		connect(myViewConfig[0],&W_Config::write,
+				mySerialDriver, &SerialDriver::write);
+
+		connect(myViewConfig[0],&W_Config::flush,
+				mySerialDriver, &SerialDriver::flush);
 
 		connect(myViewConfig[0],&W_Config::updateDataSourceStatus,
 				this,			&MainWindow::translatorUpdateDataSourceStatus);

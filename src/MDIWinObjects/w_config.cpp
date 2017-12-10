@@ -47,7 +47,6 @@
 
 W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 	QWidget(parent),
-	serialDriver(nullptr),
 	ui(new Ui::W_Config)
 {
 	ui->setupUi(this);
@@ -301,10 +300,10 @@ void W_Config::btConfig()
 	}
 
 	//Send:
-	serialDriver->write(len[btConfigField], &config[btConfigField][0]);
+	emit write(len[btConfigField], &config[btConfigField][0]);
 	btConfigField++;
 	//qDebug() << "Sent one BT config";
-	serialDriver->flush();
+	emit flush();
 	btConfigTimer->start(BT_CONF_DELAY);
 	ui->btProgressBar->setValue(100*btConfigField/BT_FIELDS);
 }
@@ -322,7 +321,7 @@ void W_Config::toggleBtDataMode(bool forceDataMode)
 		config[2] = '-';
 		config[3] = '\n';
 		//writeCommand(4, config, 0);
-		serialDriver->write(4, config);
+		emit write(4, config);
 		//We are now in Data mode:
 		disableBluetoothCommandButtons();
 		ui->btProgressBar->setValue(0);
@@ -336,7 +335,7 @@ void W_Config::toggleBtDataMode(bool forceDataMode)
 		config[1] = '$';
 		config[2] = '$';
 		//writeCommand(3,config, 0);
-		serialDriver->write(3, config);
+		emit write(3, config);
 		//We are now in CMD mode:
 		enableBluetoothCommandButtons();
 		ui->btProgressBar->setEnabled(true);
@@ -455,15 +454,15 @@ void W_Config::on_pbBTdefault_clicked()
 void W_Config::on_pbBTfactory_clicked()
 {
 	uint8_t config[6] = "SF,1\n";
-	serialDriver->write(5, config);
-	serialDriver->flush();
+	emit write(5, config);
+	emit flush();
 }
 
 void W_Config::on_pbBTreset_clicked()
 {
 	uint8_t config[5] = "R,1\n";
-	serialDriver->write(4, config);
-	serialDriver->flush();
+	emit write(4, config);
+	emit flush();
 	toggleBtDataMode(true);
 	emit on_closeComButton_clicked();
 }
@@ -487,8 +486,8 @@ void W_Config::disableBluetoothCommandButtons(void)
 void W_Config::on_pbBTfast_clicked()
 {
 	uint8_t config[5] = "F,1\n";
-	serialDriver->write(4, config);
-	serialDriver->flush();
+	emit write(4, config);
+	emit flush();
 
 	emit on_pbBTmode_clicked();
 }
