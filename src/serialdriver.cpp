@@ -56,6 +56,8 @@ SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 	// has been passed to the thread. This avoid allocating heap in the
 	// "creator thread" instead of the "SerialDriver thread".
 	// see https://wiki.qt.io/QThreads_general_usage
+
+	// Used to register the custom type for the signal/slot function using it.
 	qRegisterMetaType<SerialPortStatus>();
 }
 
@@ -96,6 +98,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 	while(isPortOpen == false && cnt < tries)
 	{
 		isPortOpen = USBSerialPort->open(QIODevice::ReadWrite);  //returns true if successful
+		cnt++;
 
 		//When false, print error code:
 		if(!isPortOpen)
@@ -105,8 +108,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 			emit openStatus(WhileOpening, cnt);
 		}
 
-		sleep(3);
-		cnt++;
+		usleep(delay);
 	}
 
 	if (!isPortOpen)
@@ -371,3 +373,4 @@ void SerialDriver::serialPortErrorEvent(QSerialPort::SerialPortError error)
 		close();
 	}
 }
+

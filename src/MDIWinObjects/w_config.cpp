@@ -61,13 +61,19 @@ W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 	favoritePort = initFavoritePort;
 
 	comPortRefreshTimer = new QTimer(this);
-	connect(comPortRefreshTimer, SIGNAL(timeout()), this, SLOT(refreshComList()));
+	connect(comPortRefreshTimer,	&QTimer::timeout,
+			this,					&W_Config::refreshComTimeout);
 	comPortRefreshTimer->start(REFRESH_PERIOD); //ms
 	refreshComList(true);	//Call now to avoid lag when a new window is opened.
 
 	//Timer for sequential configuration, BT module:
 	btConfigTimer = new QTimer(this);
-	connect(btConfigTimer, SIGNAL(timeout()), this, SLOT(btConfig()));
+	connect(btConfigTimer,	&QTimer::timeout,
+			this,			&W_Config::btConfig);
+
+	openProgressTimer = new QTimer(this);
+	connect(openProgressTimer,	&QTimer::timeout,
+			this,				&W_Config::progressUpdate);
 }
 
 W_Config::~W_Config()
@@ -88,20 +94,19 @@ W_Config::~W_Config()
 // Public slot(s):
 //****************************************************************************
 
-void W_Config::setComProgress(int val)
-{
-
-}
-
 void W_Config::on_openStatusUpdate(SerialPortStatus status, int nbTries)
 {
 	//Connection is successful.
 	if(status == WhileOpening)
 	{
-		ui->comProgressBar->setValue(((float)nbTries / COM_OPEN_TRIES) * 100);
+		progressTries = nbTries;
+		progressCnt = 0;
 	}
 	else if(status == PortOpeningSucceed)
 	{
+		openProgressTimer->stop();
+		ui->comProgressBar->setValue(100);
+
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState, nullptr);
 
@@ -117,6 +122,8 @@ void W_Config::on_openStatusUpdate(SerialPortStatus status, int nbTries)
 	else if(PortOpeningFailed||
 			PortClosed)
 	{
+		openProgressTimer->stop();
+		ui->comProgressBar->setValue(0);
 		dataSourceState = None;
 		ui->pbLoadLogFile->setDisabled(false);
 	}
@@ -124,6 +131,12 @@ void W_Config::on_openStatusUpdate(SerialPortStatus status, int nbTries)
 	{
 		qDebug() << "SerialDriver Open status return not handled : ""Idle""";
 	}
+}
+
+// This slot is used because the refreshComList is overloaded.
+void W_Config::refreshComTimeout(void)
+{
+	refreshComList();
 }
 
 void W_Config::refresh(void)
@@ -164,15 +177,15 @@ void W_Config::refreshComList(bool forceRefresh, bool keepCurrentSelection)
 
 	refreshDivide++;
 	refreshDivide %= 8;
-	if(!refreshDivide)
+	if(!refreshDivide || forceRefresh)
 	{
 		//Available ports?
 		QList<QSerialPortInfo> comPortInfo = QSerialPortInfo::availablePorts();
 		ComPortCounts = comPortInfo.length();
 
 		//Did it change?
-		if((ComPortCounts != lastComPortCounts || forceRefresh)  &&
-			dataSourceState == None)
+		if((ComPortCounts != lastComPortCounts && dataSourceState == None)  ||
+			 forceRefresh)
 		{
 			//Save the currentPort
 			QString currentPortAll = ui->comPortComboBox->currentText();
@@ -184,7 +197,10 @@ void W_Config::refreshComList(bool forceRefresh, bool keepCurrentSelection)
 			ui->comPortComboBox->clear();
 
 			//No port?
-			if(ComPortCounts == 0){ui->comPortComboBox->addItem(noPortString);}
+			if(ComPortCounts == 0)
+			{
+				ui->comPortComboBox->addItem(noPortString);
+			}
 			else
 			{
 				//Rewrite the list:
@@ -258,7 +274,7 @@ QString W_Config::getCOMnickname(const QSerialPortInfo *c)
 	return o;
 }
 
-void W_Config::btConfig(void)
+void W_Config::btConfig()
 {
 	//Settings:
 	//---------
@@ -345,12 +361,14 @@ void W_Config::on_openComButton_clicked()
 		dataSourceState = LiveCOM;
 		//Stop port refresh
 		comPortRefreshTimer->stop();
+		progressTries = 0;
+		progressCnt = 0;
 		//Emit signal:
-
-		emit openCom(n1, COM_OPEN_TRIES, COM_OPEN_DELAY, &success);
+		emit openCom(n1, COM_OPEN_TRIES, COM_OPEN_DELAY_US, &success);
 
 		// Disable the log button during the port opening
 		ui->pbLoadLogFile->setDisabled(true);
+		openProgressTimer->start((int)((BT_DELAY_MS/COM_BAR_RES)));
 	}
 }
 
@@ -498,5 +516,18 @@ void W_Config::on_checkBoxFavoritePort_clicked()
 				favoritePort->removeOne(n1);
 			}
 		}
+	}
+}
+
+void W_Config::progressUpdate()
+{
+	static int prog;
+	if(progressCnt <= COM_BAR_RES)
+	{
+		qDebug() << "bar update" << progressCnt << "  " << progressTries;
+		prog = (((float)progressCnt / COM_BAR_RES)*(1.0/(COM_OPEN_TRIES)) + ((float)progressTries/(COM_OPEN_TRIES)))*100;
+		ui->comProgressBar->setValue(prog);
+		ui->comProgressBar->update();
+		progressCnt++;
 	}
 }

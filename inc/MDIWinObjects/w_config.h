@@ -44,8 +44,10 @@
 #define BT_CONF_DELAY		500
 #define BT_FIELDS			6
 
-#define COM_OPEN_TRIES		5
-#define COM_OPEN_DELAY		1000
+#define COM_OPEN_TRIES		3
+#define COM_OPEN_DELAY_US	2000.0
+#define BT_DELAY_MS			4000.0
+#define COM_BAR_RES			15.0		// Increment resolution of the progress bar
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -81,7 +83,7 @@ private slots:
 	void refreshComList(bool forceRefresh = false, \
 						bool keepCurrentSelection = false);
 	QString getCOMnickname(const QSerialPortInfo *c);
-	void btConfig(void);
+	void btConfig();
 	void on_openComButton_clicked();
 	void on_closeComButton_clicked();
 	void on_pbLoadLogFile_clicked();
@@ -94,10 +96,11 @@ private slots:
 	void on_checkBoxFavoritePort_clicked();
 
 public slots:
-	void setComProgress(int val);
 	void on_openStatusUpdate(SerialPortStatus status, int nbTries);
-	void refresh(void);
+	void refreshComTimeout();
+	void refresh();
 	void serialAboutToClose();
+	void progressUpdate();
 
 private:
 	//Variables & Objects:
@@ -108,8 +111,9 @@ private:
 	int lastComPortCounts = 0;
 	QString noPortString = "No Port";
 	QStringList *favoritePort;
+	int progressTries, progressCnt;
 
-	QTimer *comPortRefreshTimer, *btConfigTimer;
+	QTimer *comPortRefreshTimer, *btConfigTimer, *openProgressTimer;
 
 	//Function(s):
 	void initCom(void);
