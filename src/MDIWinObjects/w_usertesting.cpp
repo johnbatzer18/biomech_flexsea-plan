@@ -740,7 +740,7 @@ void W_UserTesting::on_pushButtonExpStart_clicked()
 	ongoingExperiment = true;
 	QString offs = "";
 	if(ui->radioButtonDataA->isChecked()){offs = "o=0,1,2,3;";}
-	else{offs = "o="+QString::number(ui->spinBoxFastO->value())+";";}
+	else{offs = "o=0,"+QString::number(ui->spinBoxFastO->value())+";";}
 
 	qint64 numericalTimestamp = QDateTime::currentMSecsSinceEpoch();
 	QString logTxt = userID + "-" + QString::number(numericalTimestamp);

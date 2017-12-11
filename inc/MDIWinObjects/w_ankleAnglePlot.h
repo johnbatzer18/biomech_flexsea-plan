@@ -52,7 +52,7 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-#define A2PLOT_VAR_NUM						5
+#define A2PLOT_VAR_NUM						6
 
 class AnkleAngleChartView : public QChartView
 {
@@ -95,17 +95,19 @@ public:
 
 		painter->setBrush(Qt::NoBrush);
 		QPen myPen[A2PLOT_VAR_NUM];
-		myPen[0].setColor(QColor(0, 255, 64));	//green
+		myPen[0].setColor(QColor(0, 255, 64));		//green
 		myPen[0].setWidth(2);
 		painter->setPen(myPen[0]);
-		myPen[1].setColor(QColor(255, 0, 0));	//red
+		myPen[1].setColor(QColor(255, 0, 0));		//red
 		myPen[1].setWidth(2);
-		myPen[2].setColor(QColor(0, 0, 255));	//blue
+		myPen[2].setColor(QColor(0, 0, 255));		//blue
 		myPen[2].setWidth(2);
-		myPen[3].setColor(QColor(255, 128, 0));	//orange
+		myPen[3].setColor(QColor(255, 128, 0));		//orange
 		myPen[3].setWidth(2);
-		myPen[4].setColor(QColor(255, 255, 0));	//yellow
+		myPen[4].setColor(QColor(255, 255, 0));		//yellow
 		myPen[4].setWidth(2);
+		myPen[5].setColor(QColor(255, 255, 255));	//white
+		myPen[5].setWidth(2);
 
 		//draw data points
 		int numLines = dataPoints[0].size()-1;
@@ -224,7 +226,7 @@ private:
 	QLineSeries* lineSeries[A2PLOT_VAR_NUM];
 	QPointF pts[A2PLOT_VAR_NUM];
 	QCheckBox **cbVar[A2PLOT_VAR_NUM];
-    int16_t instantStepEnergy = 0;
+	int16_t instantStepEnergy = 0;
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
