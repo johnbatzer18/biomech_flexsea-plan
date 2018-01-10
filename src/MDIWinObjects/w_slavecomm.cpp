@@ -61,7 +61,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 						 QList<FlexseaDevice*> *testBenchDevListInit,
 						 QList<FlexseaDevice*> *dynamicUserDevListInit,
 						 QList<FlexseaDevice*> *rigidDevListInit,
-						 StreamManager* sm) :
+						 ComManager* sm) :
 	QWidget(parent),
 	streamManager(sm),
 	ui(new Ui::W_SlaveComm)

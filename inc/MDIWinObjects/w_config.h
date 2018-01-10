@@ -38,7 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexseaDevice.h"
-#include <serialdriver.h>
+#include "serialdriver.h"
 
 #define REFRESH_PERIOD		100 //Port list refresh in ms
 #define BT_CONF_DELAY		500
@@ -74,8 +74,6 @@ public:
 	//Constructor & Destructor:
 	explicit W_Config(QWidget *parent = 0, QStringList *initFavoritePort = 0);
 	~W_Config();
-
-	SerialDriver* serialDriver;
 
 	DataSource getDataSourceStatus(void) {return dataSourceState;}
 

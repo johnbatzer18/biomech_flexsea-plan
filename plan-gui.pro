@@ -38,7 +38,6 @@ SOURCES += src/main.cpp \
 				src/flexsea_board.c \
 				src/trapez.c \
 				src/peripherals.c \
-				src/streammanager.cpp \
 				src/chartcontroller.cpp \
 				src/chartdata.cpp \
 				src/customchartview.cpp \
@@ -134,7 +133,8 @@ SOURCES += src/main.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
 				flexsea-user/Rigid/src/cmd-Rigid.c \
 				flexsea-user/DpEb31/src/cmd-DpEb31.c \
-				flexsea-user/DpEb31/src/cmd-UTT.c
+				flexsea-user/DpEb31/src/cmd-UTT.c \
+    src/commanager.cpp
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -145,7 +145,6 @@ HEADERS += inc/main.h \
 				inc/flexsea_generic.h \
 				inc/flexsea_board.h \
 				inc/peripherals.h \
-				inc/streammanager.h \
 				inc/chartcontroller.h \
 				inc/chartdata.h \
 				inc/customchartview.h \
@@ -225,7 +224,8 @@ HEADERS += inc/main.h \
 				inc/MDIWinObjects/w_rigid.h \
 				flexsea-user/Rigid/inc/cmd-Rigid.h \
 				flexsea-user/DpEb31/inc/cmd-DpEb31.h \
-				flexsea-user/DpEb31/inc/cmd-UTT.h
+				flexsea-user/DpEb31/inc/cmd-UTT.h \
+    inc/commanager.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \

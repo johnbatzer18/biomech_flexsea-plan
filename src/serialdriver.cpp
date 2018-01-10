@@ -52,10 +52,9 @@
 
 SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 {
-	// Because this class is used in a thread, init is called after the class
-	// has been passed to the thread. This avoid allocating heap in the
-	// "creator thread" instead of the "SerialDriver thread".
-	// see https://wiki.qt.io/QThreads_general_usage
+	comPortOpen = false;
+
+	USBSerialPort = new QSerialPort(this);
 
 	// Used to register the custom type for the signal/slot function using it.
 	qRegisterMetaType<SerialPortStatus>();
@@ -187,6 +186,7 @@ void SerialDriver::clear(void)
 {
 	USBSerialPort->clear();
 }
+
 FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, int cmd)
 {
 	for(unsigned int i = 0; i < devices.size(); i++)
@@ -353,12 +353,6 @@ void SerialDriver::addDevice(FlexseaDevice* device)
 // Private function(s):
 //****************************************************************************
 
-void SerialDriver::init(void)
-{
-	comPortOpen = false;
-
-	USBSerialPort = new QSerialPort(this);
-}
 
 //****************************************************************************
 // Private slot(s):

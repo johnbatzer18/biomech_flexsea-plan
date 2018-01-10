@@ -26,7 +26,7 @@
 #include "counter.h"
 #include "flexsea_generic.h"
 #include "cmd-CycleTester.h"
-#include <streammanager.h>
+#include <commanager.h>
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -44,8 +44,8 @@ public:
 	//Constructor & Destructor:
 	explicit W_CycleTester(	QWidget *parent = 0, \
 							QList<FlexseaDevice*> *rigidDevListInit = nullptr, \
-							StreamManager* sm = nullptr);
-	StreamManager* streamManager;
+							ComManager* sm = nullptr);
+	ComManager* streamManager;
 	~W_CycleTester();
 
 public slots:

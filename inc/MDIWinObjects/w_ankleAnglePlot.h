@@ -41,7 +41,7 @@
 #include <QTimer>
 #include <QtCharts>
 #include <QtCharts/QChartView>
-#include <streammanager.h>
+#include <commanager.h>
 #include <QVector>
 #include "rigidDevice.h"
 #include "define.h"
@@ -189,7 +189,7 @@ class W_AnkleAnglePlot : public QWidget, public Counter<W_AnkleAnglePlot>
 
 public:
 
-	explicit W_AnkleAnglePlot(QWidget *parent = 0, StreamManager* sm = nullptr);
+	explicit W_AnkleAnglePlot(QWidget *parent = 0, ComManager* sm = nullptr);
 	virtual ~W_AnkleAnglePlot();
 
 public slots:
@@ -240,7 +240,7 @@ private:
 	int32_t scaling[2];
 
 	void setAxesLimits();
-	StreamManager* streamManager = nullptr;
+	ComManager* comManager = nullptr;
 	void displayOrNot(void);
 	void mapSensorsToPoints(int idx);
 	void fakeDataToPoints(int idx);

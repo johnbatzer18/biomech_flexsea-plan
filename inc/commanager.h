@@ -11,16 +11,17 @@
 #include <FlexSEADevice/flexseaDevice.h>
 #include <queue>
 
-class StreamManager : public QObject
+class ComManager : public QObject
 {
 	Q_OBJECT
 public:
-	explicit StreamManager(QObject *parent = 0, SerialDriver* driver = nullptr);
-	virtual ~StreamManager() {
+	explicit ComManager(QObject *parent = 0);
+	virtual ~ComManager() {
 		if(clockTimer) delete clockTimer;
 		clockTimer = nullptr;
 	}
 
+	void init();
 	void startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* logToDevice);
 	void startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, \
 							FlexseaDevice* logToDevice, uint8_t firstIndex, uint8_t lastIndex);
@@ -28,20 +29,43 @@ public:
 
 	QList<int> getRefreshRates();
 
+	SerialDriver* mySerialDriver;
+
 	static const int NUM_TIMER_FREQS = 11;
 	QList<int> ricnuOffsets, rigidOffsets;
 	int minOffs = 0, maxOffs = 0;
 
 signals:
+	//ComManager
 	void sentRead(int cmd, int slave);
 	void openRecordingFile(FlexseaDevice* device);
 	void closeRecordingFile(FlexseaDevice* device);
 	void streamingFrequency(int f);
 
+	//SerialDriver
+	void openStatus(SerialPortStatus status,int nbTries);
+	void newDataReady(void);
+	void dataStatus(int idx, int status);
+	void newDataTimeout(bool rst);
+	void setStatusBarMessage(QString msg);
+	void writeToLogFile(FlexseaDevice*);
+	void aboutToClose(void);
+
+
 public slots:
 	void receiveClock();
 	void enqueueCommand(uint8_t numb, uint8_t* dataPacket);
 	void onComPortClosing();
+
+	void open(QString name, int tries, int delay, bool* success);
+	void close(void);
+	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
+	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
+
+	void flush(void);
+	void clear(void);
+
+	void addDevice(FlexseaDevice* device);
 
 private:
 
@@ -82,7 +106,6 @@ private:
 	void packAndSendStopStreaming(int cmd, uint8_t slaveId);
 	int getIndexOfFrequency(int freq);
 	QString getNameOfExperiment(int cmd);
-	SerialDriver* serialDriver;
 	int timerFrequencies[NUM_TIMER_FREQS];
 	float timerIntervals[NUM_TIMER_FREQS];
 

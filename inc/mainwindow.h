@@ -61,7 +61,7 @@
 #include "w_commtest.h"
 #include "w_cycletester.h"
 #include "w_usertesting.h"
-#include <streammanager.h>
+#include <commanager.h>
 #include <dynamicuserdatamanager.h>
 #include <chartcontroller.h>
 #include <dataprovider.h>
@@ -148,7 +148,7 @@ private:
 	void initMenus(void);
 	void initFlexSeaDeviceObject(void);
 	void initFlexSeaDeviceLog(void);
-	void initSerialComm(SerialDriver*, StreamManager*);
+	void initSerialComm(void);
 	void initializeDataProviders(void);
 
 	Ui::MainWindow *ui;
@@ -235,11 +235,10 @@ private:
 
 	// Objects
 	ChartController *chartController;
-	SerialDriver *mySerialDriver;
-	QThread* serialThread;
+	QThread* comManagerThread;
 
 	DataLogger *myDataLogger;
-	StreamManager* streamManager;
+	ComManager* comManager;
 	DynamicUserDataManager* userDataManager;
 
 	void writeSettings();

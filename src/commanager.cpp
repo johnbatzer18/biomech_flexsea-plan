@@ -1,4 +1,4 @@
-#include "streammanager.h"
+#include "commanager.h"
 #include <flexsea.h>
 #include <flexsea_system.h>
 #include <flexsea_board.h>
@@ -11,9 +11,16 @@
 #include <dynamic_user_structs.h>
 #include <flexsea_cmd_angle_torque_profile.h>
 
-StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
-	QObject(parent),
-	serialDriver(driver)
+ComManager::ComManager(QObject *parent) :
+	QObject(parent)
+{
+	// Because this class is used in a thread, init is called after the class
+	// has been passed to the thread. This avoid allocating heap in the
+	// "creator thread" instead of the "SerialDriver thread".
+	// see https://wiki.qt.io/QThreads_general_usage
+}
+
+void ComManager::init()
 {
 	//this needs to be in order from smallest to largest
 	int timerFreqsInHz[NUM_TIMER_FREQS] = {1, 5, 10, 20, 33, 50, 100, 200, 300, 500, 1000};
@@ -30,10 +37,30 @@ StreamManager::StreamManager(QObject *parent, SerialDriver* driver) :
 	clockTimer->setTimerType(Qt::PreciseTimer);
 	clockTimer->setSingleShot(false);
 	clockTimer->setInterval(clockPeriod);
-	connect(clockTimer, &QTimer::timeout, this, &StreamManager::receiveClock);
+	connect(clockTimer, &QTimer::timeout, this, &ComManager::receiveClock);
+
+	mySerialDriver = new SerialDriver(this);
+
+	// Connect the signals "passthrough"
+
+	connect(mySerialDriver,	&SerialDriver::openStatus, \
+			this,			&ComManager::openStatus);
+	connect(mySerialDriver,	&SerialDriver::newDataReady, \
+			this,			&ComManager::newDataReady);
+	connect(mySerialDriver,	&SerialDriver::dataStatus, \
+			this,			&ComManager::dataStatus);
+	connect(mySerialDriver,	&SerialDriver::newDataTimeout, \
+			this,			&ComManager::newDataTimeout);
+	connect(mySerialDriver,	&SerialDriver::setStatusBarMessage, \
+			this,			&ComManager::setStatusBarMessage);
+	connect(mySerialDriver,	&SerialDriver::writeToLogFile, \
+			this,			&ComManager::writeToLogFile);
+	connect(mySerialDriver,	&SerialDriver::aboutToClose, \
+			this,			&ComManager::aboutToClose);
+
 }
 
-int StreamManager::getIndexOfFrequency(int freq)
+int ComManager::getIndexOfFrequency(int freq)
 {
 	int indexOfFreq = -1;
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
@@ -47,7 +74,7 @@ int StreamManager::getIndexOfFrequency(int freq)
 	return indexOfFreq;
 }
 
-void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* device)
+void ComManager::startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* device)
 {
 	if(!device) return;
 
@@ -62,7 +89,7 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 			device->initialClock = clock();
 		}
 
-		serialDriver->addDevice(device);
+		mySerialDriver->addDevice(device);
 
 		CmdSlaveRecord record(cmd, slave, shouldLog, device);
 		streamLists[indexOfFreq].push_back(record);
@@ -76,7 +103,7 @@ void StreamManager::startStreaming(int cmd, int slave, int freq, bool shouldLog,
 	}
 }
 
-void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, \
+void ComManager::startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, \
 							FlexseaDevice* device, uint8_t firstIndex, uint8_t lastIndex)
 {
 	if(!device) return;
@@ -94,7 +121,7 @@ void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool should
 			device->initialClock = clock();
 		}
 
-		serialDriver->addDevice(device);
+		mySerialDriver->addDevice(device);
 
 		tx_cmd_stream_w(TX_N_DEFAULT, cmd, 1000/freq, shouldStart, firstIndex, lastIndex);
 		tryPackAndSend(CMD_STREAM, device->slaveID);
@@ -111,7 +138,7 @@ void StreamManager::startAutoStreaming(int cmd, int slave, int freq, bool should
 	}
 }
 
-void StreamManager::stopStreaming(int cmd, int slave, int freq)
+void ComManager::stopStreaming(int cmd, int slave, int freq)
 {
 	int indexOfFreq = getIndexOfFrequency(freq);
 	if(indexOfFreq < 0) return;
@@ -141,7 +168,7 @@ void StreamManager::stopStreaming(int cmd, int slave, int freq)
 	}
 }
 
-void StreamManager::onComPortClosing()
+void ComManager::onComPortClosing()
 {
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 	{
@@ -173,7 +200,43 @@ void StreamManager::onComPortClosing()
 	}
 }
 
-QList<int> StreamManager::getRefreshRates()
+
+void ComManager::open(QString name, int tries, int delay, bool* success)
+{
+	mySerialDriver->open(name, tries, delay, success);
+}
+
+void ComManager::close(void)
+{
+	mySerialDriver->close();
+}
+
+void ComManager::tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout)
+{
+	mySerialDriver->tryReadWrite(bytes_to_send, serial_tx_data, timeout);
+}
+
+int ComManager::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
+{
+	mySerialDriver->write(bytes_to_send, serial_tx_data);
+}
+
+void ComManager::flush(void)
+{
+	mySerialDriver->flush();
+}
+
+void ComManager::clear(void)
+{
+	mySerialDriver->clear();
+}
+
+void ComManager::addDevice(FlexseaDevice* device)
+{
+	mySerialDriver->addDevice(device);
+}
+
+QList<int> ComManager::getRefreshRates()
 {
 	QList<int> result;
 	result.reserve(NUM_TIMER_FREQS);
@@ -182,20 +245,20 @@ QList<int> StreamManager::getRefreshRates()
 	return result;
 }
 
-void StreamManager::tryPackAndSend(int cmd, uint8_t slaveId)
+void ComManager::tryPackAndSend(int cmd, uint8_t slaveId)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	pack(P_AND_S_DEFAULT, slaveId, info, &numb, comm_str_usb);
 
-	if(serialDriver && serialDriver->isOpen())
+	if(mySerialDriver->isOpen())
 	{
-		serialDriver->write(numb, comm_str_usb);
+		mySerialDriver->write(numb, comm_str_usb);
 		emit sentRead(cmd, slaveId);
 	}
 }
 
-void StreamManager::receiveClock()
+void ComManager::receiveClock()
 {
 	static float msSinceLast[NUM_TIMER_FREQS] = {0};
 	const float TOLERANCE = 0.0001;
@@ -204,7 +267,7 @@ void StreamManager::receiveClock()
 	{
 		Message m = outgoingBuffer.front();
 		outgoingBuffer.pop();
-		serialDriver->write(m.numBytes, m.dataPacket.data());
+		mySerialDriver->write(m.numBytes, m.dataPacket.data());
 	}
 	else
 	{
@@ -236,7 +299,7 @@ void StreamManager::receiveClock()
 
 }
 
-void StreamManager::enqueueCommand(uint8_t numb, uint8_t* dataPacket)
+void ComManager::enqueueCommand(uint8_t numb, uint8_t* dataPacket)
 {
 	//If we are over a max size, clear the queue
 	const unsigned int MAX_Q_SIZE = 200;
@@ -254,7 +317,7 @@ void StreamManager::enqueueCommand(uint8_t numb, uint8_t* dataPacket)
 }
 
 
-void StreamManager::packAndSendStopStreaming(int cmd, uint8_t slaveId)
+void ComManager::packAndSendStopStreaming(int cmd, uint8_t slaveId)
 {
 	if(cmd < 0) return;
 
@@ -263,7 +326,7 @@ void StreamManager::packAndSendStopStreaming(int cmd, uint8_t slaveId)
 	tryPackAndSend(CMD_STREAM, slaveId);
 }
 
-void StreamManager::sendCommands(int index)
+void ComManager::sendCommands(int index)
 {
 	if(index < 0 || index >= NUM_TIMER_FREQS) return;
 
@@ -307,14 +370,14 @@ void StreamManager::sendCommands(int index)
 	}
 }
 
-void StreamManager::sendCommandReadAll(uint8_t slaveId)
+void ComManager::sendCommandReadAll(uint8_t slaveId)
 {
 	//1) Stream
 	tx_cmd_data_read_all_r(TX_N_DEFAULT);
 	tryPackAndSend(CMD_READ_ALL, slaveId);
 }
 
-void StreamManager::sendCommandReadAllRicnu(uint8_t slaveId)
+void ComManager::sendCommandReadAllRicnu(uint8_t slaveId)
 {
 	(void) slaveId;
 	if(ricnuOffsets.size() < 1) return;
@@ -325,7 +388,7 @@ void StreamManager::sendCommandReadAllRicnu(uint8_t slaveId)
 	tryPackAndSend(CMD_RICNU, slaveId);
 }
 
-void StreamManager::sendCommandAnkle2DOF(uint8_t slaveId)
+void ComManager::sendCommandAnkle2DOF(uint8_t slaveId)
 {
 	static int index = 0;
 
@@ -336,14 +399,14 @@ void StreamManager::sendCommandAnkle2DOF(uint8_t slaveId)
 	tryPackAndSend(CMD_A2DOF, slaveId);
 }
 
-void StreamManager::sendCommandBattery(uint8_t slaveId)
+void ComManager::sendCommandBattery(uint8_t slaveId)
 {
 	//1) Stream
 	tx_cmd_exp_batt_r(TX_N_DEFAULT);
 	tryPackAndSend(CMD_BATT, slaveId);
 }
 
-void StreamManager::sendCommandTestBench(uint8_t slaveId)
+void ComManager::sendCommandTestBench(uint8_t slaveId)
 {
 	(void)slaveId;
 	//	static int index = 0;
@@ -355,25 +418,25 @@ void StreamManager::sendCommandTestBench(uint8_t slaveId)
 //	index %= 3;
 //	tryPackAndSend(CMD_MOTORTB, slaveId);
 }
-void StreamManager::sendCommandInControl(uint8_t slaveId)
+void ComManager::sendCommandInControl(uint8_t slaveId)
 {
 	tx_cmd_in_control_r(TX_N_DEFAULT);
 	tryPackAndSend(CMD_IN_CONTROL, slaveId);
 }
 
-void StreamManager::sendCommandDynamic(uint8_t slaveId)
+void ComManager::sendCommandDynamic(uint8_t slaveId)
 {
 	tx_cmd_user_dyn_r(TX_N_DEFAULT, SEND_DATA);
 	tryPackAndSend(CMD_USER_DYNAMIC, slaveId);
 }
 
-void StreamManager::sendCommandAngleTorqueProfile(uint8_t slaveId)
+void ComManager::sendCommandAngleTorqueProfile(uint8_t slaveId)
 {
 	tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 0);
 	tryPackAndSend(CMD_ANGLE_TORQUE_PROFILE, slaveId);
 }
 
-void StreamManager::sendCommandRigid(uint8_t slaveId)
+void ComManager::sendCommandRigid(uint8_t slaveId)
 {
 	if(rigidOffsets.size() < 1) return;
 	static int index = 0;

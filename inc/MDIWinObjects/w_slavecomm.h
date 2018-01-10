@@ -52,7 +52,7 @@
 #include "ankle2DofProject.h"
 #include "testBenchProject.h"
 #include "rigidDevice.h"
-#include <streammanager.h>
+#include <commanager.h>
 
 //****************************************************************************
 // Definition(s)
@@ -89,9 +89,9 @@ public:
 							QList<FlexseaDevice*> *testBenchDevListInit = nullptr,
 							QList<FlexseaDevice*> *dynamicUserDevListInit = nullptr,
 							QList<FlexseaDevice*> *rigidDevListInit = nullptr,
-							StreamManager* sm = nullptr);
+							ComManager* sm = nullptr);
 
-	StreamManager* streamManager;
+	ComManager* streamManager;
 
 	void addExperiment(QList<FlexseaDevice*> *deviceList, int cmdCode);
 

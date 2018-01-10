@@ -128,9 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_UserTesting::setDescription("User Testing");
 
 	initFlexSeaDeviceObject();
-	//SerialDriver:
-	mySerialDriver = new SerialDriver();
-	streamManager = new StreamManager(nullptr, mySerialDriver);
+	comManager = new ComManager(this);
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
 								  &executeLog,
@@ -143,10 +141,10 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &testBenchLog,
 								  &rigidLog);
 
-	initSerialComm(mySerialDriver, streamManager);
+	initSerialComm();
 	userDataManager = new DynamicUserDataManager(this);
 
-	connect(mySerialDriver, &SerialDriver::newDataReady,
+	connect(comManager, &ComManager::newDataReady,
 			userDataManager, &DynamicUserDataManager::handleNewMessage);
 
 	//Create default objects:
@@ -178,8 +176,7 @@ MainWindow::~MainWindow()
 {
 	delete ui;
 
-	delete mySerialDriver;
-	delete streamManager;
+	delete comManager;
 
 	int num2d = W_2DPlot::howManyInstance();
 	for(int i = 0; i < num2d; i++)
@@ -351,32 +348,33 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	return;
 }
 
-void MainWindow::initSerialComm(SerialDriver *driver, StreamManager *manager)
+void MainWindow::initSerialComm(void)
 {
-	serialThread = new QThread(this);
-	connect(serialThread, &QThread::started,
-			driver, &SerialDriver::init);
-	driver->moveToThread(serialThread);
-	serialThread->start(QThread::HighestPriority);
+	comManagerThread = new QThread(this);
+	connect(comManagerThread, &QThread::started,
+			comManager, &ComManager::init);
+	comManager->moveToThread(comManagerThread);
+	comManagerThread->start(QThread::HighestPriority);
 
-	connect(driver,		&SerialDriver::aboutToClose,
-			manager,	&StreamManager::onComPortClosing, Qt::DirectConnection);
 
-	//Link StreamManager/SerialDriver and DataLogger
-	connect(manager,		&StreamManager::openRecordingFile, \
+	//Link StreamManager and DataLogger
+	connect(comManager,		&ComManager::openRecordingFile, \
 			myDataLogger,	&DataLogger::openRecordingFile);
-	connect(driver,			&SerialDriver::writeToLogFile, \
-			myDataLogger,	&DataLogger::writeToFile);
-	connect(manager,		&StreamManager::closeRecordingFile, \
-			myDataLogger,	&DataLogger::closeRecordingFile);
-	connect(this,			&MainWindow::connectorWriteCommand, \
-			manager,		&StreamManager::enqueueCommand);
 
-	//SerialDriver and MainWindow
-	connect(driver, &SerialDriver::setStatusBarMessage, \
-			this, &MainWindow::setStatusBar);
-	connect(driver, &SerialDriver::openStatus, \
-			this, &MainWindow::saveComPortStatus);
+	connect(comManager,		&ComManager::writeToLogFile, \
+			myDataLogger,	&DataLogger::writeToFile);
+
+	connect(comManager,		&ComManager::closeRecordingFile, \
+			myDataLogger,	&DataLogger::closeRecordingFile);
+
+	connect(this,		&MainWindow::connectorWriteCommand, \
+			comManager,	&ComManager::enqueueCommand);
+
+	//ComManager and MainWindow
+	connect(comManager, &ComManager::setStatusBarMessage, \
+			this,		&MainWindow::setStatusBar);
+	connect(comManager, &ComManager::openStatus, \
+			this,		&MainWindow::saveComPortStatus);
 }
 
 void MainWindow::initializeCreateWindowFctPtr(void)
@@ -548,7 +546,7 @@ void MainWindow::createAnkleTorqueTool(void)
 		return;
 	}
 
-	W_AnkleTorque* w = new W_AnkleTorque(this, streamManager);
+	W_AnkleTorque* w = new W_AnkleTorque(this, comManager);
 	myAnkleTorque[count] = w;
 
 	//Link to MainWindow for the close signal:
@@ -576,7 +574,7 @@ void MainWindow::createAnkleAnglePlot(void)
 		return;
 	}
 
-	W_AnkleAnglePlot* w = new W_AnkleAnglePlot(this, streamManager);
+	W_AnkleAnglePlot* w = new W_AnkleAnglePlot(this, comManager);
 	myAnkleAnglePlot[count] = w;
 
 	int slaveCommCount = W_SlaveComm::howManyInstance();
@@ -593,11 +591,11 @@ void MainWindow::createAnkleAnglePlot(void)
 		return;
 	}
 
-	connect(mySerialDriver, &SerialDriver::newDataReady,
-			w,				&W_AnkleAnglePlot::receiveNewData);
+	connect(comManager, &ComManager::newDataReady,
+			w,			&W_AnkleAnglePlot::receiveNewData);
 
-	connect(streamManager,	&StreamManager::streamingFrequency,
-			w,				&W_AnkleAnglePlot::streamingFrequency);
+	connect(comManager,	&ComManager::streamingFrequency,
+			w,			&W_AnkleAnglePlot::streamingFrequency);
 
 	connect(this,					&MainWindow::connectorRefreshLogTimeSlider, \
 			myAnkleAnglePlot[count],&W_AnkleAnglePlot::refreshDisplayLog);
@@ -641,8 +639,8 @@ void MainWindow::createViewExecute(void)
 		sendWindowCreatedMsg(W_Execute::getDescription(), objectCount,
 							 W_Execute::getMaxWindow() - 1);
 
-		//Link SerialDriver and Execute:
-		connect(mySerialDriver, &SerialDriver::newDataReady, \
+		//Link ComManager and Execute:
+		connect(comManager, &ComManager::newDataReady, \
 				myViewExecute[objectCount], &W_Execute::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -693,8 +691,8 @@ void MainWindow::createViewManage(void)
 		sendWindowCreatedMsg(W_Manage::getDescription(), objectCount,
 							 W_Manage::getMaxWindow() - 1);
 
-		//Link SerialDriver and Manage:
-		connect(mySerialDriver, &SerialDriver::newDataReady, \
+		//Link ComManager and Manage:
+		connect(comManager, &ComManager::newDataReady, \
 				myViewManage[objectCount], &W_Manage::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -753,21 +751,21 @@ void MainWindow::createConfig(void)
 		connect(myViewConfig[0],	&W_Config::closeReadingFile, \
 				myDataLogger,		&DataLogger::closeReadingFile);
 
-		// Link to SerialDriver
+		// Link to ComManager
 		connect(myViewConfig[0],&W_Config::openCom, \
-				mySerialDriver, &SerialDriver::open);
+				comManager, &ComManager::open);
 
-		connect(mySerialDriver, &SerialDriver::openStatus, \
+		connect(comManager, &ComManager::openStatus, \
 				myViewConfig[0],&W_Config::on_openStatusUpdate);
 
 		connect(myViewConfig[0],&W_Config::closeCom, \
-				mySerialDriver, &SerialDriver::close);
+				comManager, &ComManager::close);
 
 		connect(myViewConfig[0],&W_Config::write,
-				mySerialDriver, &SerialDriver::write);
+				comManager, &ComManager::write);
 
 		connect(myViewConfig[0],&W_Config::flush,
-				mySerialDriver, &SerialDriver::flush);
+				comManager, &ComManager::flush);
 
 		connect(myViewConfig[0],&W_Config::updateDataSourceStatus,
 				this,			&MainWindow::translatorUpdateDataSourceStatus);
@@ -775,7 +773,7 @@ void MainWindow::createConfig(void)
 		connect(myViewConfig[0],&W_Config::createLogKeypad,
 				this,			&MainWindow::manageLogKeyPad);
 
-		connect(mySerialDriver,  &SerialDriver::aboutToClose, \
+		connect(comManager,  &ComManager::aboutToClose, \
 				myViewConfig[0], &W_Config::serialAboutToClose);
 	}
 
@@ -856,7 +854,7 @@ void MainWindow::createView2DPlot(void)
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
 
-		connect(mySerialDriver,				&SerialDriver::newDataReady, \
+		connect(comManager,				&ComManager::newDataReady, \
 				myView2DPlot[objectCount],	&W_2DPlot::receiveNewData);
 
 		//Link to MainWindow for the close signal:
@@ -906,7 +904,7 @@ void MainWindow::createSlaveComm(void)
 													   &testBenchFlexList,
 													   &dynamicDeviceList,
 													   &rigidFlexList,
-													   streamManager);
+													   comManager);
 
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].open = true;
@@ -921,13 +919,13 @@ void MainWindow::createSlaveComm(void)
 		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::activeSlaveStreaming, \
 				this,							&MainWindow::translatorActiveSlaveStreaming);
 
-		connect(mySerialDriver,		&SerialDriver::openStatus, \
+		connect(comManager,		&ComManager::openStatus, \
 				myViewSlaveComm[0], &W_SlaveComm::receiveComPortStatus);
 
-		connect(mySerialDriver,		&SerialDriver::dataStatus, \
+		connect(comManager,		&ComManager::dataStatus, \
 				myViewSlaveComm[0], &W_SlaveComm::displayDataReceived);
 
-		connect(mySerialDriver,		&SerialDriver::newDataTimeout, \
+		connect(comManager,		&ComManager::newDataTimeout, \
 				myViewSlaveComm[0], &W_SlaveComm::updateIndicatorTimeout);
 	}
 	else
@@ -996,7 +994,7 @@ void MainWindow::createInControl(void)
 		sendWindowCreatedMsg(W_InControl::getDescription(), objectCount,
 		W_InControl::getMaxWindow() - 1);
 
-		connect(mySerialDriver,					&SerialDriver::newDataReady, \
+		connect(comManager,					&ComManager::newDataReady, \
 				myViewInControl[objectCount],	&W_InControl::updateUIData);
 	}
 	else
@@ -1029,8 +1027,8 @@ void MainWindow::createViewRicnu(void)
 		sendWindowCreatedMsg(W_Ricnu::getDescription(), objectCount,
 							 W_Ricnu::getMaxWindow() - 1);
 
-		//Link SerialDriver and RIC/NU:
-		connect(mySerialDriver,				&SerialDriver::newDataReady, \
+		//Link ComManager and RIC/NU:
+		connect(comManager,				&ComManager::newDataReady, \
 				myViewRicnu[objectCount],	&W_Ricnu::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1158,7 +1156,7 @@ void MainWindow::createUserRW(void)
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
 				this,				&MainWindow::connectorWriteCommand);
 
-		connect(mySerialDriver,		&SerialDriver::openStatus,
+		connect(comManager,		&ComManager::openStatus,
 				userRW,				&W_UserRW::comStatusChanged);
 	}
 
@@ -1192,8 +1190,8 @@ void MainWindow::createViewGossip(void)
 		sendWindowCreatedMsg(W_Gossip::getDescription(), objectCount,
 							 W_Gossip::getMaxWindow() - 1);
 
-		//Link SerialDriver and Gossip:
-		connect(mySerialDriver,				&SerialDriver::newDataReady, \
+		//Link ComManager and Gossip:
+		connect(comManager,				&ComManager::newDataReady, \
 				myViewGossip[objectCount],	&W_Gossip::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1242,8 +1240,8 @@ void MainWindow::createViewRigid(void)
 		sendWindowCreatedMsg(W_Rigid::getDescription(), objectCount,
 							 W_Rigid::getMaxWindow() - 1);
 
-		//Link SerialDriver and Rigid:
-		connect(mySerialDriver,				&SerialDriver::newDataReady, \
+		//Link ComManager and Rigid:
+		connect(comManager,				&ComManager::newDataReady, \
 				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1289,8 +1287,8 @@ void MainWindow::createViewStrain(void)
 		sendWindowCreatedMsg(W_Strain::getDescription(), objectCount,
 							 W_Strain::getMaxWindow() - 1);
 
-		//Link SerialDriver and Strain:
-		connect(mySerialDriver,				&SerialDriver::newDataReady, \
+		//Link ComManager and Strain:
+		connect(comManager,				&ComManager::newDataReady, \
 				myViewStrain[objectCount],	&W_Strain::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1340,8 +1338,8 @@ void MainWindow::createViewBattery(void)
 		sendWindowCreatedMsg(W_Battery::getDescription(), objectCount,
 							 W_Battery::getMaxWindow() - 1);
 
-		//Link SerialDriver and Battery:
-		connect(mySerialDriver,				&SerialDriver::newDataReady, \
+		//Link ComManager and Battery:
+		connect(comManager,				&ComManager::newDataReady, \
 				myViewBatt[objectCount],	&W_Battery::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1442,8 +1440,8 @@ void MainWindow::createViewTestBench(void)
 		sendWindowCreatedMsg(W_TestBench::getDescription(), objectCount,
 							 W_TestBench::getMaxWindow() - 1);
 
-		//Link SerialDriver and Battery:
-		connect(mySerialDriver,					&SerialDriver::newDataReady, \
+		//Link ComManager and Battery:
+		connect(comManager,					&ComManager::newDataReady, \
 				myViewTestBench[objectCount],	&W_TestBench::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1483,8 +1481,6 @@ void MainWindow::createViewCommTest(void)
 		myViewCommTest[objectCount] = new W_CommTest(this,
 													 comPortStatus);
 
-		myViewCommTest[objectCount]->serialDriver = mySerialDriver;
-
 		mdiState[COMMTEST_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewCommTest[objectCount]);
 		mdiState[COMMTEST_WINDOWS_ID][objectCount].open = true;
 		myViewCommTest[objectCount]->show();
@@ -1497,11 +1493,17 @@ void MainWindow::createViewCommTest(void)
 				this,							&MainWindow::closeViewCommTest);
 
 		//Link to SerialDriver to know when we receive data:
-		connect(mySerialDriver,					&SerialDriver::openStatus, \
-				myViewCommTest[objectCount],	&W_CommTest::receiveComPortStatus);
+		connect(comManager,					&ComManager::openStatus, \
+				myViewCommTest[objectCount],&W_CommTest::receiveComPortStatus);
 
-		connect(mySerialDriver,					&SerialDriver::newDataReady, \
-				myViewCommTest[objectCount],	&W_CommTest::receivedData);
+		connect(comManager,					&ComManager::newDataReady, \
+				myViewCommTest[objectCount],&W_CommTest::receivedData);
+
+		connect(myViewCommTest[objectCount],&W_CommTest::tryReadWrite, \
+				comManager,					&ComManager::tryReadWrite);
+
+		connect(myViewCommTest[objectCount],&W_CommTest::write, \
+				comManager,					&ComManager::write);
 
 		//Link to SlaveComm to send commands:
 		connect(myViewCommTest[objectCount],	&W_CommTest::writeCommand,
@@ -1563,7 +1565,7 @@ void MainWindow::createCycleTester(void)
 	//Limited number of windows:
 	if(objectCount < (CYCLE_TESTER_WINDOWS_MAX))
 	{
-		myCycleTester[objectCount] = new W_CycleTester(this, &rigidFlexList, streamManager);
+		myCycleTester[objectCount] = new W_CycleTester(this, &rigidFlexList, comManager);
 		mdiState[CYCLE_TESTER_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myCycleTester[objectCount]);
 		mdiState[CYCLE_TESTER_WINDOWS_ID][objectCount].open = true;
 		myCycleTester[objectCount]->show();
@@ -1757,8 +1759,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 	qDebug() << "Closing, see you soon!";
 	//writeSettings();
-	serialThread->quit();
-	serialThread->wait();
+	comManagerThread->quit();
+	comManagerThread->wait();
 	event->accept();
 }
 

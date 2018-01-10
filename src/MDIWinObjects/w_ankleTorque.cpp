@@ -51,7 +51,7 @@ QT_CHARTS_USE_NAMESPACE
 // Constructor & Destructor:
 //****************************************************************************
 
-W_AnkleTorque::W_AnkleTorque(QWidget *parent, StreamManager* sm) :
+W_AnkleTorque::W_AnkleTorque(QWidget *parent, ComManager* sm) :
 	QWidget(parent), streamManager(sm),
 	ui(new Ui::W_AnkleTorque)
 {

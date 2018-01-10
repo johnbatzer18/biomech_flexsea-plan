@@ -41,7 +41,7 @@
 #include <QTimer>
 #include <QtCharts>
 #include <QtCharts/QChartView>
-#include <streammanager.h>
+#include <commanager.h>
 #include <QVector>
 #include "rigidDevice.h"
 #include "define.h"
@@ -411,7 +411,7 @@ class W_AnkleTorque : public QWidget, public Counter<W_AnkleTorque>
 
 public:
 
-	explicit W_AnkleTorque(QWidget *parent = 0, StreamManager* sm = nullptr);
+	explicit W_AnkleTorque(QWidget *parent = 0, ComManager* sm = nullptr);
 	virtual ~W_AnkleTorque();
 
 public slots:
@@ -457,7 +457,7 @@ private:
 	int32_t scaling[2];
 
 	void setAxesLimits();
-	StreamManager* streamManager = nullptr;
+	ComManager* streamManager = nullptr;
 };
 
 #endif // W_ANKLE_TORQUE_TOOL_H

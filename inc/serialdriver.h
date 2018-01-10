@@ -78,20 +78,15 @@ public:
 
 public slots:
 
-	void init(void);
-	bool isOpen() { return USBSerialPort->isOpen(); }
-	void flush(void);
-	void clear(void);
-
-	void addDevice(FlexseaDevice* device);
-
 	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
-	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
-	void handleReadyRead();
 	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
+	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
+	void flush(void);
 
-public:
+	bool isOpen() { return USBSerialPort->isOpen(); }
+	void clear(void);
+	void addDevice(FlexseaDevice* device);
 
 private:
 
@@ -107,8 +102,11 @@ private:
 	void signalSuccessfulParse();
 	void debugStats(int,int);
 
+private slots:
+	void handleReadyRead();
+	void serialPortErrorEvent(QSerialPort::SerialPortError error);
+
 signals:
-	void timerClocked(void);
 	void openStatus(SerialPortStatus status,int nbTries);
 	void newDataReady(void);
 	void dataStatus(int idx, int status);
@@ -116,10 +114,6 @@ signals:
 	void setStatusBarMessage(QString msg);
 	void writeToLogFile(FlexseaDevice*);
 	void aboutToClose(void);
-
-private slots:
-	void serialPortErrorEvent(QSerialPort::SerialPortError error);
-
 };
 
 //****************************************************************************

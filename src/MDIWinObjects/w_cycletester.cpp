@@ -35,7 +35,7 @@
 
 W_CycleTester::W_CycleTester(QWidget *parent,
 							 QList<FlexseaDevice*> *rigidDevListInit,
-							 StreamManager* sm) :
+							 ComManager* sm) :
 	QWidget(parent),
 	streamManager(sm),
 	ui(new Ui::W_CycleTester)

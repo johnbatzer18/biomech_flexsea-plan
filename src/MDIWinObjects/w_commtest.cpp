@@ -52,7 +52,6 @@
 W_CommTest::W_CommTest(QWidget *parent,
 					   SerialPortStatus comStatusInit) :
 	QWidget(parent),
-	serialDriver(nullptr),
 	ui(new Ui::W_CommTest)
 {
 	ui->setupUi(this);
@@ -219,16 +218,14 @@ void W_CommTest::readCommTest(void)
 		pack(P_AND_S_DEFAULT, slaveList[currentSlaveIndex], info, &numb, comm_str_usb);
 	}
 
-	if(serialDriver && serialDriver->isOpen())
+
+	if(shouldBusyWait)
 	{
-		if(shouldBusyWait)
-		{
-			serialDriver->tryReadWrite(numb, comm_str_usb, 100);
-		}
-		else
-		{
-			serialDriver->write(numb, comm_str_usb);
-		}
+		emit tryReadWrite(numb, comm_str_usb, 100);
+	}
+	else
+	{
+		emit write(numb, comm_str_usb);
 	}
 
 	//FlexSEA_Generic::packetVisualizer(numb, comm_str_usb);
@@ -387,7 +384,7 @@ void W_CommTest::startStopComTest(bool forceStop)
 		status = true;
 	}
 
-	if(status == false && serialDriver && serialDriver->isOpen())
+	if(status == false)
 	{
 		//We were showing Start.
 		ui->pushButtonStartStop->setText("Stop test");
