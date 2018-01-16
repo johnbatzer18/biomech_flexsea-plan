@@ -21,19 +21,9 @@ public:
 		clockTimer = nullptr;
 	}
 
-	void init();
-	void startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* logToDevice);
-	void startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, \
-							FlexseaDevice* logToDevice, uint8_t firstIndex, uint8_t lastIndex);
-	void stopStreaming(int cmd, int slave, int freq);
-
-	QList<int> getRefreshRates();
-
 	SerialDriver* mySerialDriver;
 
 	static const int NUM_TIMER_FREQS = 11;
-	QList<int> ricnuOffsets, rigidOffsets;
-	int minOffs = 0, maxOffs = 0;
 
 signals:
 	//ComManager
@@ -53,6 +43,16 @@ signals:
 
 
 public slots:
+	void init();
+	void startStreaming(bool shouldLog, FlexseaDevice* logToDevice);
+	void startAutoStreaming(bool shouldLog,	FlexseaDevice* logToDevice);
+	void startAutoStreaming(bool shouldLog, FlexseaDevice* logToDevice, \
+							uint8_t firstIndex, uint8_t lastIndex);
+	void stopStreaming(FlexseaDevice* device);
+	void stopStreaming(int cmd, uint8_t slave, int freq);
+	void setOffsetParameter(QList<int> ricnuOffsets, QList<int> rigidOffsets, int minOffs, int maxOffs);
+	QList<int> getRefreshRates();
+
 	void receiveClock();
 	void enqueueCommand(uint8_t numb, uint8_t* dataPacket);
 	void onComPortClosing();
@@ -113,6 +113,9 @@ private:
 	QList<int> experimentCodes;
 	QTimer* clockTimer;
 	float clockPeriod;
+
+	QList<int> ricnuOffsets, rigidOffsets;
+	int minOffs = 0, maxOffs = 0;
 
 	void sendCommands(int index);
 	void sendCommandReadAll(uint8_t slaveId);

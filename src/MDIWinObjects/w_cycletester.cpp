@@ -34,13 +34,10 @@
 //****************************************************************************
 
 W_CycleTester::W_CycleTester(QWidget *parent,
-							 QList<FlexseaDevice*> *rigidDevListInit,
-							 ComManager* sm) :
+							 QList<FlexseaDevice*> *rigidDevListInit):
 	QWidget(parent),
-	streamManager(sm),
 	ui(new Ui::W_CycleTester)
 {
-	if(!sm) qDebug("Null StreamManager passed to CycleTester Window.");
 
 	rigidDevList = rigidDevListInit;
 
@@ -628,7 +625,10 @@ void W_CycleTester::on_pbWrite_clicked()
 void W_CycleTester::on_pushButtonStartAutoStreaming_clicked()
 {
 	FlexseaDevice* target = rigidDevList->at(0);
-	int refreshRate = 33;
+
+	target->frequency = 33;
+	target->slaveID = FLEXSEA_MANAGE_1;
+	target->experimentIndex = CMD_CYCLE_TESTER;
 
 	autoStreamingPBstate = autoStreamingPBstate ? false : true;
 
@@ -645,7 +645,7 @@ void W_CycleTester::on_pushButtonStartAutoStreaming_clicked()
 		ui->pbRead->setEnabled(true);
 		ui->pbWrite->setEnabled(true);
 
-		streamManager->stopStreaming(CMD_CYCLE_TESTER, FLEXSEA_MANAGE_1, refreshRate);
+		emit stopStreaming(target);
 
 		timer->stop();
 	}
@@ -662,8 +662,7 @@ void W_CycleTester::on_pushButtonStartAutoStreaming_clicked()
 		ui->pbRead->setEnabled(false);
 		ui->pbWrite->setEnabled(false);
 
-		streamManager->startAutoStreaming(CMD_CYCLE_TESTER, FLEXSEA_MANAGE_1, \
-										  refreshRate, false, target, 0, 0);
+		emit startAutoStreaming(false, target, 0, 0);
 
 		//Timer to refresh the display:
 		timer->start(50);

@@ -33,7 +33,7 @@ void ComManager::init()
 	}
 
 	clockPeriod = 2;
-	clockTimer = new QTimer();
+	clockTimer = new QTimer(this);
 	clockTimer->setTimerType(Qt::PreciseTimer);
 	clockTimer->setSingleShot(false);
 	clockTimer->setInterval(clockPeriod);
@@ -57,7 +57,6 @@ void ComManager::init()
 			this,			&ComManager::writeToLogFile);
 	connect(mySerialDriver,	&SerialDriver::aboutToClose, \
 			this,			&ComManager::aboutToClose);
-
 }
 
 int ComManager::getIndexOfFrequency(int freq)
@@ -74,9 +73,13 @@ int ComManager::getIndexOfFrequency(int freq)
 	return indexOfFreq;
 }
 
-void ComManager::startStreaming(int cmd, int slave, int freq, bool shouldLog, FlexseaDevice* device)
+void ComManager::startStreaming(bool shouldLog, FlexseaDevice* device)
 {
 	if(!device) return;
+
+	int freq = device->frequency;
+	int cmd = device->experimentIndex;
+	uint8_t slave = device->slaveID;
 
 	int indexOfFreq = getIndexOfFrequency(freq);
 
@@ -102,11 +105,19 @@ void ComManager::startStreaming(int cmd, int slave, int freq, bool shouldLog, Fl
 		qDebug("Invalid frequency");
 	}
 }
+void ComManager::startAutoStreaming(bool shouldLog, FlexseaDevice* logToDevice)
+{
+	startAutoStreaming(shouldLog, logToDevice, minOffs, maxOffs);
+}
 
-void ComManager::startAutoStreaming(int cmd, int slave, int freq, bool shouldLog, \
+void ComManager::startAutoStreaming(bool shouldLog, \
 							FlexseaDevice* device, uint8_t firstIndex, uint8_t lastIndex)
 {
 	if(!device) return;
+
+	int freq = device->frequency;
+	int cmd = device->experimentIndex;
+	uint8_t slave = device->slaveID;
 
 	int indexOfFreq = getIndexOfFrequency(freq);
 
@@ -138,7 +149,13 @@ void ComManager::startAutoStreaming(int cmd, int slave, int freq, bool shouldLog
 	}
 }
 
-void ComManager::stopStreaming(int cmd, int slave, int freq)
+void ComManager::stopStreaming(FlexseaDevice *device)
+{
+	if(!device) return;
+	stopStreaming(device->experimentIndex, device->slaveID, device->frequency);
+}
+
+void ComManager::stopStreaming(int cmd, uint8_t slave, int freq)
 {
 	int indexOfFreq = getIndexOfFrequency(freq);
 	if(indexOfFreq < 0) return;
@@ -166,6 +183,14 @@ void ComManager::stopStreaming(int cmd, int slave, int freq)
 			}
 		}
 	}
+}
+
+void ComManager::setOffsetParameter(QList<int> ricnuOffsets, QList<int> rigidOffsets, int minOffs, int maxOffs)
+{
+	this->ricnuOffsets = ricnuOffsets;
+	this->rigidOffsets = rigidOffsets;
+	this->minOffs = minOffs;
+	this->maxOffs = maxOffs;
 }
 
 void ComManager::onComPortClosing()
@@ -218,7 +243,7 @@ void ComManager::tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, in
 
 int ComManager::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 {
-	mySerialDriver->write(bytes_to_send, serial_tx_data);
+	return mySerialDriver->write(bytes_to_send, serial_tx_data);
 }
 
 void ComManager::flush(void)
@@ -239,7 +264,6 @@ void ComManager::addDevice(FlexseaDevice* device)
 QList<int> ComManager::getRefreshRates()
 {
 	QList<int> result;
-	result.reserve(NUM_TIMER_FREQS);
 	for(int i = 0; i < NUM_TIMER_FREQS; i++)
 		result.append(timerFrequencies[i]);
 	return result;
@@ -306,7 +330,7 @@ void ComManager::enqueueCommand(uint8_t numb, uint8_t* dataPacket)
 
 	if(outgoingBuffer.size() > MAX_Q_SIZE)
 	{
-		qDebug() << "StreamManager::enqueueCommand, queue is above max size (" << MAX_Q_SIZE  << "), clearing queue...";
+		qDebug() << "ComManager::enqueueCommand, queue is above max size (" << MAX_Q_SIZE  << "), clearing queue...";
 		while(outgoingBuffer.size())
 			outgoingBuffer.pop();
 	}

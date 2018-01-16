@@ -89,7 +89,7 @@ public:
 							QList<FlexseaDevice*> *testBenchDevListInit = nullptr,
 							QList<FlexseaDevice*> *dynamicUserDevListInit = nullptr,
 							QList<FlexseaDevice*> *rigidDevListInit = nullptr,
-							ComManager* sm = nullptr);
+							QList<int> *SRefreshRates = nullptr);
 
 	ComManager* streamManager;
 
@@ -124,7 +124,10 @@ private slots:
 signals:
 	void windowClosed(void);
 	void activeSlaveStreaming(QString slaveName);
-
+	void setOffsetParameter(QList<int> ricnuOffsets, QList<int> rigidOffsets, int minOffs, int maxOffs);
+	void startStreaming(bool shouldLog, FlexseaDevice* logToDevice);
+	void startAutoStreaming(bool shouldLog, FlexseaDevice* logToDevice);
+	void stopStreaming(FlexseaDevice *device);
 private:
 	//Helper Functions
 	void populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected);
@@ -183,6 +186,8 @@ private:
 	void updateStatusBar(QString txt);
 
 	uint8_t numExperiments;
+
+	QList<int> *refreshRates;
 
 	QTimer *dataTimeout;
 };

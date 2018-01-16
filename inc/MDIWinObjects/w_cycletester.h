@@ -43,9 +43,7 @@ class W_CycleTester : public QWidget, public Counter<W_CycleTester>
 public:
 	//Constructor & Destructor:
 	explicit W_CycleTester(	QWidget *parent = 0, \
-							QList<FlexseaDevice*> *rigidDevListInit = nullptr, \
-							ComManager* sm = nullptr);
-	ComManager* streamManager;
+							QList<FlexseaDevice*> *rigidDevListInit = nullptr);
 	~W_CycleTester();
 
 public slots:
@@ -53,6 +51,9 @@ public slots:
 signals:
 	void windowClosed(void);
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void startAutoStreaming(bool shouldLog, FlexseaDevice* logToDevice, \
+							uint8_t firstIndex, uint8_t lastIndex);
+	void stopStreaming(FlexseaDevice *device);
 
 private slots:
 

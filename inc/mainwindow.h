@@ -241,6 +241,8 @@ private:
 	ComManager* comManager;
 	DynamicUserDataManager* userDataManager;
 
+	QList<int> comRefreshRate;
+
 	void writeSettings();
 	void readSettings();
 
@@ -248,7 +250,6 @@ signals:
 	//Allow window to be independly opened in any order by providing a backbone connector
 	void connectorRefreshLogTimeSlider(int index, FlexseaDevice*);
 	void connectorUpdateDisplayMode(DisplayMode mode, FlexseaDevice* devPtr);
-	void connectorWriteCommand(uint8_t ch, uint8_t* chPtr, uint8_t r_w);
 	void connectorCurrentSlaveStreaming(QString slaveName);
 	void connectorRefresh(void);
 

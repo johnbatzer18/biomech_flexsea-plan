@@ -61,17 +61,18 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 						 QList<FlexseaDevice*> *testBenchDevListInit,
 						 QList<FlexseaDevice*> *dynamicUserDevListInit,
 						 QList<FlexseaDevice*> *rigidDevListInit,
-						 ComManager* sm) :
+						 QList<int> *SRefreshRates) :
 	QWidget(parent),
-	streamManager(sm),
 	ui(new Ui::W_SlaveComm)
 {
-	if(!sm) qDebug("Null StreamManager passed to SlaveComm Window.");
-
+	if(!SRefreshRates) qDebug("Null RefreshRates passed to SlaveComm Window.");
 	ui->setupUi(this);
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+
+	// Used to register the custom type for the signal/slot function using it.
+	qRegisterMetaType<QList<int>>();
 
 	executeDevList = executeDevListInit;
 	manageDevList = manageDevListInit;
@@ -84,6 +85,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	testBenchDevList = testBenchDevListInit;
 	rigidDevList = rigidDevListInit;
 	dynamicUserDevList = dynamicUserDevListInit;
+	refreshRates = SRefreshRates;
 
 	initializeMaps();
 	mapSerializedPointers();
@@ -349,9 +351,8 @@ void W_SlaveComm::initSlaveCom(void)
 	updateStatusBar("Slave communication object created. Ready.");
 
 	QStringList refreshRateStrings;
-	QList<int> refreshRates = streamManager->getRefreshRates();
-	for(int i = 0; i < refreshRates.size(); i++)
-		refreshRateStrings << (QString::number(refreshRates.at(i)) + "Hz");
+	for(int i = 0; i < refreshRates->size(); i++)
+		refreshRateStrings << (QString::number(refreshRates->at(i)) + "Hz");
 
 	QFont font( "Arial", 12, QFont::Bold);
 
@@ -409,8 +410,7 @@ void W_SlaveComm::initSlaveCom(void)
 	}
 
 	//Default command line settings, RIC/NU & Rigid:
-	streamManager->ricnuOffsets = QList<int>({0, 1});
-	streamManager->rigidOffsets = QList<int>({0, 1});
+	emit setOffsetParameter(QList<int>({0, 1}), QList<int>({0, 1}), 0, 0);
 	defaultCmdLineText = "o=0,1,2,3;";
 	//We start with Rigid, so we enable the CL:
 	ui->lineEdit->setEnabled(true);
@@ -488,10 +488,11 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 	if(cmdCode < 0) return;
 
-	int refreshRate = streamManager->getRefreshRates()[refreshRateIndex];
 	FlexseaDevice* target = getTargetDevice(cmdCode, experimentIndex, slaveIndex);
-	int slaveId = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
-	target->slaveID = slaveId;
+	target->slaveID = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
+	target->frequency = refreshRates->at(refreshRateIndex);
+	target->experimentIndex = cmdCode;
+	target->experimentName = comboBoxExpPtr[row]->currentText();
 
 	if(on_off_pb_ptr[row]->isChecked() == true &&
 		forceOff == false && cmdCode >= 0)
@@ -512,9 +513,6 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		}
 
 		// start streaming
-		target->frequency = refreshRate;
-		target->experimentIndex = cmdCode;
-		target->experimentName = comboBoxExpPtr[row]->currentText();
 
 		//User notes, with any comma replaced by a space:
 		QString uNotes = ui->lineEdit_userNotes->text();
@@ -528,13 +526,11 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 		if(auto_checkbox[row]->isChecked())
 		{
-			streamManager->startAutoStreaming(cmdCode, slaveId, refreshRate, \
-								log_cb_ptr[row]->isChecked(), \
-								target, streamManager->minOffs, streamManager->maxOffs);
+			emit startAutoStreaming(log_cb_ptr[row]->isChecked(), target);
 		}
 		else
 		{
-			streamManager->startStreaming(cmdCode, slaveId, refreshRate, log_cb_ptr[row]->isChecked(), target);
+			emit startStreaming(log_cb_ptr[row]->isChecked(), target);
 		}
 
 		setRowDisabled(row, true);
@@ -560,7 +556,7 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 		// start streaming
 		if(cmdCode >= 0)
-			streamManager->stopStreaming(cmdCode, slaveId, refreshRate);
+			emit stopStreaming(target);
 
 		setRowDisabled(row, false);
 		displayDataReceived(row,DATAIN_STATUS_GREY);
@@ -697,10 +693,8 @@ void W_SlaveComm::readCommandLine()
 			}
 
 			qDebug() << "Min offset:" << min << ", Max offset:" << max;
-			streamManager->ricnuOffsets = offsets;
-			streamManager->rigidOffsets = offsets;
-			streamManager->minOffs = min;
-			streamManager->maxOffs = max;
+
+			emit setOffsetParameter(offsets, offsets, min, max);
 			break;
 
 		default:

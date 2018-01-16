@@ -44,6 +44,7 @@
 #include <passthroughprovider.h>
 #include <sineprovider3.h>
 #include "cmd-Rigid.h"
+#include <unistd.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -128,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_UserTesting::setDescription("User Testing");
 
 	initFlexSeaDeviceObject();
-	comManager = new ComManager(this);
+	comManager = new ComManager();
 	//Datalogger:
 	myDataLogger = new DataLogger(this,
 								  &executeLog,
@@ -170,6 +171,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	initializeCreateWindowFctPtr();
 	loadCSVconfigFile();	//By default we load the last saved settings
 	applyLoadedConfig();
+
 }
 
 MainWindow::~MainWindow()
@@ -350,14 +352,18 @@ void MainWindow::initFlexSeaDeviceObject(void)
 
 void MainWindow::initSerialComm(void)
 {
-	comManagerThread = new QThread(this);
+	comManagerThread = new QThread();
 	connect(comManagerThread, &QThread::started,
 			comManager, &ComManager::init);
+	connect(comManagerThread, &QThread::finished,
+			comManagerThread, &QThread::deleteLater);
 	comManager->moveToThread(comManagerThread);
 	comManagerThread->start(QThread::HighestPriority);
 
+	sleep(1);
+	comRefreshRate = comManager->getRefreshRates();
 
-	//Link StreamManager and DataLogger
+	//Link ComManager and DataLogger
 	connect(comManager,		&ComManager::openRecordingFile, \
 			myDataLogger,	&DataLogger::openRecordingFile);
 
@@ -366,9 +372,6 @@ void MainWindow::initSerialComm(void)
 
 	connect(comManager,		&ComManager::closeRecordingFile, \
 			myDataLogger,	&DataLogger::closeRecordingFile);
-
-	connect(this,		&MainWindow::connectorWriteCommand, \
-			comManager,	&ComManager::enqueueCommand);
 
 	//ComManager and MainWindow
 	connect(comManager, &ComManager::setStatusBarMessage, \
@@ -546,7 +549,7 @@ void MainWindow::createAnkleTorqueTool(void)
 		return;
 	}
 
-	W_AnkleTorque* w = new W_AnkleTorque(this, comManager);
+	W_AnkleTorque* w = new W_AnkleTorque(this);
 	myAnkleTorque[count] = w;
 
 	//Link to MainWindow for the close signal:
@@ -574,7 +577,7 @@ void MainWindow::createAnkleAnglePlot(void)
 		return;
 	}
 
-	W_AnkleAnglePlot* w = new W_AnkleAnglePlot(this, comManager);
+	W_AnkleAnglePlot* w = new W_AnkleAnglePlot(this);
 	myAnkleAnglePlot[count] = w;
 
 	int slaveCommCount = W_SlaveComm::howManyInstance();
@@ -818,7 +821,7 @@ void MainWindow::createControlControl(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myViewControl[objectCount], &W_Control::writeCommand, \
-				this,						&MainWindow::connectorWriteCommand);
+				comManager,					&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -904,7 +907,7 @@ void MainWindow::createSlaveComm(void)
 													   &testBenchFlexList,
 													   &dynamicDeviceList,
 													   &rigidFlexList,
-													   comManager);
+													   &comRefreshRate);
 
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].open = true;
@@ -918,6 +921,19 @@ void MainWindow::createSlaveComm(void)
 
 		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::activeSlaveStreaming, \
 				this,							&MainWindow::translatorActiveSlaveStreaming);
+
+		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::setOffsetParameter, \
+				comManager,						&ComManager::setOffsetParameter);
+
+		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::startStreaming, \
+				comManager,						&ComManager::startStreaming);
+
+		connect(myViewSlaveComm[objectCount],	SIGNAL(startAutoStreaming(bool,FlexseaDevice*)), \
+				comManager,						SLOT(startAutoStreaming(bool, FlexseaDevice*)));
+
+		connect(myViewSlaveComm[objectCount],	SIGNAL(stopStreaming(FlexseaDevice*)), \
+				comManager,						SLOT(stopStreaming(FlexseaDevice*)));
+
 
 		connect(comManager,		&ComManager::openStatus, \
 				myViewSlaveComm[0], &W_SlaveComm::receiveComPortStatus);
@@ -1113,7 +1129,7 @@ void MainWindow::createCalib(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myViewCalibration[objectCount], &W_Calibration::writeCommand, \
-				this,							&MainWindow::connectorWriteCommand);
+				comManager,						&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -1151,10 +1167,10 @@ void MainWindow::createUserRW(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myUserRW[objectCount],	&W_UserRW::writeCommand,
-				this,					&MainWindow::connectorWriteCommand);
+				comManager,				&ComManager::enqueueCommand);
 
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
-				this,				&MainWindow::connectorWriteCommand);
+				comManager,			&ComManager::enqueueCommand);
 
 		connect(comManager,		&ComManager::openStatus,
 				userRW,				&W_UserRW::comStatusChanged);
@@ -1507,7 +1523,7 @@ void MainWindow::createViewCommTest(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myViewCommTest[objectCount],	&W_CommTest::writeCommand,
-				this,							&MainWindow::connectorWriteCommand);
+				comManager,						&ComManager::enqueueCommand);
 	}
 
 	else
@@ -1565,7 +1581,7 @@ void MainWindow::createCycleTester(void)
 	//Limited number of windows:
 	if(objectCount < (CYCLE_TESTER_WINDOWS_MAX))
 	{
-		myCycleTester[objectCount] = new W_CycleTester(this, &rigidFlexList, comManager);
+		myCycleTester[objectCount] = new W_CycleTester(this, &rigidFlexList);
 		mdiState[CYCLE_TESTER_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myCycleTester[objectCount]);
 		mdiState[CYCLE_TESTER_WINDOWS_ID][objectCount].open = true;
 		myCycleTester[objectCount]->show();
@@ -1576,10 +1592,13 @@ void MainWindow::createCycleTester(void)
 		//Link to MainWindow for the close signal:
 		connect(myCycleTester[objectCount],	&W_CycleTester::windowClosed, \
 				this,						&MainWindow::closeControlControl);
+		//Link to MainWindow for the close signal:
+		connect(myCycleTester[objectCount],	SIGNAL(startAutoStreaming(bool,FlexseaDevice*,uint8_t,uint8_t)), \
+				comManager,					SLOT(stopStreaming(FlexseaDevice*)));
 
 		//Link to SlaveComm to send commands:
 		connect(myCycleTester[objectCount], &W_CycleTester::writeCommand, \
-				this,						&MainWindow::connectorWriteCommand);
+				comManager,					&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -1621,7 +1640,7 @@ void MainWindow::createUserTesting(void)
 				myViewSlaveComm[0] ,		&W_SlaveComm::stopExperiment);
 
 		connect(myUserTesting[objectCount], &W_UserTesting::writeCommand, \
-				this,						&MainWindow::connectorWriteCommand);
+				comManager,					&ComManager::enqueueCommand);
 
 		//Link to Datalogger to get filenames:
 		connect(myDataLogger,				&DataLogger::logFileName, \
@@ -1760,7 +1779,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 	qDebug() << "Closing, see you soon!";
 	//writeSettings();
 	comManagerThread->quit();
-	comManagerThread->wait();
 	event->accept();
 }
 

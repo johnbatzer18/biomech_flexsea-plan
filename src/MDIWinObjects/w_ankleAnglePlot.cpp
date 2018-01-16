@@ -38,9 +38,8 @@ QT_CHARTS_USE_NAMESPACE
 // Constructor & Destructor:
 //****************************************************************************
 
-W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent, ComManager* sm) :
+W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent) :
 	QWidget(parent),
-	comManager(sm),
 	ui(new Ui::W_AnkleAnglePlot)
 {
 	ui->setupUi(this);

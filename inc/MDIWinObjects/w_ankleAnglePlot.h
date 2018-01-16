@@ -189,7 +189,7 @@ class W_AnkleAnglePlot : public QWidget, public Counter<W_AnkleAnglePlot>
 
 public:
 
-	explicit W_AnkleAnglePlot(QWidget *parent = 0, ComManager* sm = nullptr);
+	explicit W_AnkleAnglePlot(QWidget *parent = 0);
 	virtual ~W_AnkleAnglePlot();
 
 public slots:
@@ -240,7 +240,6 @@ private:
 	int32_t scaling[2];
 
 	void setAxesLimits();
-	ComManager* comManager = nullptr;
 	void displayOrNot(void);
 	void mapSensorsToPoints(int idx);
 	void fakeDataToPoints(int idx);
