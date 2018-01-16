@@ -196,6 +196,7 @@ void W_2DPlot::refresh2DPlot(void)
 
 			(*lbMin[i])->setText(QString::number(stats[i][STATS_MIN]));
 			(*lbMax[i])->setText(QString::number(stats[i][STATS_MAX]));
+			(*lbDiff[i])->setText(QString::number(stats[i][STATS_DIFF]));
 			(*lbAvg[i])->setText(QString::number(stats[i][STATS_AVG]));
 		}
 	}
@@ -320,6 +321,13 @@ void W_2DPlot::initPtr(void)
 	lbMax[3] = &ui->label_4_max;
 	lbMax[4] = &ui->label_5_max;
 	lbMax[5] = &ui->label_6_max;
+
+	lbDiff[0]= &ui->label_diff_1;
+	lbDiff[1]= &ui->label_diff_2;
+	lbDiff[2]= &ui->label_diff_3;
+	lbDiff[3]= &ui->label_diff_4;
+	lbDiff[4]= &ui->label_diff_5;
+	lbDiff[5]= &ui->label_diff_6;
 
 	lbAvg[0] = &ui->label_1_avg;
 	lbAvg[1] = &ui->label_2_avg;
@@ -730,12 +738,14 @@ void W_2DPlot::computeStats(void)
 			//Save:
 			stats[i][STATS_MIN] = (int64_t) min;
 			stats[i][STATS_MAX] = (int64_t) max;
+			stats[i][STATS_DIFF]= (int64_t) max - min;
 			stats[i][STATS_AVG] = (int64_t) avg;
 		}
 		else
 		{
 			stats[i][STATS_MIN] = 0;
 			stats[i][STATS_MAX] = 0;
+			stats[i][STATS_DIFF]= 0;
 			stats[i][STATS_AVG] = 0;
 		}
 	}
@@ -1098,6 +1108,7 @@ void W_2DPlot::initStats(void)
 	{
 		(*lbMin[i])->setText(QString::number(0));
 		(*lbMax[i])->setText(QString::number(0));
+		(*lbDiff[i])->setText(QString::number(0));
 		(*lbAvg[i])->setText(QString::number(0));
 	}
 }
@@ -1108,6 +1119,7 @@ void W_2DPlot::refreshStats(void)
 	{
 		(*lbMin[i])->setText(QString::number(stats[i][STATS_MIN]));
 		(*lbMax[i])->setText(QString::number(stats[i][STATS_MAX]));
+		(*lbDiff[i])->setText(QString::number(stats[i][STATS_DIFF]));
 		(*lbAvg[i])->setText(QString::number(stats[i][STATS_AVG]));
 	}
 }
