@@ -43,6 +43,8 @@
 #include <QTimer>
 #include <QDebug>
 #include <flexsea_comm.h>
+#include <cmd-ActPack.h>
+
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -86,7 +88,7 @@ void W_Control::initControl(void)
 
 	//Populates Slave list:
 	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_EX, \
-											SL_LEN_EX);
+											SL_LEN_EX+SL_LEN_MN);
 	//Variables:
 	active_slave_index = ui->comboBox_slave->currentIndex();
 	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_EX, active_slave_index);
@@ -124,6 +126,8 @@ void W_Control::initControl(void)
 	//Command style:
 	ui->comboBoxCmdStyle->addItem("Single Action");
 	ui->comboBoxCmdStyle->addItem("ActPack");
+
+	initActPack();
 }
 
 void W_Control::initTabToggle(void)
@@ -189,6 +193,49 @@ void W_Control::init_ctrl_gains(void)
 	}
 }
 
+//Initialize ActPack
+void W_Control::initActPack(void)
+{
+	ActPack.controller = CTRL_NONE;
+	ActPack.setpoint = 0;
+	ActPack.setGains = KEEP;
+	ActPack.g0 = 0;
+	ActPack.g1 = 0;
+	ActPack.g2 = 0;
+	ActPack.g3 = 0;
+	ActPack.system = 0;
+}
+
+//Send the ActPack command. It will use the ActPack structure values.
+void W_Control::sendActPack(void)
+{
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+	uint8_t offset = 0;
+
+	//Debugging only:
+	qDebug() << "[ActPack]";
+	qDebug() << "Controller: " << ActPack.controller;
+	qDebug() << "Setpoint: " << ActPack.setpoint;
+	qDebug() << "Set Gains: " << ActPack.setGains;
+	qDebug() << "g0: " << ActPack.g0;
+	qDebug() << "g1: " << ActPack.g1;
+	qDebug() << "g2: " << ActPack.g2;
+	qDebug() << "g3: " << ActPack.g3;
+
+	//Send command:
+	tx_cmd_actpack_rw(TX_N_DEFAULT, offset, ActPack.controller, ActPack.setpoint, \
+					  ActPack.setGains, ActPack.g0, ActPack.g1, ActPack.g2, \
+					  ActPack.g3, ActPack.system);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, WRITE);
+
+	if(ActPack.setGains == CHANGE)
+	{
+		ActPack.setGains = KEEP;
+	}
+}
+
 void W_Control::save_ctrl_gains(int controller, int16_t *gains)
 {
 	int i = 0;
@@ -243,9 +290,18 @@ void W_Control::controller_setpoint(int val)
 
 	if(valid)
 	{
-		//Common for all gain functions:
-		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-		emit writeCommand(numb, comm_str_usb, WRITE);
+		ActPack.setpoint = val;
+
+		if(!ui->comboBoxCmdStyle->currentIndex())
+		{
+			//Common for all gain functions:
+			pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+			emit writeCommand(numb, comm_str_usb, WRITE);
+		}
+		else
+		{
+			sendActPack();
+		}
 	}
 	else
 	{
@@ -331,8 +387,6 @@ void W_Control::timerDisplayEvent(void)
 
 void W_Control::on_pushButton_SetController_clicked()
 {
-	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint16_t numb = 0;
 	int16_t ctrl = CTRL_NONE;
 
 	selected_controller = ui->comboBox_ctrl_list->currentIndex();
@@ -363,15 +417,31 @@ void W_Control::on_pushButton_SetController_clicked()
 			break;
 	}
 
-	//Prepare and send command:
-	tx_cmd_ctrl_mode_w(TX_N_DEFAULT, ctrl);
-	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	setController(ctrl);
 
 	//Notify user:
 	QString msg;
 	msg = "Active controller: " + var_list_controllers.at(wanted_controller);
 	ui->statusController->setText(msg);
+}
+
+void W_Control::setController(uint8_t ctrl)
+{
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+
+	if(!ui->comboBoxCmdStyle->currentIndex())
+	{
+		//Prepare and send command:
+		tx_cmd_ctrl_mode_w(TX_N_DEFAULT, ctrl);
+		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+		emit writeCommand(numb, comm_str_usb, WRITE);
+	}
+	else
+	{
+		ActPack.controller = ctrl;
+		sendActPack();
+	}
 }
 
 void W_Control::on_pushButton_setp_a_go_clicked()
@@ -561,10 +631,22 @@ void W_Control::on_pushButton_SetGains_clicked()
 	if(valid)
 	{
 		qDebug() << "Valid controller.";
+		ActPack.setGains = CHANGE;
+		ActPack.g0 = gains[0];
+		ActPack.g1 = gains[1];
+		ActPack.g2 = gains[2];
+		ActPack.g3 = gains[3];
 
-		//Common for all gain functions:
-		pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-		emit writeCommand(numb, comm_str_usb, WRITE);
+		if(!ui->comboBoxCmdStyle->currentIndex())
+		{
+			//Common for all gain functions:
+			pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+			emit writeCommand(numb, comm_str_usb, WRITE);
+		}
+		else
+		{
+			sendActPack();
+		}
 	}
 	else
 	{
