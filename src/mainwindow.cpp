@@ -1594,6 +1594,8 @@ void MainWindow::createCycleTester(void)
 				this,						&MainWindow::closeControlControl);
 		//Link to MainWindow for the close signal:
 		connect(myCycleTester[objectCount],	SIGNAL(startAutoStreaming(bool,FlexseaDevice*,uint8_t,uint8_t)), \
+				comManager,					SLOT(startAutoStreaming(bool,FlexseaDevice*,uint8_t,uint8_t)));
+		connect(myCycleTester[objectCount],	SIGNAL(stopStreaming(FlexseaDevice*)), \
 				comManager,					SLOT(stopStreaming(FlexseaDevice*)));
 
 		//Link to SlaveComm to send commands:
