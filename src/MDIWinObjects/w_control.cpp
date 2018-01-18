@@ -120,6 +120,10 @@ void W_Control::initControl(void)
 		ui->comboBoxDispSel->addItem(var_list_enc_disp.at(index));
 	}
 	ui->labelDispEncoder->setText("No data");   //Initial
+
+	//Command style:
+	ui->comboBoxCmdStyle->addItem("Single Action");
+	ui->comboBoxCmdStyle->addItem("ActPack");
 }
 
 void W_Control::initTabToggle(void)

@@ -10,7 +10,7 @@ TARGET = plan-gui
 TEMPLATE = app
 DEFINES += BOARD_TYPE_FLEXSEA_PLAN INCLUDE_UPROJ_RICNU_KNEE_V1
 DEFINES += INCLUDE_UPROJ_MIT_A2DOF INCLUDE_UPROJ_CYCLE_TESTER
-DEFINES += INCLUDE_UPROJ_DPEB31
+DEFINES += INCLUDE_UPROJ_DPEB31 INCLUDE_UPROJ_ACTPACK
 
 INCLUDEPATH += inc \
 				inc/MDIWinObjects \
@@ -28,7 +28,8 @@ INCLUDEPATH += inc \
 				flexsea-user/RICNU_Knee_v1/inc \
 				flexsea-user/Rigid/inc \
 				flexsea-user/DpEb31/inc \
-				flexsea-user/CycleTester/inc
+				flexsea-user/CycleTester/inc \
+				flexsea-user/ActPack/inc
 
 SOURCES += src/main.cpp \
 				src/mainwindow.cpp \
@@ -134,7 +135,8 @@ SOURCES += src/main.cpp \
 				flexsea-user/Rigid/src/cmd-Rigid.c \
 				flexsea-user/DpEb31/src/cmd-DpEb31.c \
 				flexsea-user/DpEb31/src/cmd-UTT.c \
-    src/commanager.cpp
+				flexsea-user/ActPack/src/cmd-ActPack.c \
+				src/commanager.cpp
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -225,7 +227,8 @@ HEADERS += inc/main.h \
 				flexsea-user/Rigid/inc/cmd-Rigid.h \
 				flexsea-user/DpEb31/inc/cmd-DpEb31.h \
 				flexsea-user/DpEb31/inc/cmd-UTT.h \
-    inc/commanager.h
+				flexsea-user/ActPack/inc/cmd-ActPack.h \
+				inc/commanager.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \
