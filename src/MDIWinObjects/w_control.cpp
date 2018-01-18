@@ -450,26 +450,38 @@ void W_Control::on_pushButton_toggle_clicked()
 
 void W_Control::on_pushButton_CtrlMinMax_clicked()
 {
+	update_CtrlMinMax();
+}
+
+void W_Control::update_CtrlMinMax()
+{
+	static int last_min, last_max = -1;
+
 	//Get min & max, update slider limits:
 	int min = ui->control_slider_min->text().toInt();
 	int max = ui->control_slider_max->text().toInt();
 
-	//Safety:
-	if(min > max)
+	if(last_min != min || last_max != max)
 	{
-		min = max;
-		ui->control_slider_min->setText(QString::number(min));
+		//Safety:
+		if(min > max)
+		{
+			min = max;
+			ui->control_slider_min->setText(QString::number(min));
+		}
+
+		ui->hSlider_Ctrl->setMinimum(min);
+		ui->hSlider_Ctrl->setMaximum(max);
+
+		//Default position:
+		if(min < 0)	{ui->hSlider_Ctrl->setValue(0);}
+		else {ui->hSlider_Ctrl->setValue(min);}
+
+		//Reset button's color:
+		ui->pushButton_CtrlMinMax->setStyleSheet("");
 	}
-
-	ui->hSlider_Ctrl->setMinimum(min);
-	ui->hSlider_Ctrl->setMaximum(max);
-
-	//Default position:
-	if(min < 0)	{ui->hSlider_Ctrl->setValue(0);}
-	else {ui->hSlider_Ctrl->setValue(min);}
-
-	//Reset button's color:
-	ui->pushButton_CtrlMinMax->setStyleSheet("");
+	last_min = min;
+	last_max = max;
 }
 
 void W_Control::on_hSlider_Ctrl_valueChanged(int value)
@@ -711,3 +723,14 @@ void W_Control::minMaxTextChanged(void)
 	ui->pushButton_CtrlMinMax->setStyleSheet("background-color: rgb(255, 255, 0); \
 											   color: rgb(0, 0, 0)");
 }
+
+void W_Control::on_control_slider_min_editingFinished()
+{
+	update_CtrlMinMax();
+}
+
+void W_Control::on_control_slider_max_editingFinished()
+{
+	update_CtrlMinMax();
+}
+

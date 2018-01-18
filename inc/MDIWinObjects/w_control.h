@@ -78,6 +78,10 @@ private slots:
 	void on_control_slider_min_textEdited(const QString &arg1);
 	void on_control_slider_max_textEdited(const QString &arg1);
 
+	void on_control_slider_max_editingFinished();
+
+	void on_control_slider_min_editingFinished();
+
 private:
 	//Variables & Objects:
 	Ui::W_Control *ui;
@@ -106,6 +110,7 @@ private:
 	void refreshStatusGain(void);
 	void control_trapeze(void);
 	void minMaxTextChanged(void);
+	void update_CtrlMinMax(void);
 };
 
 #define CONTROLLERS         6
