@@ -233,6 +233,9 @@ void W_UserRW::receiveNewData()
 
 void W_UserRW::comStatusChanged(SerialPortStatus status,int nbTries)
 {
+	// Not use by this slot.
+	(void)nbTries;
+
 	if(status == PortOpeningSucceed)
 		userDataMan->requestMetaData(active_slave);
 }

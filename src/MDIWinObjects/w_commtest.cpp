@@ -82,6 +82,9 @@ W_CommTest::~W_CommTest()
 //This slot gets called when the port status changes (turned On or Off)
 void W_CommTest::receiveComPortStatus(SerialPortStatus status,int nbTries)
 {
+	// Not use by this slot.
+	(void)nbTries;
+
 	if(status == PortClosed)
 	{
 		//PushButton:

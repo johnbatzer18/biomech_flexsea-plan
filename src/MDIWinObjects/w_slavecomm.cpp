@@ -153,6 +153,9 @@ void W_SlaveComm::getSlaveId(int* slaveId)
 //This slot gets called when the port status changes (turned On or Off)
 void W_SlaveComm::receiveComPortStatus(SerialPortStatus status,int nbTries)
 {
+	// Not use by this slot.
+	(void)nbTries;
+
 	if(status == PortClosed)
 	{
 		qDebug() << "COM port was closed";
