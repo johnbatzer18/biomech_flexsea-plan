@@ -123,9 +123,14 @@ void W_Control::initControl(void)
 	}
 	ui->labelDispEncoder->setText("No data");   //Initial
 
-	//Command style:
+	//Command style & FSM2:
 	ui->comboBoxCmdStyle->addItem("Single Action");
 	ui->comboBoxCmdStyle->addItem("ActPack");
+	ui->comboBoxCmdStyle->setCurrentIndex(0);
+	ui->comboBoxFSM2->addItem("Enabled (default)");
+	ui->comboBoxFSM2->addItem("Disabled");
+	ui->comboBoxFSM2->setCurrentIndex(0);
+	ui->comboBoxFSM2->setEnabled(false);
 
 	initActPack();
 }
@@ -820,4 +825,18 @@ void W_Control::on_control_slider_min_editingFinished()
 void W_Control::on_control_slider_max_editingFinished()
 {
 	update_CtrlMinMax();
+}
+
+void W_Control::on_comboBoxCmdStyle_currentIndexChanged(int index)
+{
+	if(index == 0){ui->comboBoxFSM2->setEnabled(false);}
+	else {ui->comboBoxFSM2->setEnabled(true);}
+}
+
+void W_Control::on_comboBoxFSM2_currentIndexChanged(int index)
+{
+	if(index == 0){ActPack.system = SYS_NORMAL;}
+	else {ActPack.system = SYS_DISABLE_FSM2;}
+
+	sendActPack();
 }

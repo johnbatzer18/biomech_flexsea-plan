@@ -81,6 +81,10 @@ private slots:
 	void on_control_slider_max_editingFinished();
 	void on_control_slider_min_editingFinished();
 
+	void on_comboBoxCmdStyle_currentIndexChanged(int index);
+
+	void on_comboBoxFSM2_currentIndexChanged(int index);
+
 private:
 	//Variables & Objects:
 	Ui::W_Control *ui;
