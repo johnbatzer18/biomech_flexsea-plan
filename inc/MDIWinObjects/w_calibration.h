@@ -38,6 +38,7 @@
 #include <QWidget>
 #include "counter.h"
 #include "flexsea_generic.h"
+#include "cmd-ActPack.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -59,19 +60,28 @@ public:
 	//Function(s):
 
 public slots:
-    void on_pbFindPoles_clicked();
+	void on_pbFindPoles_clicked();
 
 signals:
-    void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 	void windowClosed(void);
+
+private slots:
+	void on_comboBox_slave_currentIndexChanged(int index);
+
+	void on_comboBoxActPackFSM2_currentIndexChanged(int index);
 
 private:
 	//Variables & Objects:
 	Ui::W_Calibration *ui;
 	int active_slave, active_slave_index;
+	int calibration = 1;
+	struct ActPack_s ActPack;
 
 	//Function(s):
 	void init(void);
+	void sendActPack();
+	void initActPack();
 };
 
 //****************************************************************************
