@@ -213,7 +213,7 @@ void W_Control::sendActPack(void)
 	uint16_t numb = 0;
 	uint8_t offset = 0;
 
-	//Debugging only:
+	/*//Debugging only:
 	qDebug() << "[ActPack]";
 	qDebug() << "Controller: " << ActPack.controller;
 	qDebug() << "Setpoint: " << ActPack.setpoint;
@@ -221,7 +221,7 @@ void W_Control::sendActPack(void)
 	qDebug() << "g0: " << ActPack.g0;
 	qDebug() << "g1: " << ActPack.g1;
 	qDebug() << "g2: " << ActPack.g2;
-	qDebug() << "g3: " << ActPack.g3;
+	qDebug() << "g3: " << ActPack.g3;*/
 
 	//Send command:
 	tx_cmd_actpack_rw(TX_N_DEFAULT, offset, ActPack.controller, ActPack.setpoint, \
@@ -349,11 +349,12 @@ void W_Control::timerCtrlEvent(void)
 {
 	toggle_output_state ^= 1;
 
-	qDebug() << "Control Toggle Timer Event, output = " << toggle_output_state;
+	//qDebug() << "Control Toggle Timer Event, output = " << toggle_output_state;
 
 	if(toggle_output_state)
 	{
-		ctrl_setpoint = ui->control_setp_a->text().toInt();
+		//qDebug() << "Toggle: B => A";
+		ctrl_setpoint = ui->control_setp_b->text().toInt();
 		trap_posi = ui->control_setp_b->text().toInt();
 		trap_posf = ui->control_setp_a->text().toInt();
 		trap_pos = ctrl_setpoint;
@@ -362,7 +363,8 @@ void W_Control::timerCtrlEvent(void)
 	}
 	else
 	{
-		ctrl_setpoint = ui->control_setp_b->text().toInt();
+		//qDebug() << "Toggle: A => B";
+		ctrl_setpoint = ui->control_setp_a->text().toInt();
 		trap_posi = ui->control_setp_a->text().toInt();
 		trap_posf = ui->control_setp_b->text().toInt();
 		trap_pos = ctrl_setpoint;
@@ -518,7 +520,7 @@ void W_Control::on_pushButton_toggle_clicked()
 		toggle_output_state = 1;
 
 		//Start timer:
-		timerCtrl->start(ui->control_toggle_delayA->text().toInt());
+		timerCtrl->start(10);	//Will be at setpoint A in 10ms
 	}
 }
 
@@ -819,4 +821,3 @@ void W_Control::on_control_slider_max_editingFinished()
 {
 	update_CtrlMinMax();
 }
-
