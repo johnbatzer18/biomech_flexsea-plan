@@ -21,15 +21,15 @@ INCLUDEPATH += inc \
 				#flexsea-system/test \
 				flexsea-shared/unity \
 				flexsea-shared/inc \
-				flexsea-user/inc \
+				flexsea-projects/inc \
+				flexsea-dephy/inc \
 				#flexsea-user/test \
-				flexsea-user/MIT_2DoF_Ankle_v1/inc \
-				flexsea-user/MotorTestBench/inc \
-				flexsea-user/RICNU_Knee_v1/inc \
-				flexsea-user/Rigid/inc \
-				flexsea-user/DpEb31/inc \
-				flexsea-user/CycleTester/inc \
-				flexsea-user/ActPack/inc
+				flexsea-projects/MIT_2DoF_Ankle_v1/inc \
+				flexsea-projects/RICNU_Knee_v1/inc \
+				flexsea-projects/Rigid/inc \
+				flexsea-dephy/DpEb31/inc \
+				flexsea-dephy/CycleTester/inc \
+				flexsea-projects/ActPack/inc
 
 SOURCES += src/main.cpp \
 				src/mainwindow.cpp \
@@ -55,7 +55,6 @@ SOURCES += src/main.cpp \
 				src/FlexSEADevice/strainDevice.cpp \
 				src/FlexSEADevice/ricnuProject.cpp \
 				src/FlexSEADevice/ankle2DofProject.cpp \
-				src/FlexSEADevice/testBenchProject.cpp \
 				src/MDIWinObjects/w_2dplot.cpp \
 				src/MDIWinObjects/w_anycommand.cpp \
 				src/MDIWinObjects/w_battery.cpp \
@@ -73,7 +72,6 @@ SOURCES += src/main.cpp \
 				src/MDIWinObjects/w_userrw.cpp \
 				src/MDIWinObjects/w_incontrol.cpp \
 				src/MDIWinObjects/w_event.cpp \
-				src/MDIWinObjects/w_testbench.cpp \
 				src/MDIWinObjects/w_commtest.cpp \
 				src/MDIWinObjects/w_glplot.cpp \
 				src/MDIWinObjects/w_ankleTorque.cpp \
@@ -82,14 +80,13 @@ SOURCES += src/main.cpp \
 				src/MDIWinObjects/w_usertesting.cpp \
 				src/MDIWinObjects/scribblearea.cpp \
 				flexsea-shared/unity/unity.c \
-				flexsea-user/src/flexsea_cmd_user.c \
-				flexsea-user/src/dynamic_user_structs_plan.c \
-				flexsea-user/src/flexsea_user_structs.c \
-				flexsea-user/MotorTestBench/src/cmd-MotorTestBench.c \
-				flexsea-user/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
-				flexsea-user/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
-				flexsea-user/test/flexsea-user_test-all.c \
-				flexsea-user/test/test-cmd_user.c \
+				flexsea-projects/src/flexsea_cmd_user.c \
+				flexsea-projects/src/dynamic_user_structs_plan.c \
+				flexsea-projects/src/flexsea_user_structs.c \
+				flexsea-projects/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
+				flexsea-projects/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
+				#flexsea-user/test/flexsea-user_test-all.c \
+				#flexsea-user/test/test-cmd_user.c \
 				flexsea-comm/src/flexsea.c \
 				flexsea-comm/src/flexsea_buffers.c \
 				flexsea-comm/src/flexsea_circular_buffer.c \
@@ -119,23 +116,21 @@ SOURCES += src/main.cpp \
 				#flexsea-system/test/test-flexsea_cmd_control_1.c \
 				#flexsea-system/test/test-flexsea_cmd_control_2.c \
 				#flexsea-system/test/test-flexsea_cmd_tools.c \
-				flexsea-user/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
-				flexsea-user/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
-				flexsea-user/MotorTestBench/src/user-ex-MotorTestBench.c \
-				flexsea-user/MotorTestBench/src/user-mn-MotorTestBench.c \
-				flexsea-user/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
-				flexsea-user/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
-				flexsea-user/src/user-ex.c \
-				flexsea-user/src/user-mn.c \
-				flexsea-user/src/dynamic_user_structs_common.c \
-				flexsea-user/src/flexsea_cmd_angle_torque_profile.c \
-				flexsea-user/CycleTester/src/cmd-CycleTester.c \
+				flexsea-projects/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
+				flexsea-projects/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
+				flexsea-projects/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
+				flexsea-projects/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
+				flexsea-projects/src/user-ex.c \
+				flexsea-projects/src/user-mn.c \
+				flexsea-projects/src/dynamic_user_structs_common.c \
+				flexsea-projects/src/flexsea_cmd_angle_torque_profile.c \
+				flexsea-dephy/CycleTester/src/cmd-CycleTester.c \
 				src/FlexSEADevice/rigidDevice.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
-				flexsea-user/Rigid/src/cmd-Rigid.c \
-				flexsea-user/DpEb31/src/cmd-DpEb31.c \
-				flexsea-user/DpEb31/src/cmd-UTT.c \
-				flexsea-user/ActPack/src/cmd-ActPack.c \
+				flexsea-projects/Rigid/src/cmd-Rigid.c \
+				flexsea-dephy/DpEb31/src/cmd-DpEb31.c \
+				flexsea-dephy/DpEb31/src/cmd-UTT.c \
+				flexsea-projects/ActPack/src/cmd-ActPack.c \
 				src/commanager.cpp
 
 HEADERS += inc/main.h \
@@ -164,7 +159,6 @@ HEADERS += inc/main.h \
 				inc/FlexSEADevice/strainDevice.h \
 				inc/FlexSEADevice/ricnuProject.h \
 				inc/FlexSEADevice/ankle2DofProject.h \
-				inc/FlexSEADevice/testBenchProject.h \
 				inc/MDIWinObjects/w_2dplot.h \
 				inc/MDIWinObjects/w_anycommand.h \
 				inc/MDIWinObjects/w_battery.h \
@@ -183,7 +177,6 @@ HEADERS += inc/main.h \
 				inc/MDIWinObjects/w_logkeypad.h \
 				inc/MDIWinObjects/w_userrw.h \
 				inc/MDIWinObjects/w_commtest.h \
-				inc/MDIWinObjects/w_testbench.h \
 				inc/MDIWinObjects/w_glplot.h \
 				inc/MDIWinObjects/w_ankleTorque.h \
 				inc/MDIWinObjects/w_ankleAnglePlot.h \
@@ -192,14 +185,13 @@ HEADERS += inc/main.h \
 				inc/MDIWinObjects/scribblearea.h \
 				flexsea-shared/unity/unity.h \
 				flexsea-shared/unity/unity_internals.h \
-				flexsea-user/inc/flexsea_cmd_user.h \
-				flexsea-user/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
-				flexsea-user/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
+				flexsea-projects/inc/flexsea_cmd_user.h \
+				flexsea-projects/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
+				flexsea-projects/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
 				#flexsea-user/test/flexsea-user_test-all.h \
-				flexsea-user/inc/flexsea_user_structs.h \
-				flexsea-user/inc/user-plan.h \
-				flexsea-user/MotorTestBench/inc/cmd-MotorTestBench.h \
-				flexsea-user/inc/dynamic_user_structs.h \
+				flexsea-projects/inc/flexsea_user_structs.h \
+				flexsea-projects/inc/user-plan.h \
+				flexsea-projects/inc/dynamic_user_structs.h \
 				flexsea-comm/inc/flexsea.h \
 				flexsea-comm/inc/flexsea_comm_def.h \
 				flexsea-comm/inc/flexsea_buffers.h \
@@ -220,14 +212,14 @@ HEADERS += inc/main.h \
 				flexsea-system/inc/flexsea_cmd_in_control.h \
 				flexsea-system/inc/flexsea_cmd_stream.h \
 				#flexsea-system/test/flexsea-system_test-all.h \
-				flexsea-user/inc/flexsea_cmd_angle_torque_profile.h \
-				flexsea-user/CycleTester/inc/cmd-CycleTester.h \
+				flexsea-projects/inc/flexsea_cmd_angle_torque_profile.h \
+				flexsea-dephy/CycleTester/inc/cmd-CycleTester.h \
 				inc/FlexSEADevice/rigidDevice.h \
 				inc/MDIWinObjects/w_rigid.h \
-				flexsea-user/Rigid/inc/cmd-Rigid.h \
-				flexsea-user/DpEb31/inc/cmd-DpEb31.h \
-				flexsea-user/DpEb31/inc/cmd-UTT.h \
-				flexsea-user/ActPack/inc/cmd-ActPack.h \
+				flexsea-projects/Rigid/inc/cmd-Rigid.h \
+				flexsea-dephy/DpEb31/inc/cmd-DpEb31.h \
+				flexsea-dephy/DpEb31/inc/cmd-UTT.h \
+				flexsea-projects/ActPack/inc/cmd-ActPack.h \
 				inc/commanager.h
 
 FORMS += ui/mainwindow.ui \
@@ -247,7 +239,6 @@ FORMS += ui/mainwindow.ui \
 				ui/w_logkeypad.ui \
 				ui/w_userrw.ui \
 				ui/w_commtest.ui \
-				ui/w_testbench.ui \
 				ui/w_incontrol.ui \
 				ui/w_event.ui \
 				ui/w_glplot.ui \
@@ -276,9 +267,12 @@ QMAKE_CFLAGS = $$QMAKE_CFLAGS -Wno-unused-but-set-variable
 #	flexsea-system/README.md
 
 DISTFILES += \
-		flexsea-user/flexsea.gitignore \
-		flexsea-user/GPL-3.0.txt \
-		flexsea-user/README.md \
+		flexsea-projects/flexsea.gitignore \
+		flexsea-projects/GPL-3.0.txt \
+		flexsea-projects/README.md \
+		flexsea-dephy/flexsea.gitignore \
+		flexsea-dephy/GPL-3.0.txt \
+		flexsea-dephy/README.md \
 		flexsea-comm/flexsea.gitignore \
 		flexsea-comm/GPL-3.0.txt \
 		flexsea-shared/unity/readme.txt \
