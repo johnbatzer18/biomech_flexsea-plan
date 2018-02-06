@@ -368,7 +368,7 @@ void MainWindow::initSerialComm(void)
 			myDataLogger,	&DataLogger::openRecordingFile);
 
 	connect(comManager,		&ComManager::writeToLogFile, \
-			myDataLogger,	&DataLogger::writeToFile);
+			myDataLogger,	&DataLogger::writeToFile, Qt::DirectConnection);
 
 	connect(comManager,		&ComManager::closeRecordingFile, \
 			myDataLogger,	&DataLogger::closeRecordingFile);
