@@ -42,7 +42,8 @@
 
 #define REFRESH_PERIOD		100 //Port list refresh in ms
 #define BT_CONF_DELAY		500
-#define BT_FIELDS			6
+#define BT_FIELDS1			6
+#define BT_FIELDS2			9
 
 #define COM_OPEN_TRIES		3
 #define COM_OPEN_DELAY_US	2000.0
@@ -82,12 +83,14 @@ private slots:
 						bool keepCurrentSelection = false);
 	QString getCOMnickname(const QSerialPortInfo *c);
 	void btConfig();
+	void btConfig2();
 	void on_openComButton_clicked();
 	void on_closeComButton_clicked();
 	void on_pbLoadLogFile_clicked();
 	void on_pbCloseLogFile_clicked();
 	void on_pbBTmode_clicked();
-	void on_pbBTdefault_clicked();
+	void on_pbBTgui_clicked();
+	void on_pbBTbwc_clicked();
 	void on_pbBTfactory_clicked();
 	void on_pbBTreset_clicked();
 	void on_pbBTfast_clicked();
