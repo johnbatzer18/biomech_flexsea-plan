@@ -190,6 +190,7 @@ private:
 	QList<int> *refreshRates;
 
 	QTimer *dataTimeout;
+	bool isStreaming = false;
 };
 
 #endif // W_SLAVECOMM_H

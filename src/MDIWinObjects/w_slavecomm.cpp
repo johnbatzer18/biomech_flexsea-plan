@@ -186,6 +186,7 @@ void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs
 	auto_checkbox[0]->setChecked(autoSample);
 	ui->lineEdit->setText(offs);
 	ui->lineEdit_userNotes->setText(uNotes);
+	isStreaming = true;
 
 	managePushButton(0, false);
 }
@@ -193,6 +194,7 @@ void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs
 void W_SlaveComm::stopExperiment(void)
 {
 	on_off_pb_ptr[0]->setChecked(false);
+	isStreaming = false;
 	managePushButton(0, false);
 }
 
@@ -611,7 +613,7 @@ void W_SlaveComm::updateIndicatorTimeout(bool rst)
 	if(counter > INDICATOR_TIMEOUT)
 	{
 		displayDataReceived(0, DATAIN_STATUS_GREY);
-		qDebug() << "Timeout on communication";
+		if(isStreaming){qDebug() << "Timeout on communication";}
 	}
 
 	if(rst == true)
