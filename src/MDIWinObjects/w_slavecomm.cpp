@@ -611,6 +611,7 @@ void W_SlaveComm::updateIndicatorTimeout(bool rst)
 	if(counter > INDICATOR_TIMEOUT)
 	{
 		displayDataReceived(0, DATAIN_STATUS_GREY);
+		qDebug() << "Timeout on communication";
 	}
 
 	if(rst == true)
