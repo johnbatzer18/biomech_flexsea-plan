@@ -318,7 +318,7 @@ void W_Config::btConfig2()
 	//Settings - Bilateral:
 	//---------------------
 	//Name = FlexSEA-BWC-ADDR
-	//Baudrate = 230k
+	//Baudrate = 460k
 	//TX Power = max
 	//Inquiry window = 0012
 	//Page Window = 0012
@@ -326,20 +326,22 @@ void W_Config::btConfig2()
 	//Pair mode
 	//Authentification
 	//Buddy's address
+	//Latency optimization SQ,16
 
 	bool ok;
 
 	static uint8_t config[BT_FIELDS2][20] = {{"S-,FlexSEA-BWC\r"}, \
-											{"SU,230K\r"}, \
+											{"SU,460K\r"}, \
 											{"SY,0010\r"}, \
 											{"SI,0012\r"}, \
 											{"SJ,0012\r"}, \
 											{"ST,15\r"}, \
 											{"SM,6\r"}, \
 											{"SA,4\r"}, \
-											{"SR,000000000000\r"}};
+											{"SR,000000000000\r"},
+											{"SQ,16\r"}};
 
-	static uint8_t len[BT_FIELDS2] = {15,8,8,8,8,6,5,5,16};
+	static uint8_t len[BT_FIELDS2] = {15,8,8,8,8,6,5,5,16,6};
 
 	if(btConfigField == 0)
 	{

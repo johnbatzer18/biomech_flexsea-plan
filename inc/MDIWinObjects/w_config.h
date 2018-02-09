@@ -43,7 +43,7 @@
 #define REFRESH_PERIOD		100 //Port list refresh in ms
 #define BT_CONF_DELAY		500
 #define BT_FIELDS1			6
-#define BT_FIELDS2			9
+#define BT_FIELDS2			10
 
 #define COM_OPEN_TRIES		3
 #define COM_OPEN_DELAY_US	2000.0
