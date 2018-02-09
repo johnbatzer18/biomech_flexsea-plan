@@ -104,11 +104,11 @@ class MainWindow;
 //MDI Objects: set maximums # of child
 #define EX_VIEW_WINDOWS_MAX				5
 #define MN_VIEW_WINDOWS_MAX				2
-#define CONFIG_WINDOWS_MAX				1
+#define CONFIG_WINDOWS_MAX				2
 #define SLAVECOMM_WINDOWS_MAX			1
 #define ANYCOMMAND_WINDOWS_MAX			1
 #define CONVERTER_WINDOWS_MAX			1
-#define CONTROL_WINDOWS_MAX				1
+#define CONTROL_WINDOWS_MAX				2
 #define PLOT2D_WINDOWS_MAX				2
 #define RICNU_VIEW_WINDOWS_MAX			1
 #define CALIB_WINDOWS_MAX				1
