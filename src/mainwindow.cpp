@@ -748,36 +748,36 @@ void MainWindow::createConfig(void)
 				myViewConfig[objectCount],	&W_Config::refresh);
 
 		//Link to DataLogger
-		connect(myViewConfig[0],	&W_Config::openReadingFile, \
+		connect(myViewConfig[objectCount],	&W_Config::openReadingFile, \
 				myDataLogger,		&DataLogger::openReadingFile);
 
-		connect(myViewConfig[0],	&W_Config::closeReadingFile, \
+		connect(myViewConfig[objectCount],	&W_Config::closeReadingFile, \
 				myDataLogger,		&DataLogger::closeReadingFile);
 
 		// Link to ComManager
-		connect(myViewConfig[0],&W_Config::openCom, \
+		connect(myViewConfig[objectCount],&W_Config::openCom, \
 				comManager, &ComManager::open);
 
 		connect(comManager, &ComManager::openStatus, \
-				myViewConfig[0],&W_Config::on_openStatusUpdate);
+				myViewConfig[objectCount],&W_Config::on_openStatusUpdate);
 
-		connect(myViewConfig[0],&W_Config::closeCom, \
+		connect(myViewConfig[objectCount],&W_Config::closeCom, \
 				comManager, &ComManager::close);
 
-		connect(myViewConfig[0],&W_Config::write,
+		connect(myViewConfig[objectCount],&W_Config::write,
 				comManager, &ComManager::write);
 
-		connect(myViewConfig[0],&W_Config::flush,
+		connect(myViewConfig[objectCount],&W_Config::flush,
 				comManager, &ComManager::flush);
 
-		connect(myViewConfig[0],&W_Config::updateDataSourceStatus,
+		connect(myViewConfig[objectCount],&W_Config::updateDataSourceStatus,
 				this,			&MainWindow::translatorUpdateDataSourceStatus);
 
-		connect(myViewConfig[0],&W_Config::createLogKeypad,
+		connect(myViewConfig[objectCount],&W_Config::createLogKeypad,
 				this,			&MainWindow::manageLogKeyPad);
 
 		connect(comManager,  &ComManager::aboutToClose, \
-				myViewConfig[0], &W_Config::serialAboutToClose);
+				myViewConfig[objectCount], &W_Config::serialAboutToClose);
 	}
 
 	else
