@@ -69,9 +69,12 @@ W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 
 	//Timer for sequential configuration, BT module:
 	btConfigTimer = new QTimer(this);
-	/*connect(btConfigTimer,	&QTimer::timeout,
-			this,			&W_Config::btConfig);
-	*/
+	btConfigField = 0;
+
+	//By default we link the timer to the GUI config
+	connect(btConfigTimer, &QTimer::timeout,
+				this, &W_Config::btConfig);
+	timerConnectedTo = TCT_GUI;
 
 	openProgressTimer = new QTimer(this);
 	connect(openProgressTimer,	&QTimer::timeout,
@@ -300,13 +303,15 @@ void W_Config::btConfig()
 	if(btConfigField >= BT_FIELDS1)
 	{
 		btConfigTimer->stop();
+		qDebug() << "Done with the BT GUI config (" << btConfigField << "/" << \
+					BT_FIELDS1 << ").";
 		return;
 	}
 
 	//Send:
 	emit write(len[btConfigField], &config[btConfigField][0]);
+	qDebug() << "Sent BT config GUI #" << btConfigField;
 	btConfigField++;
-	qDebug() << "Sent one BT config";
 	emit flush();
 	btConfigTimer->start(BT_CONF_DELAY);
 	ui->btProgressBar->setValue(100*btConfigField/BT_FIELDS1);
@@ -370,13 +375,15 @@ void W_Config::btConfig2()
 	if(btConfigField >= BT_FIELDS2)
 	{
 		btConfigTimer->stop();
+		qDebug() << "Done with the BT BWC config (" << btConfigField << "/" << \
+					BT_FIELDS2 << ").";
 		return;
 	}
 
 	//Send:
 	emit write(len[btConfigField], &config[btConfigField][0]);
+	qDebug() << "Sent BT config BWC #" << btConfigField;
 	btConfigField++;
-	qDebug() << "Sent one BT config";
 	emit flush();
 	btConfigTimer->start(BT_CONF_DELAY);
 	ui->btProgressBar->setValue(100*btConfigField/BT_FIELDS2);
@@ -526,8 +533,13 @@ void W_Config::on_pbBTgui_clicked()
 	btConfigField = 0;
 	btConfigTimer->setSingleShot(true);
 
-	connect(btConfigTimer, &QTimer::timeout,
-				this, &W_Config::btConfig);
+	if(timerConnectedTo != TCT_GUI)
+	{
+		btConfigTimer->disconnect();
+		connect(btConfigTimer, &QTimer::timeout,
+						this, &W_Config::btConfig);
+		qDebug() << "Timer connected to btConfig (GUI).";
+	}
 
 	btConfigTimer->start(50);
 }
@@ -540,8 +552,13 @@ void W_Config::on_pbBTbwc_clicked()
 	btConfigField = 0;
 	btConfigTimer->setSingleShot(true);
 
-	connect(btConfigTimer, &QTimer::timeout,
-				this, &W_Config::btConfig2);
+	if(timerConnectedTo != TCT_BWC)
+	{
+		btConfigTimer->disconnect();
+		connect(btConfigTimer, &QTimer::timeout,
+						this, &W_Config::btConfig2);
+		qDebug() << "Timer connected to btConfig2 (BWC).";
+	}
 
 	btConfigTimer->start(50);
 }
