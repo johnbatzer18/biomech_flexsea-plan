@@ -101,6 +101,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
 	W_CycleTester::setMaxWindow(CYCLE_TESTER_WINDOWS_MAX);
 	W_AnkleAnglePlot::setMaxWindow(ANKLE_ANGLE_PLOT_WINDOWS_MAX);
+	W_GaitStats::setMaxWindow(GAIT_STATS_WINDOWS_MAX);
 	W_UserTesting::setMaxWindow(USER_TESTING_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
@@ -125,6 +126,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Rigid::setDescription("FlexSEA-Rigid");
 	W_CycleTester::setDescription("FlexSEA-Rigid Cycle Tester");
 	W_AnkleTorque::setDescription("Ankle Torque Tool");
+	W_GaitStats::setDescription("Gait Statistics");
 	W_AnkleAnglePlot::setDescription("Ankle Angle Plot");
 	W_UserTesting::setDescription("User Testing");
 
@@ -230,6 +232,7 @@ void MainWindow::initMenus(void)
 	//Gait Lab:
 	ui->menuGL->addAction("Ankle Torque Tool", this, &MainWindow::createAnkleTorqueTool);
 	ui->menuGL->addAction("Ankle Angle Plot", this, &MainWindow::createAnkleAnglePlot);
+	ui->menuGL->addAction("Gait Statistics", this, &MainWindow::createGaitStats);
 	//ui->menuGL->addAction("Chart Window", this, &MainWindow::triggerChartView);
 
 	//Help:
@@ -412,6 +415,7 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;
 	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &MainWindow::createCycleTester;
 	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::createUserTesting;
+	mdiCreateWinPtr[GAITS_STATS_WINDOWS_ID] = &MainWindow::createGaitStats;
 }
 
 /*
@@ -616,6 +620,51 @@ void MainWindow::closeAnkleAnglePlot(void)
 {
 	sendCloseWindowMsg(W_AnkleAnglePlot::getDescription());
 	mdiState[ANKLE_ANGLE_PLOT_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
+}
+
+//Creates a new GaitsStats window
+void MainWindow::createGaitStats(void)
+{
+	int objectCount = W_GaitStats::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < W_GaitStats::getMaxWindow())
+	{
+		W_GaitStats* gaitStats = new W_GaitStats(this, userDataManager);
+		myGaitStats[objectCount] = gaitStats;
+		mdiState[GAITS_STATS_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myGaitStats[objectCount]);
+		mdiState[GAITS_STATS_WINDOWS_ID][objectCount].open = true;
+		myGaitStats[objectCount]->show();
+
+		sendWindowCreatedMsg(W_GaitStats::getDescription(), objectCount,
+							 W_GaitStats::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myGaitStats[objectCount],	&W_GaitStats::windowClosed, \
+				this,					&MainWindow::closeGaitStats);
+
+		//Link to SlaveComm to send commands:
+		connect(myGaitStats[objectCount],	&W_GaitStats::writeCommand,
+				comManager,				&ComManager::enqueueCommand);
+
+		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
+				comManager,			&ComManager::enqueueCommand);
+
+		connect(comManager,					&ComManager::openStatus,
+				myGaitStats[objectCount],	&W_GaitStats::comStatusChanged);
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_GaitStats::getDescription(),
+								   W_GaitStats::getMaxWindow());
+	}
+}
+
+void MainWindow::closeGaitStats(void)
+{
+	sendCloseWindowMsg(W_GaitStats::getDescription());
+	mdiState[GAITS_STATS_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
 }
 
 //Creates a new View Execute window
@@ -1172,8 +1221,8 @@ void MainWindow::createUserRW(void)
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
 				comManager,			&ComManager::enqueueCommand);
 
-		connect(comManager,		&ComManager::openStatus,
-				userRW,				&W_UserRW::comStatusChanged);
+		connect(comManager,				&ComManager::openStatus,
+				myUserRW[objectCount],	&W_UserRW::comStatusChanged);
 	}
 
 	else

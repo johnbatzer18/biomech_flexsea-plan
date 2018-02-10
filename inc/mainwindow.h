@@ -55,6 +55,7 @@
 #include "w_event.h"
 #include "w_ankleTorque.h"
 #include "w_ankleAnglePlot.h"
+#include "w_gaitstats.h"
 #include "w_rigid.h"
 #include "flexseaDevice.h"
 #include "w_testbench.h"
@@ -98,7 +99,8 @@ class MainWindow;
 #define CYCLE_TESTER_WINDOWS_ID			21
 #define USER_TESTING_WINDOWS_ID			22
 #define ANKLE_ANGLE_PLOT_WINDOWS_ID		23
-#define WINDOWS_TYPES					24 //(has to match the list above)
+#define GAITS_STATS_WINDOWS_ID			24
+#define WINDOWS_TYPES					25 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES			5
 
 //MDI Objects: set maximums # of child
@@ -126,6 +128,7 @@ class MainWindow;
 #define CYCLE_TESTER_WINDOWS_MAX		1
 #define USER_TESTING_WINDOWS_MAX		1
 #define ANKLE_ANGLE_PLOT_WINDOWS_MAX	1
+#define GAIT_STATS_WINDOWS_MAX			1
 
 //Window information:
 typedef struct {
@@ -221,6 +224,7 @@ private:
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
 	W_AnkleTorque *myAnkleTorque[ANKLE_TORQUE_WINDOWS_MAX];
 	W_AnkleAnglePlot *myAnkleAnglePlot[ANKLE_ANGLE_PLOT_WINDOWS_MAX];
+	W_GaitStats *myGaitStats[GAIT_STATS_WINDOWS_MAX];
 	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
 	W_CycleTester *myCycleTester[CYCLE_TESTER_WINDOWS_MAX];
 	W_UserTesting *myUserTesting[USER_TESTING_WINDOWS_MAX];
@@ -284,6 +288,7 @@ public slots:
 	void createToolEvent(void);
 	void createAnkleTorqueTool(void);
 	void createAnkleAnglePlot(void);
+	void createGaitStats(void);
 	void createViewRigid(void);
 	void createCycleTester(void);
 	void createUserTesting(void);
@@ -310,6 +315,7 @@ public slots:
 	void closeInControl(void);
 	void closeAnkleTorqueTool(void);
 	void closeAnkleAnglePlot(void);
+	void closeGaitStats(void);
 	void closeViewRigid(void);
 	void closeCycleTester(void);
 	void closeUserTesting(void);
