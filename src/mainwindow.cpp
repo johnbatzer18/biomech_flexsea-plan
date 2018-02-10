@@ -103,6 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_AnkleAnglePlot::setMaxWindow(ANKLE_ANGLE_PLOT_WINDOWS_MAX);
 	W_GaitStats::setMaxWindow(GAIT_STATS_WINDOWS_MAX);
 	W_UserTesting::setMaxWindow(USER_TESTING_WINDOWS_MAX);
+	W_Status::setMaxWindow(STATUS_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -129,6 +130,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_GaitStats::setDescription("Gait Statistics");
 	W_AnkleAnglePlot::setDescription("Ankle Angle Plot");
 	W_UserTesting::setDescription("User Testing");
+	W_Status::setDescription("Status");
 
 	initFlexSeaDeviceObject();
 	comManager = new ComManager();
@@ -209,6 +211,7 @@ void MainWindow::initMenus(void)
 	ui->menuView->addAction("Strain", this, &MainWindow::createViewStrain);
 	ui->menuView->addSeparator();
 	ui->menuView->addAction("2D Plot", this, &MainWindow::createView2DPlot);
+	ui->menuView->addAction("Status", this, &MainWindow::createStatus);
 
 	//Add Control:
 	ui->menuControl->addAction("Control Loop", this, &MainWindow::createControlControl);
@@ -416,6 +419,8 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &MainWindow::createCycleTester;
 	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::createUserTesting;
 	mdiCreateWinPtr[GAITS_STATS_WINDOWS_ID] = &MainWindow::createGaitStats;
+	mdiCreateWinPtr[STATUS_WINDOWS_ID] = &MainWindow::createStatus;
+
 }
 
 /*
@@ -665,6 +670,51 @@ void MainWindow::closeGaitStats(void)
 {
 	sendCloseWindowMsg(W_GaitStats::getDescription());
 	mdiState[GAITS_STATS_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
+}
+
+//Creates a new GaitsStats window
+void MainWindow::createStatus(void)
+{
+	int objectCount = W_Status::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < W_Status::getMaxWindow())
+	{
+		W_Status* status = new W_Status(this, userDataManager);
+		myStatus[objectCount] = status;
+		mdiState[STATUS_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myStatus[objectCount]);
+		mdiState[STATUS_WINDOWS_ID][objectCount].open = true;
+		myStatus[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Status::getDescription(), objectCount,
+							 W_Status::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myStatus[objectCount],	&W_Status::windowClosed, \
+				this,					&MainWindow::closeStatus);
+
+		//Link to SlaveComm to send commands:
+		connect(myStatus[objectCount],	&W_Status::writeCommand,
+				comManager,				&ComManager::enqueueCommand);
+
+		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
+				comManager,			&ComManager::enqueueCommand);
+
+		connect(comManager,				&ComManager::openStatus,
+				myStatus[objectCount],	&W_Status::comStatusChanged);
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Status::getDescription(),
+								   W_Status::getMaxWindow());
+	}
+}
+
+void MainWindow::closeStatus(void)
+{
+	sendCloseWindowMsg(W_Status::getDescription());
+	mdiState[STATUS_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
 }
 
 //Creates a new View Execute window

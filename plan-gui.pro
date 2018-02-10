@@ -138,7 +138,8 @@ SOURCES += src/main.cpp \
 				flexsea-user/DpEb31/src/cmd-UTT.c \
 				flexsea-user/ActPack/src/cmd-ActPack.c \
 				src/commanager.cpp \
-    src/MDIWinObjects/w_gaitstats.cpp
+    src/MDIWinObjects/w_gaitstats.cpp \
+    src/MDIWinObjects/w_status.cpp
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -231,7 +232,8 @@ HEADERS += inc/main.h \
 				flexsea-user/DpEb31/inc/cmd-UTT.h \
 				flexsea-user/ActPack/inc/cmd-ActPack.h \
 				inc/commanager.h \
-    inc/MDIWinObjects/w_gaitstats.h
+    inc/MDIWinObjects/w_gaitstats.h \
+    inc/MDIWinObjects/w_status.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \
@@ -259,7 +261,8 @@ FORMS += ui/mainwindow.ui \
 				ui/w_rigid.ui \
 				ui/w_cycletester.ui \
 				ui/w_usertesting.ui \
-    ui/w_gaitstats.ui
+    ui/w_gaitstats.ui \
+    ui/w_status.ui
 
 RESOURCES += \
 		misc/icons.qrc

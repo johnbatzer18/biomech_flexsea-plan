@@ -21,7 +21,7 @@
 	Biomechatronics research group <http://biomech.media.mit.edu/>
 	[Contributors]
 *****************************************************************************
-	[This file] w_gaitstats.cpp: Gaits Statistics
+	[This file] w_status.cpp: Status window
 *****************************************************************************
 	[Change log] (Convention: YYYY-MM-DD | author | comment)
 	* 2018-02-10 | sbelanger | New code, initial release
@@ -35,8 +35,8 @@
 #include <flexsea_system.h>
 #include <flexsea_buffers.h>
 #include <flexsea_comm.h>
-#include "w_gaitstats.h"
-#include "ui_w_gaitstats.h"
+#include "w_status.h"
+#include "ui_w_status.h"
 #include "flexsea_generic.h"
 #include <QString>
 #include <QTextStream>
@@ -48,9 +48,9 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_GaitStats::W_GaitStats(QWidget *parent, DynamicUserDataManager* userDataManager) :
+W_Status::W_Status(QWidget *parent, DynamicUserDataManager* userDataManager) :
 	QWidget(parent),
-	ui(new Ui::W_GaitStats),
+	ui(new Ui::W_Status),
 	userDataMan(userDataManager)
 {
 	ui->setupUi(this);
@@ -61,7 +61,7 @@ W_GaitStats::W_GaitStats(QWidget *parent, DynamicUserDataManager* userDataManage
 	init();
 }
 
-W_GaitStats::~W_GaitStats()
+W_Status::~W_Status()
 {
 	emit windowClosed();
 	delete ui;
@@ -75,14 +75,72 @@ W_GaitStats::~W_GaitStats()
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+void W_Status::receiveNewData()
+{
+
+}
+
+void W_Status::comStatusChanged(SerialPortStatus status,int nbTries)
+{
+	// Not use by this slot.
+	(void)nbTries;
+
+	if(status == PortOpeningSucceed)
+		userDataMan->requestMetaData(active_slave);
+}
+
+void W_Status::externalErrorFlag()
+{
+
+}
 
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
 
-void W_GaitStats::init(void)
+void W_Status::init(void)
 {
-	ui->le_number->setValidator(new QIntValidator(0, 100, this));
+	lab_name_ptr[0] = ui->lab_name_0;
+	lab_name_ptr[1] = ui->lab_name_1;
+	lab_name_ptr[2] = ui->lab_name_2;
+	lab_name_ptr[3] = ui->lab_name_3;
+	lab_name_ptr[4] = ui->lab_name_4;
+	lab_name_ptr[5] = ui->lab_name_5;
+	lab_name_ptr[6] = ui->lab_name_6;
+	lab_name_ptr[7] = ui->lab_name_7;
+	lab_name_ptr[8] = ui->lab_name_8;
+	lab_name_ptr[9] = ui->lab_name_9;
+	lab_indicator_ptr[0] = ui->lab_indicator_0;
+	lab_indicator_ptr[1] = ui->lab_indicator_1;
+	lab_indicator_ptr[2] = ui->lab_indicator_2;
+	lab_indicator_ptr[3] = ui->lab_indicator_3;
+	lab_indicator_ptr[4] = ui->lab_indicator_4;
+	lab_indicator_ptr[5] = ui->lab_indicator_5;
+	lab_indicator_ptr[6] = ui->lab_indicator_6;
+	lab_indicator_ptr[7] = ui->lab_indicator_7;
+	lab_indicator_ptr[8] = ui->lab_indicator_8;
+	lab_indicator_ptr[9] = ui->lab_indicator_9;
+	pb_clear_ptr[0] = ui->pb_clear_0;
+	pb_clear_ptr[1] = ui->pb_clear_1;
+	pb_clear_ptr[2] = ui->pb_clear_2;
+	pb_clear_ptr[3] = ui->pb_clear_3;
+	pb_clear_ptr[4] = ui->pb_clear_4;
+	pb_clear_ptr[5] = ui->pb_clear_5;
+	pb_clear_ptr[6] = ui->pb_clear_6;
+	pb_clear_ptr[7] = ui->pb_clear_7;
+	pb_clear_ptr[8] = ui->pb_clear_8;
+	pb_clear_ptr[9] = ui->pb_clear_9;
+
+	QFont font( "Arial", 12, QFont::Bold);
+
+	for(int i = 0; i<NB_STATUS; ++i)
+	{
+		(lab_indicator_ptr[i])->setText("      " + QString(QChar(0x29BF)) + "      ");
+		(lab_indicator_ptr[i])->setAlignment(Qt::AlignCenter);
+		(lab_indicator_ptr[i])->setFont(font);
+		setStatus(i, STATUS_GREY);
+	}
+
 	//Populates Slave list:
 //	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
 //											SL_LEN_ALL);
@@ -102,7 +160,7 @@ void W_GaitStats::init(void)
 }
 
 //Send a Write command:
-void W_GaitStats::writeUserData(uint8_t index)
+void W_Status::writeUserData(uint8_t index)
 {
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
@@ -122,7 +180,7 @@ void W_GaitStats::writeUserData(uint8_t index)
 }
 
 //Send a Read command:
-void W_GaitStats::readUserData(void)
+void W_Status::readUserData(void)
 {
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
@@ -136,31 +194,88 @@ void W_GaitStats::readUserData(void)
 	refreshDelayTimer->start(75);
 }
 
-
-void W_GaitStats::receiveNewData()
+void W_Status::setStatus(int row, int status)
 {
-
+	switch(status)
+	{
+		case STATUS_GREY:
+			(lab_indicator_ptr[row])->setStyleSheet("QLabel { background-color: \
+										rgb(127,127,127); color: black;}");
+			break;
+		case STATUS_GREEN:
+			(lab_indicator_ptr[row])->setStyleSheet("QLabel { background-color: \
+										rgb(0,255,0); color: black;}");
+			break;
+		case STATUS_YELLOW:
+			(lab_indicator_ptr[row])->setStyleSheet("QLabel { background-color: \
+										rgb(255,255,0); color: black;}");
+			break;
+		case STATUS_RED:
+			(lab_indicator_ptr[row])->setStyleSheet("QLabel { background-color: \
+										rgb(255,0,0); color: black;}");
+			break;
+		default:
+			(lab_indicator_ptr[row])->setStyleSheet("QLabel { background-color: \
+										black; color: white;}");
+			break;
+	}
 }
 
-void W_GaitStats::comStatusChanged(SerialPortStatus status,int nbTries)
+void W_Status::statusReset(int row)
 {
-	// Not use by this slot.
-	(void)nbTries;
 
-	if(status == PortOpeningSucceed)
-		userDataMan->requestMetaData(active_slave);
 }
 
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
 
-void W_GaitStats::on_pb_ClearRow_clicked()
+void W_Status::on_pb_clear_0_clicked()
 {
-
+	statusReset(0);
 }
 
-void W_GaitStats::on_pb_Refresh_clicked()
+void W_Status::on_pb_clear_1_clicked()
 {
+	statusReset(1);
+}
 
+void W_Status::on_pb_clear_2_clicked()
+{
+	statusReset(2);
+}
+
+void W_Status::on_pb_clear_3_clicked()
+{
+	statusReset(3);
+}
+
+void W_Status::on_pb_clear_4_clicked()
+{
+	statusReset(4);
+}
+
+void W_Status::on_pb_clear_5_clicked()
+{
+	statusReset(5);
+}
+
+void W_Status::on_pb_clear_6_clicked()
+{
+	statusReset(6);
+}
+
+void W_Status::on_pb_clear_7_clicked()
+{
+	statusReset(7);
+}
+
+void W_Status::on_pb_clear_8_clicked()
+{
+	statusReset(8);
+}
+
+void W_Status::on_pb_clear_9_clicked()
+{
+	statusReset(9);
 }
