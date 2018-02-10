@@ -69,9 +69,8 @@ signals:
 	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 
 private slots:
-	void on_pushButton_refresh_clicked();
-	void refreshDisplay(void);
-	void on_comboBox_slave_currentIndexChanged(int index);
+	void on_pb_ClearRow_clicked();
+	void on_pb_Refresh_clicked();
 
 private:
 	//Variables & Objects:

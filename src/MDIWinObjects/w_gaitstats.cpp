@@ -82,6 +82,7 @@ W_GaitStats::~W_GaitStats()
 
 void W_GaitStats::init(void)
 {
+	ui->le_number->setValidator(new QIntValidator(0, 100, this));
 	//Populates Slave list:
 //	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
 //											SL_LEN_ALL);
@@ -154,47 +155,12 @@ void W_GaitStats::comStatusChanged(SerialPortStatus status,int nbTries)
 // Private slot(s):
 //****************************************************************************
 
-void W_GaitStats::on_pushButton_refresh_clicked()
+void W_GaitStats::on_pb_ClearRow_clicked()
 {
-	readUserData();
-	userDataMan->requestMetaData(active_slave);
+
 }
 
-void W_GaitStats::setUserCustomRowHidden(int row, bool shouldHide)
+void W_GaitStats::on_pb_Refresh_clicked()
 {
-//	QListWidgetItem* i1 = ui->execFieldFlagList->item(row);
-//	QListWidgetItem* i2 = ui->planFieldFlagList->item(row);
-//	QListWidgetItem* i3 = ui->userCustomStructLabelList->item(row);
-//	QListWidgetItem* i4 = ui->userCustomStructValueList->item(row);
-//	QListWidgetItem* i5 = ui->userCustomTypeList->item(row);
 
-//	if(i1 && i2 && i3 && i4 && i5)
-//	{
-//		i1->setHidden(shouldHide);
-//		i2->setHidden(shouldHide);
-//		i3->setHidden(shouldHide);
-//		i4->setHidden(shouldHide);
-//		i5->setHidden(shouldHide);
-//	}
-//	else
-//	{
-//		qDebug() << "UserRW::setUserCustomRowHidden: Tried to hide a row for which at least one list could not find corresponding item";
-//	}
-}
-
-//Refreshes the User R values (display only):
-void W_GaitStats::refreshDisplay(void)
-{
-	refreshDelayTimer->stop();
-
-//	ui->r0->setText(QString::number(user_data_1.r[0]));
-//	ui->r1->setText(QString::number(user_data_1.r[1]));
-//	ui->r2->setText(QString::number(user_data_1.r[2]));
-//	ui->r3->setText(QString::number(user_data_1.r[3]));
-}
-
-void W_GaitStats::on_comboBox_slave_currentIndexChanged(int index)
-{
-	active_slave_index = index;
-	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 }
