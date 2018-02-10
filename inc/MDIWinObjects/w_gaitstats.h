@@ -41,6 +41,7 @@
 #include "serialdriver.h"
 #include <dynamicuserdatamanager.h>
 #include <QListWidgetItem>
+
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************

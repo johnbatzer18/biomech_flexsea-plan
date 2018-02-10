@@ -142,10 +142,9 @@ void W_GaitStats::receiveNewData()
 
 }
 
-void W_GaitStats::comStatusChanged(SerialPortStatus status,int nbTries)
+void W_GaitStats::comStatusChanged(SerialPortStatus status, int nbTries)
 {
-	// Not use by this slot.
-	(void)nbTries;
+	(void)nbTries;	// Not use by this slot.
 
 	if(status == PortOpeningSucceed)
 		userDataMan->requestMetaData(active_slave);
