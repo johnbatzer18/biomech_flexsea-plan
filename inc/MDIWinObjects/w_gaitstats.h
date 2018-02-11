@@ -43,6 +43,12 @@
 #include <QListWidgetItem>
 
 //****************************************************************************
+// Definition(s)
+//****************************************************************************
+
+#define MAX_COLUMNS		25
+
+//****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
 
@@ -79,15 +85,15 @@ private:
 	int active_slave, active_slave_index;
 	QTimer *refreshDelayTimer;
 	DynamicUserDataManager* userDataMan;
+	uint8_t defaultArray[MAX_COLUMNS];
 
 	//Function(s):
 	void init(void);
 	void writeUserData(uint8_t index);
 	void readUserData(void);
+	void sprintLine(int8_t num, QString *txt, uint8_t *arr, uint8_t len);
+	void defaultText(int rows, int columns);
+	void sprintHeader(QString *headTxt, int columns);
 };
-
-//****************************************************************************
-// Definition(s)
-//****************************************************************************
 
 #endif // W_GAITSTATS_H
