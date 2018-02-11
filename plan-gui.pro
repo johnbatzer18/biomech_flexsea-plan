@@ -105,7 +105,6 @@ SOURCES += src/main.cpp \
 				flexsea-projects/src/user-ex.c \
 				flexsea-projects/src/user-mn.c \
 				flexsea-projects/src/dynamic_user_structs_common.c \
-				flexsea-projects/src/flexsea_cmd_angle_torque_profile.c \
 				flexsea-dephy/CycleTester/src/cmd-CycleTester.c \
 				src/FlexSEADevice/rigidDevice.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
@@ -191,7 +190,6 @@ HEADERS += inc/main.h \
 				flexsea-system/inc/flexsea_cmd_tools.h \
 				flexsea-system/inc/flexsea_cmd_in_control.h \
 				flexsea-system/inc/flexsea_cmd_stream.h \
-				flexsea-projects/inc/flexsea_cmd_angle_torque_profile.h \
 				flexsea-dephy/CycleTester/inc/cmd-CycleTester.h \
 				inc/FlexSEADevice/rigidDevice.h \
 				inc/MDIWinObjects/w_rigid.h \
