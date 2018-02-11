@@ -16,14 +16,11 @@ INCLUDEPATH += inc \
 				inc/MDIWinObjects \
 				inc/FlexSEADevice \
 				flexsea-comm/inc \
-				#flexsea-comm/test \
 				flexsea-system/inc \
-				#flexsea-system/test \
 				flexsea-shared/unity \
 				flexsea-shared/inc \
 				flexsea-projects/inc \
 				flexsea-dephy/inc \
-				#flexsea-user/test \
 				flexsea-projects/MIT_2DoF_Ankle_v1/inc \
 				flexsea-projects/RICNU_Knee_v1/inc \
 				flexsea-projects/Rigid/inc \
@@ -85,18 +82,11 @@ SOURCES += src/main.cpp \
 				flexsea-projects/src/flexsea_user_structs.c \
 				flexsea-projects/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
 				flexsea-projects/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
-				#flexsea-user/test/flexsea-user_test-all.c \
-				#flexsea-user/test/test-cmd_user.c \
 				flexsea-comm/src/flexsea.c \
 				flexsea-comm/src/flexsea_buffers.c \
 				flexsea-comm/src/flexsea_circular_buffer.c \
 				flexsea-comm/src/flexsea_comm.c \
 				flexsea-comm/src/flexsea_payload.c \
-				#flexsea-comm/test/flexsea-comm_test-all.c \
-				#flexsea-comm/test/test-flexsea.c \
-				#flexsea-comm/test/test-flexsea_buffers.c \
-				#flexsea-comm/test/test-flexsea_comm.c \
-				#flexsea-comm/test/test-flexsea_payload.c \
 				flexsea-system/src/flexsea_system.c \
 				flexsea-system/src/flexsea_global_structs.c \
 				flexsea-system/src/flexsea_cmd_data.c \
@@ -108,14 +98,6 @@ SOURCES += src/main.cpp \
 				flexsea-system/src/flexsea_cmd_tools.c \
 				flexsea-system/src/flexsea_cmd_in_control.c \
 				flexsea-system/src/flexsea_cmd_stream.c \
-				#flexsea-system/test/test-flexsea_system.c \
-				#flexsea-system/test/flexsea-system_test-all.c \
-				#flexsea-system/test/test-flexsea_cmd_data.c \
-				#flexsea-system/test/test-flexsea_cmd_external.c \
-				#flexsea-system/test/test-flexsea_cmd_sensors.c \
-				#flexsea-system/test/test-flexsea_cmd_control_1.c \
-				#flexsea-system/test/test-flexsea_cmd_control_2.c \
-				#flexsea-system/test/test-flexsea_cmd_tools.c \
 				flexsea-projects/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
 				flexsea-projects/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
 				flexsea-projects/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
@@ -188,7 +170,6 @@ HEADERS += inc/main.h \
 				flexsea-projects/inc/flexsea_cmd_user.h \
 				flexsea-projects/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
 				flexsea-projects/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
-				#flexsea-user/test/flexsea-user_test-all.h \
 				flexsea-projects/inc/flexsea_user_structs.h \
 				flexsea-projects/inc/user-plan.h \
 				flexsea-projects/inc/dynamic_user_structs.h \
@@ -198,7 +179,6 @@ HEADERS += inc/main.h \
 				flexsea-comm/inc/flexsea_circular_buffer.h \
 				flexsea-comm/inc/flexsea_comm.h \
 				flexsea-comm/inc/flexsea_payload.h \
-				#flexsea-comm/test/flexsea-comm_test-all.h \
 				flexsea-system/inc/flexsea_system.h \
 				flexsea-system/inc/flexsea_sys_def.h \
 				flexsea-system/inc/flexsea_global_structs.h \
@@ -211,7 +191,6 @@ HEADERS += inc/main.h \
 				flexsea-system/inc/flexsea_cmd_tools.h \
 				flexsea-system/inc/flexsea_cmd_in_control.h \
 				flexsea-system/inc/flexsea_cmd_stream.h \
-				#flexsea-system/test/flexsea-system_test-all.h \
 				flexsea-projects/inc/flexsea_cmd_angle_torque_profile.h \
 				flexsea-dephy/CycleTester/inc/cmd-CycleTester.h \
 				inc/FlexSEADevice/rigidDevice.h \
@@ -257,14 +236,6 @@ QMAKE_CFLAGS = $$QMAKE_CFLAGS -Wno-unused-but-set-variable
 #Linked will fail - debug only
 #QMAKE_CFLAGS = $$QMAKE_CFLAGS -E
 #QMAKE_CXXFLAGS = $$QMAKE_CXXFLAGS -E
-
-#DISTFILES += \
-#	flexsea-comm/flexsea.gitignore \
-#	flexsea-comm/GPL-3.0.txt \
-#	flexsea-system/flexsea.gitignore \
-#	flexsea-system/GPL-3.0.txt \
-#	flexsea-comm/README.md \
-#	flexsea-system/README.md
 
 DISTFILES += \
 		flexsea-projects/flexsea.gitignore \

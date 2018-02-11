@@ -39,7 +39,6 @@
 #include <QButtonGroup>
 #include "cmd-UTT.h"
 
-
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
@@ -69,18 +68,6 @@ W_UserTesting::W_UserTesting(QWidget *parent,
 	mwAppPath = appPath;
 	tweakHasChanged = false;
 	uiSetup = false;
-
-	/*
-	//Test code - ToDo remove
-	uint32_t d = 0;
-	struct dual_utt_s testUTT;
-	testUTT.leg[0].torquePoints[5][0] = -30;
-	testUTT.leg[0].torquePoints[5][1] = 127;
-	qDebug() << QString::number(testUTT.leg[0].torquePoints[5][0]) << ", " <<  QString::number(testUTT.leg[0].torquePoints[5][1]);
-	d = compTorqueX(&testUTT, 0);
-	decompTorqueX(&testUTT, 0, d);
-	qDebug() << QString::number(testUTT.leg[0].torquePoints[5][0]) << ", " <<  QString::number(testUTT.leg[0].torquePoints[5][1]);
-	*/
 }
 
 W_UserTesting::~W_UserTesting()
@@ -242,17 +229,9 @@ void W_UserTesting::initTabTweaks(void)
 
 	//Dials & inputs:
 	planUTT.leg[UTT_RIGHT].amplitude = 0;
-	//ui->dialAmplitudeR->setValue(planUTT.leg[UTT_RIGHT].amplitude);
-	//ui->spinBoxTweaksAmpR->setValue(ui->dialAmplitudeR->value());
 	planUTT.leg[UTT_RIGHT].timing = 0;
-	//ui->dialTimingR->setValue(planUTT.leg[UTT_RIGHT].timing);
-	//ui->spinBoxTweaksTimR->setValue(ui->dialTimingR->value());
 	planUTT.leg[UTT_LEFT].amplitude = 0;
-	//ui->dialAmplitudeL->setValue(planUTT.leg[UTT_LEFT].amplitude);
-	//ui->spinBoxTweaksAmpL->setValue(ui->dialAmplitudeL->value());
 	planUTT.leg[UTT_LEFT].timing = 0;
-	//ui->dialTimingL->setValue(planUTT.leg[UTT_LEFT].timing);
-	//ui->spinBoxTweaksTimL->setValue(ui->dialTimingL->value());
 
 	//Power buttons:
 	ui->pushButtonPowerOffR->setStyleSheet("background-color: rgb(255, 0, 0); \
