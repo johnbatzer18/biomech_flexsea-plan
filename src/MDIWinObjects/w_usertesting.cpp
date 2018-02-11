@@ -709,13 +709,14 @@ void W_UserTesting::nameEditingFinished(uint8_t i)
 	{
 		//Generate new UID based on initials. Skips empties.
 		QString uid = "U-";
-		QChar letter;
-		letter = ui->lineEditNameFirst->text().at(0);
-		if(letter != 0){uid += letter;}
-		letter = ui->lineEditNameM->text().at(0);
-		if(letter != 0){uid += letter;}
-		letter = ui->lineEditNameLast->text().at(0);
-		if(letter != 0){uid += letter;}
+		QString temp;
+
+		temp = ui->lineEditNameFirst->text();
+		if(!temp.isEmpty()){uid += temp.at(0);}
+		temp = ui->lineEditNameM->text();
+		if(!temp.isEmpty()){uid += temp.at(0);}
+		temp = ui->lineEditNameLast->text();
+		if(!temp.isEmpty()){uid += temp.at(0);}
 
 		userID = uid;
 		ui->lineEditNameUID->setText(uid);
