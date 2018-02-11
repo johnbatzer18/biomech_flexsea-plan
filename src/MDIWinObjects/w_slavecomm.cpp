@@ -184,6 +184,7 @@ void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs
 	auto_checkbox[0]->setChecked(autoSample);
 	ui->lineEdit->setText(offs);
 	ui->lineEdit_userNotes->setText(uNotes);
+	isStreaming = true;
 
 	managePushButton(0, false);
 }
@@ -191,6 +192,7 @@ void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs
 void W_SlaveComm::stopExperiment(void)
 {
 	on_off_pb_ptr[0]->setChecked(false);
+	isStreaming = false;
 	managePushButton(0, false);
 }
 
@@ -265,6 +267,7 @@ void W_SlaveComm::initializeMaps()
 	targetListMap[3] = nullptr;
 	targetListMap[4] = &ankle2DofTargetList;
 	targetListMap[5] = &batteryTargetList;
+	//targetListMap[6] = &;
 	targetListMap[7] = &dynamicUserTargetList;
 	//targetListMap[8] = &;
 	targetListMap[9] = &rigidTargetList;
@@ -603,6 +606,7 @@ void W_SlaveComm::updateIndicatorTimeout(bool rst)
 	if(counter > INDICATOR_TIMEOUT)
 	{
 		displayDataReceived(0, DATAIN_STATUS_GREY);
+		if(isStreaming){qDebug() << "Timeout on communication";}
 	}
 
 	if(rst == true)

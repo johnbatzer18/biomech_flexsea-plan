@@ -7,6 +7,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 qtHaveModule(printsupport): QT += printsupport
 
 TARGET = plan-gui
+CONFIG += console
 TEMPLATE = app
 DEFINES += BOARD_TYPE_FLEXSEA_PLAN INCLUDE_UPROJ_RICNU_KNEE_V1
 DEFINES += INCLUDE_UPROJ_MIT_A2DOF INCLUDE_UPROJ_CYCLE_TESTER
@@ -106,13 +107,16 @@ SOURCES += src/main.cpp \
 				flexsea-projects/src/user-mn.c \
 				flexsea-projects/src/dynamic_user_structs_common.c \
 				flexsea-dephy/CycleTester/src/cmd-CycleTester.c \
+				flexsea-dephy/src/flexsea_cmd_angle_torque_profile.c \
 				src/FlexSEADevice/rigidDevice.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
 				flexsea-projects/Rigid/src/cmd-Rigid.c \
 				flexsea-dephy/DpEb42/src/cmd-DpEb42.c \
 				flexsea-dephy/DpEb42/src/cmd-UTT.c \
 				flexsea-projects/ActPack/src/cmd-ActPack.c \
-				src/commanager.cpp
+				src/commanager.cpp \
+				src/MDIWinObjects/w_gaitstats.cpp \
+				src/MDIWinObjects/w_status.cpp
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -192,12 +196,15 @@ HEADERS += inc/main.h \
 				flexsea-system/inc/flexsea_cmd_stream.h \
 				flexsea-dephy/CycleTester/inc/cmd-CycleTester.h \
 				inc/FlexSEADevice/rigidDevice.h \
+				flexsea-dephy/inc/flexsea_cmd_angle_torque_profile.h \
 				inc/MDIWinObjects/w_rigid.h \
 				flexsea-projects/Rigid/inc/cmd-Rigid.h \
 				flexsea-dephy/DpEb42/inc/cmd-DpEb42.h \
 				flexsea-dephy/DpEb42/inc/cmd-UTT.h \
 				flexsea-projects/ActPack/inc/cmd-ActPack.h \
-				inc/commanager.h
+				inc/commanager.h \
+				inc/MDIWinObjects/w_gaitstats.h \
+				inc/MDIWinObjects/w_status.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \
@@ -223,7 +230,9 @@ FORMS += ui/mainwindow.ui \
 				ui/w_ankleAnglePlot.ui \
 				ui/w_rigid.ui \
 				ui/w_cycletester.ui \
-				ui/w_usertesting.ui
+				ui/w_usertesting.ui \
+				ui/w_gaitstats.ui \
+				ui/w_status.ui
 
 RESOURCES += \
 		misc/icons.qrc

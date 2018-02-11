@@ -55,6 +55,8 @@
 #include "w_event.h"
 #include "w_ankleTorque.h"
 #include "w_ankleAnglePlot.h"
+#include "w_status.h"
+#include "w_gaitstats.h"
 #include "w_rigid.h"
 #include "flexseaDevice.h"
 #include "w_commtest.h"
@@ -96,17 +98,19 @@ class MainWindow;
 #define CYCLE_TESTER_WINDOWS_ID			20
 #define USER_TESTING_WINDOWS_ID			21
 #define ANKLE_ANGLE_PLOT_WINDOWS_ID		22
-#define WINDOWS_TYPES					23 //(has to match the list above)
+#define GAITS_STATS_WINDOWS_ID			23
+#define STATUS_WINDOWS_ID				24
+#define WINDOWS_TYPES					25 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES			5
 
 //MDI Objects: set maximums # of child
 #define EX_VIEW_WINDOWS_MAX				5
 #define MN_VIEW_WINDOWS_MAX				2
-#define CONFIG_WINDOWS_MAX				1
+#define CONFIG_WINDOWS_MAX				2
 #define SLAVECOMM_WINDOWS_MAX			1
 #define ANYCOMMAND_WINDOWS_MAX			1
 #define CONVERTER_WINDOWS_MAX			1
-#define CONTROL_WINDOWS_MAX				1
+#define CONTROL_WINDOWS_MAX				2
 #define PLOT2D_WINDOWS_MAX				2
 #define RICNU_VIEW_WINDOWS_MAX			1
 #define CALIB_WINDOWS_MAX				1
@@ -123,6 +127,8 @@ class MainWindow;
 #define CYCLE_TESTER_WINDOWS_MAX		1
 #define USER_TESTING_WINDOWS_MAX		1
 #define ANKLE_ANGLE_PLOT_WINDOWS_MAX	1
+#define GAIT_STATS_WINDOWS_MAX			1
+#define STATUS_WINDOWS_MAX				1
 
 //Window information:
 typedef struct {
@@ -214,9 +220,11 @@ private:
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
 	W_AnkleTorque *myAnkleTorque[ANKLE_TORQUE_WINDOWS_MAX];
 	W_AnkleAnglePlot *myAnkleAnglePlot[ANKLE_ANGLE_PLOT_WINDOWS_MAX];
+	W_GaitStats *myGaitStats[GAIT_STATS_WINDOWS_MAX];
 	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
 	W_CycleTester *myCycleTester[CYCLE_TESTER_WINDOWS_MAX];
 	W_UserTesting *myUserTesting[USER_TESTING_WINDOWS_MAX];
+	W_Status *myStatus[STATUS_WINDOWS_MAX];
 
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
@@ -276,9 +284,11 @@ public slots:
 	void createToolEvent(void);
 	void createAnkleTorqueTool(void);
 	void createAnkleAnglePlot(void);
+	void createGaitStats(void);
 	void createViewRigid(void);
 	void createCycleTester(void);
 	void createUserTesting(void);
+	void createStatus(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -301,9 +311,11 @@ public slots:
 	void closeInControl(void);
 	void closeAnkleTorqueTool(void);
 	void closeAnkleAnglePlot(void);
+	void closeGaitStats(void);
 	void closeViewRigid(void);
 	void closeCycleTester(void);
 	void closeUserTesting(void);
+	void closeStatus(void);
 
 	void saveConfig(void);
 	void loadConfig(void);

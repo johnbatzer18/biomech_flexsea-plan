@@ -100,7 +100,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
 	W_CycleTester::setMaxWindow(CYCLE_TESTER_WINDOWS_MAX);
 	W_AnkleAnglePlot::setMaxWindow(ANKLE_ANGLE_PLOT_WINDOWS_MAX);
+	W_GaitStats::setMaxWindow(GAIT_STATS_WINDOWS_MAX);
 	W_UserTesting::setMaxWindow(USER_TESTING_WINDOWS_MAX);
+	W_Status::setMaxWindow(STATUS_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -123,8 +125,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Rigid::setDescription("FlexSEA-Rigid");
 	W_CycleTester::setDescription("FlexSEA-Rigid Cycle Tester");
 	W_AnkleTorque::setDescription("Ankle Torque Tool");
+	W_GaitStats::setDescription("Gait Statistics");
 	W_AnkleAnglePlot::setDescription("Ankle Angle Plot");
 	W_UserTesting::setDescription("User Testing");
+	W_Status::setDescription("Status");
 
 	initFlexSeaDeviceObject();
 	comManager = new ComManager();
@@ -204,6 +208,7 @@ void MainWindow::initMenus(void)
 	ui->menuView->addAction("Strain", this, &MainWindow::createViewStrain);
 	ui->menuView->addSeparator();
 	ui->menuView->addAction("2D Plot", this, &MainWindow::createView2DPlot);
+	ui->menuView->addAction("Status", this, &MainWindow::createStatus);
 
 	//Add Control:
 	ui->menuControl->addAction("Control Loop", this, &MainWindow::createControlControl);
@@ -226,6 +231,8 @@ void MainWindow::initMenus(void)
 	//Gait Lab:
 	ui->menuGL->addAction("Ankle Torque Tool", this, &MainWindow::createAnkleTorqueTool);
 	ui->menuGL->addAction("Ankle Angle Plot", this, &MainWindow::createAnkleAnglePlot);
+	ui->menuGL->addAction("Gait Statistics", this, &MainWindow::createGaitStats);
+	//ui->menuGL->addAction("Chart Window", this, &MainWindow::triggerChartView);
 
 	//Help:
 	ui->menuHelp->addAction("Documentation", this, &MainWindow::displayDocumentation);
@@ -353,7 +360,7 @@ void MainWindow::initSerialComm(void)
 			myDataLogger,	&DataLogger::openRecordingFile);
 
 	connect(comManager,		&ComManager::writeToLogFile, \
-			myDataLogger,	&DataLogger::writeToFile);
+			myDataLogger,	&DataLogger::writeToFile, Qt::DirectConnection);
 
 	connect(comManager,		&ComManager::closeRecordingFile, \
 			myDataLogger,	&DataLogger::closeRecordingFile);
@@ -396,6 +403,8 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;
 	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &MainWindow::createCycleTester;
 	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::createUserTesting;
+	mdiCreateWinPtr[GAITS_STATS_WINDOWS_ID] = &MainWindow::createGaitStats;
+	mdiCreateWinPtr[STATUS_WINDOWS_ID] = &MainWindow::createStatus;
 }
 
 /*
@@ -601,6 +610,96 @@ void MainWindow::closeAnkleAnglePlot(void)
 	mdiState[ANKLE_ANGLE_PLOT_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
 }
 
+//Creates a new GaitsStats window
+void MainWindow::createGaitStats(void)
+{
+	int objectCount = W_GaitStats::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < W_GaitStats::getMaxWindow())
+	{
+		W_GaitStats* gaitStats = new W_GaitStats(this, userDataManager);
+		myGaitStats[objectCount] = gaitStats;
+		mdiState[GAITS_STATS_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myGaitStats[objectCount]);
+		mdiState[GAITS_STATS_WINDOWS_ID][objectCount].open = true;
+		myGaitStats[objectCount]->show();
+
+		sendWindowCreatedMsg(W_GaitStats::getDescription(), objectCount,
+							 W_GaitStats::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myGaitStats[objectCount],	&W_GaitStats::windowClosed, \
+				this,					&MainWindow::closeGaitStats);
+
+		//Link to SlaveComm to send commands:
+		connect(myGaitStats[objectCount],	&W_GaitStats::writeCommand,
+				comManager,				&ComManager::enqueueCommand);
+
+		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
+				comManager,			&ComManager::enqueueCommand);
+
+		connect(comManager,					&ComManager::openStatus,
+				myGaitStats[objectCount],	&W_GaitStats::comStatusChanged);
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_GaitStats::getDescription(),
+								   W_GaitStats::getMaxWindow());
+	}
+}
+
+void MainWindow::closeGaitStats(void)
+{
+	sendCloseWindowMsg(W_GaitStats::getDescription());
+	mdiState[GAITS_STATS_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
+}
+
+//Creates a new GaitsStats window
+void MainWindow::createStatus(void)
+{
+	int objectCount = W_Status::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < W_Status::getMaxWindow())
+	{
+		W_Status* status = new W_Status(this, userDataManager);
+		myStatus[objectCount] = status;
+		mdiState[STATUS_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myStatus[objectCount]);
+		mdiState[STATUS_WINDOWS_ID][objectCount].open = true;
+		myStatus[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Status::getDescription(), objectCount,
+							 W_Status::getMaxWindow() - 1);
+
+		//Link to MainWindow for the close signal:
+		connect(myStatus[objectCount],	&W_Status::windowClosed, \
+				this,					&MainWindow::closeStatus);
+
+		//Link to SlaveComm to send commands:
+		connect(myStatus[objectCount],	&W_Status::writeCommand,
+				comManager,				&ComManager::enqueueCommand);
+
+		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
+				comManager,			&ComManager::enqueueCommand);
+
+		connect(comManager,				&ComManager::openStatus,
+				myStatus[objectCount],	&W_Status::comStatusChanged);
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Status::getDescription(),
+								   W_Status::getMaxWindow());
+	}
+}
+
+void MainWindow::closeStatus(void)
+{
+	sendCloseWindowMsg(W_Status::getDescription());
+	mdiState[STATUS_WINDOWS_ID][0].open = false;	//ToDo this is wrong!
+}
+
 //Creates a new View Execute window
 void MainWindow::createViewExecute(void)
 {
@@ -730,36 +829,36 @@ void MainWindow::createConfig(void)
 				myViewConfig[objectCount],	&W_Config::refresh);
 
 		//Link to DataLogger
-		connect(myViewConfig[0],	&W_Config::openReadingFile, \
+		connect(myViewConfig[objectCount],	&W_Config::openReadingFile, \
 				myDataLogger,		&DataLogger::openReadingFile);
 
-		connect(myViewConfig[0],	&W_Config::closeReadingFile, \
+		connect(myViewConfig[objectCount],	&W_Config::closeReadingFile, \
 				myDataLogger,		&DataLogger::closeReadingFile);
 
 		// Link to ComManager
-		connect(myViewConfig[0],&W_Config::openCom, \
+		connect(myViewConfig[objectCount],&W_Config::openCom, \
 				comManager, &ComManager::open);
 
 		connect(comManager, &ComManager::openStatus, \
-				myViewConfig[0],&W_Config::on_openStatusUpdate);
+				myViewConfig[objectCount],&W_Config::on_openStatusUpdate);
 
-		connect(myViewConfig[0],&W_Config::closeCom, \
+		connect(myViewConfig[objectCount],&W_Config::closeCom, \
 				comManager, &ComManager::close);
 
-		connect(myViewConfig[0],&W_Config::write,
+		connect(myViewConfig[objectCount],&W_Config::write,
 				comManager, &ComManager::write);
 
-		connect(myViewConfig[0],&W_Config::flush,
+		connect(myViewConfig[objectCount],&W_Config::flush,
 				comManager, &ComManager::flush);
 
-		connect(myViewConfig[0],&W_Config::updateDataSourceStatus,
+		connect(myViewConfig[objectCount],&W_Config::updateDataSourceStatus,
 				this,			&MainWindow::translatorUpdateDataSourceStatus);
 
-		connect(myViewConfig[0],&W_Config::createLogKeypad,
+		connect(myViewConfig[objectCount],&W_Config::createLogKeypad,
 				this,			&MainWindow::manageLogKeyPad);
 
 		connect(comManager,  &ComManager::aboutToClose, \
-				myViewConfig[0], &W_Config::serialAboutToClose);
+				myViewConfig[objectCount], &W_Config::serialAboutToClose);
 	}
 
 	else
@@ -1153,8 +1252,8 @@ void MainWindow::createUserRW(void)
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
 				comManager,			&ComManager::enqueueCommand);
 
-		connect(comManager,		&ComManager::openStatus,
-				userRW,				&W_UserRW::comStatusChanged);
+		connect(comManager,				&ComManager::openStatus,
+				myUserRW[objectCount],	&W_UserRW::comStatusChanged);
 	}
 
 	else

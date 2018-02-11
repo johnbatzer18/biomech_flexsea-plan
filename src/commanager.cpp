@@ -8,7 +8,7 @@
 #include <cmd-RICNU_Knee_v1.h>
 #include <cmd-Rigid.h>
 #include <dynamic_user_structs.h>
-//#include <flexsea_cmd_angle_torque_profile.h>
+#include <flexsea_cmd_angle_torque_profile.h>
 
 ComManager::ComManager(QObject *parent) :
 	QObject(parent)
@@ -53,7 +53,7 @@ void ComManager::init()
 	connect(mySerialDriver,	&SerialDriver::setStatusBarMessage, \
 			this,			&ComManager::setStatusBarMessage);
 	connect(mySerialDriver,	&SerialDriver::writeToLogFile, \
-			this,			&ComManager::writeToLogFile);
+			this,			&ComManager::writeToLogFile, Qt::DirectConnection);
 	connect(mySerialDriver,	&SerialDriver::aboutToClose, \
 			this,			&ComManager::aboutToClose);
 }
@@ -440,8 +440,8 @@ void ComManager::sendCommandDynamic(uint8_t slaveId)
 
 void ComManager::sendCommandAngleTorqueProfile(uint8_t slaveId)
 {
-	//tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 0);
-	//tryPackAndSend(CMD_ANGLE_TORQUE_PROFILE, slaveId);
+	tx_cmd_ankleTorqueProfile_r(TX_N_DEFAULT, 0);
+	tryPackAndSend(CMD_ANGLE_TORQUE_PROFILE, slaveId);
 }
 
 void ComManager::sendCommandRigid(uint8_t slaveId)
