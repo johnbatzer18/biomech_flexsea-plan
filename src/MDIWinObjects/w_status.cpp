@@ -82,8 +82,7 @@ void W_Status::receiveNewData()
 
 void W_Status::comStatusChanged(SerialPortStatus status,int nbTries)
 {
-	// Not use by this slot.
-	(void)nbTries;
+	(void)nbTries;	// Not use by this slot.
 
 	if(status == PortOpeningSucceed)
 		userDataMan->requestMetaData(active_slave);
@@ -230,52 +229,13 @@ void W_Status::statusReset(int row)
 // Private slot(s):
 //****************************************************************************
 
-void W_Status::on_pb_clear_0_clicked()
-{
-	statusReset(0);
-}
-
-void W_Status::on_pb_clear_1_clicked()
-{
-	statusReset(1);
-}
-
-void W_Status::on_pb_clear_2_clicked()
-{
-	statusReset(2);
-}
-
-void W_Status::on_pb_clear_3_clicked()
-{
-	statusReset(3);
-}
-
-void W_Status::on_pb_clear_4_clicked()
-{
-	statusReset(4);
-}
-
-void W_Status::on_pb_clear_5_clicked()
-{
-	statusReset(5);
-}
-
-void W_Status::on_pb_clear_6_clicked()
-{
-	statusReset(6);
-}
-
-void W_Status::on_pb_clear_7_clicked()
-{
-	statusReset(7);
-}
-
-void W_Status::on_pb_clear_8_clicked()
-{
-	statusReset(8);
-}
-
-void W_Status::on_pb_clear_9_clicked()
-{
-	statusReset(9);
-}
+void W_Status::on_pb_clear_0_clicked(){statusReset(0);}
+void W_Status::on_pb_clear_1_clicked(){statusReset(1);}
+void W_Status::on_pb_clear_2_clicked(){statusReset(2);}
+void W_Status::on_pb_clear_3_clicked(){statusReset(3);}
+void W_Status::on_pb_clear_4_clicked(){statusReset(4);}
+void W_Status::on_pb_clear_5_clicked(){statusReset(5);}
+void W_Status::on_pb_clear_6_clicked(){statusReset(6);}
+void W_Status::on_pb_clear_7_clicked(){statusReset(7);}
+void W_Status::on_pb_clear_8_clicked(){statusReset(8);}
+void W_Status::on_pb_clear_9_clicked(){statusReset(9);}

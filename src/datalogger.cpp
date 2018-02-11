@@ -63,7 +63,6 @@ DataLogger::DataLogger(QWidget *parent,
 					   StrainDevice *strainInitPtr,
 					   RicnuProject *ricnuInitPtr,
 					   Ankle2DofProject *ankle2DofInitPtr,
-					   TestBenchProject *testBenchInitPtr,
 					   RigidDevice *rigidInitPtr) :
 	QWidget(parent)
 {
@@ -74,7 +73,6 @@ DataLogger::DataLogger(QWidget *parent,
 	strainDevPtr = strainInitPtr;
 	ricnuDevPtr = ricnuInitPtr;
 	ankle2DofDevPtr = ankle2DofInitPtr;
-	testBenchDevPtr = testBenchInitPtr;
 	rigidDevPtr = rigidInitPtr;
 
 	planGUIRootPath = QDir::currentPath();
@@ -259,7 +257,6 @@ void DataLogger::openReadingFile(bool * isOpen, FlexseaDevice **devPtr)
 	else if(slavetype == strainDevPtr->slaveTypeName)	{flexSEAPtr = strainDevPtr;}
 	else if(slavetype == ricnuDevPtr->slaveTypeName)	{flexSEAPtr = ricnuDevPtr;}
 	else if(slavetype == ankle2DofDevPtr->slaveTypeName)	{flexSEAPtr = ankle2DofDevPtr;}
-	else if(slavetype == testBenchDevPtr->slaveTypeName)	{flexSEAPtr = testBenchDevPtr;}
 	else if(slavetype == rigidDevPtr->slaveTypeName)	{flexSEAPtr = rigidDevPtr;}
 	else
 	{

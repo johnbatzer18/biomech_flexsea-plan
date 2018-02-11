@@ -94,7 +94,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Gossip::setMaxWindow(GOSSIP_WINDOWS_MAX);
 	W_Strain::setMaxWindow(STRAIN_WINDOWS_MAX);
 	W_UserRW::setMaxWindow(USERRW_WINDOWS_MAX);
-	W_TestBench::setMaxWindow(TESTBENCH_WINDOWS_MAX);
 	W_CommTest::setMaxWindow(COMMTEST_WINDOWS_MAX);
 	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
@@ -120,7 +119,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Gossip::setDescription("Gossip - Barebone");
 	W_Strain::setDescription("6ch StrainAmp - Barebone");
 	W_UserRW::setDescription("User R/W");
-	W_TestBench::setDescription("Test Bench");
 	W_CommTest::setDescription("Communication Test");
 	W_InControl::setDescription("Controller Tuning");
 	W_Event::setDescription("Event Flag");
@@ -143,7 +141,6 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &strainLog,
 								  &ricnuLog,
 								  &ankle2DofLog,
-								  &testBenchLog,
 								  &rigidLog);
 
 	initSerialComm();
@@ -229,7 +226,6 @@ void MainWindow::initMenus(void)
 	ui->menuTools->addAction("Calibration", this, &MainWindow::createCalib);
 	ui->menuTools->addAction("Communication Test", this, &MainWindow::createViewCommTest);
 	ui->menuTools->addAction("Converter", this, &MainWindow::createConverter);
-	ui->menuTools->addAction("Test Bench", this, &MainWindow::createViewTestBench);
 	ui->menuTools->addAction("Cycle Tester", this, &MainWindow::createCycleTester);
 
 	//Gait Lab:
@@ -332,16 +328,6 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&ankle2DofDevList.last());
 	ankle2DofFlexList.append(&ankle2DofDevList.last());
 
-	testBenchDevList.append(TestBenchProject(&exec1, &exec2, &motortb, &batt1));
-	testBenchDevList.last().slaveName = "Test Bench";
-	testBenchDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
-	// TODO: Does it make sense?
-	// Answer: It does not make sense to use the same FlexseaDevice type for both:
-	//				a) slaves
-	//				b) projects / experiments
-	flexseaPtrlist.append(&testBenchDevList.last());
-	testBenchFlexList.append(&testBenchDevList.last());
-
 	dynamicDeviceList.append(userDataManager->getDevice());
 	flexseaPtrlist.append(userDataManager->getDevice());
 
@@ -412,7 +398,6 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[GOSSIP_WINDOWS_ID] = &MainWindow::createViewGossip;
 	mdiCreateWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::createViewStrain;
 	mdiCreateWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::createViewRicnu;
-	mdiCreateWinPtr[TESTBENCH_WINDOWS_ID] = &MainWindow::createViewTestBench;
 	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &MainWindow::createAnkleTorqueTool;
 	mdiCreateWinPtr[ANKLE_ANGLE_PLOT_WINDOWS_ID] = &MainWindow::createAnkleAnglePlot;
 	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;
@@ -420,7 +405,6 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::createUserTesting;
 	mdiCreateWinPtr[GAITS_STATS_WINDOWS_ID] = &MainWindow::createGaitStats;
 	mdiCreateWinPtr[STATUS_WINDOWS_ID] = &MainWindow::createStatus;
-
 }
 
 /*
@@ -450,7 +434,6 @@ void MainWindow::initializeCloseWindowFctPtr(void)
 	mdiCloseWinPtr[GOSSIP_WINDOWS_ID] = &MainWindow::closeViewGossip;
 	mdiCloseWinPtr[STRAIN_WINDOWS_ID] = &MainWindow::closeViewStrain;
 	mdiCloseWinPtr[RICNU_VIEW_WINDOWS_ID] = &MainWindow::closeViewRicnu;
-	mdiCloseWinPtr[TESTBENCH_WINDOWS_ID] = &MainWindow::closeViewTestBench;
 	mdiCloseWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &MainWindow::closeAnkleTorqueTool;
 	mdiCloseWinPtr[ANKLE_ANGLE_PLOT_WINDOWS_ID] = &MainWindow::closeAnkleAnglePlot;
 	mdiCloseWinPtr[RIGID_WINDOWS_ID] = &MainWindow::closeViewRigid;
@@ -730,7 +713,6 @@ void MainWindow::createViewExecute(void)
 							  currentFlexLog,
 							  &executeLog,
 							  &ankle2DofLog,
-							  &testBenchLog,
 							  getDisplayMode(),
 							  &executeDevList);
 
@@ -1003,7 +985,6 @@ void MainWindow::createSlaveComm(void)
 													   &strainFlexList,
 													   &ricnuFlexList,
 													   &ankle2DofFlexList,
-													   &testBenchFlexList,
 													   &dynamicDeviceList,
 													   &rigidFlexList,
 													   &comRefreshRate);
@@ -1443,7 +1424,6 @@ void MainWindow::createViewBattery(void)
 		myViewBatt[objectCount] = new W_Battery(this,
 												currentFlexLog,
 												&batteryLog,
-												&testBenchLog,
 												getDisplayMode(),
 												&batteryDevList);
 		mdiState[BATT_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewBatt[objectCount]);
@@ -1534,55 +1514,6 @@ DisplayMode MainWindow::getDisplayMode(void)
 		}
 	}
 	return status;
-}
-
-//Creates a new View TestBench window
-void MainWindow::createViewTestBench(void)
-{
-	int objectCount = W_TestBench::howManyInstance();
-
-	//Limited number of windows:
-	if(objectCount < (TESTBENCH_WINDOWS_MAX))
-	{
-		myViewTestBench[objectCount] = new W_TestBench(this,
-													   &testBenchLog,
-														getDisplayMode(),
-													   &testBenchDevList);
-		mdiState[TESTBENCH_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewTestBench[objectCount]);
-		mdiState[TESTBENCH_WINDOWS_ID][objectCount].open = true;
-		myViewTestBench[objectCount]->show();
-
-		sendWindowCreatedMsg(W_TestBench::getDescription(), objectCount,
-							 W_TestBench::getMaxWindow() - 1);
-
-		//Link ComManager and Battery:
-		connect(comManager,					&ComManager::newDataReady, \
-				myViewTestBench[objectCount],	&W_TestBench::refreshDisplay);
-
-		//Link to MainWindow for the close signal:
-		connect(myViewTestBench[objectCount],	&W_TestBench::windowClosed, \
-				this,							&MainWindow::closeViewBattery);
-
-		// Link to the slider of logKeyPad. Intermediate signal (connector) to
-		// allow opening of window asynchroniously
-		connect(this,							&MainWindow::connectorRefreshLogTimeSlider, \
-				myViewTestBench[objectCount],	&W_TestBench::refreshDisplayLog);
-
-		connect(this,							&MainWindow::connectorUpdateDisplayMode, \
-				myViewTestBench[objectCount],	&W_TestBench::updateDisplayMode);
-	}
-
-	else
-	{
-		sendWindowCreatedFailedMsg(W_TestBench::getDescription(),
-								   W_TestBench::getMaxWindow());
-	}
-}
-
-void MainWindow::closeViewTestBench(void)
-{
-	sendCloseWindowMsg(W_TestBench::getDescription());
-	mdiState[TESTBENCH_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new Comm. Test window

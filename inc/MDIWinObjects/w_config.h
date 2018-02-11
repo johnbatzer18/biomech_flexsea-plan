@@ -45,6 +45,9 @@
 #define BT_FIELDS1			6
 #define BT_FIELDS2			10
 
+#define TCT_GUI				0
+#define TCT_BWC				1
+
 #define COM_OPEN_TRIES		3
 #define COM_OPEN_DELAY_US	2000.0
 #define BT_DELAY_MS			4000.0
@@ -113,6 +116,7 @@ private:
 	QString noPortString = "No Port";
 	QStringList *favoritePort;
 	int progressTries, progressCnt;
+	int timerConnectedTo;
 
 	QTimer *comPortRefreshTimer, *btConfigTimer, *openProgressTimer;
 

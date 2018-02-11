@@ -83,7 +83,8 @@ W_GaitStats::~W_GaitStats()
 void W_GaitStats::init(void)
 {
 	ui->le_number->setValidator(new QIntValidator(0, 100, this));
-	//Populates Slave list:
+
+//	//Populates Slave list:
 //	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
 //											SL_LEN_ALL);
 //	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
@@ -92,13 +93,72 @@ void W_GaitStats::init(void)
 //	active_slave_index = ui->comboBox_slave->currentIndex();
 //	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
-
-
 //	//Timer used to refresh the received data:
 //	refreshDelayTimer = new QTimer(this);
 //	connect(refreshDelayTimer,	&QTimer::timeout,
 //			this,				&W_UserRW::refreshDisplay);
 
+/*	QString myText = "Test2", otherStr = "";
+
+	uint8_t arr[4] = {0,1,2,3};
+	sprintLine(0, &myText, arr, 4);
+	qDebug() << myText;
+
+	ui->te_code->setPlainText(myText);
+	*/
+
+	defaultText(3, 10);
+}
+
+void W_GaitStats::defaultText(int rows, int columns)
+{
+	QString fullText = "", row = "", head = "";
+	sprintHeader(&head, columns);
+	fullText.append(head);
+
+	memset(defaultArray, 0, MAX_COLUMNS);
+
+	for(int i = 0; i < rows; i++)
+	{
+		sprintLine(i, &row, defaultArray, columns);
+		fullText.append(row);
+		fullText.append("\n\n");
+	}
+
+	ui->te_code->setPlainText(fullText);
+}
+
+void W_GaitStats::sprintHeader(QString *headTxt, int columns)
+{
+	QString headerText = "", dashes = "";
+	for(int i = 0; i < columns; i++){defaultArray[i] = i;}
+	sprintLine(-1, &headerText, defaultArray, columns);
+	headerText.append("\n\n");
+	for(int i = 0; i < 0.85*headerText.length(); i++)
+	{
+		dashes.append('-');
+	}
+
+	headerText.append(dashes);
+	headerText.append("\n\n");
+
+	*headTxt = headerText;
+}
+
+void W_GaitStats::sprintLine(int8_t num, QString *txt, uint8_t *arr, uint8_t len)
+{
+	QString myTxt = "", dataPoint = "";
+	if(num >= 0){myTxt.sprintf("[%i] ", num);}
+	else{myTxt.sprintf("[  ] ");}
+	for(int i = 0; i < len-1; i++)
+	{
+		dataPoint.sprintf("%4i   |  ", arr[i]);
+		myTxt.append(dataPoint);
+	}
+	dataPoint.sprintf("%4i", arr[len-1]);
+	myTxt.append(dataPoint);
+
+	*txt = myTxt;
 }
 
 //Send a Write command:
@@ -142,10 +202,9 @@ void W_GaitStats::receiveNewData()
 
 }
 
-void W_GaitStats::comStatusChanged(SerialPortStatus status,int nbTries)
+void W_GaitStats::comStatusChanged(SerialPortStatus status, int nbTries)
 {
-	// Not use by this slot.
-	(void)nbTries;
+	(void)nbTries;	// Not use by this slot.
 
 	if(status == PortOpeningSucceed)
 		userDataMan->requestMetaData(active_slave);
@@ -157,7 +216,7 @@ void W_GaitStats::comStatusChanged(SerialPortStatus status,int nbTries)
 
 void W_GaitStats::on_pb_ClearRow_clicked()
 {
-
+	ui->le_number->clear();
 }
 
 void W_GaitStats::on_pb_Refresh_clicked()

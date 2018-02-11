@@ -44,7 +44,7 @@
 #include <QString>
 #include <flexsea_comm.h>
 #include <flexsea_sys_def.h>
-#include "../flexsea-user/inc/flexsea_cmd_user.h"
+#include "../flexsea-projects/inc/flexsea_cmd_user.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -58,7 +58,6 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 						 QList<FlexseaDevice*> *strainDevListInit,
 						 QList<FlexseaDevice*> *ricnuDevListInit,
 						 QList<FlexseaDevice*> *ankle2DofDevListInit,
-						 QList<FlexseaDevice*> *testBenchDevListInit,
 						 QList<FlexseaDevice*> *dynamicUserDevListInit,
 						 QList<FlexseaDevice*> *rigidDevListInit,
 						 QList<int> *SRefreshRates) :
@@ -82,7 +81,6 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 
 	ricnuDevList = ricnuDevListInit;
 	ankle2DofDevList = ankle2DofDevListInit;
-	testBenchDevList = testBenchDevListInit;
 	rigidDevList = rigidDevListInit;
 	dynamicUserDevList = dynamicUserDevListInit;
 	refreshRates = SRefreshRates;
@@ -217,9 +215,6 @@ void W_SlaveComm::initExperimentList(void)
 	ankle2DofTargetList.append(*executeDevList);
 	ankle2DofTargetList.append(*manageDevList);
 
-	testBenchTargetList.append(*executeDevList);
-	testBenchTargetList.append(*manageDevList);
-
 	batteryTargetList.append(*executeDevList);
 	batteryTargetList.append(*manageDevList);
 	rigidTargetList.append(*manageDevList);
@@ -272,7 +267,7 @@ void W_SlaveComm::initializeMaps()
 	targetListMap[3] = nullptr;
 	targetListMap[4] = &ankle2DofTargetList;
 	targetListMap[5] = &batteryTargetList;
-	targetListMap[6] = &testBenchTargetList;
+	//targetListMap[6] = &;
 	targetListMap[7] = &dynamicUserTargetList;
 	//targetListMap[8] = &;
 	targetListMap[9] = &rigidTargetList;
@@ -468,8 +463,6 @@ FlexseaDevice* W_SlaveComm::getTargetDevice(int cmd, int experimentIndex, int sl
 		case CMD_A2DOF:
 			target = ankle2DofDevList->at(0);
 			break;
-		case CMD_MOTORTB:
-			target = testBenchDevList->at(0);
 			break;
 		case CMD_READ_ALL_RIGID:
 			target = rigidDevList->at(0);
