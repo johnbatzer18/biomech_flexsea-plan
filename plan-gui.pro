@@ -10,7 +10,7 @@ TARGET = plan-gui
 TEMPLATE = app
 DEFINES += BOARD_TYPE_FLEXSEA_PLAN INCLUDE_UPROJ_RICNU_KNEE_V1
 DEFINES += INCLUDE_UPROJ_MIT_A2DOF INCLUDE_UPROJ_CYCLE_TESTER
-DEFINES += INCLUDE_UPROJ_DPEB31 INCLUDE_UPROJ_ACTPACK
+DEFINES += INCLUDE_UPROJ_DPEB42 INCLUDE_UPROJ_ACTPACK
 
 INCLUDEPATH += inc \
 				inc/MDIWinObjects \
@@ -24,7 +24,7 @@ INCLUDEPATH += inc \
 				flexsea-projects/MIT_2DoF_Ankle_v1/inc \
 				flexsea-projects/RICNU_Knee_v1/inc \
 				flexsea-projects/Rigid/inc \
-				flexsea-dephy/DpEb31/inc \
+				flexsea-dephy/DpEb42/inc \
 				flexsea-dephy/CycleTester/inc \
 				flexsea-projects/ActPack/inc
 
@@ -109,8 +109,8 @@ SOURCES += src/main.cpp \
 				src/FlexSEADevice/rigidDevice.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
 				flexsea-projects/Rigid/src/cmd-Rigid.c \
-				flexsea-dephy/DpEb31/src/cmd-DpEb31.c \
-				flexsea-dephy/DpEb31/src/cmd-UTT.c \
+				flexsea-dephy/DpEb42/src/cmd-DpEb42.c \
+				flexsea-dephy/DpEb42/src/cmd-UTT.c \
 				flexsea-projects/ActPack/src/cmd-ActPack.c \
 				src/commanager.cpp
 
@@ -194,8 +194,8 @@ HEADERS += inc/main.h \
 				inc/FlexSEADevice/rigidDevice.h \
 				inc/MDIWinObjects/w_rigid.h \
 				flexsea-projects/Rigid/inc/cmd-Rigid.h \
-				flexsea-dephy/DpEb31/inc/cmd-DpEb31.h \
-				flexsea-dephy/DpEb31/inc/cmd-UTT.h \
+				flexsea-dephy/DpEb42/inc/cmd-DpEb42.h \
+				flexsea-dephy/DpEb42/inc/cmd-UTT.h \
 				flexsea-projects/ActPack/inc/cmd-ActPack.h \
 				inc/commanager.h
 
