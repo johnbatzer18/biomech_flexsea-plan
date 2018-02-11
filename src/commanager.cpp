@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <cmd-MIT_2DoF_Ankle_v1.h>
 #include <cmd-RICNU_Knee_v1.h>
-#include <cmd-MotorTestBench.h>
 #include <cmd-Rigid.h>
 #include <dynamic_user_structs.h>
 #include <flexsea_cmd_angle_torque_profile.h>
@@ -368,9 +367,6 @@ void ComManager::sendCommands(int index)
 			case CMD_A2DOF:
 				sendCommandAnkle2DOF(record.slaveIndex);
 				break;
-			case CMD_MOTORTB:
-				sendCommandTestBench(record.slaveIndex);
-				break;
 			case CMD_BATT:
 				sendCommandBattery(record.slaveIndex);
 				break;
@@ -430,18 +426,6 @@ void ComManager::sendCommandBattery(uint8_t slaveId)
 	tryPackAndSend(CMD_BATT, slaveId);
 }
 
-void ComManager::sendCommandTestBench(uint8_t slaveId)
-{
-	(void)slaveId;
-	//	static int index = 0;
-
-	//1) Stream
-//	motor_dto dto;
-//	tx_cmd_motortb_r(TX_N_DEFAULT, index, &dto);
-//	index++;
-//	index %= 3;
-//	tryPackAndSend(CMD_MOTORTB, slaveId);
-}
 void ComManager::sendCommandInControl(uint8_t slaveId)
 {
 	tx_cmd_in_control_r(TX_N_DEFAULT);

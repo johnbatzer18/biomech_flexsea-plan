@@ -59,7 +59,6 @@
 #include "w_gaitstats.h"
 #include "w_rigid.h"
 #include "flexseaDevice.h"
-#include "w_testbench.h"
 #include "w_commtest.h"
 #include "w_cycletester.h"
 #include "w_usertesting.h"
@@ -94,15 +93,14 @@ class MainWindow;
 #define GOSSIP_WINDOWS_ID				15
 #define STRAIN_WINDOWS_ID				16
 #define RICNU_VIEW_WINDOWS_ID			17
-#define TESTBENCH_WINDOWS_ID			18
-#define ANKLE_TORQUE_WINDOWS_ID			19
-#define RIGID_WINDOWS_ID				20
-#define CYCLE_TESTER_WINDOWS_ID			21
-#define USER_TESTING_WINDOWS_ID			22
-#define ANKLE_ANGLE_PLOT_WINDOWS_ID		23
-#define GAITS_STATS_WINDOWS_ID			24
-#define STATUS_WINDOWS_ID				25
-#define WINDOWS_TYPES					26 //(has to match the list above)
+#define ANKLE_TORQUE_WINDOWS_ID			18
+#define RIGID_WINDOWS_ID				19
+#define CYCLE_TESTER_WINDOWS_ID			20
+#define USER_TESTING_WINDOWS_ID			21
+#define ANKLE_ANGLE_PLOT_WINDOWS_ID		22
+#define GAITS_STATS_WINDOWS_ID			23
+#define STATUS_WINDOWS_ID				24
+#define WINDOWS_TYPES					25 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES			5
 
 //MDI Objects: set maximums # of child
@@ -121,7 +119,6 @@ class MainWindow;
 #define GOSSIP_WINDOWS_MAX				2
 #define STRAIN_WINDOWS_MAX				2
 #define USERRW_WINDOWS_MAX				1
-#define TESTBENCH_WINDOWS_MAX			1
 #define COMMTEST_WINDOWS_MAX			1
 #define INCONTROL_WINDOWS_MAX			1
 #define EVENT_WINDOWS_MAX				1
@@ -170,7 +167,6 @@ private:
 	QList<StrainDevice>		strainDevList;
 	QList<RicnuProject>		ricnuDevList;
 	QList<Ankle2DofProject> ankle2DofDevList;
-	QList<TestBenchProject> testBenchDevList;
 
 	// Specific Flexsea list
 	QList<FlexseaDevice*>	executeFlexList;
@@ -181,7 +177,6 @@ private:
 	QList<FlexseaDevice*>	strainFlexList;
 	QList<FlexseaDevice*>	ricnuFlexList;
 	QList<FlexseaDevice*>	ankle2DofFlexList;
-	QList<FlexseaDevice*>	testBenchFlexList;
 	QList<FlexseaDevice*>	dynamicDeviceList;
 
 	QList<DataProvider*> dataProviders;
@@ -198,7 +193,6 @@ private:
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
 	Ankle2DofProject ankle2DofLog = Ankle2DofProject();
-	TestBenchProject testBenchLog = TestBenchProject();
 
 	FlexseaDevice* currentFlexLog;
 
@@ -221,7 +215,6 @@ private:
 	W_Gossip *myViewGossip[GOSSIP_WINDOWS_MAX];
 	W_Strain *myViewStrain[STRAIN_WINDOWS_MAX];
 	W_UserRW *myUserRW[USERRW_WINDOWS_MAX];
-	W_TestBench *myViewTestBench[TESTBENCH_WINDOWS_MAX];
 	W_CommTest *myViewCommTest[COMMTEST_WINDOWS_MAX];
 	W_InControl *myViewInControl[INCONTROL_WINDOWS_MAX];
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
@@ -286,7 +279,6 @@ public slots:
 	void createViewBattery(void);
 	void createLogKeyPad(FlexseaDevice * devPtr);
 	void createUserRW(void);
-	void createViewTestBench(void);
 	void createViewCommTest(void);
 	void createInControl(void);
 	void createToolEvent(void);
@@ -314,7 +306,6 @@ public slots:
 	void closeViewBattery(void);
 	void closeLogKeyPad(void);
 	void closeUserRW(void);
-	void closeViewTestBench(void);
 	void closeViewCommTest(void);
 	void closeToolEvent(void);
 	void closeInControl(void);

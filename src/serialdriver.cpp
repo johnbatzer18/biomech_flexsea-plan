@@ -327,7 +327,7 @@ void SerialDriver::handleReadyRead()
 	else
 	{
 		emit dataStatus(0, DATAIN_STATUS_YELLOW);
-		qDebug() << "DATAIN_STATUS_YELLOW : Packet received but less message decoded than expected";
+		qDebug() << "DATAIN_STATUS_YELLOW : Packet received but less messages decoded than expected";
 	}
 
 	if(numMessagesReceived)

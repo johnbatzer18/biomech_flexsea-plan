@@ -52,7 +52,6 @@
 #include "ricnuProject.h"
 #include <QHash>
 #include "ankle2DofProject.h"
-#include "testBenchProject.h"
 #include "rigidDevice.h"
 
 #define LOG_NUM 4
@@ -80,7 +79,6 @@ public:
 						StrainDevice *strainInitPtr = nullptr,
 						RicnuProject *ricnuInitPtr = nullptr,
 						Ankle2DofProject *ankle2DofInitPtr = nullptr,
-						TestBenchProject *testBenchInitPtr = nullptr,
 						RigidDevice *rigidInitPtr = nullptr);
 
 public slots:
@@ -115,7 +113,6 @@ private:
 	StrainDevice *strainDevPtr;
 	RicnuProject *ricnuDevPtr;
 	Ankle2DofProject *ankle2DofDevPtr;
-	TestBenchProject *testBenchDevPtr;
 	RigidDevice *rigidDevPtr;
 
 	QString planGUIRootPath;
@@ -129,7 +126,6 @@ private:
 	void init(void);
 	void logTimestamp(qint64 *t_ms, QString *t_text);
 	void writeManageA2DOFHeader(uint8_t item);
-	void writeManageTestBenchHeader(uint8_t item);
 	QFile* openfile(QString name);
 	void initLogDirectory(void);
 	void setStatus(QString str);

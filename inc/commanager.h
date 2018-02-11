@@ -122,7 +122,6 @@ private:
 	void sendCommandReadAllRicnu(uint8_t slaveId);
 	void sendCommandAnkle2DOF(uint8_t slaveId);
 	void sendCommandBattery(uint8_t slaveId);
-	void sendCommandTestBench(uint8_t slaveId);
 	void sendCommandInControl(uint8_t slaveId);
 	void sendCommandDynamic(uint8_t slaveId);
 	void sendCommandAngleTorqueProfile(uint8_t slaveId);
