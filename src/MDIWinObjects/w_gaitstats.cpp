@@ -43,6 +43,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <flexsea_board.h>
+#include <cmd-GaitStats.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -89,24 +90,16 @@ void W_GaitStats::init(void)
 //											SL_LEN_ALL);
 //	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
 
-//	//Variables:
-//	active_slave_index = ui->comboBox_slave->currentIndex();
-//	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
+	//Variables:
+	active_slave_index = 0;	//ui->comboBox_slave->currentIndex();
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_MN, active_slave_index);
 
-//	//Timer used to refresh the received data:
-//	refreshDelayTimer = new QTimer(this);
-//	connect(refreshDelayTimer,	&QTimer::timeout,
-//			this,				&W_UserRW::refreshDisplay);
+	//Timer used to refresh the received data:
+	refreshDelayTimer = new QTimer(this);
+	connect(refreshDelayTimer,	&QTimer::timeout,
+			this,				&W_GaitStats::refreshDisplay);
 
-/*	QString myText = "Test2", otherStr = "";
-
-	uint8_t arr[4] = {0,1,2,3};
-	sprintLine(0, &myText, arr, 4);
-	qDebug() << myText;
-
-	ui->te_code->setPlainText(myText);
-	*/
-
+	//Populate the text box with zeros:
 	defaultText(3, 10);
 }
 
@@ -121,6 +114,23 @@ void W_GaitStats::defaultText(int rows, int columns)
 	for(int i = 0; i < rows; i++)
 	{
 		sprintLine(i, &row, defaultArray, columns);
+		fullText.append(row);
+		fullText.append("\n\n");
+	}
+
+	ui->te_code->setPlainText(fullText);
+}
+
+void W_GaitStats::realText(int rows, int columns)
+{
+	QString fullText = "", row = "", head = "";
+	sprintHeader(&head, columns);
+	fullText.append(head);
+
+	for(int i = 0; i < rows; i++)
+	{
+		sprintLine(i, &row, gaitStats.n[i], columns);
+		qDebug() << gaitStats.n[i][0];
 		fullText.append(row);
 		fullText.append("\n\n");
 	}
@@ -161,34 +171,15 @@ void W_GaitStats::sprintLine(int8_t num, QString *txt, uint8_t *arr, uint8_t len
 	*txt = myTxt;
 }
 
-//Send a Write command:
-void W_GaitStats::writeUserData(uint8_t index)
-{
-	uint8_t info[2] = {PORT_USB, PORT_USB};
-	uint16_t numb = 0;
-
-//	//Refresh variable:
-//	user_data_1.w[0] = (int16_t)ui->w0->text().toInt();
-//	user_data_1.w[1] = (int16_t)ui->w1->text().toInt();
-//	user_data_1.w[2] = (int16_t)ui->w2->text().toInt();
-//	user_data_1.w[3] = (int16_t)ui->w3->text().toInt();
-
-	//qDebug() << "Write user data" << index << ":" << user_data_1.w[index];
-
-	//Prepare and send command:
-	tx_cmd_data_user_w(TX_N_DEFAULT, index);
-	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
-}
-
 //Send a Read command:
-void W_GaitStats::readUserData(void)
+void W_GaitStats::readFromSlave(void)
 {
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
+	uint8_t offset= 0;
 
 	//Prepare and send command:
-	tx_cmd_data_user_r(TX_N_DEFAULT);
+	tx_cmd_gait_stats_r(TX_N_DEFAULT, offset);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, READ);
 
@@ -210,6 +201,14 @@ void W_GaitStats::comStatusChanged(SerialPortStatus status, int nbTries)
 		userDataMan->requestMetaData(active_slave);
 }
 
+//Refreshes the text box values (display only):
+void W_GaitStats::refreshDisplay(void)
+{
+	refreshDelayTimer->stop();
+	qDebug() << "Refresh display.";
+	realText(GS_ROWS, GS_COLUMNS);
+}
+
 //****************************************************************************
 // Private slot(s):
 //****************************************************************************
@@ -221,5 +220,5 @@ void W_GaitStats::on_pb_ClearRow_clicked()
 
 void W_GaitStats::on_pb_Refresh_clicked()
 {
-
+	readFromSlave();
 }

@@ -12,6 +12,7 @@ TEMPLATE = app
 DEFINES += BOARD_TYPE_FLEXSEA_PLAN INCLUDE_UPROJ_RICNU_KNEE_V1
 DEFINES += INCLUDE_UPROJ_MIT_A2DOF INCLUDE_UPROJ_CYCLE_TESTER
 DEFINES += INCLUDE_UPROJ_DPEB42 INCLUDE_UPROJ_ACTPACK
+DEFINES += DEPHY
 
 INCLUDEPATH += inc \
 				inc/MDIWinObjects \
@@ -111,8 +112,10 @@ SOURCES += src/main.cpp \
 				src/FlexSEADevice/rigidDevice.cpp \
 				src/MDIWinObjects/w_rigid.cpp \
 				flexsea-projects/Rigid/src/cmd-Rigid.c \
+				flexsea-dephy/src/flexsea_cmd_dephy.c \
 				flexsea-dephy/DpEb42/src/cmd-DpEb42.c \
 				flexsea-dephy/DpEb42/src/cmd-UTT.c \
+				flexsea-dephy/DpEb42/src/cmd-GaitStats.c \
 				flexsea-projects/ActPack/src/cmd-ActPack.c \
 				src/commanager.cpp \
 				src/MDIWinObjects/w_gaitstats.cpp \
@@ -199,8 +202,10 @@ HEADERS += inc/main.h \
 				flexsea-dephy/inc/flexsea_cmd_angle_torque_profile.h \
 				inc/MDIWinObjects/w_rigid.h \
 				flexsea-projects/Rigid/inc/cmd-Rigid.h \
+				flexsea-dephy/inc/flexsea_cmd_dephy.h \
 				flexsea-dephy/DpEb42/inc/cmd-DpEb42.h \
 				flexsea-dephy/DpEb42/inc/cmd-UTT.h \
+				flexsea-dephy/DpEb42/inc/cmd-GaitStats.h \
 				flexsea-projects/ActPack/inc/cmd-ActPack.h \
 				inc/commanager.h \
 				inc/MDIWinObjects/w_gaitstats.h \

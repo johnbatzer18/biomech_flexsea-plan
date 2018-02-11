@@ -89,11 +89,12 @@ private:
 
 	//Function(s):
 	void init(void);
-	void writeUserData(uint8_t index);
-	void readUserData(void);
 	void sprintLine(int8_t num, QString *txt, uint8_t *arr, uint8_t len);
 	void defaultText(int rows, int columns);
+	void realText(int rows, int columns);
 	void sprintHeader(QString *headTxt, int columns);
+	void readFromSlave(void);
+	void refreshDisplay();
 };
 
 #endif // W_GAITSTATS_H
