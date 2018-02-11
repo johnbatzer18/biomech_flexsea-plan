@@ -95,6 +95,7 @@ private:
 	void sprintHeader(QString *headTxt, int columns);
 	void readFromSlave(void);
 	void refreshDisplay();
+	void writeToSlave(int rowToClear);
 };
 
 #endif // W_GAITSTATS_H

@@ -130,7 +130,6 @@ void W_GaitStats::realText(int rows, int columns)
 	for(int i = 0; i < rows; i++)
 	{
 		sprintLine(i, &row, gaitStats.n[i], columns);
-		qDebug() << gaitStats.n[i][0];
 		fullText.append(row);
 		fullText.append("\n\n");
 	}
@@ -162,10 +161,10 @@ void W_GaitStats::sprintLine(int8_t num, QString *txt, uint8_t *arr, uint8_t len
 	else{myTxt.sprintf("[  ] ");}
 	for(int i = 0; i < len-1; i++)
 	{
-		dataPoint.sprintf("%4i   |  ", arr[i]);
+		dataPoint.sprintf("%10i |  ", arr[i]);
 		myTxt.append(dataPoint);
 	}
-	dataPoint.sprintf("%4i", arr[len-1]);
+	dataPoint.sprintf("%10i", arr[len-1]);
 	myTxt.append(dataPoint);
 
 	*txt = myTxt;
@@ -187,6 +186,21 @@ void W_GaitStats::readFromSlave(void)
 	refreshDelayTimer->start(75);
 }
 
+//Send a Read command:
+void W_GaitStats::writeToSlave(int rowToClear)
+{
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+	uint16_t numb = 0;
+	uint8_t offset = 0;
+	uint8_t cmd = 0;
+
+	cmd = (uint8_t)(rowToClear | RESET_ROW_MASK);
+
+	//Prepare and send command:
+	tx_cmd_gait_stats_w(TX_N_DEFAULT, offset, cmd);
+	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+	emit writeCommand(numb, comm_str_usb, READ);
+}
 
 void W_GaitStats::receiveNewData()
 {
@@ -215,7 +229,19 @@ void W_GaitStats::refreshDisplay(void)
 
 void W_GaitStats::on_pb_ClearRow_clicked()
 {
-	ui->le_number->clear();
+	int rowToClear = 0;
+	if(ui->le_number->text().length() != 0)
+	{
+		rowToClear = ui->le_number->text().toInt();
+		qDebug() << "Row to clear:" << rowToClear;
+		ui->le_number->clear();
+
+		writeToSlave(rowToClear);
+	}
+	else
+	{
+		qDebug() << "No row specified; nothing to do.";
+	}
 }
 
 void W_GaitStats::on_pb_Refresh_clicked()
