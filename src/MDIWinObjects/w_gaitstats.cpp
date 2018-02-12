@@ -98,6 +98,10 @@ void W_GaitStats::init(void)
 	refreshDelayTimer = new QTimer(this);
 	connect(refreshDelayTimer,	&QTimer::timeout,
 			this,				&W_GaitStats::refreshDisplay);
+	//Timer used to read after we clear a row:
+	readAfterClearTimer = new QTimer(this);
+	connect(readAfterClearTimer,	&QTimer::timeout,
+			this,				&W_GaitStats::readFromSlave);
 
 	//Text style:
 	QFont font("Monospace");
@@ -123,8 +127,6 @@ void W_GaitStats::defaultText(int rows, int columns)
 		fullText.append(row);
 		fullText.append("\n\n");
 	}
-
-
 
 	ui->te_code->setPlainText(fullText);
 }
@@ -186,6 +188,8 @@ void W_GaitStats::readFromSlave(void)
 	uint16_t numb = 0;
 	uint8_t offset= 0;
 
+	readAfterClearTimer->stop();
+
 	//Prepare and send command:
 	tx_cmd_gait_stats_r(TX_N_DEFAULT, offset);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
@@ -209,6 +213,8 @@ void W_GaitStats::writeToSlave(int rowToClear)
 	tx_cmd_gait_stats_w(TX_N_DEFAULT, offset, cmd);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, READ);
+
+	readAfterClearTimer->start(50);
 }
 
 void W_GaitStats::receiveNewData()

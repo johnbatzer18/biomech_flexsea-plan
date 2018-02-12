@@ -83,7 +83,7 @@ private:
 	//Variables & Objects:
 	Ui::W_GaitStats *ui;
 	int active_slave, active_slave_index;
-	QTimer *refreshDelayTimer;
+	QTimer *refreshDelayTimer, *readAfterClearTimer;
 	DynamicUserDataManager* userDataMan;
 	uint8_t defaultArray[MAX_COLUMNS];
 
