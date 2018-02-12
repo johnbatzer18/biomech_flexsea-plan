@@ -113,6 +113,7 @@ private:
 	void readUserData(void);
 	void setStatus(int row, int status);
 	void statusReset(int row);
+	void initLabelText(void);
 };
 
 //****************************************************************************

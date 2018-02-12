@@ -75,6 +75,7 @@ W_Status::~W_Status()
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
+
 void W_Status::receiveNewData()
 {
 
@@ -132,13 +133,18 @@ void W_Status::init(void)
 
 	QFont font( "Arial", 12, QFont::Bold);
 
-	for(int i = 0; i<NB_STATUS; ++i)
+	for(int i = 0; i < NB_STATUS; ++i)
 	{
 		(lab_indicator_ptr[i])->setText("      " + QString(QChar(0x29BF)) + "      ");
 		(lab_indicator_ptr[i])->setAlignment(Qt::AlignCenter);
 		(lab_indicator_ptr[i])->setFont(font);
 		setStatus(i, STATUS_GREY);
+
+		lab_name_ptr[i]->setText("");
+		pb_clear_ptr[i]->setEnabled(false);
 	}
+
+	initLabelText();
 
 	//Populates Slave list:
 //	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
@@ -156,6 +162,21 @@ void W_Status::init(void)
 //	connect(refreshDelayTimer,	&QTimer::timeout,
 //			this,				&W_UserRW::refreshDisplay);
 
+}
+
+void W_Status::initLabelText(void)
+{
+	uint8_t idx = 0;
+	lab_name_ptr[idx++]->setText("Supply Voltage");
+	lab_name_ptr[idx++]->setText("Temperature");
+	lab_name_ptr[idx++]->setText("I2t Battery");
+	lab_name_ptr[idx++]->setText("I2t Motor");
+	lab_name_ptr[idx++]->setText("BWC Link");
+	lab_name_ptr[idx++]->setText("Ex Comm");
+	lab_name_ptr[idx++]->setText("Re Comm");
+
+	//Enable associated buttons:
+	for(int i = 0; i < idx; i++){pb_clear_ptr[i]->setEnabled(true);}
 }
 
 //Send a Write command:
