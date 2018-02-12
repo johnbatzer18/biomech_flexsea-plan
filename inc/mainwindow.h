@@ -128,7 +128,7 @@ class MainWindow;
 #define USER_TESTING_WINDOWS_MAX		1
 #define ANKLE_ANGLE_PLOT_WINDOWS_MAX	1
 #define GAIT_STATS_WINDOWS_MAX			1
-#define STATUS_WINDOWS_MAX				1
+#define STATUS_WINDOWS_MAX				2
 
 //Window information:
 typedef struct {

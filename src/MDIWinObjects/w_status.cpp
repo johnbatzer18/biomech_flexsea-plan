@@ -91,7 +91,7 @@ void W_Status::comStatusChanged(SerialPortStatus status,int nbTries)
 
 void W_Status::externalErrorFlag()
 {
-
+	qDebug() << "W_Status: Received a signal";
 }
 
 //****************************************************************************
@@ -174,6 +174,7 @@ void W_Status::initLabelText(void)
 	lab_name_ptr[idx++]->setText("BWC Link");
 	lab_name_ptr[idx++]->setText("Ex Comm");
 	lab_name_ptr[idx++]->setText("Re Comm");
+	lab_name_ptr[idx++]->setText("Button");
 
 	//Enable associated buttons:
 	for(int i = 0; i < idx; i++){pb_clear_ptr[i]->setEnabled(true);}

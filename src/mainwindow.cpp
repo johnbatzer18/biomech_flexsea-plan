@@ -691,6 +691,9 @@ void MainWindow::createStatus(void)
 
 		connect(comManager,				&ComManager::openStatus,
 				myStatus[objectCount],	&W_Status::comStatusChanged);
+
+		//Link to Rigid for status updates:
+
 	}
 
 	else
@@ -1342,13 +1345,15 @@ void MainWindow::createViewRigid(void)
 		sendWindowCreatedMsg(W_Rigid::getDescription(), objectCount,
 							 W_Rigid::getMaxWindow() - 1);
 
+		if(W_Status::howManyInstance() <= objectCount){createStatus();}
+
 		//Link ComManager and Rigid:
 		connect(comManager,				&ComManager::newDataReady, \
 				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
 		connect(myViewRigid[objectCount],	&W_Rigid::windowClosed, \
-				this,						&MainWindow::closeViewGossip);
+				this,						&MainWindow::closeViewRigid);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
@@ -1357,6 +1362,9 @@ void MainWindow::createViewRigid(void)
 
 		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
 				myViewRigid[objectCount],	&W_Rigid::updateDisplayMode);
+
+		connect(myViewRigid[objectCount],	&W_Rigid::statusChanged, \
+				myStatus[objectCount],		&W_Status::externalErrorFlag);
 	}
 
 	else

@@ -124,6 +124,7 @@ void W_Rigid::initLog(FlexseaDevice *devPtr)
 void W_Rigid::display(RigidDevice *devicePtr, int index)
 {
 	struct rigid_s *ri = devicePtr->riList[index];
+	static uint16_t lastStatus = 0;
 
 	//Raw values - Manage:
 	//====================
@@ -141,7 +142,6 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_an3->setText(QString::number(ri->mn.analog[3]));
 
 	ui->disp_mn_stat->setText(QString::number(ri->mn.status));
-	ui->label_mn_stat->setText("Status: ToDo.");
 
 	ui->dispGV0->setText(QString::number(ri->mn.genVar[0]));
 	ui->dispGV1->setText(QString::number(ri->mn.genVar[1]));
@@ -152,6 +152,7 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->dispGV6->setText(QString::number(ri->mn.genVar[6]));
 	ui->dispGV7->setText(QString::number(ri->mn.genVar[7]));
 	ui->dispGV8->setText(QString::number(ri->mn.genVar[8]));
+	ui->dispGV9->setText(QString::number(ri->mn.genVar[9]));
 
 	//Raw values - Execute:
 	//=====================
@@ -168,7 +169,6 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_mot_volt->setText(QString::number(ri->ex.mot_volt));
 
 	ui->disp_ex_stat->setText(QString::number(ri->ex.status));
-	ui->label_ex_stat->setText("Status: ToDo.");
 
 	//Raw values - Regulate:
 	//======================
@@ -182,7 +182,6 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->disp_button->setText(QString::number(ri->re.button));
 
 	ui->disp_re_stat->setText(QString::number(ri->re.status));
-	ui->label_re_stat->setText("Status: ToDo.");
 
 	//Decoded values - Manage:
 	//========================
@@ -200,6 +199,10 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 
 	if(ri->re.status & 0x80){ui->disp_button->setText("Pressed");}
 	else{ui->disp_button->setText("Released");}
+
+	//Notify the Status window that something changed
+	if(lastStatus != ri->re.status){emit statusChanged();}
+	lastStatus = ri->re.status;
 }
 
 //****************************************************************************
