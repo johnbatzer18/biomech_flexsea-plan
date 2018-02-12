@@ -99,6 +99,12 @@ void W_GaitStats::init(void)
 	connect(refreshDelayTimer,	&QTimer::timeout,
 			this,				&W_GaitStats::refreshDisplay);
 
+	//Text style:
+	QFont font("Monospace");
+	font.setStyleHint(QFont::TypeWriter);
+	font.setPointSize(10);
+	ui->te_code->setFont(font);
+
 	//Populate the text box with zeros:
 	defaultText(3, 10);
 }
@@ -117,6 +123,8 @@ void W_GaitStats::defaultText(int rows, int columns)
 		fullText.append(row);
 		fullText.append("\n\n");
 	}
+
+
 
 	ui->te_code->setPlainText(fullText);
 }
@@ -142,8 +150,8 @@ void W_GaitStats::sprintHeader(QString *headTxt, int columns)
 	QString headerText = "", dashes = "";
 	for(int i = 0; i < columns; i++){defaultArray[i] = i;}
 	sprintLine(-1, &headerText, defaultArray, columns);
-	headerText.append("\n\n");
-	for(int i = 0; i < 0.85*headerText.length(); i++)
+	headerText.append("\n");
+	for(int i = 0; i < headerText.length(); i++)
 	{
 		dashes.append('-');
 	}
@@ -158,13 +166,14 @@ void W_GaitStats::sprintLine(int8_t num, QString *txt, uint8_t *arr, uint8_t len
 {
 	QString myTxt = "", dataPoint = "";
 	if(num >= 0){myTxt.sprintf("[%i] ", num);}
-	else{myTxt.sprintf("[  ] ");}
+	else{myTxt.sprintf("[ ] ");}
+
 	for(int i = 0; i < len-1; i++)
 	{
-		dataPoint.sprintf("%10i |  ", arr[i]);
+		dataPoint.sprintf("%4i |", arr[i]);
 		myTxt.append(dataPoint);
 	}
-	dataPoint.sprintf("%10i", arr[len-1]);
+	dataPoint.sprintf("%4i", arr[len-1]);
 	myTxt.append(dataPoint);
 
 	*txt = myTxt;
