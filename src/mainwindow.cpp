@@ -131,22 +131,26 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Status::setDescription("Status");
 
 	initFlexSeaDeviceObject();
-	comManager = new ComManager();
-	//Datalogger:
-	myDataLogger = new DataLogger(this,
-								  &executeLog,
-								  &manageLog,
-								  &gossipLog,
-								  &batteryLog,
-								  &strainLog,
-								  &ricnuLog,
-								  &ankle2DofLog,
-								  &rigidLog);
+	for(int i=0; i<CONFIG_WINDOWS_MAX; ++i)
+		{
+		comManager.append(new ComManager());
+		//Datalogger:
+		myDataLogger.append(new DataLogger(this,
+									  &executeLog,
+									  &manageLog,
+									  &gossipLog,
+									  &batteryLog,
+									  &strainLog,
+									  &ricnuLog,
+									  &ankle2DofLog,
+									  &rigidLog));
 
-	initSerialComm();
+		initSerialComm();
+	}
 	userDataManager = new DynamicUserDataManager(this);
 
-	connect(comManager, &ComManager::newDataReady,
+	//todo: using fix dataloger
+	connect(comManager[0], &ComManager::newDataReady,
 			userDataManager, &DynamicUserDataManager::handleNewMessage);
 
 	//Create default objects:
@@ -157,7 +161,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	initMenus();
 
 	//Log and MainWindow
-	connect(myDataLogger, &DataLogger::setStatusBarMessage, \
+	//todo: using fix dataloger
+	connect(myDataLogger[0], &DataLogger::setStatusBarMessage, \
 			this, &MainWindow::setStatusBar);
 
 	comPortStatus = PortClosed;
@@ -179,7 +184,10 @@ MainWindow::~MainWindow()
 {
 	delete ui;
 
-	delete comManager;
+	for(int i=0; i<CONFIG_WINDOWS_MAX; i++)
+	{
+		delete comManager[i];
+	}
 
 	int num2d = W_2DPlot::howManyInstance();
 	for(int i = 0; i < num2d; i++)
@@ -344,31 +352,28 @@ void MainWindow::initFlexSeaDeviceObject(void)
 
 void MainWindow::initSerialComm(void)
 {
-	comManagerThread = new QThread();
-	connect(comManagerThread, &QThread::started,
-			comManager, &ComManager::init);
-	connect(comManagerThread, &QThread::finished,
-			comManagerThread, &QThread::deleteLater);
-	comManager->moveToThread(comManagerThread);
-	comManagerThread->start(QThread::HighestPriority);
-
-	sleep(1);
-	comRefreshRate = comManager->getRefreshRates();
+	comManagerThread.append(new QThread());
+	connect(comManagerThread.last(), &QThread::started,
+			comManager.last(), &ComManager::init);
+	connect(comManagerThread.last(), &QThread::finished,
+			comManagerThread.last(), &QThread::deleteLater);
+	comManager.last()->moveToThread(comManagerThread.last());
+	comManagerThread.last()->start(QThread::HighestPriority);
 
 	//Link ComManager and DataLogger
-	connect(comManager,		&ComManager::openRecordingFile, \
-			myDataLogger,	&DataLogger::openRecordingFile);
+	connect(comManager.last(),		&ComManager::openRecordingFile, \
+			myDataLogger.last(),	&DataLogger::openRecordingFile);
 
-	connect(comManager,		&ComManager::writeToLogFile, \
-			myDataLogger,	&DataLogger::writeToFile, Qt::DirectConnection);
+	connect(comManager.last(),		&ComManager::writeToLogFile, \
+			myDataLogger.last(),	&DataLogger::writeToFile, Qt::DirectConnection);
 
-	connect(comManager,		&ComManager::closeRecordingFile, \
-			myDataLogger,	&DataLogger::closeRecordingFile);
+	connect(comManager.last(),		&ComManager::closeRecordingFile, \
+			myDataLogger.last(),	&DataLogger::closeRecordingFile);
 
 	//ComManager and MainWindow
-	connect(comManager, &ComManager::setStatusBarMessage, \
+	connect(comManager.last(), &ComManager::setStatusBarMessage, \
 			this,		&MainWindow::setStatusBar);
-	connect(comManager, &ComManager::openStatus, \
+	connect(comManager.last(), &ComManager::openStatus, \
 			this,		&MainWindow::saveComPortStatus);
 }
 
@@ -586,10 +591,10 @@ void MainWindow::createAnkleAnglePlot(void)
 		return;
 	}
 
-	connect(comManager, &ComManager::newDataReady,
+	connect(comManager[0], &ComManager::newDataReady,
 			w,			&W_AnkleAnglePlot::receiveNewData);
 
-	connect(comManager,	&ComManager::streamingFrequency,
+	connect(comManager[0],	&ComManager::streamingFrequency,
 			w,			&W_AnkleAnglePlot::streamingFrequency);
 
 	connect(this,					&MainWindow::connectorRefreshLogTimeSlider, \
@@ -633,12 +638,12 @@ void MainWindow::createGaitStats(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myGaitStats[objectCount],	&W_GaitStats::writeCommand,
-				comManager,				&ComManager::enqueueCommand);
+				comManager[0],				&ComManager::enqueueCommand);
 
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
-				comManager,			&ComManager::enqueueCommand);
+				comManager[0],			&ComManager::enqueueCommand);
 
-		connect(comManager,					&ComManager::openStatus,
+		connect(comManager[0],					&ComManager::openStatus,
 				myGaitStats[objectCount],	&W_GaitStats::comStatusChanged);
 	}
 
@@ -678,12 +683,12 @@ void MainWindow::createStatus(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myStatus[objectCount],	&W_Status::writeCommand,
-				comManager,				&ComManager::enqueueCommand);
+				comManager[0],				&ComManager::enqueueCommand);
 
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
-				comManager,			&ComManager::enqueueCommand);
+				comManager[0],			&ComManager::enqueueCommand);
 
-		connect(comManager,				&ComManager::openStatus,
+		connect(comManager[0],				&ComManager::openStatus,
 				myStatus[objectCount],	&W_Status::comStatusChanged);
 	}
 
@@ -724,7 +729,7 @@ void MainWindow::createViewExecute(void)
 							 W_Execute::getMaxWindow() - 1);
 
 		//Link ComManager and Execute:
-		connect(comManager, &ComManager::newDataReady, \
+		connect(comManager[0], &ComManager::newDataReady, \
 				myViewExecute[objectCount], &W_Execute::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -776,7 +781,7 @@ void MainWindow::createViewManage(void)
 							 W_Manage::getMaxWindow() - 1);
 
 		//Link ComManager and Manage:
-		connect(comManager, &ComManager::newDataReady, \
+		connect(comManager[0], &ComManager::newDataReady, \
 				myViewManage[objectCount], &W_Manage::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -830,26 +835,26 @@ void MainWindow::createConfig(void)
 
 		//Link to DataLogger
 		connect(myViewConfig[objectCount],	&W_Config::openReadingFile, \
-				myDataLogger,		&DataLogger::openReadingFile);
+				myDataLogger[0],		&DataLogger::openReadingFile);
 
 		connect(myViewConfig[objectCount],	&W_Config::closeReadingFile, \
-				myDataLogger,		&DataLogger::closeReadingFile);
+				myDataLogger[0],		&DataLogger::closeReadingFile);
 
 		// Link to ComManager
 		connect(myViewConfig[objectCount],&W_Config::openCom, \
-				comManager, &ComManager::open);
+				comManager[objectCount], &ComManager::open);
 
-		connect(comManager, &ComManager::openStatus, \
+		connect(comManager[objectCount], &ComManager::openStatus, \
 				myViewConfig[objectCount],&W_Config::on_openStatusUpdate);
 
 		connect(myViewConfig[objectCount],&W_Config::closeCom, \
-				comManager, &ComManager::close);
+				comManager[objectCount], &ComManager::close);
 
 		connect(myViewConfig[objectCount],&W_Config::write,
-				comManager, &ComManager::write);
+				comManager[objectCount], &ComManager::write);
 
 		connect(myViewConfig[objectCount],&W_Config::flush,
-				comManager, &ComManager::flush);
+				comManager[objectCount], &ComManager::flush);
 
 		connect(myViewConfig[objectCount],&W_Config::updateDataSourceStatus,
 				this,			&MainWindow::translatorUpdateDataSourceStatus);
@@ -857,7 +862,7 @@ void MainWindow::createConfig(void)
 		connect(myViewConfig[objectCount],&W_Config::createLogKeypad,
 				this,			&MainWindow::manageLogKeyPad);
 
-		connect(comManager,  &ComManager::aboutToClose, \
+		connect(comManager[objectCount],  &ComManager::aboutToClose, \
 				myViewConfig[objectCount], &W_Config::serialAboutToClose);
 	}
 
@@ -902,7 +907,7 @@ void MainWindow::createControlControl(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myViewControl[objectCount], &W_Control::writeCommand, \
-				comManager,					&ComManager::enqueueCommand);
+				comManager[0],				&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -938,7 +943,7 @@ void MainWindow::createView2DPlot(void)
 		sendWindowCreatedMsg(W_2DPlot::getDescription(), objectCount,
 							 W_2DPlot::getMaxWindow() - 1);
 
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myView2DPlot[objectCount],	&W_2DPlot::receiveNewData);
 
 		//Link to MainWindow for the close signal:
@@ -987,7 +992,7 @@ void MainWindow::createSlaveComm(void)
 													   &ankle2DofFlexList,
 													   &dynamicDeviceList,
 													   &rigidFlexList,
-													   &comRefreshRate);
+													   &comManager);
 
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].open = true;
@@ -1002,27 +1007,6 @@ void MainWindow::createSlaveComm(void)
 		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::activeSlaveStreaming, \
 				this,							&MainWindow::translatorActiveSlaveStreaming);
 
-		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::setOffsetParameter, \
-				comManager,						&ComManager::setOffsetParameter);
-
-		connect(myViewSlaveComm[objectCount],	&W_SlaveComm::startStreaming, \
-				comManager,						&ComManager::startStreaming);
-
-		connect(myViewSlaveComm[objectCount],	SIGNAL(startAutoStreaming(bool,FlexseaDevice*)), \
-				comManager,						SLOT(startAutoStreaming(bool, FlexseaDevice*)));
-
-		connect(myViewSlaveComm[objectCount],	SIGNAL(stopStreaming(FlexseaDevice*)), \
-				comManager,						SLOT(stopStreaming(FlexseaDevice*)));
-
-
-		connect(comManager,		&ComManager::openStatus, \
-				myViewSlaveComm[0], &W_SlaveComm::receiveComPortStatus);
-
-		connect(comManager,		&ComManager::dataStatus, \
-				myViewSlaveComm[0], &W_SlaveComm::displayDataReceived);
-
-		connect(comManager,		&ComManager::newDataTimeout, \
-				myViewSlaveComm[0], &W_SlaveComm::updateIndicatorTimeout);
 	}
 	else
 	{
@@ -1090,7 +1074,7 @@ void MainWindow::createInControl(void)
 		sendWindowCreatedMsg(W_InControl::getDescription(), objectCount,
 		W_InControl::getMaxWindow() - 1);
 
-		connect(comManager,					&ComManager::newDataReady, \
+		connect(comManager[0],					&ComManager::newDataReady, \
 				myViewInControl[objectCount],	&W_InControl::updateUIData);
 	}
 	else
@@ -1124,7 +1108,7 @@ void MainWindow::createViewRicnu(void)
 							 W_Ricnu::getMaxWindow() - 1);
 
 		//Link ComManager and RIC/NU:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewRicnu[objectCount],	&W_Ricnu::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1209,7 +1193,7 @@ void MainWindow::createCalib(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myViewCalibration[objectCount], &W_Calibration::writeCommand, \
-				comManager,						&ComManager::enqueueCommand);
+				comManager[0],						&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -1247,12 +1231,12 @@ void MainWindow::createUserRW(void)
 
 		//Link to SlaveComm to send commands:
 		connect(myUserRW[objectCount],	&W_UserRW::writeCommand,
-				comManager,				&ComManager::enqueueCommand);
+				comManager[0],				&ComManager::enqueueCommand);
 
 		connect(userDataManager,	&DynamicUserDataManager::writeCommand,
-				comManager,			&ComManager::enqueueCommand);
+				comManager[0],			&ComManager::enqueueCommand);
 
-		connect(comManager,				&ComManager::openStatus,
+		connect(comManager[0],				&ComManager::openStatus,
 				myUserRW[objectCount],	&W_UserRW::comStatusChanged);
 	}
 
@@ -1287,7 +1271,7 @@ void MainWindow::createViewGossip(void)
 							 W_Gossip::getMaxWindow() - 1);
 
 		//Link ComManager and Gossip:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewGossip[objectCount],	&W_Gossip::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1337,7 +1321,7 @@ void MainWindow::createViewRigid(void)
 							 W_Rigid::getMaxWindow() - 1);
 
 		//Link ComManager and Rigid:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1384,7 +1368,7 @@ void MainWindow::createViewStrain(void)
 							 W_Strain::getMaxWindow() - 1);
 
 		//Link ComManager and Strain:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewStrain[objectCount],	&W_Strain::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1434,7 +1418,7 @@ void MainWindow::createViewBattery(void)
 							 W_Battery::getMaxWindow() - 1);
 
 		//Link ComManager and Battery:
-		connect(comManager,				&ComManager::newDataReady, \
+		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewBatt[objectCount],	&W_Battery::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
@@ -1539,21 +1523,21 @@ void MainWindow::createViewCommTest(void)
 				this,							&MainWindow::closeViewCommTest);
 
 		//Link to SerialDriver to know when we receive data:
-		connect(comManager,					&ComManager::openStatus, \
+		connect(comManager[0],					&ComManager::openStatus, \
 				myViewCommTest[objectCount],&W_CommTest::receiveComPortStatus);
 
-		connect(comManager,					&ComManager::newDataReady, \
+		connect(comManager[0],					&ComManager::newDataReady, \
 				myViewCommTest[objectCount],&W_CommTest::receivedData);
 
 		connect(myViewCommTest[objectCount],&W_CommTest::tryReadWrite, \
-				comManager,					&ComManager::tryReadWrite);
+				comManager[0],					&ComManager::tryReadWrite);
 
 		connect(myViewCommTest[objectCount],&W_CommTest::write, \
-				comManager,					&ComManager::write);
+				comManager[0],					&ComManager::write);
 
 		//Link to SlaveComm to send commands:
 		connect(myViewCommTest[objectCount],	&W_CommTest::writeCommand,
-				comManager,						&ComManager::enqueueCommand);
+				comManager[0],						&ComManager::enqueueCommand);
 	}
 
 	else
@@ -1624,13 +1608,13 @@ void MainWindow::createCycleTester(void)
 				this,						&MainWindow::closeControlControl);
 		//Link to MainWindow for the close signal:
 		connect(myCycleTester[objectCount],	SIGNAL(startAutoStreaming(bool,FlexseaDevice*,uint8_t,uint8_t)), \
-				comManager,					SLOT(startAutoStreaming(bool,FlexseaDevice*,uint8_t,uint8_t)));
+				comManager[0],					SLOT(startAutoStreaming(bool,FlexseaDevice*,uint8_t,uint8_t)));
 		connect(myCycleTester[objectCount],	SIGNAL(stopStreaming(FlexseaDevice*)), \
-				comManager,					SLOT(stopStreaming(FlexseaDevice*)));
+				comManager[0],					SLOT(stopStreaming(FlexseaDevice*)));
 
 		//Link to SlaveComm to send commands:
 		connect(myCycleTester[objectCount], &W_CycleTester::writeCommand, \
-				comManager,					&ComManager::enqueueCommand);
+				comManager[0],					&ComManager::enqueueCommand);
 	}
 	else
 	{
@@ -1672,10 +1656,10 @@ void MainWindow::createUserTesting(void)
 				myViewSlaveComm[0] ,		&W_SlaveComm::stopExperiment);
 
 		connect(myUserTesting[objectCount], &W_UserTesting::writeCommand, \
-				comManager,					&ComManager::enqueueCommand);
+				comManager[0],					&ComManager::enqueueCommand);
 
 		//Link to Datalogger to get filenames:
-		connect(myDataLogger,				&DataLogger::logFileName, \
+		connect(myDataLogger[0],				&DataLogger::logFileName, \
 				myUserTesting[objectCount],	&W_UserTesting::logFileName);
 
 		//If there is no Event Flag window we create one:
@@ -1810,7 +1794,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 	qDebug() << "Closing, see you soon!";
 	//writeSettings();
-	comManagerThread->quit();
+	for(int i=0; i<CONFIG_WINDOWS_MAX; i++)
+	{
+		comManagerThread[i]->quit();
+	}
 	event->accept();
 }
 

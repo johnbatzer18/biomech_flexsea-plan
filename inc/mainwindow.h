@@ -236,13 +236,11 @@ private:
 
 	// Objects
 	ChartController *chartController;
-	QThread* comManagerThread;
+	QList<QThread*> comManagerThread;
 
-	DataLogger *myDataLogger;
-	ComManager* comManager;
+	QList<DataLogger*> myDataLogger;
+	QList<ComManager*> comManager;
 	DynamicUserDataManager* userDataManager;
-
-	QList<int> comRefreshRate;
 
 	void writeSettings();
 	void readSettings();

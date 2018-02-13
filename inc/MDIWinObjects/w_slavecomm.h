@@ -87,18 +87,28 @@ public:
 							QList<FlexseaDevice*> *ankle2DofDevListIni = nullptr,
 							QList<FlexseaDevice*> *dynamicUserDevListInit = nullptr,
 							QList<FlexseaDevice*> *rigidDevListInit = nullptr,
-							QList<int> *SRefreshRates = nullptr);
+							QList<ComManager*>	  *comManagerListInit = nullptr);
 
-	ComManager* streamManager;
+	QList<ComManager*> *ComManagerList;
 
 	void addExperiment(QList<FlexseaDevice*> *deviceList, int cmdCode);
 
 	~W_SlaveComm();
 
 public slots:
-	void displayDataReceived(int idx, int status);
-	void receiveComPortStatus(SerialPortStatus status,int nbTries);
-	void updateIndicatorTimeout(bool rst);
+
+	void displayDataReceived0(int row, int status);
+	void receiveComPortStatus0(SerialPortStatus status,int nbTries);
+	void updateIndicatorTimeout0(bool rst);
+
+	void displayDataReceived1(int row, int status);
+	void receiveComPortStatus1(SerialPortStatus status,int nbTries);
+	void updateIndicatorTimeout1(bool rst);
+
+	void displayDataReceived(int row, int status);
+	void receiveComPortStatus(int row, SerialPortStatus status,int nbTries);
+	void updateIndicatorTimeout(int row, bool rst);
+
 	void getSlaveId(int* slaveId);
 	void getCurrentDevice(FlexseaDevice** device);
 	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
@@ -116,16 +126,21 @@ private slots:
 	void on_comboBoxExp2_currentIndexChanged(int index);
 	void on_comboBoxExp3_currentIndexChanged(int index);
 	void on_comboBoxExp4_currentIndexChanged(int index);
-	void readCommandLine();
-	void dataTimeoutEvent(void);
+	void readCommandLine(int row);
+	void dataTimeoutEvent0(void);
+	void dataTimeoutEvent1(void);
 
 signals:
 	void windowClosed(void);
 	void activeSlaveStreaming(QString slaveName);
-	void setOffsetParameter(QList<int> ricnuOffsets, QList<int> rigidOffsets, int minOffs, int maxOffs);
-	void startStreaming(bool shouldLog, FlexseaDevice* logToDevice);
-	void startAutoStreaming(bool shouldLog, FlexseaDevice* logToDevice);
-	void stopStreaming(FlexseaDevice *device);
+	void setOffsetParameter0(QList<int> ricnuOffsets, QList<int> rigidOffsets, int minOffs, int maxOffs);
+	void setOffsetParameter1(QList<int> ricnuOffsets, QList<int> rigidOffsets, int minOffs, int maxOffs);
+	void startStreaming0(bool shouldLog, FlexseaDevice* logToDevice);
+	void startStreaming1(bool shouldLog, FlexseaDevice* logToDevice);
+	void startAutoStreaming0(bool shouldLog, FlexseaDevice* logToDevice);
+	void startAutoStreaming1(bool shouldLog, FlexseaDevice* logToDevice);
+	void stopStreaming0(FlexseaDevice *device);
+	void stopStreaming1(FlexseaDevice *device);
 private:
 	//Helper Functions
 	void populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected);
@@ -178,14 +193,15 @@ private:
 	//Function(s):
 	void initExperimentList(void);
 	void initSlaveCom(void);
+	void initConnection(void);
 	void managePushButton(int idx, bool forceOff);
 	void updateStatusBar(QString txt);
 
 	uint8_t numExperiments;
 
-	QList<int> *refreshRates;
+	QList<int> refreshRates;
 
-	QTimer *dataTimeout;
+	QList<QTimer*> dataTimeoutList;
 	bool isStreaming = false;
 };
 

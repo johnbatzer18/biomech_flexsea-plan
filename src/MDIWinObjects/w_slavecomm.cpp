@@ -60,15 +60,17 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 						 QList<FlexseaDevice*> *ankle2DofDevListInit,
 						 QList<FlexseaDevice*> *dynamicUserDevListInit,
 						 QList<FlexseaDevice*> *rigidDevListInit,
-						 QList<int> *SRefreshRates) :
+						 QList<ComManager*> *comManagerListInit) :
 	QWidget(parent),
 	ui(new Ui::W_SlaveComm)
 {
-	if(!SRefreshRates) qDebug("Null RefreshRates passed to SlaveComm Window.");
+	if(!comManagerListInit) qDebug("Null RefreshRates passed to SlaveComm Window.");
 	ui->setupUi(this);
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+
+
 
 	// Used to register the custom type for the signal/slot function using it.
 	qRegisterMetaType<QList<int>>();
@@ -83,13 +85,14 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	ankle2DofDevList = ankle2DofDevListInit;
 	rigidDevList = rigidDevListInit;
 	dynamicUserDevList = dynamicUserDevListInit;
-	refreshRates = SRefreshRates;
+	ComManagerList = comManagerListInit;
 
 	initializeMaps();
 	mapSerializedPointers();
 	initExperimentList();
 	initSlaveCom();
 	initTimers();
+	initConnection();
 }
 
 W_SlaveComm::~W_SlaveComm()
@@ -149,7 +152,15 @@ void W_SlaveComm::getSlaveId(int* slaveId)
 //****************************************************************************
 
 //This slot gets called when the port status changes (turned On or Off)
-void W_SlaveComm::receiveComPortStatus(SerialPortStatus status,int nbTries)
+void W_SlaveComm::receiveComPortStatus0(SerialPortStatus status,int nbTries)
+{
+	receiveComPortStatus(0, status, nbTries);
+}
+void W_SlaveComm::receiveComPortStatus1(SerialPortStatus status,int nbTries)
+{
+	receiveComPortStatus(1, status, nbTries);
+}
+void W_SlaveComm::receiveComPortStatus(int row, SerialPortStatus status,int nbTries)
 {
 	// Not use by this slot.
 	(void)nbTries;
@@ -158,19 +169,89 @@ void W_SlaveComm::receiveComPortStatus(SerialPortStatus status,int nbTries)
 	{
 		qDebug() << "COM port was closed";
 
-		on_off_pb_ptr[0]->setDisabled(true);
-		managePushButton(0,true);
-		displayDataReceived(0, DATAIN_STATUS_GREY);
-		log_cb_ptr[0]->setDisabled(true);
-		auto_checkbox[0]->setDisabled(true);
+		on_off_pb_ptr[row]->setDisabled(true);
+		managePushButton(row,true);
+		displayDataReceived(row, DATAIN_STATUS_GREY);
+		log_cb_ptr[row]->setDisabled(true);
+		auto_checkbox[row]->setDisabled(true);
 	}
 	else if(status == PortOpeningSucceed)
 	{
 		qDebug() << "COM port was opened";
 
-		on_off_pb_ptr[0]->setDisabled(false);
-		log_cb_ptr[0]->setDisabled(false);
-		auto_checkbox[0]->setDisabled(false);
+		on_off_pb_ptr[row]->setDisabled(false);
+		log_cb_ptr[row]->setDisabled(false);
+		auto_checkbox[row]->setDisabled(false);
+	}
+}
+
+void W_SlaveComm::updateIndicatorTimeout0(bool rst)
+{
+	updateIndicatorTimeout(0, rst);
+}
+void W_SlaveComm::updateIndicatorTimeout1(bool rst)
+{
+	updateIndicatorTimeout(1, rst);
+}
+void W_SlaveComm::updateIndicatorTimeout(int row, bool rst)
+{
+	static uint32_t counter[2] = {0,0};
+
+	counter[row]++;
+	if(counter[row] > INDICATOR_TIMEOUT)
+	{
+		displayDataReceived(row, DATAIN_STATUS_GREY);
+		if(isStreaming){qDebug() << "Timeout on communication";}
+	}
+
+	if(rst == true)
+	{
+		counter[row] = 0;
+	}
+}
+
+void W_SlaveComm::displayDataReceived0(int row, int status)
+{
+	// Not use by this slot.
+	(void)row;
+	displayDataReceived(0, status);
+}
+
+void W_SlaveComm::displayDataReceived1(int row, int status)
+{
+	// Not use by this slot.
+	(void)row;
+	displayDataReceived(1, status);
+}
+
+//"Data Received" Arrows:
+void W_SlaveComm::displayDataReceived(int row, int status)
+{
+	if(!on_off_pb_ptr[row]->isChecked())
+		status = DATAIN_STATUS_GREY;
+
+	switch(status)
+	{
+		case DATAIN_STATUS_GREY:
+			(labelStatusPtr[row])->setStyleSheet("QLabel { background-color: \
+										rgb(127,127,127); color: black;}");
+			break;
+		case DATAIN_STATUS_GREEN:
+			(labelStatusPtr[row])->setStyleSheet("QLabel { background-color: \
+										rgb(0,255,0); color: black;}");
+			break;
+		case DATAIN_STATUS_YELLOW:
+			(labelStatusPtr[row])->setStyleSheet("QLabel { background-color: \
+										rgb(255,255,0); color: black;}");
+			break;
+		case DATAIN_STATUS_RED:
+			(labelStatusPtr[row])->setStyleSheet("QLabel { background-color: \
+										rgb(255,0,0); color: black;}");
+			break;
+		default:
+			(labelStatusPtr[row])->setStyleSheet("QLabel { background-color: \
+										black; color: white;}");
+			break;
 	}
 }
 
@@ -288,10 +369,63 @@ void W_SlaveComm::initializeMaps()
 
 void W_SlaveComm::initTimers(void)
 {
-	dataTimeout = new QTimer(this);
-	connect(dataTimeout,	&QTimer::timeout,
-			this,			&W_SlaveComm::dataTimeoutEvent);
-	dataTimeout->start(DATA_TIMEOUT);
+	dataTimeoutList.append(new QTimer(this));
+	connect(dataTimeoutList.last(),	&QTimer::timeout,
+			this,			&W_SlaveComm::dataTimeoutEvent0);
+	dataTimeoutList.last()->start(DATA_TIMEOUT);
+
+	dataTimeoutList.append(new QTimer(this));
+	connect(dataTimeoutList.last(),	&QTimer::timeout,
+			this,			&W_SlaveComm::dataTimeoutEvent1);
+	dataTimeoutList.last()->start(DATA_TIMEOUT);
+
+}
+
+void W_SlaveComm::initConnection(void)
+{
+		connect(this,			&W_SlaveComm::setOffsetParameter0, \
+				ComManagerList->at(0),	&ComManager::setOffsetParameter);
+
+		connect(this,			&W_SlaveComm::startStreaming0, \
+				ComManagerList->at(0),	&ComManager::startStreaming);
+
+		connect(this,			SIGNAL(startAutoStreaming0(bool,FlexseaDevice*)), \
+				ComManagerList->at(0),	SLOT(startAutoStreaming(bool, FlexseaDevice*)));
+
+		connect(this,			SIGNAL(stopStreaming0(FlexseaDevice*)), \
+				ComManagerList->at(0),	SLOT(stopStreaming(FlexseaDevice*)));
+
+		connect(this,			&W_SlaveComm::setOffsetParameter1, \
+				ComManagerList->at(1),	&ComManager::setOffsetParameter);
+
+		connect(this,			&W_SlaveComm::startStreaming1, \
+				ComManagerList->at(1),	&ComManager::startStreaming);
+
+		connect(this,			SIGNAL(startAutoStreaming1(bool,FlexseaDevice*)), \
+				ComManagerList->at(1),	SLOT(startAutoStreaming(bool, FlexseaDevice*)));
+
+		connect(this,			SIGNAL(stopStreaming1(FlexseaDevice*)), \
+				ComManagerList->at(1),	SLOT(stopStreaming(FlexseaDevice*)));
+
+
+
+		connect(ComManagerList->at(0),	&ComManager::openStatus, \
+				this,			&W_SlaveComm::receiveComPortStatus0);
+
+		connect(ComManagerList->at(0),	&ComManager::dataStatus, \
+				this,			&W_SlaveComm::displayDataReceived0);
+
+		connect(ComManagerList->at(0),	&ComManager::newDataTimeout, \
+				this,			&W_SlaveComm::updateIndicatorTimeout0);
+
+		connect(ComManagerList->at(1),	&ComManager::openStatus, \
+				this,			&W_SlaveComm::receiveComPortStatus1);
+
+		connect(ComManagerList->at(1),	&ComManager::dataStatus, \
+				this,			&W_SlaveComm::displayDataReceived1);
+
+		connect(ComManagerList->at(1),	&ComManager::newDataTimeout, \
+				this,			&W_SlaveComm::updateIndicatorTimeout1);
 }
 
 void W_SlaveComm::populateSlaveComboBox(QComboBox* box, int indexOfExperimentSelected)
@@ -351,13 +485,19 @@ void W_SlaveComm::initSlaveCom(void)
 	updateStatusBar("Slave communication object created. Ready.");
 
 	QStringList refreshRateStrings;
-	for(int i = 0; i < refreshRates->size(); i++)
-		refreshRateStrings << (QString::number(refreshRates->at(i)) + "Hz");
 
 	QFont font( "Arial", 12, QFont::Bold);
 
 	for(int row = 0; row < MAX_SC_ITEMS; row++)
 	{
+
+		if(row < ComManagerList->length())
+		{
+			refreshRates = ComManagerList->at(row)->getRefreshRates();
+			for(int i = 0; i < refreshRates.size(); i++)
+				refreshRateStrings << (QString::number(refreshRates.at(i)) + "Hz");
+		}
+
 		if(comboBoxExpPtr[row])
 		{
 			//Fill the experiment combo box
@@ -410,7 +550,9 @@ void W_SlaveComm::initSlaveCom(void)
 	}
 
 	//Default command line settings, RIC/NU & Rigid:
-	emit setOffsetParameter(QList<int>({0, 1}), QList<int>({0, 1}), 0, 0);
+	emit setOffsetParameter0(QList<int>({0, 1}), QList<int>({0, 1}), 0, 0);
+	emit setOffsetParameter1(QList<int>({0, 1}), QList<int>({0, 1}), 0, 0);
+
 	defaultCmdLineText = "o=0,1,2,3;";
 	//We start with Rigid, so we enable the CL:
 	ui->lineEdit->setEnabled(true);
@@ -488,7 +630,7 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 	FlexseaDevice* target = getTargetDevice(cmdCode, experimentIndex, slaveIndex);
 	target->slaveID = (targetListMap[experimentIndex])->at(slaveIndex)->slaveID;
-	target->frequency = refreshRates->at(refreshRateIndex);
+	target->frequency = refreshRates.at(refreshRateIndex);
 	target->experimentIndex = cmdCode;
 	target->experimentName = comboBoxExpPtr[row]->currentText();
 
@@ -507,7 +649,7 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 		{
 			//If it was enabled we disable it and read it:
 			ui->lineEdit->setDisabled(true);
-			readCommandLine();
+			readCommandLine(row);
 		}
 
 		// start streaming
@@ -524,11 +666,25 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 		if(auto_checkbox[row]->isChecked())
 		{
-			emit startAutoStreaming(log_cb_ptr[row]->isChecked(), target);
+			if(row == 0)
+			{
+				emit startAutoStreaming0(log_cb_ptr[row]->isChecked(), target);
+			}
+			else
+			{
+				emit startAutoStreaming1(log_cb_ptr[row]->isChecked(), target);
+			}
 		}
 		else
 		{
-			emit startStreaming(log_cb_ptr[row]->isChecked(), target);
+			if(row == 0)
+			{
+				emit startStreaming0(log_cb_ptr[row]->isChecked(), target);
+			}
+			else
+			{
+				emit startStreaming1(log_cb_ptr[row]->isChecked(), target);
+			}
 		}
 
 		setRowDisabled(row, true);
@@ -554,7 +710,16 @@ void W_SlaveComm::managePushButton(int row, bool forceOff)
 
 		// start streaming
 		if(cmdCode >= 0)
-			emit stopStreaming(target);
+		{
+			if(row == 0)
+			{
+				emit stopStreaming0(target);
+			}
+			else
+			{
+				emit stopStreaming1(target);
+			}
+		}
 
 		setRowDisabled(row, false);
 		displayDataReceived(row,DATAIN_STATUS_GREY);
@@ -565,54 +730,6 @@ void W_SlaveComm::updateStatusBar(QString txt)
 {
 	QString finalTxt = "<font color=#808080>[Status] " + txt + "</font>";
 	ui->statusbar->setText(finalTxt);
-}
-
-//"Data Received" Arrows:
-void W_SlaveComm::displayDataReceived(int item, int status)
-{
-	if(!on_off_pb_ptr[item]->isChecked())
-		status = DATAIN_STATUS_GREY;
-
-	switch(status)
-	{
-		case DATAIN_STATUS_GREY:
-			(labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
-										rgb(127,127,127); color: black;}");
-			break;
-		case DATAIN_STATUS_GREEN:
-			(labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
-										rgb(0,255,0); color: black;}");
-			break;
-		case DATAIN_STATUS_YELLOW:
-			(labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
-										rgb(255,255,0); color: black;}");
-			break;
-		case DATAIN_STATUS_RED:
-			(labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
-										rgb(255,0,0); color: black;}");
-			break;
-		default:
-			(labelStatusPtr[item])->setStyleSheet("QLabel { background-color: \
-										black; color: white;}");
-			break;
-	}
-}
-
-void W_SlaveComm::updateIndicatorTimeout(bool rst)
-{
-	static uint32_t counter = 0;
-
-	counter++;
-	if(counter > INDICATOR_TIMEOUT)
-	{
-		displayDataReceived(0, DATAIN_STATUS_GREY);
-		if(isStreaming){qDebug() << "Timeout on communication";}
-	}
-
-	if(rst == true)
-	{
-		counter = 0;
-	}
 }
 
 //****************************************************************************
@@ -635,7 +752,7 @@ void W_SlaveComm::on_comboBoxExp3_currentIndexChanged(int index) {(void)index; m
 void W_SlaveComm::on_comboBoxExp4_currentIndexChanged(int index) {(void)index; manageSelectedExperimentChanged(3); }
 
 //Command line input: enter pressed
-void W_SlaveComm::readCommandLine()
+void W_SlaveComm::readCommandLine(int row)
 {
 	qDebug() << "Command line:";
 	QString txt = ui->lineEdit->text();
@@ -693,7 +810,15 @@ void W_SlaveComm::readCommandLine()
 
 			qDebug() << "Min offset:" << min << ", Max offset:" << max;
 
-			emit setOffsetParameter(offsets, offsets, min, max);
+			if(row == 0)
+			{
+				emit setOffsetParameter0(offsets, offsets, min, max);
+			}
+			else
+			{
+				emit setOffsetParameter1(offsets, offsets, min, max);
+			}
+
 			break;
 
 		default:
@@ -704,7 +829,12 @@ void W_SlaveComm::readCommandLine()
 	//qDebug() << "Result: " << offsetArray;
 }
 
-void W_SlaveComm::dataTimeoutEvent(void)
+void W_SlaveComm::dataTimeoutEvent0(void)
 {
-	updateIndicatorTimeout(false);
+	updateIndicatorTimeout(0, false);
+}
+
+void W_SlaveComm::dataTimeoutEvent1(void)
+{
+	updateIndicatorTimeout(1, false);
 }
