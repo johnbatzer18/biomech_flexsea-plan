@@ -78,14 +78,16 @@ signals:
 private slots:
 	void on_pb_ClearRow_clicked();
 	void on_pb_Refresh_clicked();
-
+	void autoRefresh();
 private:
 	//Variables & Objects:
 	Ui::W_GaitStats *ui;
 	int active_slave, active_slave_index;
 	QTimer *refreshDelayTimer, *readAfterClearTimer;
+	QTimer *autoRefreshTimer;
 	DynamicUserDataManager* userDataMan;
 	uint8_t defaultArray[MAX_COLUMNS];
+	bool comOpen = false;
 
 	//Function(s):
 	void init(void);

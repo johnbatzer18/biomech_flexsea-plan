@@ -98,10 +98,19 @@ void W_GaitStats::init(void)
 	refreshDelayTimer = new QTimer(this);
 	connect(refreshDelayTimer,	&QTimer::timeout,
 			this,				&W_GaitStats::refreshDisplay);
+
 	//Timer used to read after we clear a row:
 	readAfterClearTimer = new QTimer(this);
 	connect(readAfterClearTimer,	&QTimer::timeout,
 			this,				&W_GaitStats::readFromSlave);
+
+	//Auto refresh:
+	autoRefreshTimer = new QTimer(this);
+	connect(autoRefreshTimer,	&QTimer::timeout,
+			this,				&W_GaitStats::autoRefresh);
+	autoRefreshTimer->start(1000);
+
+	ui->checkBoxAutoRefresh->setChecked(false);
 
 	//Text style:
 	QFont font("Monospace");
@@ -222,12 +231,28 @@ void W_GaitStats::receiveNewData()
 
 }
 
+void W_GaitStats::autoRefresh(void)
+{
+	if(ui->checkBoxAutoRefresh->isChecked())
+	{
+		readFromSlave();
+		qDebug() << "Auto-refreshed!";
+	}
+}
+
 void W_GaitStats::comStatusChanged(SerialPortStatus status, int nbTries)
 {
 	(void)nbTries;	// Not use by this slot.
 
 	if(status == PortOpeningSucceed)
+	{
 		userDataMan->requestMetaData(active_slave);
+		comOpen = true;
+	}
+	else if(status == PortClosed)
+	{
+		comOpen = false;
+	}
 }
 
 //Refreshes the text box values (display only):
