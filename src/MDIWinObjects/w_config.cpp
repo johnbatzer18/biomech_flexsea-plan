@@ -290,15 +290,21 @@ void W_Config::btConfig()
 	//Inquiry window = 0012
 	//Page Window = 0012
 	//CfgTimer = 15s
+	//Clear any remote address
+	//Slave mode
+	//Optimize for throughput
 
 	static uint8_t config[BT_FIELDS1][20] = {{"S-,FlexSEA\r"}, \
 											{"SU,230K\r"}, \
 											{"SY,0010\r"}, \
 											{"SI,0012\r"}, \
 											{"SJ,0012\r"}, \
-											{"ST,15\r"}};
+											{"ST,15\r"}, \
+											{"SR,Z\r"}, \
+											{"SM,0\r"}, \
+											{"SQ,0\r"}};
 
-	static uint8_t len[BT_FIELDS1] = {11,8,8,8,8,6};
+	static uint8_t len[BT_FIELDS1] = {11,8,8,8,8,6,5,5,5};
 
 	if(btConfigField >= BT_FIELDS1)
 	{
