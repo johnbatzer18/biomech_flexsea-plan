@@ -575,7 +575,7 @@ void MainWindow::createAnkleAnglePlot(void)
 		return;
 	}
 
-	W_AnkleAnglePlot* w = new W_AnkleAnglePlot(this);
+	W_AnkleAnglePlot* w = new W_AnkleAnglePlot(this, &flexseaPtrlist);
 	myAnkleAnglePlot[count] = w;
 
 	int slaveCommCount = W_SlaveComm::howManyInstance();

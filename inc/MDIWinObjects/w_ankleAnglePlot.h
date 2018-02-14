@@ -189,7 +189,8 @@ class W_AnkleAnglePlot : public QWidget, public Counter<W_AnkleAnglePlot>
 
 public:
 
-	explicit W_AnkleAnglePlot(QWidget *parent = 0);
+	explicit W_AnkleAnglePlot(QWidget *parent = 0,
+							  QList<FlexseaDevice*> *devListInit = nullptr);
 	virtual ~W_AnkleAnglePlot();
 
 public slots:
@@ -227,6 +228,11 @@ private:
 	QPointF pts[A2PLOT_VAR_NUM];
 	QCheckBox **cbVar[A2PLOT_VAR_NUM];
 	int16_t instantStepEnergy = 0;
+	QComboBox **comboVar[A2PLOT_VAR_NUM];
+
+	QList<FlexseaDevice*> *liveDevList;
+	QList<FlexseaDevice*> *currentDevList;
+	FlexseaDevice* selectedDevList[A2PLOT_VAR_NUM];
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
@@ -243,6 +249,8 @@ private:
 	void displayOrNot(void);
 	void mapSensorsToPoints(int idx);
 	void fakeDataToPoints(int idx);
+	void initPtr();
+	void updateVarList(uint8_t item);
 };
 
 #endif // W_ANKLE_ANGLE_PLOT_H

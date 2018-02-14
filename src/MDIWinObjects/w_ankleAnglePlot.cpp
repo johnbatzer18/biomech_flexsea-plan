@@ -38,7 +38,8 @@ QT_CHARTS_USE_NAMESPACE
 // Constructor & Destructor:
 //****************************************************************************
 
-W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent) :
+W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
+								   QList<FlexseaDevice*> *devListInit) :
 	QWidget(parent),
 	ui(new Ui::W_AnkleAnglePlot)
 {
@@ -46,6 +47,9 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent) :
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
+
+	liveDevList = devListInit;
+	currentDevList = liveDevList;
 
 	//Chart:
 	chart = new QChart();
@@ -116,6 +120,12 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent) :
 	cbVar[3] = &ui->checkBoxP;
 	cbVar[4] = &ui->checkBoxCLHS;
 	cbVar[5] = &ui->checkBoxCurrent;
+
+	initPtr();
+	for(int item = 0; item < A2PLOT_VAR_NUM; item++)
+	{
+		updateVarList(item);
+	}
 }
 
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
@@ -400,4 +410,37 @@ void W_AnkleAnglePlot::on_checkBoxDisableFading_toggled(bool checked)
 {
 	fadePoints = !checked;
 	chartView->fadePoints = fadePoints;
+}
+
+void W_AnkleAnglePlot::initPtr(void)
+{
+	comboVar[0] = &ui->cBoxvar1;
+	comboVar[1] = &ui->cBoxvar2;
+	comboVar[2] = &ui->cBoxvar3;
+	comboVar[3] = &ui->cBoxvar4;
+	comboVar[4] = &ui->cBoxvar5;
+	comboVar[5] = &ui->cBoxvar6;
+
+	for(int i = 0; i < A2PLOT_VAR_NUM; i++)
+	{
+		//ToDo use dropdown, not harcoded 13!
+		selectedDevList[i] = (*currentDevList)[13];
+	}
+}
+
+//Each board type has a different variable list.
+void W_AnkleAnglePlot::updateVarList(uint8_t item)
+{
+	//Fill the comboBox:
+	(*comboVar[item])->clear();
+	(*comboVar[item])->setToolTipDuration(350);
+
+	QStringList headerList(selectedDevList[item]->getHeader());
+
+	(*comboVar[item])->addItem("**Unused**");
+	(*comboVar[item])->setItemData(0, "Unused", Qt::ToolTipRole);
+	for(int i = 2; i < headerList.length(); i++)
+	{
+		(*comboVar[item])->addItem(headerList[i]);
+	}
 }
