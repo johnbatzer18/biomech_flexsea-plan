@@ -85,7 +85,13 @@ W_UserTesting::~W_UserTesting()
 // Public slot(s):
 //****************************************************************************
 
-void W_UserTesting::logFileName(QString fn, QString fnp)
+void W_UserTesting::logFileName0(QString fn, QString fnp)
+{
+	logFn = fn;
+	logFnP = fnp;
+}
+
+void W_UserTesting::logFileName1(QString fn, QString fnp)
 {
 	logFn = fn;
 	logFnP = fnp;
@@ -568,7 +574,7 @@ void W_UserTesting::writeUTT(void)
 	//Prep & send:
 	tx_cmd_utt_w(TX_N_DEFAULT, 0, &planUTT);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	emit writeCommand0(numb, comm_str_usb, WRITE);
 }
 
 //****************************************************************************
@@ -1124,7 +1130,7 @@ void W_UserTesting::on_pushButtonTweaksRead_clicked()
 	//Prep & send:
 	tx_cmd_utt_r(TX_N_DEFAULT, 0);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, READ);
+	emit writeCommand0(numb, comm_str_usb, READ);
 
 	readDisplayLag = 5;
 }

@@ -732,6 +732,9 @@ void MainWindow::createViewExecute(void)
 		connect(comManager[0], &ComManager::newDataReady, \
 				myViewExecute[objectCount], &W_Execute::refreshDisplay);
 
+		connect(comManager[1], &ComManager::newDataReady, \
+				myViewExecute[objectCount], &W_Execute::refreshDisplay);
+
 		//Link to MainWindow for the close signal:
 		connect(myViewExecute[objectCount], &W_Execute::windowClosed, \
 				this, &MainWindow::closeViewExecute);
@@ -1324,6 +1327,10 @@ void MainWindow::createViewRigid(void)
 		connect(comManager[0],				&ComManager::newDataReady, \
 				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
 
+		//Link ComManager and Rigid:
+		connect(comManager[1],				&ComManager::newDataReady, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+
 		//Link to MainWindow for the close signal:
 		connect(myViewRigid[objectCount],	&W_Rigid::windowClosed, \
 				this,						&MainWindow::closeViewGossip);
@@ -1655,12 +1662,18 @@ void MainWindow::createUserTesting(void)
 		connect(myUserTesting[objectCount],	&W_UserTesting::stopExperiment, \
 				myViewSlaveComm[0] ,		&W_SlaveComm::stopExperiment);
 
-		connect(myUserTesting[objectCount], &W_UserTesting::writeCommand, \
+		connect(myUserTesting[objectCount], &W_UserTesting::writeCommand0, \
 				comManager[0],					&ComManager::enqueueCommand);
+
+		connect(myUserTesting[objectCount], &W_UserTesting::writeCommand1, \
+				comManager[1],					&ComManager::enqueueCommand);
 
 		//Link to Datalogger to get filenames:
 		connect(myDataLogger[0],				&DataLogger::logFileName, \
-				myUserTesting[objectCount],	&W_UserTesting::logFileName);
+				myUserTesting[objectCount],	&W_UserTesting::logFileName0);
+
+		connect(myDataLogger[1],				&DataLogger::logFileName, \
+				myUserTesting[objectCount],	&W_UserTesting::logFileName1);
 
 		//If there is no Event Flag window we create one:
 		if(W_Event::howManyInstance() == 0){createToolEvent();}

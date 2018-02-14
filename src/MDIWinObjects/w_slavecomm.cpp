@@ -541,9 +541,9 @@ void W_SlaveComm::initSlaveCom(void)
 		displayDataReceived(row,DATAIN_STATUS_GREY);
 	}
 
-	//For now, rows 2-4 are disabled:
+	//For now, rows 3-4 are disabled:
 	//======================================
-	for(int row = 1; row < MAX_SC_ITEMS; row++)
+	for(int row = 2; row < MAX_SC_ITEMS; row++)
 	{
 		setRowDisabled(row, true);
 		(on_off_pb_ptr[row])->setDisabled(true);

@@ -45,7 +45,8 @@ public:
 	~W_UserTesting();
 
 public slots:
-	void logFileName(QString fn, QString fnp);
+	void logFileName0(QString fn, QString fnp);
+	void logFileName1(QString fn, QString fnp);
 	void extFlags(int index);
 	void pointsChanged(int8_t pts[6][2]);
 
@@ -54,7 +55,8 @@ signals:
 	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
 	void stopExperiment(void);
 	void userFlags(int index);
-	void writeCommand(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void writeCommand0(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
+	void writeCommand1(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 	void torquePointsChanged(int8_t pts0[6][2], int8_t pts1[6][2]);
 	void legs(bool ind, uint8_t LR);
 
