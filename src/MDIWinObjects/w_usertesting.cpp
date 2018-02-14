@@ -63,6 +63,7 @@ W_UserTesting::W_UserTesting(QWidget *parent,
 	initTabSubject();
 	initTabExperiment();
 	initTabTweaks();
+	initTabManual();
 	initTimers();
 
 	mwAppPath = appPath;
@@ -126,6 +127,7 @@ void W_UserTesting::initTabs(void)
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
 	ui->tabWidget->setTabEnabled(2, false);
+	ui->tabWidget->setTabEnabled(3, false);
 
 	ongoingSession = false;
 	pbSession(true);
@@ -249,6 +251,59 @@ void W_UserTesting::initTabTweaks(void)
 	setTweaksUI(UTT_LEFT);
 }
 
+void W_UserTesting::initTabManual(void)
+{
+	initUTTpointers();
+
+	const QValidator *validInt16 = new QIntValidator(-32768, 32767, this);
+
+	for(int i = 0; i < NB_UTT_FIELDS; i++)
+	{
+		lineEditUTT[i]->clear();
+		lineEditUTT[i]->setValidator(validInt16);
+		labelUTT[i]->clear();
+	}
+}
+
+void W_UserTesting::initUTTpointers(void)
+{
+	//User input:
+	lineEditUTT[0] = ui->lineEditUTT0;
+	lineEditUTT[1] = ui->lineEditUTT1;
+	lineEditUTT[2] = ui->lineEditUTT2;
+	lineEditUTT[3] = ui->lineEditUTT3;
+	lineEditUTT[4] = ui->lineEditUTT4;
+	lineEditUTT[5] = ui->lineEditUTT5;
+	lineEditUTT[6] = ui->lineEditUTT6;
+	lineEditUTT[7] = ui->lineEditUTT7;
+	lineEditUTT[8] = ui->lineEditUTT8;
+	lineEditUTT[9] = ui->lineEditUTT9;
+
+	//Write buttons:
+	pbWriteUTT[0] = ui->pbW0;
+	pbWriteUTT[1] = ui->pbW1;
+	pbWriteUTT[2] = ui->pbW2;
+	pbWriteUTT[3] = ui->pbW3;
+	pbWriteUTT[4] = ui->pbW4;
+	pbWriteUTT[5] = ui->pbW5;
+	pbWriteUTT[6] = ui->pbW6;
+	pbWriteUTT[7] = ui->pbW7;
+	pbWriteUTT[8] = ui->pbW8;
+	pbWriteUTT[9] = ui->pbW9;
+
+	//Read value:
+	labelUTT[0] = ui->label_UTT0;
+	labelUTT[1] = ui->label_UTT1;
+	labelUTT[2] = ui->label_UTT2;
+	labelUTT[3] = ui->label_UTT3;
+	labelUTT[4] = ui->label_UTT4;
+	labelUTT[5] = ui->label_UTT5;
+	labelUTT[6] = ui->label_UTT6;
+	labelUTT[7] = ui->label_UTT7;
+	labelUTT[8] = ui->label_UTT8;
+	labelUTT[9] = ui->label_UTT9;
+}
+
 void W_UserTesting::independantLegs(bool i)
 {
 	if(i == false)
@@ -345,6 +400,11 @@ void W_UserTesting::initTimers(void)
 	connect(dispTimer,	&QTimer::timeout,
 			this,		&W_UserTesting::dispTimerTick);
 	dispTimer->start(100);
+
+	//To read after we write:
+	rwTimer = new QTimer(this);
+	connect(rwTimer,	&QTimer::timeout,
+			this,		&W_UserTesting::readManual);
 }
 
 void W_UserTesting::createNewFile(void)
@@ -508,6 +568,7 @@ void W_UserTesting::startOfSession()
 	ui->tabWidget->setTabEnabled(0, false);
 	ui->tabWidget->setTabEnabled(1, true);
 	ui->tabWidget->setTabEnabled(2, true);
+	ui->tabWidget->setTabEnabled(3, true);
 
 	createNewFile();
 	latchSubjectInfo();
@@ -554,21 +615,40 @@ void W_UserTesting::endOfSession()
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
 	ui->tabWidget->setTabEnabled(2, false);
+	ui->tabWidget->setTabEnabled(3, true);
 
 	writeNotes();
 	closeTextFile();
 	tfOpen = false;	//Prevents wtf() to write data
 }
 
-void W_UserTesting::writeUTT(void)
+void W_UserTesting::writeUTT(uint8_t offset)
 {
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 
 	//Prep & send:
-	tx_cmd_utt_w(TX_N_DEFAULT, 0, &planUTT);
-	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	tx_cmd_utt_w(TX_N_DEFAULT, offset, &planUTT);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);	//ToDo use active slave
 	emit writeCommand(numb, comm_str_usb, WRITE);
+}
+
+void W_UserTesting::readUTT(uint8_t offset)
+{
+	uint16_t numb = 0;
+	uint8_t info[2] = {PORT_USB, PORT_USB};
+
+	//Prep & send:
+	tx_cmd_utt_r(TX_N_DEFAULT, offset);
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);	//ToDo use active slave
+	emit writeCommand(numb, comm_str_usb, READ);
+}
+
+void W_UserTesting::readManual(void)
+{
+	rwTimer->stop();
+	readUTT(1);
+	readDisplayLag = 1;
 }
 
 //****************************************************************************
@@ -628,6 +708,7 @@ void W_UserTesting::dispTimerTick(void)
 			setTweaksUI(UTT_RIGHT);
 			setTweaksUI(UTT_LEFT);
 			writeTorquePointsToFile();
+			refreshManualDisplay();
 
 			//Send points to Ankle Torque Tool
 			emit torquePointsChanged(planUTT.leg[0].torquePoints, planUTT.leg[1].torquePoints);
@@ -643,6 +724,14 @@ void W_UserTesting::dispTimerTick(void)
 	else
 	{
 		ui->pushButtonTweaksWrite->setStyleSheet("");
+	}
+}
+
+void W_UserTesting::refreshManualDisplay(void)
+{
+	for(int i = 0; i < NB_UTT_FIELDS; i++)
+	{
+		labelUTT[i]->setText(QString::number(planUTT.val[0][i]));
 	}
 }
 
@@ -1118,6 +1207,7 @@ void W_UserTesting::on_pushButtonTweaksRead_clicked()
 {
 	wtf("Read From Device was clicked");
 
+	/*
 	uint16_t numb = 0;
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 
@@ -1125,6 +1215,8 @@ void W_UserTesting::on_pushButtonTweaksRead_clicked()
 	tx_cmd_utt_r(TX_N_DEFAULT, 0);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, READ);
+	*/
+	readUTT(0);
 
 	readDisplayLag = 5;
 }
@@ -1140,7 +1232,7 @@ void W_UserTesting::on_pushButtonTweaksWrite_clicked()
 	}
 
 	wtf("Write to Device was clicked" + extraTxt);
-	writeUTT();
+	writeUTT(0);
 	tweakHasChanged = false;
 }
 
@@ -1148,28 +1240,28 @@ void W_UserTesting::on_pushButtonPowerOffR_clicked()
 {
 	planUTT.leg[UTT_RIGHT].powerOn = 0;
 	wtf("Power Off was clicked (Right or Dual)");
-	writeUTT();
+	writeUTT(0);
 }
 
 void W_UserTesting::on_pushButtonPowerOnR_clicked()
 {
 	planUTT.leg[UTT_RIGHT].powerOn = 1;
 	wtf("Power On was clicked (Right or Dual)");
-	writeUTT();
+	writeUTT(0);
 }
 
 void W_UserTesting::on_pushButtonPowerOnL_clicked()
 {
 	planUTT.leg[UTT_LEFT].powerOn = 1;
 	wtf("Power On was clicked (Left)");
-	writeUTT();
+	writeUTT(0);
 }
 
 void W_UserTesting::on_pushButtonPowerOffL_clicked()
 {
 	planUTT.leg[UTT_LEFT].powerOn = 0;
 	wtf("Power Off was clicked (Left)");
-	writeUTT();
+	writeUTT(0);
 }
 
 void W_UserTesting::on_checkBoxIndependant_stateChanged(int arg1)
@@ -1217,4 +1309,33 @@ void W_UserTesting::on_tabWidgetTweaksLR_currentChanged(int index)
 
 	if(!ui->checkBoxIndependant->isChecked()){activeLeg = 2;}
 	else{activeLeg = index;}
+}
+
+void W_UserTesting::on_pbW0_clicked(){pbWxClicked(0);}
+void W_UserTesting::on_pbW1_clicked(){pbWxClicked(1);}
+void W_UserTesting::on_pbW2_clicked(){pbWxClicked(2);}
+void W_UserTesting::on_pbW3_clicked(){pbWxClicked(3);}
+void W_UserTesting::on_pbW4_clicked(){pbWxClicked(4);}
+void W_UserTesting::on_pbW5_clicked(){pbWxClicked(5);}
+void W_UserTesting::on_pbW6_clicked(){pbWxClicked(6);}
+void W_UserTesting::on_pbW7_clicked(){pbWxClicked(7);}
+void W_UserTesting::on_pbW8_clicked(){pbWxClicked(8);}
+void W_UserTesting::on_pbW9_clicked(){pbWxClicked(9);}
+
+void W_UserTesting::pbWxClicked(uint8_t i)
+{
+	qDebug() << "PB#" << i << "clicked.";
+
+	//Save that value in the UTT structure:
+	int tmp = lineEditUTT[i]->text().toInt();
+	planUTT.val[0][i] = (int16_t)tmp;
+
+	//Send to board:
+	writeUTT(1);
+	rwTimer->start(50);
+}
+
+void W_UserTesting::on_pbUTTrefresh_clicked()
+{
+	readManual();
 }

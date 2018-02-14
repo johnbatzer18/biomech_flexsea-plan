@@ -28,9 +28,12 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QButtonGroup>
+#include <qlabel.h>
 #include "flexsea_user_structs.h"
 
 //class ScribbleArea;
+
+#define NB_UTT_FIELDS		10
 
 namespace Ui {
 class W_UserTesting;
@@ -103,8 +106,21 @@ private slots:
 	void on_pushButtonPowerOffL_clicked();
 	void on_pushButtonRtoL_clicked();
 	void on_pushButtonLtoR_clicked();
-
 	void on_tabWidgetTweaksLR_currentChanged(int index);
+
+	void on_pbW0_clicked();
+	void on_pbW1_clicked();
+	void on_pbW2_clicked();
+	void on_pbW3_clicked();
+	void on_pbW4_clicked();
+	void on_pbW5_clicked();
+	void on_pbW6_clicked();
+	void on_pbW7_clicked();
+	void on_pbW8_clicked();
+	void on_pbW9_clicked();
+	void pbWxClicked(uint8_t i);
+
+	void on_pbUTTrefresh_clicked();
 
 private:
 	Ui::W_UserTesting *ui;
@@ -113,7 +129,7 @@ private:
 	ScribbleArea *scribbleArea;
 	QString userID;
 	QElapsedTimer expTimer;
-	QTimer *dispTimer;
+	QTimer *dispTimer, *rwTimer;
 	int expTime;
 	bool ongoingSession, ongoingExperiment;
 	QFile *textFile;
@@ -122,6 +138,9 @@ private:
 	QString utPath;
 	QButtonGroup *qbgActivity, *qbgDUT, *qbgData;
 	double currentSpeed, currentIncline;
+	QPushButton *pbWriteUTT[NB_UTT_FIELDS];
+	QLabel *labelUTT[NB_UTT_FIELDS];
+	QLineEdit *lineEditUTT[NB_UTT_FIELDS];
 
 	//Data to be written to file:
 	QString name[3];
@@ -146,6 +165,7 @@ private:
 	void sliderToSpin(void);
 	void initTabSubject();
 	void initTabExperiment();
+	void initTabManual();
 	void initTimers();
 	void initTabs();
 	void createNewFile();
@@ -168,11 +188,15 @@ private:
 	void pbSession(bool ss);
 	void startOfSession();
 	void endOfSession();
-	void writeUTT();
+	void writeUTT(uint8_t offset);
+	void readUTT(uint8_t offset);
 	void setTweaksUI(uint8_t leg);
 	void independantLegs(bool i);
 	void copyLegToLeg(bool RtL, bool silent);
 	void writeTorquePointsToFile();
+	void initUTTpointers();
+	void readManual(void);
+	void refreshManualDisplay();
 };
 
 //****************************************************************************
