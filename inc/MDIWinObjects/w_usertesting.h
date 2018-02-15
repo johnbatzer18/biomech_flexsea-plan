@@ -197,6 +197,8 @@ private:
 	void initUTTpointers();
 	void readManual(void);
 	void refreshManualDisplay();
+	void setTabStateSessionOn();
+	void setTabStateSessionOff();
 };
 
 //****************************************************************************

@@ -121,14 +121,26 @@ void W_UserTesting::pointsChanged(int8_t pts[6][2])
 // Private function(s):
 //****************************************************************************
 
-void W_UserTesting::initTabs(void)
+void W_UserTesting::setTabStateSessionOn(void)
 {
-	ui->tabWidget->setCurrentIndex(0);
+	ui->tabWidget->setTabEnabled(0, false);
+	ui->tabWidget->setTabEnabled(1, true);
+	ui->tabWidget->setTabEnabled(2, true);
+	ui->tabWidget->setTabEnabled(3, true);
+}
+
+void W_UserTesting::setTabStateSessionOff(void)
+{
 	ui->tabWidget->setTabEnabled(0, true);
 	ui->tabWidget->setTabEnabled(1, false);
 	ui->tabWidget->setTabEnabled(2, false);
 	ui->tabWidget->setTabEnabled(3, false);
+}
 
+void W_UserTesting::initTabs(void)
+{
+	ui->tabWidget->setCurrentIndex(0);
+	setTabStateSessionOff();
 	ongoingSession = false;
 	pbSession(true);
 }
@@ -565,10 +577,7 @@ void W_UserTesting::startOfSession()
 {
 	//Move to the next tab, lock this one
 	ui->tabWidget->setCurrentIndex(1);
-	ui->tabWidget->setTabEnabled(0, false);
-	ui->tabWidget->setTabEnabled(1, true);
-	ui->tabWidget->setTabEnabled(2, true);
-	ui->tabWidget->setTabEnabled(3, true);
+	setTabStateSessionOn();
 
 	createNewFile();
 	latchSubjectInfo();
@@ -612,10 +621,7 @@ void W_UserTesting::endOfSession()
 {
 	//Move to the Subject tab, lock this one
 	ui->tabWidget->setCurrentIndex(0);
-	ui->tabWidget->setTabEnabled(0, true);
-	ui->tabWidget->setTabEnabled(1, false);
-	ui->tabWidget->setTabEnabled(2, false);
-	ui->tabWidget->setTabEnabled(3, true);
+	setTabStateSessionOff();
 
 	writeNotes();
 	closeTextFile();
