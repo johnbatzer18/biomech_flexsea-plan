@@ -117,6 +117,20 @@ void W_UserTesting::pointsChanged(int8_t pts[6][2])
 	writeTorquePointsToFile();
 }
 
+void W_UserTesting::comStatusChanged(SerialPortStatus status,int nbTries)
+{
+	(void)nbTries;	// Not use by this slot.
+
+	if(status == PortClosed)
+	{
+		qDebug() << "Port closed - UserTesting";
+		if(ongoingSession)
+		{
+			on_pushButtonExpSession_clicked();
+		}
+	}
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************

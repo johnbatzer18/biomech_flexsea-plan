@@ -172,7 +172,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	initializeCreateWindowFctPtr();
 	loadCSVconfigFile();	//By default we load the last saved settings
 	applyLoadedConfig();
-
 }
 
 MainWindow::~MainWindow()
@@ -1714,6 +1713,10 @@ void MainWindow::createUserTesting(void)
 
 		connect(myEvent[0],					&W_Event::buttonClick, \
 				myUserTesting[objectCount],	&W_UserTesting::extFlags);
+
+		//COM port:
+		connect(comManager,				&ComManager::openStatus,
+				myUserTesting[objectCount],	&W_UserTesting::comStatusChanged);
 	}
 
 	else

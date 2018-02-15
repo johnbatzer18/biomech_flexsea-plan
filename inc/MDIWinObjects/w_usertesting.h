@@ -30,6 +30,7 @@
 #include <QButtonGroup>
 #include <qlabel.h>
 #include "flexsea_user_structs.h"
+#include "serialdriver.h"
 
 //class ScribbleArea;
 
@@ -51,6 +52,7 @@ public slots:
 	void logFileName(QString fn, QString fnp);
 	void extFlags(int index);
 	void pointsChanged(int8_t pts[6][2]);
+	void comStatusChanged(SerialPortStatus status,int nbTries);
 
 signals:
 	void windowClosed(void);
