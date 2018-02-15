@@ -45,6 +45,7 @@
 #include <QVector>
 #include "rigidDevice.h"
 #include "define.h"
+#include "w_2dplot.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -216,8 +217,13 @@ signals:
 
 private slots:
 	void on_pushButtonOneCycle_clicked();
-
 	void on_checkBoxDisableFading_toggled(bool checked);
+	void on_cBoxvar1_currentIndexChanged(int index);
+	void on_cBoxvar2_currentIndexChanged(int index);
+	void on_cBoxvar3_currentIndexChanged(int index);
+	void on_cBoxvar4_currentIndexChanged(int index);
+	void on_cBoxvar5_currentIndexChanged(int index);
+	void on_cBoxvar6_currentIndexChanged(int index);
 
 private:
 
@@ -226,9 +232,12 @@ private:
 	AnkleAngleChartView *chartView;
 	QLineSeries* lineSeries[A2PLOT_VAR_NUM];
 	QPointF pts[A2PLOT_VAR_NUM];
-	QCheckBox **cbVar[A2PLOT_VAR_NUM];
 	int16_t instantStepEnergy = 0;
 	QComboBox **comboVar[A2PLOT_VAR_NUM];
+
+	struct vtp_s vtp[6];
+	uint8_t varToPlotFormat[A2PLOT_VAR_NUM];
+	uint8_t varIndex[A2PLOT_VAR_NUM];
 
 	QList<FlexseaDevice*> *liveDevList;
 	QList<FlexseaDevice*> *currentDevList;
@@ -251,6 +260,8 @@ private:
 	void fakeDataToPoints(int idx);
 	void initPtr();
 	void updateVarList(uint8_t item);
+	void assignVariable(uint8_t item);
+	int vtpToInt(uint8_t row);
 };
 
 #endif // W_ANKLE_ANGLE_PLOT_H

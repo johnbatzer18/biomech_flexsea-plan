@@ -108,19 +108,6 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	ui->checkBoxDisableFading->setChecked(false);
 	emit on_checkBoxDisableFading_toggled(false);
 
-	//Enable/disable variables:
-	ui->checkBoxGS->setChecked(false);
-	ui->checkBoxWS->setChecked(false);
-	ui->checkBoxP->setChecked(false);
-	ui->checkBoxCLHS->setChecked(true);
-	ui->checkBoxCurrent->setChecked(false);
-	//Array of cBoxes:
-	cbVar[1] = &ui->checkBoxGS;
-	cbVar[2] = &ui->checkBoxWS;
-	cbVar[3] = &ui->checkBoxP;
-	cbVar[4] = &ui->checkBoxCLHS;
-	cbVar[5] = &ui->checkBoxCurrent;
-
 	initPtr();
 	for(int item = 0; item < A2PLOT_VAR_NUM; item++)
 	{
@@ -290,7 +277,7 @@ void W_AnkleAnglePlot::displayOrNot(void)
 {
 	for(int i = 1; i < A2PLOT_VAR_NUM; i++)
 	{
-		if((*cbVar[i])->isChecked() == false){pts[i] = QPointF(0,0);}
+		if((*comboVar[i])->currentIndex() == 0){pts[i] = QPointF(0,0);}
 	}
 }
 
@@ -301,15 +288,92 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 
 	if(ui->comboBoxLeg->currentIndex() == 1){ri = &rigid2;}
 
-	pts[0] = QPointF(idx, *ri->ex.joint_ang);
+	/*pts[0] = QPointF(idx, *ri->ex.joint_ang);
 	pts[1] = QPointF(idx, 100*ri->ctrl.gaitState);
 	pts[2] = QPointF(idx, 100*ri->ctrl.walkingState);
 	pts[3] = QPointF(idx, ri->ctrl.step_energy);
 	pts[4] = QPointF(idx, ri->ctrl.contra_hs);
-	pts[5] = QPointF(idx, ri->ex.mot_current/50);
+	pts[5] = QPointF(idx, ri->ex.mot_current/50);*/
+	pts[0] = QPointF(idx, vtpToInt(0));
+	pts[1] = QPointF(idx, vtpToInt(1));
+	pts[2] = QPointF(idx, vtpToInt(2));
+	pts[3] = QPointF(idx, vtpToInt(3));
+	pts[4] = QPointF(idx, vtpToInt(4));
+	pts[5] = QPointF(idx, vtpToInt(5));
 
 	//Latch step energy:
 	instantStepEnergy = ri->ctrl.step_energy;
+
+	qDebug() << vtpToInt(1);
+}
+
+int W_AnkleAnglePlot::vtpToInt(uint8_t row)
+{
+	int val;
+
+	if(!vtp[row].used) return 0;
+
+	if((vtp[row].rawGenPtr) == nullptr)
+	{
+		val = 0;
+	}
+	else
+	{
+		switch(vtp[row].format)
+		{
+			case FORMAT_32S:
+				val = (*(int32_t*)vtp[row].rawGenPtr);
+				break;
+			case FORMAT_32U:
+				val = (int)(*(uint32_t*)vtp[row].rawGenPtr);
+				break;
+			case FORMAT_16S:
+				val = (int)(*(int16_t*)vtp[row].rawGenPtr);
+				break;
+			case FORMAT_16U:
+				val = (int)(*(uint16_t*)vtp[row].rawGenPtr);
+				break;
+			case FORMAT_8S:
+				val = (int)(*(int8_t*)vtp[row].rawGenPtr);
+				break;
+			case FORMAT_8U:
+				val = (int)(*(uint8_t*)vtp[row].rawGenPtr);
+				break;
+			default:
+				val = 0;
+				break;
+		}
+	}
+
+	return val;
+
+}
+
+//Assigns a pointer to the desired variable. This function is called whenever
+//we change Slave or Variable. The runtime plotting function will then use the
+//pointer.
+void W_AnkleAnglePlot::assignVariable(uint8_t item)
+{
+	varIndex[item] = (*comboVar[item])->currentIndex();
+	struct std_variable varHandle = selectedDevList[item]->getSerializedVar(varIndex[item] + 1);
+
+	if(varIndex[item] == 0)
+	{
+		vtp[item].used = false;
+		vtp[item].format = NULL_PTR;
+		vtp[item].rawGenPtr = nullptr;
+		vtp[item].decodedPtr = nullptr;
+	}
+	else
+	{
+		vtp[item].used = true;
+		vtp[item].format = varHandle.format;
+		vtp[item].rawGenPtr = varHandle.rawGenPtr;
+		vtp[item].decodedPtr = varHandle.decodedPtr;
+	}
+
+	//if(allChannelUnused()) drawingTimer->stop();
+	//else if(!drawingTimer->isActive()) drawingTimer->start();
 }
 
 //This generates fake data and maps it to points
@@ -442,5 +506,73 @@ void W_AnkleAnglePlot::updateVarList(uint8_t item)
 	for(int i = 2; i < headerList.length(); i++)
 	{
 		(*comboVar[item])->addItem(headerList[i]);
+	}
+}
+
+//Variable comboBoxes:
+
+void W_AnkleAnglePlot::on_cBoxvar1_currentIndexChanged(int index)
+{
+	(void)index;	//Unused for now
+
+	if(initFlag == false)
+	{
+		//saveCurrentSettings(0);
+		assignVariable(0);
+	}
+}
+
+void W_AnkleAnglePlot::on_cBoxvar2_currentIndexChanged(int index)
+{
+	(void)index;	//Unused for now
+
+	if(initFlag == false)
+	{
+		//saveCurrentSettings(1);
+		assignVariable(1);
+	}
+}
+
+void W_AnkleAnglePlot::on_cBoxvar3_currentIndexChanged(int index)
+{
+	(void)index;	//Unused for now
+
+	if(initFlag == false)
+	{
+		//saveCurrentSettings(2);
+		assignVariable(2);
+	}
+}
+
+void W_AnkleAnglePlot::on_cBoxvar4_currentIndexChanged(int index)
+{
+	(void)index;	//Unused for now
+
+	if(initFlag == false)
+	{
+		//saveCurrentSettings(3);
+		assignVariable(3);
+	}
+}
+
+void W_AnkleAnglePlot::on_cBoxvar5_currentIndexChanged(int index)
+{
+	(void)index;	//Unused for now
+
+	if(initFlag == false)
+	{
+		//saveCurrentSettings(4);
+		assignVariable(4);
+	}
+}
+
+void W_AnkleAnglePlot::on_cBoxvar6_currentIndexChanged(int index)
+{
+	(void)index;	//Unused for now
+
+	if(initFlag == false)
+	{
+		//saveCurrentSettings(5);
+		assignVariable(5);
 	}
 }
