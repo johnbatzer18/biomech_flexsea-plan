@@ -48,6 +48,8 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+	initFlag = true;
+
 	liveDevList = devListInit;
 	currentDevList = liveDevList;
 
@@ -113,6 +115,8 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	{
 		updateVarList(item);
 	}
+
+	initFlag = false;
 }
 
 W_AnkleAnglePlot::~W_AnkleAnglePlot()
@@ -288,12 +292,6 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 
 	if(ui->comboBoxLeg->currentIndex() == 1){ri = &rigid2;}
 
-	/*pts[0] = QPointF(idx, *ri->ex.joint_ang);
-	pts[1] = QPointF(idx, 100*ri->ctrl.gaitState);
-	pts[2] = QPointF(idx, 100*ri->ctrl.walkingState);
-	pts[3] = QPointF(idx, ri->ctrl.step_energy);
-	pts[4] = QPointF(idx, ri->ctrl.contra_hs);
-	pts[5] = QPointF(idx, ri->ex.mot_current/50);*/
 	pts[0] = QPointF(idx, vtpToInt(0));
 	pts[1] = QPointF(idx, vtpToInt(1));
 	pts[2] = QPointF(idx, vtpToInt(2));
@@ -303,8 +301,6 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 
 	//Latch step energy:
 	instantStepEnergy = ri->ctrl.step_energy;
-
-	qDebug() << vtpToInt(1);
 }
 
 int W_AnkleAnglePlot::vtpToInt(uint8_t row)
@@ -487,8 +483,11 @@ void W_AnkleAnglePlot::initPtr(void)
 
 	for(int i = 0; i < A2PLOT_VAR_NUM; i++)
 	{
-		//ToDo use dropdown, not harcoded 13!
-		selectedDevList[i] = (*currentDevList)[13];
+		//ToDo use dropdown
+		if(ui->comboBoxLeg->currentIndex() == 0)
+			selectedDevList[i] = (*currentDevList)[13];
+		else
+			selectedDevList[i] = (*currentDevList)[14];
 	}
 }
 
@@ -574,5 +573,24 @@ void W_AnkleAnglePlot::on_cBoxvar6_currentIndexChanged(int index)
 	{
 		//saveCurrentSettings(5);
 		assignVariable(5);
+	}
+}
+
+void W_AnkleAnglePlot::on_comboBoxLeg_currentIndexChanged(int index)
+{
+	int i = 0, idx = 0;;
+
+	if(initFlag == false)
+	{
+		if(ui->comboBoxLeg->currentIndex() == 0){idx = 13;}
+		else{idx = 14;}
+
+		for(i = 0; i < A2PLOT_VAR_NUM; i++)
+		{
+			selectedDevList[i] = (*currentDevList)[idx];
+			assignVariable(i);
+		}
+
+		qDebug() << "Changed leg";
 	}
 }

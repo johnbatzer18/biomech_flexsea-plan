@@ -225,6 +225,8 @@ private slots:
 	void on_cBoxvar5_currentIndexChanged(int index);
 	void on_cBoxvar6_currentIndexChanged(int index);
 
+	void on_comboBoxLeg_currentIndexChanged(int index);
+
 private:
 
 	Ui::W_AnkleAnglePlot *ui;
