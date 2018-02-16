@@ -132,7 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	initFlexSeaDeviceObject();
 	for(int i=0; i<CONFIG_WINDOWS_MAX; ++i)
-		{
+	{
 		comManager.append(new ComManager());
 		//Datalogger:
 		myDataLogger.append(new DataLogger(this,
@@ -143,7 +143,8 @@ MainWindow::MainWindow(QWidget *parent) :
 									  &strainLog,
 									  &ricnuLog,
 									  &ankle2DofLog,
-									  &rigidLog));
+									  &rigidLog,
+									  appPath));
 
 		initSerialComm();
 	}

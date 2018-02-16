@@ -79,7 +79,8 @@ public:
 						StrainDevice *strainInitPtr = nullptr,
 						RicnuProject *ricnuInitPtr = nullptr,
 						Ankle2DofProject *ankle2DofInitPtr = nullptr,
-						RigidDevice *rigidInitPtr = nullptr);
+						RigidDevice *rigidInitPtr = nullptr,
+						QString appPath = "");
 
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr);

@@ -156,10 +156,12 @@ void W_SlaveComm::receiveComPortStatus0(SerialPortStatus status,int nbTries)
 {
 	receiveComPortStatus(0, status, nbTries);
 }
+
 void W_SlaveComm::receiveComPortStatus1(SerialPortStatus status,int nbTries)
 {
 	receiveComPortStatus(1, status, nbTries);
 }
+
 void W_SlaveComm::receiveComPortStatus(int row, SerialPortStatus status,int nbTries)
 {
 	// Not use by this slot.
@@ -189,10 +191,12 @@ void W_SlaveComm::updateIndicatorTimeout0(bool rst)
 {
 	updateIndicatorTimeout(0, rst);
 }
+
 void W_SlaveComm::updateIndicatorTimeout1(bool rst)
 {
 	updateIndicatorTimeout(1, rst);
 }
+
 void W_SlaveComm::updateIndicatorTimeout(int row, bool rst)
 {
 	static uint32_t counter[2] = {0,0};
@@ -408,7 +412,6 @@ void W_SlaveComm::initTimers(void)
 	connect(dataTimeoutList.last(),	&QTimer::timeout,
 			this,			&W_SlaveComm::dataTimeoutEvent1);
 	dataTimeoutList.last()->start(DATA_TIMEOUT);
-
 }
 
 void W_SlaveComm::initConnection(void)
