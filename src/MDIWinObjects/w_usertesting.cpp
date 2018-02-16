@@ -86,7 +86,13 @@ W_UserTesting::~W_UserTesting()
 // Public slot(s):
 //****************************************************************************
 
-void W_UserTesting::logFileName(QString fn, QString fnp)
+void W_UserTesting::logFileName0(QString fn, QString fnp)
+{
+	logFn = fn;
+	logFnP = fnp;
+}
+
+void W_UserTesting::logFileName1(QString fn, QString fnp)
 {
 	logFn = fn;
 	logFnP = fnp;
@@ -650,7 +656,7 @@ void W_UserTesting::writeUTT(uint8_t offset)
 	//Prep & send:
 	tx_cmd_utt_w(TX_N_DEFAULT, offset, &planUTT);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);	//ToDo use active slave
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	emit writeCommand1(numb, comm_str_usb, WRITE);
 }
 
 void W_UserTesting::readUTT(uint8_t offset)
@@ -661,7 +667,7 @@ void W_UserTesting::readUTT(uint8_t offset)
 	//Prep & send:
 	tx_cmd_utt_r(TX_N_DEFAULT, offset);
 	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);	//ToDo use active slave
-	emit writeCommand(numb, comm_str_usb, READ);
+	emit writeCommand1(numb, comm_str_usb, READ);
 }
 
 void W_UserTesting::readManual(void)

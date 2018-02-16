@@ -53,7 +53,8 @@ W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle(this->getDescription());
+	setWindowTitle(this->getDescription() + " " + QString::number(W_Config::howManyInstance()));
+	W_Config::howManyInstance();
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	//Init code:
