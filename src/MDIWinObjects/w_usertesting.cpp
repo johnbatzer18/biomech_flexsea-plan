@@ -839,7 +839,14 @@ void W_UserTesting::on_pushButtonExpStart_clicked()
 
 	qint64 numericalTimestamp = QDateTime::currentMSecsSinceEpoch();
 	QString logTxt = userID + "-" + QString::number(numericalTimestamp);
-	emit startExperiment(refreshRate, true, true, offs, logTxt);
+	if(ui->radioButtonDUT_D->isChecked())
+	{
+		emit startExperiment(2, refreshRate, true, true, offs, logTxt);
+	}
+	else
+	{
+		emit startExperiment(0, refreshRate, true, true, offs, logTxt);
+	}
 	expTimer.start();
 	recordTimestampStartStop(true, 0, logTxt);
 }
@@ -849,7 +856,14 @@ void W_UserTesting::on_pushButtonExpStop_clicked()
 	ui->pushButtonExpStart->setEnabled(true);
 	ui->pushButtonExpStop->setEnabled(false);
 	ongoingExperiment = false;
-	emit stopExperiment();
+	if(ui->radioButtonDUT_D->isChecked())
+	{
+		emit stopExperiment(2);
+	}
+	else
+	{
+		emit stopExperiment(0);
+	}
 	recordTimestampStartStop(false, expTime, "");
 }
 

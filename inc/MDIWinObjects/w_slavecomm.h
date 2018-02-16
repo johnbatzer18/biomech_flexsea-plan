@@ -60,6 +60,7 @@
 #define MAX_SC_ITEMS			4
 #define MAX_SLAVES				10
 #define MAX_EXPERIMENTS			12
+#define MAX_COMM_INTERFACES		2
 
 #define DATA_TIMEOUT			100	//Timer will fire every 100ms
 
@@ -111,8 +112,9 @@ public slots:
 
 	void getSlaveId(int* slaveId);
 	void getCurrentDevice(FlexseaDevice** device);
-	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
-	void stopExperiment(void);
+	void startExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes);
+	void stopExperiment(uint8_t i);
+	void stopOneExperiment(uint8_t i);
 
 private slots:
 
@@ -203,6 +205,7 @@ private:
 
 	QList<QTimer*> dataTimeoutList;
 	bool isStreaming = false;
+	startOneExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes);
 };
 
 #endif // W_SLAVECOMM_H

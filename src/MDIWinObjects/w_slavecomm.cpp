@@ -253,26 +253,56 @@ void W_SlaveComm::displayDataReceived(int row, int status)
 	}
 }
 
-void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes)
+void W_SlaveComm::startExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes)
 {
-	on_off_pb_ptr[0]->setChecked(true);
-
-	//We set a few things based on what we received
-	comboBoxRefreshPtr[0]->setCurrentIndex(r);
-	log_cb_ptr[0]->setChecked(log);
-	auto_checkbox[0]->setChecked(autoSample);
-	ui->lineEdit->setText(offs);
-	ui->lineEdit_userNotes->setText(uNotes);
-	isStreaming = true;
-
-	managePushButton(0, false);
+	if(i >= MAX_COMM_INTERFACES)
+	{
+		for(int j = 0; j < MAX_COMM_INTERFACES; j++)
+		{
+			startOneExperiment(j, r, log, autoSample, offs, uNotes);
+		}
+	}
+	else
+	{
+		startOneExperiment(i, r, log, autoSample, offs, uNotes);
+	}
 }
 
-void W_SlaveComm::stopExperiment(void)
+W_SlaveComm::startOneExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes)
 {
-	on_off_pb_ptr[0]->setChecked(false);
-	isStreaming = false;
-	managePushButton(0, false);
+	on_off_pb_ptr[i]->setChecked(true);
+
+	//We set a few things based on what we received
+	comboBoxRefreshPtr[i]->setCurrentIndex(r);
+	log_cb_ptr[i]->setChecked(log);
+	auto_checkbox[i]->setChecked(autoSample);
+	ui->lineEdit->setText(offs);
+	ui->lineEdit_userNotes->setText(uNotes);
+	isStreaming = true;	//ToDo should be indexed
+
+	managePushButton(i, false);
+}
+
+void W_SlaveComm::stopExperiment(uint8_t i)
+{
+	if(i >= MAX_COMM_INTERFACES)
+	{
+		for(int j = 0; j < MAX_COMM_INTERFACES; j++)
+		{
+			stopOneExperiment(j);
+		}
+	}
+	else
+	{
+		stopOneExperiment(i);
+	}
+}
+
+void W_SlaveComm::stopOneExperiment(uint8_t i)
+{
+	on_off_pb_ptr[i]->setChecked(false);
+	isStreaming = false;	//ToDo should be indexed
+	managePushButton(i, false);
 }
 
 //****************************************************************************

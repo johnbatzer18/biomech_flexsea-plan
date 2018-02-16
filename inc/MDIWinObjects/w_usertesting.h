@@ -57,8 +57,8 @@ public slots:
 
 signals:
 	void windowClosed(void);
-	void startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes);
-	void stopExperiment(void);
+	void startExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes);
+	void stopExperiment(uint8_t i);
 	void userFlags(int index);
 	void writeCommand0(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
 	void writeCommand1(uint8_t numb, uint8_t *tx_data, uint8_t r_w);
