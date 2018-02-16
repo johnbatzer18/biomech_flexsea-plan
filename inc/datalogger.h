@@ -105,7 +105,7 @@ private:
 	typedef QHash<FlexseaDevice*, FileRecord>::iterator deviceRecordIterator;
 
 	QFile logReadingFile;
-	static bool sessionDirectoryCreated;
+	bool sessionDirectoryCreated = false;
 
 	ExecuteDevice *executeDevPtr;
 	ManageDevice *manageDevPtr;

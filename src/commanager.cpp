@@ -449,7 +449,7 @@ void ComManager::sendCommandRigid(uint8_t slaveId)
 	if(rigidOffsets.size() < 1) return;
 	static int index = 0;
 
-	tx_cmd_rigid_r(TX_N_DEFAULT, (uint8_t)(ricnuOffsets.at(index)));
+	tx_cmd_rigid_r(TX_N_DEFAULT, (uint8_t)(rigidOffsets.at(index)));
 	index++;
 	index %= rigidOffsets.size();
 	tryPackAndSend(CMD_READ_ALL_RIGID, slaveId);

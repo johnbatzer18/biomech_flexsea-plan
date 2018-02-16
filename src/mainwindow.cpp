@@ -131,7 +131,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Status::setDescription("Status");
 
 	initFlexSeaDeviceObject();
-	for(int i=0; i<CONFIG_WINDOWS_MAX; ++i)
+	for(int i = 0; i < CONFIG_WINDOWS_MAX; i++)
 	{
 		comManager.append(new ComManager());
 		//Datalogger:
@@ -845,10 +845,10 @@ void MainWindow::createConfig(void)
 
 		//Link to DataLogger
 		connect(myViewConfig[objectCount],	&W_Config::openReadingFile, \
-				myDataLogger[0],		&DataLogger::openReadingFile);
+				myDataLogger[objectCount],	&DataLogger::openReadingFile);
 
 		connect(myViewConfig[objectCount],	&W_Config::closeReadingFile, \
-				myDataLogger[0],		&DataLogger::closeReadingFile);
+				myDataLogger[objectCount],	&DataLogger::closeReadingFile);
 
 		// Link to ComManager
 		connect(myViewConfig[objectCount],&W_Config::openCom, \

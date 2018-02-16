@@ -53,8 +53,6 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-bool DataLogger::sessionDirectoryCreated = false;
-
 DataLogger::DataLogger(QWidget *parent,
 					   ExecuteDevice *executeInitPtr,
 					   ManageDevice *manageInitPtr,
@@ -76,7 +74,7 @@ DataLogger::DataLogger(QWidget *parent,
 	ankle2DofDevPtr = ankle2DofInitPtr;
 	rigidDevPtr = rigidInitPtr;
 
-	planGUIRootPath = appPath; //QDir::currentPath();
+	planGUIRootPath = appPath;
 
 	init();
 }
@@ -399,6 +397,7 @@ void DataLogger::initLogDirectory()
 	sessionFolder.replace(":", "-");
 
 	//Do we already have a "Plan-GUI-Logs" directory?
+	QDir().setCurrent(planGUIRootPath);
 	if(!QDir().exists(logFolder))
 	{
 		//No, create it:
