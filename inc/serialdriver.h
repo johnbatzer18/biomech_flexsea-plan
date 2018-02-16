@@ -107,8 +107,8 @@ private slots:
 	void serialPortErrorEvent(QSerialPort::SerialPortError error);
 
 signals:
-	void openStatus(SerialPortStatus status,int nbTries);
 	void newDataReady(void);
+	void openStatus(SerialPortStatus status,int nbTries);
 	void dataStatus(int idx, int status);
 	void newDataTimeout(bool rst);
 	void setStatusBarMessage(QString msg);

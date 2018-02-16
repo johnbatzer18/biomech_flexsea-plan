@@ -70,6 +70,8 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
+
+
 	// Used to register the custom type for the signal/slot function using it.
 	qRegisterMetaType<QList<int>>();
 

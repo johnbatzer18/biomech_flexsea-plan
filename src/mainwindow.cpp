@@ -1336,6 +1336,10 @@ void MainWindow::createViewRigid(void)
 				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
 
 		//Link ComManager and Rigid:
+		connect(comManager[0],				&ComManager::newDataReady, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+
+		//Link ComManager and Rigid:
 		connect(comManager[1],				&ComManager::newDataReady, \
 				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
 
