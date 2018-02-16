@@ -454,4 +454,3 @@ void ComManager::sendCommandRigid(uint8_t slaveId)
 	index %= rigidOffsets.size();
 	tryPackAndSend(CMD_READ_ALL_RIGID, slaveId);
 }
-

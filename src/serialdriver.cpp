@@ -219,6 +219,10 @@ void SerialDriver::signalSuccessfulParse()
 			emit writeToLogFile(device);
 		}
 	}
+	else
+	{
+		qDebug() << "signalSuccessfulParse: invalid device.";
+	}
 	emit newDataReady();
 }
 
@@ -354,6 +358,10 @@ void SerialDriver::addDevice(FlexseaDevice* device)
 	if(!alreadyContainDevice)
 	{
 		devices.push_back(device);
+	}
+	else
+	{
+		qDebug() << "SerialDriver::addDevice Device already included";
 	}
 }
 
