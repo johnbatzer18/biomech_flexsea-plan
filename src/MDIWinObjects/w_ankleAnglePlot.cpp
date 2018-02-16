@@ -88,7 +88,7 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	QPixmapCache::setCacheLimit(100000);
 
 	const QValidator *validatorX = new QDoubleValidator(-2000, 3000, 2, this);
-	const QValidator *validatorY = new QDoubleValidator(-9000, 9000, 2, this);
+	const QValidator *validatorY = new QDoubleValidator(-50000, 50000, 2, this);
 	ui->lineEditXMax->setValidator(validatorX);
 	ui->lineEditYMin->setValidator(validatorY);
 	ui->lineEditYMax->setValidator(validatorY);
@@ -420,10 +420,10 @@ void W_AnkleAnglePlot::setAxesLimits()
 
 	bool success = true;
 	int xmin=-1,xmax=0,ymin=-1,ymax=0;
-	if(success) xmin = xMinText.toFloat(&success);
-	if(success) xmax = xMaxText.toFloat(&success);
-	if(success) ymin = yMinText.toFloat(&success);
-	if(success) ymax = yMaxText.toFloat(&success);
+	if(success) xmin = xMinText.toInt(&success);
+	if(success) xmax = xMaxText.toInt(&success);
+	if(success) ymin = yMinText.toInt(&success);
+	if(success) ymax = yMaxText.toInt(&success);
 
 	if(success)
 	{
