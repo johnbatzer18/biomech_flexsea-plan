@@ -655,8 +655,14 @@ void W_UserTesting::writeUTT(uint8_t offset)
 
 	//Prep & send:
 	tx_cmd_utt_w(TX_N_DEFAULT, offset, &planUTT);
-	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);	//ToDo use active slave
-	emit writeCommand1(numb, comm_str_usb, WRITE);
+
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	memcpy(tmpCommStr0, comm_str_usb, numb);
+	emit writeCommand0(numb, tmpCommStr0, WRITE);
+
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_2, info, &numb, comm_str_usb);
+	memcpy(tmpCommStr1, comm_str_usb, numb);
+	emit writeCommand1(numb, tmpCommStr1, WRITE);
 }
 
 void W_UserTesting::readUTT(uint8_t offset)
@@ -666,8 +672,14 @@ void W_UserTesting::readUTT(uint8_t offset)
 
 	//Prep & send:
 	tx_cmd_utt_r(TX_N_DEFAULT, offset);
-	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);	//ToDo use active slave
-	emit writeCommand1(numb, comm_str_usb, READ);
+
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	memcpy(tmpCommStr0, comm_str_usb, numb);
+	emit writeCommand0(numb, tmpCommStr0, READ);
+
+	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_2, info, &numb, comm_str_usb);
+	memcpy(tmpCommStr1, comm_str_usb, numb);
+	emit writeCommand1(numb, tmpCommStr1, READ);
 }
 
 void W_UserTesting::readManual(void)

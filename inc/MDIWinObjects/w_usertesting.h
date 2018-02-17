@@ -162,6 +162,8 @@ private:
 	bool tweakHasChanged;
 	uint8_t activeLeg = 2;
 
+	uint8_t tmpCommStr0[50], tmpCommStr1[50];
+
 	void initSigBox(void);
 	void nameEditingFinished(uint8_t i);
 	void speed(int index, double val);

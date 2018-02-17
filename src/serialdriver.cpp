@@ -221,10 +221,7 @@ void SerialDriver::signalSuccessfulParse()
 			emit writeToLogFile(device);
 		}
 	}
-	else
-	{
-		qDebug() << "signalSuccessfulParse: invalid device.";
-	}
+
 	emit newDataReady();
 }
 
