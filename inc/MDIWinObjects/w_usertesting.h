@@ -143,7 +143,7 @@ private:
 	QButtonGroup *qbgActivity, *qbgDUT, *qbgData;
 	double currentSpeed, currentIncline;
 	QPushButton *pbWriteUTT[NB_UTT_FIELDS];
-	QLabel *labelUTT[NB_UTT_FIELDS];
+	QLabel *labelUTT[2][NB_UTT_FIELDS];
 	QLineEdit *lineEditUTT[NB_UTT_FIELDS];
 
 	//Data to be written to file:

@@ -293,7 +293,8 @@ void W_UserTesting::initTabManual(void)
 	{
 		lineEditUTT[i]->clear();
 		lineEditUTT[i]->setValidator(validInt16);
-		labelUTT[i]->clear();
+		labelUTT[0][i]->clear();
+		labelUTT[1][i]->clear();
 	}
 }
 
@@ -324,16 +325,26 @@ void W_UserTesting::initUTTpointers(void)
 	pbWriteUTT[9] = ui->pbW9;
 
 	//Read value:
-	labelUTT[0] = ui->label_UTT0;
-	labelUTT[1] = ui->label_UTT1;
-	labelUTT[2] = ui->label_UTT2;
-	labelUTT[3] = ui->label_UTT3;
-	labelUTT[4] = ui->label_UTT4;
-	labelUTT[5] = ui->label_UTT5;
-	labelUTT[6] = ui->label_UTT6;
-	labelUTT[7] = ui->label_UTT7;
-	labelUTT[8] = ui->label_UTT8;
-	labelUTT[9] = ui->label_UTT9;
+	labelUTT[0][0] = ui->label_UTT0L;
+	labelUTT[0][1] = ui->label_UTT1L;
+	labelUTT[0][2] = ui->label_UTT2L;
+	labelUTT[0][3] = ui->label_UTT3L;
+	labelUTT[0][4] = ui->label_UTT4L;
+	labelUTT[0][5] = ui->label_UTT5L;
+	labelUTT[0][6] = ui->label_UTT6L;
+	labelUTT[0][7] = ui->label_UTT7L;
+	labelUTT[0][8] = ui->label_UTT8L;
+	labelUTT[0][9] = ui->label_UTT9L;
+	labelUTT[1][0] = ui->label_UTT0R;
+	labelUTT[1][1] = ui->label_UTT1R;
+	labelUTT[1][2] = ui->label_UTT2R;
+	labelUTT[1][3] = ui->label_UTT3R;
+	labelUTT[1][4] = ui->label_UTT4R;
+	labelUTT[1][5] = ui->label_UTT5R;
+	labelUTT[1][6] = ui->label_UTT6R;
+	labelUTT[1][7] = ui->label_UTT7R;
+	labelUTT[1][8] = ui->label_UTT8R;
+	labelUTT[1][9] = ui->label_UTT9R;
 }
 
 void W_UserTesting::independantLegs(bool i)
@@ -769,7 +780,8 @@ void W_UserTesting::refreshManualDisplay(void)
 {
 	for(int i = 0; i < NB_UTT_FIELDS; i++)
 	{
-		labelUTT[i]->setText(QString::number(planUTT.val[0][i]));
+		labelUTT[0][i]->setText(QString::number(planUTT.val[0][i]));
+		labelUTT[1][i]->setText(QString::number(planUTT.val[1][i]));
 	}
 }
 
@@ -1258,18 +1270,7 @@ void W_UserTesting::on_checkBoxTweaksAutomatic_stateChanged(int arg1)
 void W_UserTesting::on_pushButtonTweaksRead_clicked()
 {
 	wtf("Read From Device was clicked");
-
-	/*
-	uint16_t numb = 0;
-	uint8_t info[2] = {PORT_USB, PORT_USB};
-
-	//Prep & send:
-	tx_cmd_utt_r(TX_N_DEFAULT, 0);
-	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, READ);
-	*/
 	readUTT(0);
-
 	readDisplayLag = 5;
 }
 
@@ -1381,6 +1382,7 @@ void W_UserTesting::pbWxClicked(uint8_t i)
 	//Save that value in the UTT structure:
 	int tmp = lineEditUTT[i]->text().toInt();
 	planUTT.val[0][i] = (int16_t)tmp;
+	planUTT.val[1][i] = (int16_t)tmp;
 
 	//Send to board:
 	writeUTT(1);
