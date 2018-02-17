@@ -192,7 +192,9 @@ FlexseaDevice* SerialDriver::getDeviceByIdCmd(uint8_t slaveId, int cmd)
 	for(unsigned int i = 0; i < devices.size(); i++)
 	{
 		if(devices.at(i)->slaveID == slaveId && devices.at(i)->experimentIndex == cmd)
+		{
 			return devices.at(i);
+		}
 	}
 	return nullptr;
 }
@@ -344,7 +346,11 @@ void SerialDriver::handleReadyRead()
 
 void SerialDriver::addDevice(FlexseaDevice* device)
 {
-	if(!device) return;
+	if(!device)
+	{
+		//qDebug() << "SerialDriver::addDevice Not a device (or empty)";
+		return;
+	}
 
 	bool alreadyContainDevice = false;
 	for(unsigned int i = 0; i < devices.size(); i++)
@@ -361,7 +367,7 @@ void SerialDriver::addDevice(FlexseaDevice* device)
 	}
 	else
 	{
-		qDebug() << "SerialDriver::addDevice Device already included";
+		//qDebug() << "SerialDriver::addDevice Device already included";
 	}
 }
 
