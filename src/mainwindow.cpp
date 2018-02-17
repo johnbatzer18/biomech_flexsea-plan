@@ -1944,7 +1944,8 @@ void MainWindow::applyLoadedConfig(void)
 
 		if(on == 1)
 		{
-			if(id != CONFIG_WINDOWS_ID && id != SLAVECOMM_WINDOWS_ID)
+			if((id != CONFIG_WINDOWS_ID || (id == CONFIG_WINDOWS_ID && obj > 0)) &&
+			   id != SLAVECOMM_WINDOWS_ID)
 			{
 				//Create any extra windows:
 				(this->*mdiCreateWinPtr[id])();	//Create window
