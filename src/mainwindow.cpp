@@ -717,7 +717,7 @@ void MainWindow::createStatus(void)
 	//Limited number of windows:
 	if(objectCount < W_Status::getMaxWindow())
 	{
-		W_Status* status = new W_Status(this, userDataManager);
+		W_Status* status = new W_Status(this, userDataManager, &rigidDevList);
 		myStatus[objectCount] = status;
 		mdiState[STATUS_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myStatus[objectCount]);
 		mdiState[STATUS_WINDOWS_ID][objectCount].open = true;

@@ -48,12 +48,16 @@
 // Constructor & Destructor:
 //****************************************************************************
 
-W_Status::W_Status(QWidget *parent, DynamicUserDataManager* userDataManager) :
+W_Status::W_Status(QWidget *parent,
+				   DynamicUserDataManager* userDataManager,
+				   QList<RigidDevice> *deviceListPtr) :
 	QWidget(parent),
 	ui(new Ui::W_Status),
 	userDataMan(userDataManager)
 {
 	ui->setupUi(this);
+
+	deviceList = deviceListPtr;
 
 	setWindowTitle(this->getDescription());
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
@@ -85,7 +89,14 @@ void W_Status::comStatusChanged(SerialPortStatus status,int nbTries)
 	(void)nbTries;	// Not use by this slot.
 
 	if(status == PortOpeningSucceed)
+	{
 		userDataMan->requestMetaData(active_slave);
+		isComOpen = true;
+	}
+	else
+	{
+		isComOpen = false;
+	}
 }
 
 void W_Status::externalErrorFlag()
@@ -100,6 +111,14 @@ void W_Status::externalErrorFlag()
 
 void W_Status::init(void)
 {
+	//Populates Slave list:
+	ui->comboBox_slave->clear();
+
+	for(int i = 0; i < (*deviceList).length(); i++)
+	{
+		ui->comboBox_slave->addItem((*deviceList)[i].slaveName);
+	}
+
 	lab_name_ptr[0] = ui->lab_name_0;
 	lab_name_ptr[1] = ui->lab_name_1;
 	lab_name_ptr[2] = ui->lab_name_2;
@@ -268,6 +287,13 @@ void W_Status::on_pb_clear_9_clicked(){statusReset(9);}
 void W_Status::refreshDisplay(void)
 {
 	uint8_t s = rigid1.re.status;
+	if(ui->comboBox_slave->currentIndex() == 1){s = rigid2.re.status;}
+
+	if(!isComOpen)
+	{
+		for(int i = 0; i < NB_STATUS; i++){setStatus(i, STATUS_GREY);}
+		return;
+	}
 
 	if(s & STATUS_TEMPERATURE){setStatus(2, STATUS_RED);}
 	else{setStatus(2, STATUS_GREEN);}

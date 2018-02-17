@@ -44,6 +44,7 @@
 #include <qpushbutton.h>
 #include <QListWidgetItem>
 #include <QTimer>
+#include "rigidDevice.h"
 
 //****************************************************************************
 // Definition(s):
@@ -80,7 +81,9 @@ class W_Status : public QWidget, public Counter<W_Status>
 
 public:
 	//Constructor & Destructor:
-	explicit W_Status(QWidget *parent = 0, DynamicUserDataManager* userDataManager = nullptr);
+	explicit W_Status(QWidget *parent = 0,
+					  DynamicUserDataManager* userDataManager = nullptr,
+					  QList<RigidDevice> *deviceListPtr = nullptr);
 	~W_Status();
 
 public slots:
@@ -110,11 +113,13 @@ private:
 	QLabel *lab_name_ptr[NB_STATUS];
 	QLabel *lab_indicator_ptr[NB_STATUS];
 	QPushButton *pb_clear_ptr[NB_STATUS];
+	bool isComOpen = false;
 
 	int active_slave, active_slave_index;
 	QTimer *refreshDelayTimer;
 	DynamicUserDataManager* userDataMan;
 	QTimer *timerDisplay;
+	QList<RigidDevice> *deviceList;
 
 	//Function(s):
 	void init(void);
