@@ -594,3 +594,19 @@ void W_AnkleAnglePlot::on_comboBoxLeg_currentIndexChanged(int index)
 		qDebug() << "Changed leg";
 	}
 }
+
+void W_AnkleAnglePlot::on_pushButtonPreset0_clicked(){preset(0);}
+void W_AnkleAnglePlot::on_pushButtonPreset1_clicked(){preset(1);}
+void W_AnkleAnglePlot::on_pushButtonPreset2_clicked(){preset(2);}
+void W_AnkleAnglePlot::on_pushButtonPreset3_clicked(){preset(3);}
+void W_AnkleAnglePlot::on_pushButtonPreset4_clicked(){preset(4);}
+
+void W_AnkleAnglePlot::preset(uint8_t p)
+{
+	qDebug() << "Applying preset #" << p;
+
+	for(int item = 0; item < A2PLOT_VAR_NUM; item++)
+	{
+		(*comboVar[item])->setCurrentIndex(presetVariables[p][item]);
+	}
+}

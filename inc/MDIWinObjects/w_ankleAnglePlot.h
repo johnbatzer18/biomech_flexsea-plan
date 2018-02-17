@@ -224,8 +224,12 @@ private slots:
 	void on_cBoxvar4_currentIndexChanged(int index);
 	void on_cBoxvar5_currentIndexChanged(int index);
 	void on_cBoxvar6_currentIndexChanged(int index);
-
 	void on_comboBoxLeg_currentIndexChanged(int index);
+	void on_pushButtonPreset0_clicked();
+	void on_pushButtonPreset1_clicked();
+	void on_pushButtonPreset2_clicked();
+	void on_pushButtonPreset3_clicked();
+	void on_pushButtonPreset4_clicked();
 
 private:
 
@@ -244,6 +248,12 @@ private:
 	QList<FlexseaDevice*> *liveDevList;
 	QList<FlexseaDevice*> *currentDevList;
 	FlexseaDevice* selectedDevList[A2PLOT_VAR_NUM];
+
+	uint8_t presetVariables[5][A2PLOT_VAR_NUM] = {	{0,1,2,3,4,5},\
+													{4,5,6,7,8,9},\
+													{0,0,0,0,0,0},\
+													{0,0,0,0,0,0},\
+													{0,0,0,0,0,0}};
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
@@ -264,6 +274,7 @@ private:
 	void updateVarList(uint8_t item);
 	void assignVariable(uint8_t item);
 	int vtpToInt(uint8_t row);
+	void preset(uint8_t p);
 };
 
 #endif // W_ANKLE_ANGLE_PLOT_H
