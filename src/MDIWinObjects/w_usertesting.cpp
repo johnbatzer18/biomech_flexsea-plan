@@ -137,6 +137,16 @@ void W_UserTesting::comStatusChanged(SerialPortStatus status,int nbTries)
 	}
 }
 
+void W_UserTesting::activeSlaveStreaming(QString slaveName)
+{
+	if(slaveName == "Rigid 1")
+		rowOneDevice = FLEXSEA_MANAGE_1;
+	else if(slaveName == "Rigid 2")
+		rowOneDevice = FLEXSEA_MANAGE_2;
+
+	qDebug() << "Row one device =" << rowOneDevice;
+}
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -667,7 +677,7 @@ void W_UserTesting::writeUTT(uint8_t offset)
 	//Prep & send:
 	tx_cmd_utt_w(TX_N_DEFAULT, offset, &planUTT);
 
-	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, rowOneDevice, info, &numb, comm_str_usb);
 	memcpy(tmpCommStr0, comm_str_usb, numb);
 	emit writeCommand0(numb, tmpCommStr0, WRITE);
 
@@ -684,7 +694,7 @@ void W_UserTesting::readUTT(uint8_t offset)
 	//Prep & send:
 	tx_cmd_utt_r(TX_N_DEFAULT, offset);
 
-	pack(P_AND_S_DEFAULT, FLEXSEA_MANAGE_1, info, &numb, comm_str_usb);
+	pack(P_AND_S_DEFAULT, rowOneDevice, info, &numb, comm_str_usb);
 	memcpy(tmpCommStr0, comm_str_usb, numb);
 	emit writeCommand0(numb, tmpCommStr0, READ);
 

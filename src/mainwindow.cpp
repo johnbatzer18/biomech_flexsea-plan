@@ -1713,6 +1713,10 @@ void MainWindow::createUserTesting(void)
 		//Link to MainWindow for the close signal:
 		connect(myUserTesting[objectCount], &W_UserTesting::windowClosed, \
 				this, closeUserTesting);
+
+		connect(this,						&MainWindow::connectorCurrentSlaveStreaming, \
+				myUserTesting[objectCount],	&W_UserTesting::activeSlaveStreaming);
+
 		//Link to SlaveComm for experiment control:
 		connect(myUserTesting[objectCount], &W_UserTesting::startExperiment, \
 				myViewSlaveComm[0] ,		&W_SlaveComm::startExperiment);

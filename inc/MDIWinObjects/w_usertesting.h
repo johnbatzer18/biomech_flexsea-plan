@@ -54,6 +54,7 @@ public slots:
 	void extFlags(int index);
 	void pointsChanged(int8_t pts[6][2]);
 	void comStatusChanged(SerialPortStatus status,int nbTries);
+	void activeSlaveStreaming(QString slaveName);
 
 signals:
 	void windowClosed(void);
@@ -161,6 +162,7 @@ private:
 	uint8_t readDisplayLag;
 	bool tweakHasChanged;
 	uint8_t activeLeg = 2;
+	uint8_t rowOneDevice = 0;
 
 	uint8_t tmpCommStr0[50], tmpCommStr1[50];
 
