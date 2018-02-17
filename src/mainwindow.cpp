@@ -243,10 +243,52 @@ void MainWindow::initMenus(void)
 	ui->menuGL->addAction("Gait Statistics", this, &MainWindow::createGaitStats);
 	//ui->menuGL->addAction("Chart Window", this, &MainWindow::triggerChartView);
 
+	//Window
+	ui->menuWindow->addAction("Tile", ui->mdiArea, &QMdiArea::tileSubWindows);
+	ui->menuWindow->addAction("Cascade", ui->mdiArea, &QMdiArea::cascadeSubWindows);
+
 	//Help:
 	ui->menuHelp->addAction("Documentation", this, &MainWindow::displayDocumentation);
 	ui->menuHelp->addAction("License", this, &MainWindow::displayLicense);
 	ui->menuHelp->addAction("About", this, &MainWindow::displayAbout);
+
+	restorebutton = new QToolButton();
+	QPixmap restorePixmap(":icons/restore.png");
+	QIcon restoreIcon(restorePixmap);
+	restorebutton->setIcon(restoreIcon);
+	restorebutton->setIconSize(restorePixmap.rect().size());
+	connect(restorebutton, &QToolButton::clicked ,
+			this, &MainWindow::restoreButtonClicked);
+	restorebutton->setVisible(false);
+
+	closebutton = new QToolButton();
+	QPixmap closePixmap(":icons/close.png");
+	QIcon closeIcon(closePixmap);
+	closebutton->setIcon(closeIcon);
+	closebutton->setIconSize(closePixmap.rect().size());
+	connect(closebutton, &QToolButton::clicked ,
+			this, &MainWindow::closeButtonClicked);
+	closebutton->setVisible(false);
+
+	QWidget* menuWidget = new QWidget(this);
+
+	QGridLayout* menuWidgetLayout = new QGridLayout(menuWidget);
+	menuWidget->setLayout(menuWidgetLayout);
+
+	// Add the menu bar and all tool buttons to the widget
+	menuWidgetLayout->addWidget(menuBar(), 0, 0, 1,1);
+	menuWidgetLayout->addWidget(restorebutton, 0, 1, 1, 1);
+	menuWidgetLayout->addWidget(closebutton, 0, 2, 1, 1);
+
+	// set the custom widget as the main window's menu widget
+	setMenuWidget(menuWidget);
+
+	tabsStateTimer = new QTimer(this);
+	tabsStateTimer->setTimerType(Qt::CoarseTimer);
+	tabsStateTimer->setSingleShot(false);
+	tabsStateTimer->setInterval(200);
+	connect(tabsStateTimer, &QTimer::timeout, this, &MainWindow::tabsStateUpdate);
+	tabsStateTimer->start();
 }
 
 void MainWindow::initializeDataProviders()
@@ -1987,5 +2029,53 @@ void MainWindow::initMdiState(void)
 		{
 			mdiState[i][j].open = false;
 		}
+	}
+}
+
+void MainWindow::tabsStateUpdate(void)
+{
+	static bool lastIsWindowMax = false;
+	static bool isWindowMax = false;
+	QList<QMdiSubWindow *> subWindowList = ui->mdiArea->subWindowList();
+
+	isWindowMax = false;
+	for(int i=0; i<ui->mdiArea->subWindowList().length(); ++i)
+	{
+		if(ui->mdiArea->subWindowList().at(i)->isMaximized())
+		{
+			isWindowMax = true;
+			break;
+		}
+	}
+
+	if(isWindowMax == true && lastIsWindowMax == false)
+	{
+		ui->mdiArea->setViewMode(QMdiArea::TabbedView);
+		restorebutton->setVisible(true);
+		closebutton->setVisible(true);
+	}
+	else if(isWindowMax == false && lastIsWindowMax == true)
+	{
+		ui->mdiArea->setViewMode(QMdiArea::SubWindowView);
+		restorebutton->setVisible(false);
+		closebutton->setVisible(false);
+	}
+
+	lastIsWindowMax = isWindowMax;
+}
+
+void MainWindow::closeButtonClicked()
+{
+	if(ui->mdiArea->activeSubWindow() != 0)
+	{
+		ui->mdiArea->activeSubWindow()->close();
+	}
+}
+
+void MainWindow::restoreButtonClicked()
+{
+	for(int i=0; i<ui->mdiArea->subWindowList().length(); ++i)
+	{
+		ui->mdiArea->subWindowList().at(i)->showNormal();
 	}
 }

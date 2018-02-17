@@ -242,6 +242,10 @@ private:
 	QList<ComManager*> comManager;
 	DynamicUserDataManager* userDataManager;
 
+	QTimer *tabsStateTimer;
+	QToolButton *restorebutton;
+	QToolButton *closebutton;
+
 	void writeSettings();
 	void readSettings();
 
@@ -343,6 +347,9 @@ public slots:
 	void loadCSVconfigFile(void);
 	void saveCSVconfigFile(void);
 	void applyLoadedConfig(void);
+	void tabsStateUpdate(void);
+	void closeButtonClicked(void);
+	void restoreButtonClicked(void);
 };
 
 #endif // MAINWINDOW_H
