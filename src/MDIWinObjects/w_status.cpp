@@ -78,7 +78,6 @@ W_Status::~W_Status()
 
 void W_Status::receiveNewData()
 {
-
 }
 
 void W_Status::comStatusChanged(SerialPortStatus status,int nbTries)
@@ -91,7 +90,8 @@ void W_Status::comStatusChanged(SerialPortStatus status,int nbTries)
 
 void W_Status::externalErrorFlag()
 {
-	qDebug() << "W_Status: Received a signal";
+	//When a flag is received we update instantly
+	refreshDisplay();
 }
 
 //****************************************************************************
@@ -146,6 +146,8 @@ void W_Status::init(void)
 
 	initLabelText();
 
+	initTimers();
+
 	//Populates Slave list:
 //	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
 //											SL_LEN_ALL);
@@ -164,14 +166,23 @@ void W_Status::init(void)
 
 }
 
+void W_Status::initTimers(void)
+{
+	timerDisplay = new QTimer(this);
+	connect(timerDisplay,	&QTimer::timeout,
+			this,			&W_Status::refreshDisplay);
+	timerDisplay->start(1000);
+}
+
 void W_Status::initLabelText(void)
 {
 	uint8_t idx = 0;
-	lab_name_ptr[idx++]->setText("Supply Voltage");
+	lab_name_ptr[idx++]->setText("Battery Voltage");
+	lab_name_ptr[idx++]->setText("Other Voltages");
 	lab_name_ptr[idx++]->setText("Temperature");
+	lab_name_ptr[idx++]->setText("FSM timing");
 	lab_name_ptr[idx++]->setText("I2t Battery");
 	lab_name_ptr[idx++]->setText("I2t Motor");
-	lab_name_ptr[idx++]->setText("BWC Link");
 	lab_name_ptr[idx++]->setText("Ex Comm");
 	lab_name_ptr[idx++]->setText("Re Comm");
 	lab_name_ptr[idx++]->setText("Button");
@@ -186,18 +197,10 @@ void W_Status::writeUserData(uint8_t index)
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
 
-//	//Refresh variable:
-//	user_data_1.w[0] = (int16_t)ui->w0->text().toInt();
-//	user_data_1.w[1] = (int16_t)ui->w1->text().toInt();
-//	user_data_1.w[2] = (int16_t)ui->w2->text().toInt();
-//	user_data_1.w[3] = (int16_t)ui->w3->text().toInt();
-
-	//qDebug() << "Write user data" << index << ":" << user_data_1.w[index];
-
 	//Prepare and send command:
 	tx_cmd_data_user_w(TX_N_DEFAULT, index);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
-	emit writeCommand(numb, comm_str_usb, WRITE);
+	emit writeCommand(numb, comm_str_usb, WRITE);	//ToDo config[x]
 }
 
 //Send a Read command:
@@ -261,3 +264,20 @@ void W_Status::on_pb_clear_6_clicked(){statusReset(6);}
 void W_Status::on_pb_clear_7_clicked(){statusReset(7);}
 void W_Status::on_pb_clear_8_clicked(){statusReset(8);}
 void W_Status::on_pb_clear_9_clicked(){statusReset(9);}
+
+void W_Status::refreshDisplay(void)
+{
+	uint8_t s = rigid1.re.status;
+
+	if(s & STATUS_TEMPERATURE){setStatus(2, STATUS_RED);}
+	else{setStatus(2, STATUS_GREEN);}
+
+	if(s & STATUS_VB){setStatus(0, STATUS_RED);}
+	else{setStatus(0, STATUS_GREEN);}
+
+	if(s & STATUS_OTHER_VOLT){setStatus(1, STATUS_RED);}
+	else{setStatus(1, STATUS_GREEN);}
+
+	if(s & STATUS_BUTTON){setStatus(8, STATUS_RED);}
+	else{setStatus(8, STATUS_GREEN);}
+}

@@ -43,7 +43,7 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <QListWidgetItem>
-
+#include <QTimer>
 
 //****************************************************************************
 // Definition(s):
@@ -57,6 +57,14 @@
 #define STATUS_YELLOW	2
 #define STATUS_RED		3
 
+//Status byte flags (copied from Re):
+#define STATUS_TEMPERATURE		1
+#define STATUS_VB				2
+#define STATUS_OTHER_VOLT		4
+#define STATUS_CURRENT_WARN		8
+#define STATUS_CURRENT_LIM		16
+//...
+#define STATUS_BUTTON			128
 
 //****************************************************************************
 // Namespace & Class Definition:
@@ -106,6 +114,7 @@ private:
 	int active_slave, active_slave_index;
 	QTimer *refreshDelayTimer;
 	DynamicUserDataManager* userDataMan;
+	QTimer *timerDisplay;
 
 	//Function(s):
 	void init(void);
@@ -114,6 +123,8 @@ private:
 	void setStatus(int row, int status);
 	void statusReset(int row);
 	void initLabelText(void);
+	void refreshDisplay(void);
+	void initTimers();
 };
 
 //****************************************************************************
