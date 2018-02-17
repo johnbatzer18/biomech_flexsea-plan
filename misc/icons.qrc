@@ -6,5 +6,6 @@
 		<file>icons/checkboxUncheckedStar.png</file>
 		<file>icons/close.png</file>
 		<file>icons/restore.png</file>
+		<file>icons/d_logo_outlined.ico</file>
     </qresource>
 </RCC>
