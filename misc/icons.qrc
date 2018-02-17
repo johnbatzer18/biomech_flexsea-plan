@@ -4,5 +4,7 @@
         <file>icons/d_logo_small_outlined.png</file>
 		<file>icons/checkboxCheckedStar.png</file>
 		<file>icons/checkboxUncheckedStar.png</file>
+		<file>icons/close.png</file>
+		<file>icons/restore.png</file>
     </qresource>
 </RCC>

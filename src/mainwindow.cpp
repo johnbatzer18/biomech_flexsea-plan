@@ -243,10 +243,39 @@ void MainWindow::initMenus(void)
 	ui->menuGL->addAction("Gait Statistics", this, &MainWindow::createGaitStats);
 	//ui->menuGL->addAction("Chart Window", this, &MainWindow::triggerChartView);
 
+	//Window
+	ui->menuWindow->addAction("Tile", ui->mdiArea, &QMdiArea::tileSubWindows);
+	ui->menuWindow->addAction("Cascade", ui->mdiArea, &QMdiArea::cascadeSubWindows);
+
 	//Help:
 	ui->menuHelp->addAction("Documentation", this, &MainWindow::displayDocumentation);
 	ui->menuHelp->addAction("License", this, &MainWindow::displayLicense);
 	ui->menuHelp->addAction("About", this, &MainWindow::displayAbout);
+
+	QToolButton *restorebutton = new QToolButton();
+	QPixmap restorePixmap(":icons/restore.png");
+	QIcon restoreIcon(restorePixmap);
+	restorebutton->setIcon(restoreIcon);
+	restorebutton->setIconSize(restorePixmap.rect().size());
+
+	QToolButton *closebutton = new QToolButton();
+	QPixmap closePixmap(":icons/close.png");
+	QIcon closeIcon(closePixmap);
+	closebutton->setIcon(closeIcon);
+	closebutton->setIconSize(closePixmap.rect().size());
+
+	QWidget* menuWidget = new QWidget(this);
+
+	QGridLayout* menuWidgetLayout = new QGridLayout(menuWidget);
+	menuWidget->setLayout(menuWidgetLayout);
+
+	// Add the menu bar and all tool buttons to the widget
+	menuWidgetLayout->addWidget(menuBar(), 0, 0, 1,1);
+	menuWidgetLayout->addWidget(restorebutton, 0, 1, 1, 1);
+	menuWidgetLayout->addWidget(closebutton, 0, 2, 1, 1);
+
+	// set the custom widget as the main window's menu widget
+	setMenuWidget(menuWidget);
 }
 
 void MainWindow::initializeDataProviders()
