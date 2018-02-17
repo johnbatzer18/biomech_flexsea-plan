@@ -780,8 +780,8 @@ void W_UserTesting::refreshManualDisplay(void)
 {
 	for(int i = 0; i < NB_UTT_FIELDS; i++)
 	{
-		labelUTT[0][i]->setText(QString::number(planUTT.val[0][i]));
-		labelUTT[1][i]->setText(QString::number(planUTT.val[1][i]));
+		labelUTT[0][i]->setText(QString::number(planUTT.val[1][i]));
+		labelUTT[1][i]->setText(QString::number(planUTT.val[0][i]));
 	}
 }
 
