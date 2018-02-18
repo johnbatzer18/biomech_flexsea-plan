@@ -72,10 +72,13 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	//Chart view:
 	chartView = new AnkleAngleChartView(chart);
 	chartView->isActive = false;
+
 	for(int i = 0; i < A2PLOT_VAR_NUM; i++)
 	{
+		// TODO something weird here, a loop with no iterator used.
 		chartView->lineSeries[0] = lineSeries[0];
 	}
+
 	chartView->setMaxDataPoints(500);
 
 	ui->gridLayout_test->addWidget(chartView, 0,0);
@@ -114,6 +117,20 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	for(int item = 0; item < A2PLOT_VAR_NUM; item++)
 	{
 		updateVarList(item);
+	}
+
+	//Update labels based on theme colors:
+	QString msg;
+	for(int u = 0; u < VAR_NUM; u++)
+	{
+		int r = 0, g = 0, b = 0;
+		r = chartView->myPen[u].color().red();
+		g = chartView->myPen[u].color().green();
+		b = chartView->myPen[u].color().blue();
+		msg = "QLabel { background-color: black; color: rgb(" + \
+				QString::number(r) + ',' + QString::number(g) + ','+ \
+				QString::number(b) + ");}";
+		lbtList[u]->setStyleSheet(msg);
 	}
 
 	//y = mx+b array, all 1 and 0 by default:
@@ -504,6 +521,13 @@ void W_AnkleAnglePlot::initPtr(void)
 	comboVar[3] = &ui->cBoxvar4;
 	comboVar[4] = &ui->cBoxvar5;
 	comboVar[5] = &ui->cBoxvar6;
+
+	lbtList.append(ui->label_t1);
+	lbtList.append(ui->label_t2);
+	lbtList.append(ui->label_t3);
+	lbtList.append(ui->label_t4);
+	lbtList.append(ui->label_t5);
+	lbtList.append(ui->label_t6);
 
 	for(int i = 0; i < A2PLOT_VAR_NUM; i++)
 	{
