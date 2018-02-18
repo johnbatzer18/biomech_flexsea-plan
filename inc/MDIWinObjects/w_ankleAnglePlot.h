@@ -252,7 +252,7 @@ private:
 	QList<FlexseaDevice*> *currentDevList;
 	FlexseaDevice* selectedDevList[A2PLOT_VAR_NUM];
 
-	uint8_t presetVariables[5][A2PLOT_VAR_NUM] = {	{9,34,35,37,38,39},\
+	uint8_t presetVariables[5][A2PLOT_VAR_NUM] = {	{10,35,36,38,39,40},\
 													{4,5,6,7,8,9},\
 													{0,0,0,0,0,0},\
 													{0,0,0,0,0,0},\
