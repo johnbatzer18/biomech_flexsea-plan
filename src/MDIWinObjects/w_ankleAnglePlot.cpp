@@ -81,7 +81,7 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 
 	chartView->setMaxDataPoints(500);
 
-	ui->gridLayout_test->addWidget(chartView, 0,0);
+	ui->chartVLayout->addWidget(chartView,0,0);
 	chartView->setRenderHint(QPainter::Antialiasing);
 	chartView->setBaseSize(600,300);
 	chartView->setMinimumSize(500,300);
@@ -132,6 +132,9 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 				QString::number(b) + ");}";
 		lbtList[u]->setStyleSheet(msg);
 	}
+
+	ui->display_StepEnergy->setText("---");
+	ui->display_PPFFlag->setText("---");
 
 	//y = mx+b array, all 1 and 0 by default:
 	resetCurrentPresetMB();
@@ -277,6 +280,17 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			", Step: " + QString::number(step);
 	//qDebug() << dbg;
 	ui->labelDebug->setText(dbg);
+
+	if(ui->comboBoxLeg->currentIndex() == 0)
+	{
+		ui->display_StepEnergy->setText(QString::number(rigid1.mn.genVar[1]));
+		ui->display_PPFFlag->setText(QString::number(rigid1.mn.genVar[0]));;
+	}
+	else
+	{
+		ui->display_StepEnergy->setText(QString::number(rigid2.mn.genVar[1]));
+		ui->display_PPFFlag->setText(QString::number(rigid2.mn.genVar[0]));;
+	}
 }
 
 void W_AnkleAnglePlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
