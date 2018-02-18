@@ -116,6 +116,9 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 		updateVarList(item);
 	}
 
+	//y = mx+b array, all 1 and 0 by default:
+	resetCurrentPresetMB();
+
 	initFlag = false;
 }
 
@@ -292,15 +295,21 @@ void W_AnkleAnglePlot::mapSensorsToPoints(int idx)
 
 	if(ui->comboBoxLeg->currentIndex() == 1){ri = &rigid2;}
 
-	pts[0] = QPointF(idx, vtpToInt(0));
-	pts[1] = QPointF(idx, vtpToInt(1));
-	pts[2] = QPointF(idx, vtpToInt(2));
-	pts[3] = QPointF(idx, vtpToInt(3));
-	pts[4] = QPointF(idx, vtpToInt(4));
-	pts[5] = QPointF(idx, vtpToInt(5));
+	pts[0] = QPointF(idx, scale(vtpToInt(0),0));
+	pts[1] = QPointF(idx, scale(vtpToInt(1),1));
+	pts[2] = QPointF(idx, scale(vtpToInt(2),2));
+	pts[3] = QPointF(idx, scale(vtpToInt(3),3));
+	pts[4] = QPointF(idx, scale(vtpToInt(4),4));
+	pts[5] = QPointF(idx, scale(vtpToInt(5),5));
 
 	//Latch step energy:
 	instantStepEnergy = ri->ctrl.step_energy;
+}
+
+float W_AnkleAnglePlot::scale(int v, uint8_t row)
+{
+	float tmp = (float)v;
+	return((tmp*activePresetM[row]) + activePresetB[row]);
 }
 
 int W_AnkleAnglePlot::vtpToInt(uint8_t row)
@@ -438,6 +447,21 @@ void W_AnkleAnglePlot::setAxesLimits()
 void W_AnkleAnglePlot::on_lineEditXMax_returnPressed() {setAxesLimits();}
 void W_AnkleAnglePlot::on_lineEditYMin_returnPressed() {setAxesLimits();}
 void W_AnkleAnglePlot::on_lineEditYMax_returnPressed() {setAxesLimits();}
+
+void W_AnkleAnglePlot::presetAxesLimits(uint8_t p)
+{
+	if(p < 100)
+	{
+		ui->lineEditYMin->setText(presetYaxis[0][p]);
+		ui->lineEditYMax->setText(presetYaxis[1][p]);
+	}
+	else
+	{
+		ui->lineEditYMin->setText("0");
+		ui->lineEditYMax->setText("1000");
+	}
+	setAxesLimits();
+}
 
 void W_AnkleAnglePlot::on_lineEditPersistentPoints_returnPressed() {
 	QString text = ui->lineEditPersistentPoints->text();
@@ -605,8 +629,28 @@ void W_AnkleAnglePlot::preset(uint8_t p)
 {
 	qDebug() << "Applying preset #" << p;
 
+	//Clear previous:
+	resetCurrentPresetMB();
+
 	for(int item = 0; item < A2PLOT_VAR_NUM; item++)
 	{
 		(*comboVar[item])->setCurrentIndex(presetVariables[p][item]);
+		activePresetM[item] = presetM[p][item];
+		activePresetB[item] = presetB[p][item];
 	}
+
+	presetAxesLimits(p);
 }
+
+void W_AnkleAnglePlot::resetCurrentPresetMB(void)
+{
+	for(int k = 0; k < A2PLOT_VAR_NUM; k++)
+	{
+		activePresetM[k] = 1.0;		//m
+		activePresetB[k] = 0.0;		//b
+	}
+
+	presetAxesLimits(255);
+}
+
+void W_AnkleAnglePlot::on_pushButtonPresetReset_clicked(){resetCurrentPresetMB();}

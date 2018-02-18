@@ -54,6 +54,7 @@
 QT_CHARTS_USE_NAMESPACE
 
 #define A2PLOT_VAR_NUM						6
+#define MAX_VARS							75
 
 class AnkleAngleChartView : public QChartView
 {
@@ -231,6 +232,8 @@ private slots:
 	void on_pushButtonPreset3_clicked();
 	void on_pushButtonPreset4_clicked();
 
+	void on_pushButtonPresetReset_clicked();
+
 private:
 
 	Ui::W_AnkleAnglePlot *ui;
@@ -254,6 +257,23 @@ private:
 													{0,0,0,0,0,0},\
 													{0,0,0,0,0,0},\
 													{0,0,0,0,0,0}};
+	float presetM[5][A2PLOT_VAR_NUM] = {	{1.0,1.0,1.0,100.0,1.0,1.0},\
+											{1.0,1.0,1.0,1.0,1.0,1.0},\
+											{1.0,1.0,1.0,1.0,1.0,1.0},\
+											{1.0,1.0,1.0,1.0,1.0,1.0},\
+											{1.0,1.0,1.0,1.0,1.0,1.0}};
+
+	float presetB[5][A2PLOT_VAR_NUM] = {	{0.0,0.0,0.0,-50.0,0.0,0.0},\
+											{0.0,0.0,0.0,0.0,0.0,0.0},\
+											{0.0,0.0,0.0,0.0,0.0,0.0},\
+											{0.0,0.0,0.0,0.0,0.0,0.0},\
+											{0.0,0.0,0.0,0.0,0.0,0.0}};
+
+	float activePresetM[A2PLOT_VAR_NUM] = {1.0,1.0,1.0,1.0,1.0,1.0};
+	float activePresetB[A2PLOT_VAR_NUM] = {0.0,0.0,0.0,0.0,0.0,0.0};
+
+	QString presetYaxis[2][A2PLOT_VAR_NUM] {{"-1000", "-2000", "-3000", "-1000", "-1000", "-1000"}, \
+											{"1000", "2000", "3000", "1000", "1000", "1000"}};
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
@@ -262,6 +282,7 @@ private:
 	int streamingFreq = 1;
 	int rollover = 1;
 	bool fadePoints = true;
+	float ymxb[2][100];
 
 	//Scaling:
 	int32_t scaling[2];
@@ -275,6 +296,9 @@ private:
 	void assignVariable(uint8_t item);
 	int vtpToInt(uint8_t row);
 	void preset(uint8_t p);
+	void resetCurrentPresetMB(void);
+	float scale(int v, uint8_t row);
+	void presetAxesLimits(uint8_t p);
 };
 
 #endif // W_ANKLE_ANGLE_PLOT_H
