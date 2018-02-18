@@ -252,18 +252,18 @@ private:
 	QList<FlexseaDevice*> *currentDevList;
 	FlexseaDevice* selectedDevList[A2PLOT_VAR_NUM];
 
-	uint8_t presetVariables[5][A2PLOT_VAR_NUM] = {	{0,1,2,3,4,5},\
+	uint8_t presetVariables[5][A2PLOT_VAR_NUM] = {	{9,34,35,37,38,39},\
 													{4,5,6,7,8,9},\
 													{0,0,0,0,0,0},\
 													{0,0,0,0,0,0},\
 													{0,0,0,0,0,0}};
-	float presetM[5][A2PLOT_VAR_NUM] = {	{1.0,1.0,1.0,100.0,1.0,1.0},\
+	float presetM[5][A2PLOT_VAR_NUM] = {	{1.0,1.0,1.0,1.0,1.0,1.0},\
 											{1.0,1.0,1.0,1.0,1.0,1.0},\
 											{1.0,1.0,1.0,1.0,1.0,1.0},\
 											{1.0,1.0,1.0,1.0,1.0,1.0},\
 											{1.0,1.0,1.0,1.0,1.0,1.0}};
 
-	float presetB[5][A2PLOT_VAR_NUM] = {	{0.0,0.0,0.0,-50.0,0.0,0.0},\
+	float presetB[5][A2PLOT_VAR_NUM] = {	{0.0,0.0,800.0,0.0,0.0,0.0},\
 											{0.0,0.0,0.0,0.0,0.0,0.0},\
 											{0.0,0.0,0.0,0.0,0.0,0.0},\
 											{0.0,0.0,0.0,0.0,0.0,0.0},\
@@ -272,8 +272,8 @@ private:
 	float activePresetM[A2PLOT_VAR_NUM] = {1.0,1.0,1.0,1.0,1.0,1.0};
 	float activePresetB[A2PLOT_VAR_NUM] = {0.0,0.0,0.0,0.0,0.0,0.0};
 
-	QString presetYaxis[2][A2PLOT_VAR_NUM] {{"-1000", "-2000", "-3000", "-1000", "-1000", "-1000"}, \
-											{"1000", "2000", "3000", "1000", "1000", "1000"}};
+	QString presetYaxis[2][A2PLOT_VAR_NUM] {{"0", "-2000", "-3000", "-1000", "-1000", "-1000"}, \
+											{"800", "2000", "3000", "1000", "1000", "1000"}};
 
 	bool plotFreezed, initFlag;
 	bool pointsVisible;
