@@ -53,8 +53,8 @@ W_Config::W_Config(QWidget *parent, QStringList *initFavoritePort) :
 {
 	ui->setupUi(this);
 
-	setWindowTitle(this->getDescription() + " " + QString::number(W_Config::howManyInstance()));
-	W_Config::howManyInstance();
+	instanceNum = W_Config::howManyInstance();
+	setWindowTitle(this->getDescription() + " " + QString::number(instanceNum));
 	setWindowIcon(QIcon(":icons/d_logo_small.png"));
 
 	//Init code:
@@ -177,7 +177,6 @@ void W_Config::initCom(void)
 //This gets called by a timer
 void W_Config::refreshComList(bool forceRefresh, bool keepCurrentSelection)
 {
-	static int refreshDivide = 0;
 	int ComPortCounts = 0;
 	QString nn;
 
@@ -198,7 +197,7 @@ void W_Config::refreshComList(bool forceRefresh, bool keepCurrentSelection)
 			QString currentPort = currentPortAll.section(" ", 0, 0, \
 														 QString::SectionSkipEmpty);
 
-			qDebug() << "COM Port list changed.";
+			qDebug() << "COM Port list changed (Instance" << instanceNum << ").";
 
 			ui->comPortComboBox->clear();
 
