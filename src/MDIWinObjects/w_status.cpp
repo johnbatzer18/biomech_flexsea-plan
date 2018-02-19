@@ -168,22 +168,22 @@ void W_Status::init(void)
 
 	initTimers();
 
+	/*
 	//Populates Slave list:
-//	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
-//											SL_LEN_ALL);
-//	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
-
-//	//Variables:
-//	active_slave_index = ui->comboBox_slave->currentIndex();
-//	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
-
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
+											SL_LEN_ALL);
+	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
+	//Variables:
+	active_slave_index = ui->comboBox_slave->currentIndex();
+	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_ALL, active_slave_index);
 
 
-//	//Timer used to refresh the received data:
-//	refreshDelayTimer = new QTimer(this);
-//	connect(refreshDelayTimer,	&QTimer::timeout,
-//			this,				&W_UserRW::refreshDisplay);
 
+	//Timer used to refresh the received data:
+	refreshDelayTimer = new QTimer(this);
+	connect(refreshDelayTimer,	&QTimer::timeout,
+			this,				&W_UserRW::refreshDisplay);
+	*/
 }
 
 void W_Status::initTimers(void)
@@ -223,6 +223,7 @@ void W_Status::writeUserData(uint8_t index)
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);	//ToDo config[x]
 	*/
+	(void)index;
 }
 
 //Send a Read command:
@@ -271,7 +272,7 @@ void W_Status::setStatus(int row, int status)
 
 void W_Status::statusReset(int row)
 {
-
+	(void)row;
 }
 
 //****************************************************************************

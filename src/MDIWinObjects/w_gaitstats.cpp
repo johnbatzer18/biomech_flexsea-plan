@@ -85,10 +85,12 @@ void W_GaitStats::init(void)
 {
 	ui->le_number->setValidator(new QIntValidator(0, 100, this));
 
-//	//Populates Slave list:
-//	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
-//											SL_LEN_ALL);
-//	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
+	/*
+	//Populates Slave list:
+	FlexSEA_Generic::populateSlaveComboBox(ui->comboBox_slave, SL_BASE_ALL, \
+											SL_LEN_ALL);
+	ui->comboBox_slave->setCurrentIndex(0);	//Execute 1 by default
+	*/
 
 	//Variables:
 	active_slave_index = 0;	//ui->comboBox_slave->currentIndex();

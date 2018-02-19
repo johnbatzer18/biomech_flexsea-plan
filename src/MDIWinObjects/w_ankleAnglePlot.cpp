@@ -160,10 +160,10 @@ void W_AnkleAnglePlot::receiveNewData(void)
 {
 	static uint16_t idx = 0, lastGstate = 0;
 	static int16_t gaitEnergyLog[GAIT_ENERGY_LOG_PTS], gaitEnergyIndex = 0;
-	static int16_t dispEnergy = 0;
+	//static int16_t dispEnergy = 0;
 	uint16_t newGstate = 0;
 	uint16_t step = 0;
-	int32_t energySum = 0;
+	//int32_t energySum = 0;
 	static int lastRollover = 0, triggerPoint = 0, trigCnt = 0, rollCnt = 0;
 	int seconds = rollover / 100;
 	if(seconds <= 0){seconds = 1;}
@@ -647,7 +647,8 @@ void W_AnkleAnglePlot::on_cBoxvar6_currentIndexChanged(int index)
 
 void W_AnkleAnglePlot::on_comboBoxLeg_currentIndexChanged(int index)
 {
-	int i = 0, idx = 0;;
+	(void)index;
+	int i = 0, idx = 0;
 
 	if(initFlag == false)
 	{

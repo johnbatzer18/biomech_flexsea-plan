@@ -114,7 +114,6 @@ public slots:
 	void getCurrentDevice(FlexseaDevice** device);
 	void startExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes);
 	void stopExperiment(uint8_t i);
-	void stopOneExperiment(uint8_t i);
 
 private slots:
 
@@ -198,6 +197,8 @@ private:
 	void initConnection(void);
 	void managePushButton(int idx, bool forceOff);
 	void updateStatusBar(QString txt);
+	void stopOneExperiment(uint8_t i);
+	void startOneExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes);
 
 	uint8_t numExperiments;
 
@@ -205,7 +206,7 @@ private:
 
 	QList<QTimer*> dataTimeoutList;
 	bool isStreaming = false;
-	startOneExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes);
+
 };
 
 #endif // W_SLAVECOMM_H

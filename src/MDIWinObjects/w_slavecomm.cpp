@@ -274,7 +274,7 @@ void W_SlaveComm::startExperiment(uint8_t i, int r, bool log, bool autoSample, Q
 	}
 }
 
-W_SlaveComm::startOneExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes)
+void W_SlaveComm::startOneExperiment(uint8_t i, int r, bool log, bool autoSample, QString offs, QString uNotes)
 {
 	on_off_pb_ptr[i]->setChecked(true);
 
