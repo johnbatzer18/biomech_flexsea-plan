@@ -642,6 +642,8 @@ void MainWindow::createAnkleAnglePlot(void)
 
 	connect(comManager[0], &ComManager::newDataReady,
 			w,			&W_AnkleAnglePlot::receiveNewData);
+	connect(comManager[1], &ComManager::newDataReady,
+			w,			&W_AnkleAnglePlot::receiveNewData);
 
 	connect(comManager[0],	&ComManager::streamingFrequency,
 			w,			&W_AnkleAnglePlot::streamingFrequency);
