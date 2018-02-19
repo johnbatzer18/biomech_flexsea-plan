@@ -43,6 +43,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <flexsea_board.h>
+#include <flexsea_user_structs.h>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -213,6 +214,7 @@ void W_Status::initLabelText(void)
 //Send a Write command:
 void W_Status::writeUserData(uint8_t index)
 {
+	/*
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
 
@@ -220,11 +222,13 @@ void W_Status::writeUserData(uint8_t index)
 	tx_cmd_data_user_w(TX_N_DEFAULT, index);
 	pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
 	emit writeCommand(numb, comm_str_usb, WRITE);	//ToDo config[x]
+	*/
 }
 
 //Send a Read command:
 void W_Status::readUserData(void)
 {
+	/*
 	uint8_t info[2] = {PORT_USB, PORT_USB};
 	uint16_t numb = 0;
 
@@ -235,6 +239,7 @@ void W_Status::readUserData(void)
 
 	//Display will be refreshed in 75ms:
 	refreshDelayTimer->start(75);
+	*/
 }
 
 void W_Status::setStatus(int row, int status)
@@ -288,6 +293,7 @@ void W_Status::refreshDisplay(void)
 {
 	uint8_t s = rigid1.re.status;
 	if(ui->comboBox_slave->currentIndex() == 1){s = rigid2.re.status;}
+	else{s = rigid1.re.status;}
 
 	if(!isComOpen)
 	{
