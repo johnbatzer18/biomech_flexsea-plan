@@ -246,12 +246,15 @@ void W_GaitStats::comStatusChanged(SerialPortStatus status, int nbTries)
 
 	if(status == PortOpeningSucceed)
 	{
-		userDataMan->requestMetaData(active_slave);
+		//userDataMan->requestMetaData(active_slave);
 		comOpen = true;
+		ui->checkBoxAutoRefresh->setEnabled(true);
 	}
 	else if(status == PortClosed)
 	{
 		comOpen = false;
+		ui->checkBoxAutoRefresh->setEnabled(false);
+		ui->checkBoxAutoRefresh->setChecked(false);
 	}
 }
 
