@@ -134,6 +134,7 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	}
 
 	ui->display_StepEnergy->setText("---");
+	ui->display_BatteryEnergy->setText("---");
 	ui->display_PPFFlag->setText("---");
 
 	//y = mx+b array, all 1 and 0 by default:
@@ -288,11 +289,13 @@ void W_AnkleAnglePlot::receiveNewData(void)
 	if(ui->comboBoxLeg->currentIndex() == 0)
 	{
 		ui->display_StepEnergy->setText(QString::number(rigid1.mn.genVar[1]));
+		ui->display_BatteryEnergy->setText(QString::number(rigid1.ex.strain));
 		ui->display_PPFFlag->setText(QString::number(rigid1.mn.genVar[0]));;
 	}
 	else
 	{
 		ui->display_StepEnergy->setText(QString::number(rigid2.mn.genVar[1]));
+		ui->display_BatteryEnergy->setText(QString::number(rigid2.ex.strain));
 		ui->display_PPFFlag->setText(QString::number(rigid2.mn.genVar[0]));;
 	}
 }
