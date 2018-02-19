@@ -72,13 +72,16 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	//Chart view:
 	chartView = new AnkleAngleChartView(chart);
 	chartView->isActive = false;
+
 	for(int i = 0; i < A2PLOT_VAR_NUM; i++)
 	{
+		// TODO something weird here, a loop with no iterator used.
 		chartView->lineSeries[0] = lineSeries[0];
 	}
+
 	chartView->setMaxDataPoints(500);
 
-	ui->gridLayout_test->addWidget(chartView, 0,0);
+	ui->chartVLayout->addWidget(chartView,0,0);
 	chartView->setRenderHint(QPainter::Antialiasing);
 	chartView->setBaseSize(600,300);
 	chartView->setMinimumSize(500,300);
@@ -115,6 +118,23 @@ W_AnkleAnglePlot::W_AnkleAnglePlot(QWidget *parent,
 	{
 		updateVarList(item);
 	}
+
+	//Update labels based on theme colors:
+	QString msg;
+	for(int u = 0; u < VAR_NUM; u++)
+	{
+		int r = 0, g = 0, b = 0;
+		r = chartView->myPen[u].color().red();
+		g = chartView->myPen[u].color().green();
+		b = chartView->myPen[u].color().blue();
+		msg = "QLabel { background-color: black; color: rgb(" + \
+				QString::number(r) + ',' + QString::number(g) + ','+ \
+				QString::number(b) + ");}";
+		lbtList[u]->setStyleSheet(msg);
+	}
+
+	ui->display_StepEnergy->setText("---");
+	ui->display_PPFFlag->setText("---");
 
 	//y = mx+b array, all 1 and 0 by default:
 	resetCurrentPresetMB();
@@ -260,6 +280,17 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			", Step: " + QString::number(step);
 	//qDebug() << dbg;
 	ui->labelDebug->setText(dbg);
+
+	if(ui->comboBoxLeg->currentIndex() == 0)
+	{
+		ui->display_StepEnergy->setText(QString::number(rigid1.mn.genVar[1]));
+		ui->display_PPFFlag->setText(QString::number(rigid1.mn.genVar[0]));;
+	}
+	else
+	{
+		ui->display_StepEnergy->setText(QString::number(rigid2.mn.genVar[1]));
+		ui->display_PPFFlag->setText(QString::number(rigid2.mn.genVar[0]));;
+	}
 }
 
 void W_AnkleAnglePlot::refreshDisplayLog(int index, FlexseaDevice * devPtr)
@@ -504,6 +535,13 @@ void W_AnkleAnglePlot::initPtr(void)
 	comboVar[3] = &ui->cBoxvar4;
 	comboVar[4] = &ui->cBoxvar5;
 	comboVar[5] = &ui->cBoxvar6;
+
+	lbtList.append(ui->label_t1);
+	lbtList.append(ui->label_t2);
+	lbtList.append(ui->label_t3);
+	lbtList.append(ui->label_t4);
+	lbtList.append(ui->label_t5);
+	lbtList.append(ui->label_t6);
 
 	for(int i = 0; i < A2PLOT_VAR_NUM; i++)
 	{
