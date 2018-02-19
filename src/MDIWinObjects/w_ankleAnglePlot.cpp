@@ -207,6 +207,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			idx = 0;
 			qDebug() << "trigger latched";
 
+			/*
 			//Average energy:
 			energySum = 0;
 			for(int i = 0; i < GAIT_ENERGY_LOG_PTS; i++)
@@ -216,6 +217,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			dispEnergy = energySum / GAIT_ENERGY_LOG_PTS;
 			ui->label_Joules->setText(QString::number((float)dispEnergy/10, 'f',1) + "J");
 			qDebug() << "Last cycle's energy:" << dispEnergy << "J.";
+			*/
 		}
 		lastGstate = newGstate;
 		mapSensorsToPoints(idx);
@@ -229,6 +231,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			trigCnt = TRIG_DISP_LATCH;
 			idx = 0;
 
+			/*
 			//Average energy:
 			energySum = 0;
 			for(int i = 0; i < GAIT_ENERGY_LOG_PTS; i++)
@@ -238,6 +241,7 @@ void W_AnkleAnglePlot::receiveNewData(void)
 			dispEnergy = energySum / GAIT_ENERGY_LOG_PTS;
 			ui->label_Joules->setText(QString::number((float)dispEnergy/10, 'f',1) + "J");
 			qDebug() << "Last cycle's energy:" << dispEnergy << "J.";
+			*/
 		}
 		lastGstate = pts[1].y() ;
 		fakeDataToPoints(idx);

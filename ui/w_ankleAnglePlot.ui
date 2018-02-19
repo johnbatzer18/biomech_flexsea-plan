@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>981</width>
-    <height>539</height>
+    <width>713</width>
+    <height>315</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -57,7 +57,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Step Enegy</string>
+            <string>Step Energy</string>
            </property>
           </widget>
          </item>
@@ -488,19 +488,6 @@
          </property>
          <property name="text">
           <string>TextLabel</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QLabel" name="label_Joules">
-         <property name="frameShape">
-          <enum>QFrame::Box</enum>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TextLabel&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
