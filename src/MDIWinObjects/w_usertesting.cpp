@@ -790,8 +790,8 @@ void W_UserTesting::refreshManualDisplay(void)
 {
 	for(int i = 0; i < NB_UTT_FIELDS; i++)
 	{
-		labelUTT[0][i]->setText(QString::number(planUTT.val[1][i]));
-		labelUTT[1][i]->setText(QString::number(planUTT.val[0][i]));
+		labelUTT[0][i]->setText(QString::number(planUTT.val[1][i]));	//Left
+		labelUTT[1][i]->setText(QString::number(planUTT.val[0][i]));	//Right
 	}
 }
 
@@ -1388,6 +1388,12 @@ void W_UserTesting::on_pbW9_clicked(){pbWxClicked(9);}
 void W_UserTesting::pbWxClicked(uint8_t i)
 {
 	qDebug() << "PB#" << i << "clicked.";
+
+	if(lineEditUTT[i]->text().length() == 0)
+	{
+		qDebug() << "Empty lineEdit, exit.";
+		return;
+	}
 
 	//Save that value in the UTT structure:
 	int tmp = lineEditUTT[i]->text().toInt();

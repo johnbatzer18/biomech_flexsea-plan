@@ -31,6 +31,7 @@
 #include <qlabel.h>
 #include "flexsea_user_structs.h"
 #include "serialdriver.h"
+#include "flexsea_sys_def.h"
 
 //class ScribbleArea;
 
@@ -162,7 +163,7 @@ private:
 	uint8_t readDisplayLag;
 	bool tweakHasChanged;
 	uint8_t activeLeg = 2;
-	uint8_t rowOneDevice = 0;
+	uint8_t rowOneDevice = FLEXSEA_MANAGE_1;
 
 	uint8_t tmpCommStr0[50], tmpCommStr1[50];
 

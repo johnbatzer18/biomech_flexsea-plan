@@ -120,7 +120,6 @@ private:
 	int instanceNum = 0;
 	int refreshDivide = 0;
 
-
 	QTimer *comPortRefreshTimer, *btConfigTimer, *openProgressTimer;
 
 	//Function(s):

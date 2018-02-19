@@ -166,6 +166,7 @@ int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)
 			qDebug() << "Write failed";
 			USBSerialPort->clear();
 		}
+		//else{qDebug() << ">>>SerialDriver wrote a packet.";}	//Debugging only
 	}
 	else
 	{

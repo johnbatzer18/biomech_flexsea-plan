@@ -545,6 +545,9 @@ void W_SlaveComm::initSlaveCom(void)
 			comboBoxRefreshPtr[row]->setCurrentIndex(6);	//100Hz
 		}
 
+		//Start 2nd row as 2nd slave:
+		comboBoxSlavePtr[1]->setCurrentIndex(1);
+
 		//Log checkboxes:
 		(log_cb_ptr[row])->setChecked(false);
 		(log_cb_ptr[row])->setEnabled(false);
