@@ -288,6 +288,7 @@ public slots:
 	void createAnkleAnglePlot(void);
 	void createGaitStats(void);
 	void createViewRigid(void);
+	void createViewPocket(void);
 	void createCycleTester(void);
 	void createUserTesting(void);
 	void createStatus(void);
@@ -315,6 +316,7 @@ public slots:
 	void closeAnkleAnglePlot(void);
 	void closeGaitStats(void);
 	void closeViewRigid(void);
+	void closeViewPocket(void);
 	void closeCycleTester(void);
 	void closeUserTesting(void);
 	void closeStatus(void);

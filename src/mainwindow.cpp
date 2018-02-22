@@ -214,6 +214,8 @@ void MainWindow::initMenus(void)
 	ui->menuView->addAction("Gossip", this, &MainWindow::createViewGossip);
 	ui->menuView->addAction("Manage", this, &MainWindow::createViewManage);
 	ui->menuView->addAction("Rigid", this, &MainWindow::createViewRigid);
+	ui->menuView->addAction("Pocket", this, &MainWindow::createViewPocket);
+
 	ui->menuView->addAction("Strain", this, &MainWindow::createViewStrain);
 	ui->menuView->addSeparator();
 	ui->menuView->addAction("2D Plot", this, &MainWindow::createView2DPlot);
@@ -1412,6 +1414,69 @@ void MainWindow::createViewRigid(void)
 }
 
 void MainWindow::closeViewRigid(void)
+{
+	sendCloseWindowMsg(W_Rigid::getDescription());
+	mdiState[RIGID_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
+}
+
+//Creates a new View Rigid window
+void MainWindow::createViewPocket(void)
+{
+	int objectCount = W_Rigid::howManyInstance();
+
+	//Limited number of windows:
+	if(objectCount < (RIGID_WINDOWS_MAX))
+	{
+		myViewRigid[objectCount] = new W_Rigid(this,
+											   currentFlexLog,
+											   &rigidLog,
+											   getDisplayMode(),
+											   &rigidDevList);
+		mdiState[RIGID_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRigid[objectCount]);
+		mdiState[RIGID_WINDOWS_ID][objectCount].open = true;
+		myViewRigid[objectCount]->show();
+
+		sendWindowCreatedMsg(W_Rigid::getDescription(), objectCount,
+							 W_Rigid::getMaxWindow() - 1);
+
+		if(W_Status::howManyInstance() <= objectCount){createStatus();}
+
+		//Link ComManager and Rigid:
+		connect(comManager[0],				&ComManager::newDataReady, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+
+		//Link ComManager and Rigid:
+		connect(comManager[0],				&ComManager::newDataReady, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+
+		//Link ComManager and Rigid:
+		connect(comManager[1],				&ComManager::newDataReady, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+
+		//Link to MainWindow for the close signal:
+		connect(myViewRigid[objectCount],	&W_Rigid::windowClosed, \
+				this,						&MainWindow::closeViewRigid);
+
+		// Link to the slider of logKeyPad. Intermediate signal (connector) to
+		// allow opening of window asynchroniously
+		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
+				myViewRigid[objectCount],	&W_Rigid::refreshDisplayLog);
+
+		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
+				myViewRigid[objectCount],	&W_Rigid::updateDisplayMode);
+
+		connect(myViewRigid[objectCount],	&W_Rigid::statusChanged, \
+				myStatus[objectCount],		&W_Status::externalErrorFlag);
+	}
+
+	else
+	{
+		sendWindowCreatedFailedMsg(W_Rigid::getDescription(),
+								   W_Rigid::getMaxWindow());
+	}
+}
+
+void MainWindow::closeViewPocket(void)
 {
 	sendCloseWindowMsg(W_Rigid::getDescription());
 	mdiState[RIGID_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
