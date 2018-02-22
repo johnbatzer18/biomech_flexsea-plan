@@ -98,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
 	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
+	W_Pocket::setMaxWindow(POCKET_WINDOWS_MAX);
 	W_CycleTester::setMaxWindow(CYCLE_TESTER_WINDOWS_MAX);
 	W_AnkleAnglePlot::setMaxWindow(ANKLE_ANGLE_PLOT_WINDOWS_MAX);
 	W_GaitStats::setMaxWindow(GAIT_STATS_WINDOWS_MAX);
@@ -123,6 +124,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_InControl::setDescription("Controller Tuning");
 	W_Event::setDescription("Event Flag");
 	W_Rigid::setDescription("FlexSEA-Rigid");
+	W_Pocket::setDescription("FlexSEA-Pocket");
 	W_CycleTester::setDescription("FlexSEA-Rigid Cycle Tester");
 	W_AnkleTorque::setDescription("Ankle Torque Tool");
 	W_GaitStats::setDescription("Gait Statistics");
@@ -144,6 +146,7 @@ MainWindow::MainWindow(QWidget *parent) :
 									  &ricnuLog,
 									  &ankle2DofLog,
 									  &rigidLog,
+									  &pocketLog,
 									  appPath));
 
 		initSerialComm();
@@ -396,6 +399,12 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&rigidDevList.last());
 	rigidFlexList.append(&rigidDevList.last());
 
+	pocketDevList.append(PocketDevice(&rigid1));
+	pocketDevList.last().slaveName = "Pocket 1";
+	pocketDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
+	flexseaPtrlist.append(&pocketDevList.last());
+	pocketFlexList.append(&pocketDevList.last());
+
 	init_rigid();
 
 	return;
@@ -457,6 +466,7 @@ void MainWindow::initializeCreateWindowFctPtr(void)
 	mdiCreateWinPtr[ANKLE_TORQUE_WINDOWS_ID] = &MainWindow::createAnkleTorqueTool;
 	mdiCreateWinPtr[ANKLE_ANGLE_PLOT_WINDOWS_ID] = &MainWindow::createAnkleAnglePlot;
 	mdiCreateWinPtr[RIGID_WINDOWS_ID] = &MainWindow::createViewRigid;
+	mdiCreateWinPtr[POCKET_WINDOWS_ID] = &MainWindow::createViewPocket;
 	mdiCreateWinPtr[CYCLE_TESTER_WINDOWS_ID] = &MainWindow::createCycleTester;
 	mdiCreateWinPtr[USER_TESTING_WINDOWS_ID] = &MainWindow::createUserTesting;
 	mdiCreateWinPtr[GAITS_STATS_WINDOWS_ID] = &MainWindow::createGaitStats;
@@ -1048,6 +1058,7 @@ void MainWindow::createSlaveComm(void)
 													   &ankle2DofFlexList,
 													   &dynamicDeviceList,
 													   &rigidFlexList,
+													   &pocketFlexList,
 													   &comManager);
 
 		mdiState[SLAVECOMM_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewSlaveComm[objectCount]);
@@ -1419,67 +1430,67 @@ void MainWindow::closeViewRigid(void)
 	mdiState[RIGID_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
-//Creates a new View Rigid window
+//Creates a new View Pocket window
 void MainWindow::createViewPocket(void)
 {
-	int objectCount = W_Rigid::howManyInstance();
+	int objectCount = W_Pocket::howManyInstance();
 
 	//Limited number of windows:
-	if(objectCount < (RIGID_WINDOWS_MAX))
+	if(objectCount < (POCKET_WINDOWS_MAX))
 	{
-		myViewRigid[objectCount] = new W_Rigid(this,
+		myViewPocket[objectCount] = new W_Pocket(this,
 											   currentFlexLog,
-											   &rigidLog,
+											   &pocketLog,
 											   getDisplayMode(),
-											   &rigidDevList);
-		mdiState[RIGID_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewRigid[objectCount]);
-		mdiState[RIGID_WINDOWS_ID][objectCount].open = true;
-		myViewRigid[objectCount]->show();
+											   &pocketDevList);
+		mdiState[POCKET_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewPocket[objectCount]);
+		mdiState[POCKET_WINDOWS_ID][objectCount].open = true;
+		myViewPocket[objectCount]->show();
 
-		sendWindowCreatedMsg(W_Rigid::getDescription(), objectCount,
-							 W_Rigid::getMaxWindow() - 1);
+		sendWindowCreatedMsg(W_Pocket::getDescription(), objectCount,
+							 W_Pocket::getMaxWindow() - 1);
 
 		if(W_Status::howManyInstance() <= objectCount){createStatus();}
 
-		//Link ComManager and Rigid:
+		//Link ComManager and Pocket:
 		connect(comManager[0],				&ComManager::newDataReady, \
-				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+				myViewPocket[objectCount],	&W_Pocket::refreshDisplay);
 
-		//Link ComManager and Rigid:
+		//Link ComManager and Pocket:
 		connect(comManager[0],				&ComManager::newDataReady, \
-				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+				myViewPocket[objectCount],	&W_Pocket::refreshDisplay);
 
-		//Link ComManager and Rigid:
+		//Link ComManager and Pocket:
 		connect(comManager[1],				&ComManager::newDataReady, \
-				myViewRigid[objectCount],	&W_Rigid::refreshDisplay);
+				myViewPocket[objectCount],	&W_Pocket::refreshDisplay);
 
 		//Link to MainWindow for the close signal:
-		connect(myViewRigid[objectCount],	&W_Rigid::windowClosed, \
-				this,						&MainWindow::closeViewRigid);
+		connect(myViewPocket[objectCount],	&W_Pocket::windowClosed, \
+				this,						&MainWindow::closeViewPocket);
 
 		// Link to the slider of logKeyPad. Intermediate signal (connector) to
 		// allow opening of window asynchroniously
 		connect(this,						&MainWindow::connectorRefreshLogTimeSlider, \
-				myViewRigid[objectCount],	&W_Rigid::refreshDisplayLog);
+				myViewPocket[objectCount],	&W_Pocket::refreshDisplayLog);
 
 		connect(this,						&MainWindow::connectorUpdateDisplayMode, \
-				myViewRigid[objectCount],	&W_Rigid::updateDisplayMode);
+				myViewPocket[objectCount],	&W_Pocket::updateDisplayMode);
 
-		connect(myViewRigid[objectCount],	&W_Rigid::statusChanged, \
+		connect(myViewPocket[objectCount],	&W_Pocket::statusChanged, \
 				myStatus[objectCount],		&W_Status::externalErrorFlag);
 	}
 
 	else
 	{
-		sendWindowCreatedFailedMsg(W_Rigid::getDescription(),
-								   W_Rigid::getMaxWindow());
+		sendWindowCreatedFailedMsg(W_Pocket::getDescription(),
+								   W_Pocket::getMaxWindow());
 	}
 }
 
 void MainWindow::closeViewPocket(void)
 {
-	sendCloseWindowMsg(W_Rigid::getDescription());
-	mdiState[RIGID_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
+	sendCloseWindowMsg(W_Pocket::getDescription());
+	mdiState[POCKET_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 //Creates a new View Strain window

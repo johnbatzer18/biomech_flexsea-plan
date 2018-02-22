@@ -51,6 +51,7 @@
 #include "ricnuProject.h"
 #include "ankle2DofProject.h"
 #include "rigidDevice.h"
+#include "pocketDevice.h"
 #include <commanager.h>
 
 //****************************************************************************
@@ -88,6 +89,7 @@ public:
 							QList<FlexseaDevice*> *ankle2DofDevListIni = nullptr,
 							QList<FlexseaDevice*> *dynamicUserDevListInit = nullptr,
 							QList<FlexseaDevice*> *rigidDevListInit = nullptr,
+							QList<FlexseaDevice*> *pocketDevListInit = nullptr,
 							QList<ComManager*>	  *comManagerListInit = nullptr);
 
 	QList<ComManager*> *ComManagerList;
@@ -175,6 +177,7 @@ private:
 	QList<FlexseaDevice*> *batteryDevList;
 	QList<FlexseaDevice*> *strainDevList;
 	QList<FlexseaDevice*> *rigidDevList;
+	QList<FlexseaDevice*> *pocketDevList;
 
 	QList<FlexseaDevice*> *ricnuDevList;
 	QList<FlexseaDevice*> *ankle2DofDevList;
@@ -187,6 +190,7 @@ private:
 	QList<FlexseaDevice*> dynamicUserTargetList;
 	QList<FlexseaDevice*> batteryTargetList;
 	QList<FlexseaDevice*> rigidTargetList;
+	QList<FlexseaDevice*> pocketTargetList;
 
 	//Command line (only for RIC/NU as of today):
 	QString defaultCmdLineText;

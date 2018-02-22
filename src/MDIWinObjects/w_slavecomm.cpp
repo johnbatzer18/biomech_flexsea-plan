@@ -60,6 +60,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 						 QList<FlexseaDevice*> *ankle2DofDevListInit,
 						 QList<FlexseaDevice*> *dynamicUserDevListInit,
 						 QList<FlexseaDevice*> *rigidDevListInit,
+						 QList<FlexseaDevice*> *pocketDevListInit,
 						 QList<ComManager*> *comManagerListInit) :
 	QWidget(parent),
 	ui(new Ui::W_SlaveComm)
@@ -84,6 +85,7 @@ W_SlaveComm::W_SlaveComm(QWidget *parent,
 	ricnuDevList = ricnuDevListInit;
 	ankle2DofDevList = ankle2DofDevListInit;
 	rigidDevList = rigidDevListInit;
+	pocketDevList = pocketDevListInit;
 	dynamicUserDevList = dynamicUserDevListInit;
 	ComManagerList = comManagerListInit;
 
@@ -333,6 +335,7 @@ void W_SlaveComm::initExperimentList(void)
 	batteryTargetList.append(*executeDevList);
 	batteryTargetList.append(*manageDevList);
 	rigidTargetList.append(*manageDevList);
+	pocketTargetList.append(*pocketDevList);
 	dynamicUserTargetList.append(*dynamicUserDevList);
 }
 
@@ -386,6 +389,7 @@ void W_SlaveComm::initializeMaps()
 	targetListMap[7] = &dynamicUserTargetList;
 	//targetListMap[8] = &;
 	targetListMap[9] = &rigidTargetList;
+	targetListMap[10]= &pocketTargetList;
 
 	cmdMap[0] = CMD_READ_ALL;
 	cmdMap[1] = CMD_IN_CONTROL;
@@ -398,7 +402,7 @@ void W_SlaveComm::initializeMaps()
 	//cmdMap[8] = ;
 	cmdMap[9] = CMD_READ_ALL_RIGID;
 
-	numExperiments = 10;
+	numExperiments = 11;
 }
 
 void W_SlaveComm::initTimers(void)

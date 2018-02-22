@@ -58,6 +58,7 @@
 #include "w_status.h"
 #include "w_gaitstats.h"
 #include "w_rigid.h"
+#include "w_pocket.h"
 #include "flexseaDevice.h"
 #include "w_commtest.h"
 #include "w_cycletester.h"
@@ -100,7 +101,8 @@ class MainWindow;
 #define ANKLE_ANGLE_PLOT_WINDOWS_ID		22
 #define GAITS_STATS_WINDOWS_ID			23
 #define STATUS_WINDOWS_ID				24
-#define WINDOWS_TYPES					25 //(has to match the list above)
+#define POCKET_WINDOWS_ID				25
+#define WINDOWS_TYPES					26 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES			5
 
 //MDI Objects: set maximums # of child
@@ -124,6 +126,7 @@ class MainWindow;
 #define EVENT_WINDOWS_MAX				1
 #define ANKLE_TORQUE_WINDOWS_MAX		1
 #define RIGID_WINDOWS_MAX				2
+#define POCKET_WINDOWS_MAX				1
 #define CYCLE_TESTER_WINDOWS_MAX		1
 #define USER_TESTING_WINDOWS_MAX		1
 #define ANKLE_ANGLE_PLOT_WINDOWS_MAX	1
@@ -162,6 +165,7 @@ private:
 	QList<ExecuteDevice>	executeDevList;
 	QList<ManageDevice>		manageDevList;
 	QList<RigidDevice>		rigidDevList;
+	QList<PocketDevice>		pocketDevList;
 	QList<GossipDevice>		gossipDevList;
 	QList<BatteryDevice>	batteryDevList;
 	QList<StrainDevice>		strainDevList;
@@ -172,6 +176,7 @@ private:
 	QList<FlexseaDevice*>	executeFlexList;
 	QList<FlexseaDevice*>	manageFlexList;
 	QList<FlexseaDevice*>	rigidFlexList;
+	QList<FlexseaDevice*>	pocketFlexList;
 	QList<FlexseaDevice*>	gossipFlexList;
 	QList<FlexseaDevice*>	batteryFlexList;
 	QList<FlexseaDevice*>	strainFlexList;
@@ -189,6 +194,7 @@ private:
 	ManageDevice manageLog = ManageDevice();
 	GossipDevice gossipLog = GossipDevice();
 	RigidDevice rigidLog = RigidDevice();
+	PocketDevice pocketLog = PocketDevice();
 	BatteryDevice batteryLog = BatteryDevice();
 	StrainDevice strainLog = StrainDevice();
 	RicnuProject ricnuLog = RicnuProject();
@@ -222,6 +228,7 @@ private:
 	W_AnkleAnglePlot *myAnkleAnglePlot[ANKLE_ANGLE_PLOT_WINDOWS_MAX];
 	W_GaitStats *myGaitStats[GAIT_STATS_WINDOWS_MAX];
 	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
+	W_Pocket *myViewPocket[POCKET_WINDOWS_MAX];
 	W_CycleTester *myCycleTester[CYCLE_TESTER_WINDOWS_MAX];
 	W_UserTesting *myUserTesting[USER_TESTING_WINDOWS_MAX];
 	W_Status *myStatus[STATUS_WINDOWS_MAX];

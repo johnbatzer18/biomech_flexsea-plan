@@ -50,6 +50,7 @@
 #include "batteryDevice.h"
 #include "strainDevice.h"
 #include "ricnuProject.h"
+#include "pocketDevice.h"
 #include <QHash>
 #include "ankle2DofProject.h"
 #include "rigidDevice.h"
@@ -80,6 +81,7 @@ public:
 						RicnuProject *ricnuInitPtr = nullptr,
 						Ankle2DofProject *ankle2DofInitPtr = nullptr,
 						RigidDevice *rigidInitPtr = nullptr,
+						PocketDevice *pocketInitPtr = nullptr,
 						QString appPath = "");
 
 public slots:
@@ -115,6 +117,7 @@ private:
 	RicnuProject *ricnuDevPtr;
 	Ankle2DofProject *ankle2DofDevPtr;
 	RigidDevice *rigidDevPtr;
+	PocketDevice *pocketDevPtr;
 
 	QString planGUIRootPath;
 	QString logFolder;
