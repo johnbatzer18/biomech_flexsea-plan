@@ -1,0 +1,12 @@
+*.user
+build/
+*.autosave
+*~
+*.bak
+*.o
+*.a
+doxygen_output/*
+Doxyfile
+*.orig
+*.gif
+doc/

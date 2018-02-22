@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1190</width>
+    <height>867</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>800</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>800</width>
+    <height>800</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QMdiArea" name="mdiArea">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>10000</width>
+        <height>2500</height>
+       </size>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>800</width>
+        <height>800</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
+      <property name="background">
+       <brush brushstyle="NoBrush">
+        <color alpha="255">
+         <red>160</red>
+         <green>160</green>
+         <blue>160</blue>
+        </color>
+       </brush>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1190</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>Add View</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuControl">
+    <property name="title">
+     <string>Add Control</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuUser">
+    <property name="title">
+     <string>User</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuControl"/>
+   <addaction name="menuUser"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionConfig">
+   <property name="text">
+    <string>Communication</string>
+   </property>
+  </action>
+  <action name="actionLoad_Configuration">
+   <property name="text">
+    <string>Load Settings</string>
+   </property>
+  </action>
+  <action name="actionSave_Configuration">
+   <property name="text">
+    <string>Save Settings</string>
+   </property>
+  </action>
+  <action name="actionDatalogging">
+   <property name="text">
+    <string>Datalogging</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Configuration</string>
+   </property>
+  </action>
+  <action name="actionExecute_Barebone">
+   <property name="text">
+    <string>Execute</string>
+   </property>
+  </action>
+  <action name="actionManage_Barebone">
+   <property name="text">
+    <string>Manage</string>
+   </property>
+  </action>
+  <action name="actionControl_Loo">
+   <property name="text">
+    <string>Control Loop</string>
+   </property>
+  </action>
+  <action name="actionIn_Control_Tool">
+   <property name="text">
+    <string>In Control Tool</string>
+   </property>
+  </action>
+  <action name="action2D_Plot">
+   <property name="text">
+    <string>2D Plot</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionTest_Button">
+   <property name="text">
+    <string>Test Button</string>
+   </property>
+  </action>
+  <action name="actionAny_Command">
+   <property name="text">
+    <string>Any Command</string>
+   </property>
+  </action>
+  <action name="actionConverter">
+   <property name="text">
+    <string>Converter</string>
+   </property>
+  </action>
+  <action name="actionSlave_Communication">
+   <property name="text">
+    <string>Slave Communication</string>
+   </property>
+  </action>
+  <action name="actionLicense">
+   <property name="text">
+    <string>License</string>
+   </property>
+  </action>
+  <action name="actionRIC_NU_Knee">
+   <property name="text">
+    <string>RIC/NU Knee</string>
+   </property>
+  </action>
+  <action name="actionCalibration">
+   <property name="text">
+    <string>Calibration</string>
+   </property>
+  </action>
+  <action name="actionGossip">
+   <property name="text">
+    <string>Gossip</string>
+   </property>
+  </action>
+  <action name="actionBattery">
+   <property name="text">
+    <string>Battery</string>
+   </property>
+  </action>
+  <action name="actionStrain">
+   <property name="text">
+    <string>Strain</string>
+   </property>
+  </action>
+  <action name="actionUser_R_W">
+   <property name="text">
+    <string>User R/W</string>
+   </property>
+  </action>
+  <action name="actionCommunication_Test">
+   <property name="text">
+    <string>Communication Test</string>
+   </property>
+  </action>
+  <action name="actionEvent_Flag">
+   <property name="text">
+    <string>Event Flag</string>
+   </property>
+  </action>
+  <action name="actionDefault_Settings">
+   <property name="text">
+    <string>Default Settings</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>createViewExecute()</slot>
+  <slot>createControlControl()</slot>
+  <slot>displayAbout()</slot>
+  <slot>displayDocumentation()</slot>
+  <slot>createView2DPlot()</slot>
+  <slot>openFile()</slot>
+  <slot>createAnyCommand()</slot>
+  <slot>createConverter()</slot>
+  <slot>createConfig()</slot>
+  <slot>createSlaveComm()</slot>
+  <slot>displayLicense()</slot>
+  <slot>createViewRicnu()</slot>
+  <slot>createViewManage()</slot>
+  <slot>createCalib()</slot>
+  <slot>createViewBattery()</slot>
+  <slot>createViewStrain()</slot>
+  <slot>createViewGossip()</slot>
+  <slot>createUserRW()</slot>
+  <slot>createViewTestBench()</slot>
+  <slot>createViewCommTest()</slot>
+  <slot>createInControl()</slot>
+  <slot>createToolEvent()</slot>
+  <slot>saveConfig()</slot>
+  <slot>loadConfig()</slot>
+  <slot>defaultConfig()</slot>
+ </slots>
+</ui>
