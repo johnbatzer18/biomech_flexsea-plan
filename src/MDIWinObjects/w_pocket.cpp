@@ -157,33 +157,33 @@ void W_Pocket::display(PocketDevice *devicePtr, int index)
 	//Raw values - Execute0:
 	//=====================
 
-	ui->disp_mot_ang->setText(QString::number(*(po->ex[0].enc_ang)));
-	ui->disp_mot_vel->setText(QString::number(*(po->ex[0].enc_ang_vel)));
-	ui->disp_mot_acc->setText(QString::number(po->ex[0].mot_acc));
-	ui->disp_strain->setText(QString::number(po->ex[0].strain));
-	ui->disp_current_mot->setText(QString::number(po->ex[0].mot_current));
+	ui->disp_mot_ang_0->setText(QString::number(*(po->ex[0].enc_ang)));
+	ui->disp_mot_vel_0->setText(QString::number(*(po->ex[0].enc_ang_vel)));
+	ui->disp_mot_acc_0->setText(QString::number(po->ex[0].mot_acc));
+	ui->disp_strain_0->setText(QString::number(po->ex[0].strain));
+	ui->disp_current_mot_0->setText(QString::number(po->ex[0].mot_current));
 
-	ui->disp_joint_angle->setText(QString::number(*(po->ex[0].joint_ang)));
-	ui->disp_joint_angle_vel->setText(QString::number(*(po->ex[0].joint_ang_vel)));
-	ui->disp_joint_angle_from_mot->setText(QString::number(*(po->ex[0].joint_ang_from_mot)));
-	ui->disp_mot_volt->setText(QString::number(po->ex[0].mot_volt));
+	ui->disp_joint_angle_0->setText(QString::number(*(po->ex[0].joint_ang)));
+	ui->disp_joint_angle_vel_0->setText(QString::number(*(po->ex[0].joint_ang_vel)));
+	ui->disp_joint_angle_from_mot_0->setText(QString::number(*(po->ex[0].joint_ang_from_mot)));
+	ui->disp_mot_volt_0->setText(QString::number(po->ex[0].mot_volt));
 
-	ui->disp_ex_stat->setText(QString::number(po->ex[0].status));
+	ui->disp_ex_stat_0->setText(QString::number(po->ex[0].status));
 
 	//Raw values - Execute1:
 	//=====================
-	ui->disp_mot_ang->setText(QString::number(*(po->ex[1].enc_ang)));
-	ui->disp_mot_vel->setText(QString::number(*(po->ex[1].enc_ang_vel)));
-	ui->disp_mot_acc->setText(QString::number(po->ex[1].mot_acc));
-	ui->disp_strain->setText(QString::number(po->ex[1].strain));
-	ui->disp_current_mot->setText(QString::number(po->ex[1].mot_current));
+	ui->disp_mot_ang_1->setText(QString::number(*(po->ex[1].enc_ang)));
+	ui->disp_mot_vel_1->setText(QString::number(*(po->ex[1].enc_ang_vel)));
+	ui->disp_mot_acc_1->setText(QString::number(po->ex[1].mot_acc));
+	ui->disp_strain_1->setText(QString::number(po->ex[1].strain));
+	ui->disp_current_mot_1->setText(QString::number(po->ex[1].mot_current));
 
-	ui->disp_joint_angle->setText(QString::number(*(po->ex[1].joint_ang)));
-	ui->disp_joint_angle_vel->setText(QString::number(*(po->ex[1].joint_ang_vel)));
-	ui->disp_joint_angle_from_mot->setText(QString::number(*(po->ex[1].joint_ang_from_mot)));
-	ui->disp_mot_volt->setText(QString::number(po->ex[1].mot_volt));
+	ui->disp_joint_angle_1->setText(QString::number(*(po->ex[1].joint_ang)));
+	ui->disp_joint_angle_vel_1->setText(QString::number(*(po->ex[1].joint_ang_vel)));
+	ui->disp_joint_angle_from_mot_1->setText(QString::number(*(po->ex[1].joint_ang_from_mot)));
+	ui->disp_mot_volt_1->setText(QString::number(po->ex[1].mot_volt));
 
-	ui->disp_ex_stat->setText(QString::number(po->ex[1].status));
+	ui->disp_ex_stat_1->setText(QString::number(po->ex[1].status));
 
 	//Raw values - Regulate:
 	//======================
