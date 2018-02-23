@@ -399,7 +399,7 @@ void MainWindow::initFlexSeaDeviceObject(void)
 	flexseaPtrlist.append(&rigidDevList.last());
 	rigidFlexList.append(&rigidDevList.last());
 
-	pocketDevList.append(PocketDevice(&rigid1));
+	pocketDevList.append(PocketDevice(&pocket1));
 	pocketDevList.last().slaveName = "Pocket 1";
 	pocketDevList.last().slaveID = FLEXSEA_VIRTUAL_PROJECT;
 	flexseaPtrlist.append(&pocketDevList.last());

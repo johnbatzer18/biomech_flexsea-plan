@@ -39,7 +39,7 @@ PocketDevice::PocketDevice(void): FlexseaDevice()
 	slaveTypeName = "pocket";
 }
 
-PocketDevice::PocketDevice(rigid_s *devicePtr): FlexseaDevice()
+PocketDevice::PocketDevice(pocket_s *devicePtr): FlexseaDevice()
 {
 	if(header.length() != headerUnitList.length())
 	{
@@ -49,14 +49,21 @@ PocketDevice::PocketDevice(rigid_s *devicePtr): FlexseaDevice()
 	this->dataSource = LiveDataFile;
 	timeStamp.append(TimeStamp());
 
-	riList.append(devicePtr);
-	riList.last()->ex.enc_ang = &enc_ang;
-	riList.last()->ex.enc_ang_vel = &enc_vel;
-	riList.last()->ex.joint_ang = &joint_ang;
-	riList.last()->ex.joint_ang_vel = &joint_ang_vel;
-	riList.last()->ex.joint_ang_from_mot = &joint_ang_from_mot;
-	riList.last()->ctrl.ank_ang_deg = &ank_ang_deg;
-	riList.last()->ctrl.ank_ang_from_mot = &ank_ang_from_mot;
+	poList.append(devicePtr);
+	poList.last()->ex[0].enc_ang = &enc_ang;
+	poList.last()->ex[0].enc_ang_vel = &enc_vel;
+	poList.last()->ex[0].joint_ang = &joint_ang;
+	poList.last()->ex[0].joint_ang_vel = &joint_ang_vel;
+	poList.last()->ex[0].joint_ang_from_mot = &joint_ang_from_mot;
+
+	poList.last()->ex[1].enc_ang = &enc_ang;
+	poList.last()->ex[1].enc_ang_vel = &enc_vel;
+	poList.last()->ex[1].joint_ang = &joint_ang;
+	poList.last()->ex[1].joint_ang_vel = &joint_ang_vel;
+	poList.last()->ex[1].joint_ang_from_mot = &joint_ang_from_mot;
+
+	poList.last()->ctrl.ank_ang_deg = &ank_ang_deg;
+	poList.last()->ctrl.ank_ang_from_mot = &ank_ang_from_mot;
 
 	ownershipList.append(false); //we assume we don't own this device ptr, and whoever passed it to us is responsible for clean up
 	eventFlags.append(0);
@@ -67,7 +74,7 @@ PocketDevice::PocketDevice(rigid_s *devicePtr): FlexseaDevice()
 
 PocketDevice::~PocketDevice()
 {
-	if(ownershipList.size() != riList.size())
+	if(ownershipList.size() != poList.size())
 	{
 		qDebug() << "Pocket Device class cleaning up: execute list size doesn't match list of ownership info size.";
 		qDebug() << "Not sure whether it is safe to delete these device records.";
@@ -77,28 +84,45 @@ PocketDevice::~PocketDevice()
 	while(ownershipList.size())
 	{
 		bool shouldDelete = ownershipList.takeLast();
-		rigid_s* readyToDelete = riList.takeLast();
+		pocket_s* readyToDelete = poList.takeLast();
 		if(shouldDelete)
 		{
-			delete readyToDelete->ex.enc_ang;
-			readyToDelete->ex.enc_ang = nullptr;
+			delete readyToDelete->ex[0].enc_ang;
+			readyToDelete->ex[0].enc_ang = nullptr;
 
-			delete readyToDelete->ex.enc_ang_vel;
-			readyToDelete->ex.enc_ang_vel = nullptr;
+			delete readyToDelete->ex[0].enc_ang_vel;
+			readyToDelete->ex[0].enc_ang_vel = nullptr;
 
-			delete readyToDelete->ex.joint_ang;
-			readyToDelete->ex.joint_ang = nullptr;
+			delete readyToDelete->ex[0].joint_ang;
+			readyToDelete->ex[0].joint_ang = nullptr;
 
-			delete readyToDelete->ex.joint_ang_vel;
-			readyToDelete->ex.joint_ang_vel = nullptr;
+			delete readyToDelete->ex[0].joint_ang_vel;
+			readyToDelete->ex[0].joint_ang_vel = nullptr;
 
-			delete readyToDelete->ex.joint_ang_from_mot;
-			readyToDelete->ex.joint_ang_from_mot = nullptr;
+			delete readyToDelete->ex[0].joint_ang_from_mot;
+			readyToDelete->ex[0].joint_ang_from_mot = nullptr;
+
+
+			delete readyToDelete->ex[1].enc_ang;
+			readyToDelete->ex[1].enc_ang = nullptr;
+
+			delete readyToDelete->ex[1].enc_ang_vel;
+			readyToDelete->ex[1].enc_ang_vel = nullptr;
+
+			delete readyToDelete->ex[1].joint_ang;
+			readyToDelete->ex[1].joint_ang = nullptr;
+
+			delete readyToDelete->ex[1].joint_ang_vel;
+			readyToDelete->ex[1].joint_ang_vel = nullptr;
+
+			delete readyToDelete->ex[1].joint_ang_from_mot;
+			readyToDelete->ex[1].joint_ang_from_mot = nullptr;
+
 
 			delete readyToDelete->ctrl.ank_ang_deg;
 			readyToDelete->ctrl.ank_ang_deg = nullptr;
 
-			delete readyToDelete->ex.joint_ang_from_mot;
+			delete readyToDelete->ctrl.ank_ang_from_mot;
 			readyToDelete->ctrl.ank_ang_from_mot = nullptr;
 
 			delete readyToDelete;
@@ -206,52 +230,65 @@ QString PocketDevice::getLastDataEntry(void)
 		timeStamp.last().ms							<< ',' << \
 		eventFlags.last()							<< ',' << \
 
-		riList.last()->ctrl.timestamp				<< ',' << \
-		riList.last()->lastOffsetDecoded			<< ',' << \
+		poList.last()->ctrl.timestamp				<< ',' << \
+		poList.last()->lastOffsetDecoded			<< ',' << \
 
-		riList.last()->mn.accel.x					<< ',' << \
-		riList.last()->mn.accel.y					<< ',' << \
-		riList.last()->mn.accel.z					<< ',' << \
-		riList.last()->mn.gyro.x					<< ',' << \
-		riList.last()->mn.gyro.y					<< ',' << \
-		riList.last()->mn.gyro.z					<< ',' << \
+		poList.last()->mn.accel.x					<< ',' << \
+		poList.last()->mn.accel.y					<< ',' << \
+		poList.last()->mn.accel.z					<< ',' << \
+		poList.last()->mn.gyro.x					<< ',' << \
+		poList.last()->mn.gyro.y					<< ',' << \
+		poList.last()->mn.gyro.z					<< ',' << \
 
-		*(riList.last()->ex.joint_ang)				<< ',' << \
-		*(riList.last()->ex.joint_ang_vel)			<< ',' << \
-		*(riList.last()->ex.joint_ang_from_mot)		<< ',' << \
+		*(poList.last()->ex[0].joint_ang)				<< ',' << \
+		*(poList.last()->ex[0].joint_ang_vel)			<< ',' << \
+		*(poList.last()->ex[0].joint_ang_from_mot)		<< ',' << \
 
-		*(riList.last()->ex.enc_ang)				<< ',' << \
-		*(riList.last()->ex.enc_ang_vel)			<< ',' << \
-		riList.last()->ex.mot_acc					<< ',' << \
-		riList.last()->ex.ctrl.current.setpoint_val	<< ',' << \
-		riList.last()->ex.mot_current				<< ',' << \
-		riList.last()->ex.mot_volt					<< ',' << \
+		*(poList.last()->ex[0].enc_ang)				<< ',' << \
+		*(poList.last()->ex[0].enc_ang_vel)			<< ',' << \
+		poList.last()->ex[0].mot_acc					<< ',' << \
+		poList.last()->ex[0].ctrl.current.setpoint_val	<< ',' << \
+		poList.last()->ex[0].mot_current				<< ',' << \
+		poList.last()->ex[0].mot_volt					<< ',' << \
 
-		riList.last()->ctrl.walkingState			<< ',' << \
-		riList.last()->ctrl.gaitState				<< ',' << \
+	   *(poList.last()->ex[1].joint_ang)				<< ',' << \
+	   *(poList.last()->ex[1].joint_ang_vel)			<< ',' << \
+	   *(poList.last()->ex[1].joint_ang_from_mot)		<< ',' << \
 
-		riList.last()->re.vb						<< ',' << \
-		riList.last()->re.vg						<< ',' << \
-		riList.last()->re.v5						<< ',' << \
-		riList.last()->re.current					<< ',' << \
-		riList.last()->re.temp						<< ',' << \
-		riList.last()->ex.strain					<< ',' << \
+	   *(poList.last()->ex[1].enc_ang)				<< ',' << \
+	   *(poList.last()->ex[1].enc_ang_vel)			<< ',' << \
+	   poList.last()->ex[1].mot_acc					<< ',' << \
+	   poList.last()->ex[1].ctrl.current.setpoint_val	<< ',' << \
+	   poList.last()->ex[1].mot_current				<< ',' << \
+	   poList.last()->ex[1].mot_volt					<< ',' << \
 
-		riList.last()->mn.analog[0]					<< ',' << \
-		riList.last()->mn.analog[1]					<< ',' << \
-		riList.last()->mn.analog[2]					<< ',' << \
-		riList.last()->mn.analog[3]					<< ',' << \
+		poList.last()->ctrl.walkingState			<< ',' << \
+		poList.last()->ctrl.gaitState				<< ',' << \
 
-		riList.last()->mn.genVar[0]					<< ',' << \
-		riList.last()->mn.genVar[1]					<< ',' << \
-		riList.last()->mn.genVar[2]					<< ',' << \
-		riList.last()->mn.genVar[3]					<< ',' << \
-		riList.last()->mn.genVar[4]					<< ',' << \
-		riList.last()->mn.genVar[5]					<< ',' << \
-		riList.last()->mn.genVar[6]					<< ',' << \
-		riList.last()->mn.genVar[7]					<< ',' << \
-		riList.last()->mn.genVar[8]					<< ',' << \
-		riList.last()->mn.genVar[9];
+		poList.last()->re.vb						<< ',' << \
+		poList.last()->re.vg						<< ',' << \
+		poList.last()->re.v5						<< ',' << \
+		poList.last()->re.current					<< ',' << \
+		poList.last()->re.temp						<< ',' << \
+		poList.last()->ex[0].strain					<< ',' << \
+
+		poList.last()->ex[1].strain					<< ',' << \
+
+		poList.last()->mn.analog[0]					<< ',' << \
+		poList.last()->mn.analog[1]					<< ',' << \
+		poList.last()->mn.analog[2]					<< ',' << \
+		poList.last()->mn.analog[3]					<< ',' << \
+
+		poList.last()->mn.genVar[0]					<< ',' << \
+		poList.last()->mn.genVar[1]					<< ',' << \
+		poList.last()->mn.genVar[2]					<< ',' << \
+		poList.last()->mn.genVar[3]					<< ',' << \
+		poList.last()->mn.genVar[4]					<< ',' << \
+		poList.last()->mn.genVar[5]					<< ',' << \
+		poList.last()->mn.genVar[6]					<< ',' << \
+		poList.last()->mn.genVar[7]					<< ',' << \
+		poList.last()->mn.genVar[8]					<< ',' << \
+		poList.last()->mn.genVar[9];
 
 	return str;
 }
@@ -268,52 +305,66 @@ void PocketDevice::appendSerializedStr(QStringList *splitLine)
 		timeStamp.last().ms							= (*splitLine)[idx++].toInt();
 		eventFlags.last()							= (*splitLine)[idx++].toInt();
 
-		riList.last()->ctrl.timestamp				= (*splitLine)[idx++].toInt();
-		riList.last()->lastOffsetDecoded			= (*splitLine)[idx++].toInt();
+		poList.last()->ctrl.timestamp				= (*splitLine)[idx++].toInt();
+		poList.last()->lastOffsetDecoded			= (*splitLine)[idx++].toInt();
 
-		riList.last()->mn.accel.x					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.accel.y					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.accel.z					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.gyro.x					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.gyro.y					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.gyro.z					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.accel.x					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.accel.y					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.accel.z					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.gyro.x					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.gyro.y					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.gyro.z					= (*splitLine)[idx++].toInt();
 
-		*(riList.last()->ex.joint_ang)				= (*splitLine)[idx++].toInt();
-		*(riList.last()->ex.joint_ang_vel)			= (*splitLine)[idx++].toInt();
-		*(riList.last()->ex.joint_ang_from_mot)		= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[0].joint_ang)				= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[0].joint_ang_vel)			= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[0].joint_ang_from_mot)		= (*splitLine)[idx++].toInt();
 
-		*(riList.last()->ex.enc_ang)				= (*splitLine)[idx++].toInt();
-		*(riList.last()->ex.enc_ang_vel)			= (*splitLine)[idx++].toInt();
-		riList.last()->ex.mot_acc					= (*splitLine)[idx++].toInt();
-		riList.last()->ex.ctrl.current.setpoint_val	= (*splitLine)[idx++].toInt();
-		riList.last()->ex.mot_current				= (*splitLine)[idx++].toInt();
-		riList.last()->ex.mot_volt					= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[0].enc_ang)				= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[0].enc_ang_vel)			= (*splitLine)[idx++].toInt();
+		poList.last()->ex[0].mot_acc					= (*splitLine)[idx++].toInt();
+		poList.last()->ex[0].ctrl.current.setpoint_val	= (*splitLine)[idx++].toInt();
+		poList.last()->ex[0].mot_current				= (*splitLine)[idx++].toInt();
+		poList.last()->ex[0].mot_volt					= (*splitLine)[idx++].toInt();
 
-		riList.last()->ctrl.walkingState			= (*splitLine)[idx++].toInt();
-		riList.last()->ctrl.gaitState				= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[1].joint_ang)				= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[1].joint_ang_vel)			= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[1].joint_ang_from_mot)		= (*splitLine)[idx++].toInt();
 
-		riList.last()->re.vb						= (*splitLine)[idx++].toInt();
-		riList.last()->re.vg						= (*splitLine)[idx++].toInt();
-		riList.last()->re.v5						= (*splitLine)[idx++].toInt();
-		riList.last()->re.current					= (*splitLine)[idx++].toInt();
-		riList.last()->re.temp						= (*splitLine)[idx++].toInt();
-		riList.last()->ex.strain					= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[1].enc_ang)				= (*splitLine)[idx++].toInt();
+		*(poList.last()->ex[1].enc_ang_vel)			= (*splitLine)[idx++].toInt();
+		poList.last()->ex[1].mot_acc					= (*splitLine)[idx++].toInt();
+		poList.last()->ex[1].ctrl.current.setpoint_val	= (*splitLine)[idx++].toInt();
+		poList.last()->ex[1].mot_current				= (*splitLine)[idx++].toInt();
+		poList.last()->ex[1].mot_volt					= (*splitLine)[idx++].toInt();
 
-		riList.last()->mn.analog[0]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.analog[1]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.analog[2]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.analog[3]					= (*splitLine)[idx++].toInt();
+		poList.last()->ctrl.walkingState			= (*splitLine)[idx++].toInt();
+		poList.last()->ctrl.gaitState				= (*splitLine)[idx++].toInt();
 
-		riList.last()->mn.genVar[0]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[1]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[2]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[3]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[4]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[5]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[6]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[7]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[8]					= (*splitLine)[idx++].toInt();
-		riList.last()->mn.genVar[9]					= (*splitLine)[idx++].toInt();
+		poList.last()->re.vb						= (*splitLine)[idx++].toInt();
+		poList.last()->re.vg						= (*splitLine)[idx++].toInt();
+		poList.last()->re.v5						= (*splitLine)[idx++].toInt();
+		poList.last()->re.current					= (*splitLine)[idx++].toInt();
+		poList.last()->re.temp						= (*splitLine)[idx++].toInt();
+
+		poList.last()->ex[0].strain					= (*splitLine)[idx++].toInt();
+
+		poList.last()->ex[1].strain					= (*splitLine)[idx++].toInt();
+
+		poList.last()->mn.analog[0]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.analog[1]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.analog[2]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.analog[3]					= (*splitLine)[idx++].toInt();
+
+		poList.last()->mn.genVar[0]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[1]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[2]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[3]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[4]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[5]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[6]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[7]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[8]					= (*splitLine)[idx++].toInt();
+		poList.last()->mn.genVar[9]					= (*splitLine)[idx++].toInt();
 	}
 }
 
@@ -321,7 +372,7 @@ struct std_variable PocketDevice::getSerializedVar(int headerIndex, int index)
 {
 	struct std_variable var;
 
-	if(index >= riList.length())
+	if(index >= poList.length())
 	{
 		headerIndex = INT_MAX;
 	}
@@ -351,197 +402,250 @@ struct std_variable PocketDevice::getSerializedVar(int headerIndex, int index)
 			break;
 		case 3: //"State time"
 			var.format = FORMAT_32U;
-			var.rawGenPtr = &riList[index]->ctrl.timestamp;
+			var.rawGenPtr = &poList[index]->ctrl.timestamp;
 			var.decodedPtr = nullptr;
 			break;
 		case 4: //"Last offset decoded"
 			var.format = FORMAT_8U;
-			var.rawGenPtr = &riList[index]->lastOffsetDecoded;
+			var.rawGenPtr = &poList[index]->lastOffsetDecoded;
 			var.decodedPtr = nullptr;
 			break;
 		case 5: //"Accel X"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.accel.x;
-			var.decodedPtr = &riList[index]->mn.decoded.accel.x;
+			var.rawGenPtr = &poList[index]->mn.accel.x;
+			var.decodedPtr = &poList[index]->mn.decoded.accel.x;
 			break;
 		case 6: //"Accel Y"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.accel.y;
-			var.decodedPtr = &riList[index]->mn.decoded.accel.y;
+			var.rawGenPtr = &poList[index]->mn.accel.y;
+			var.decodedPtr = &poList[index]->mn.decoded.accel.y;
 			break;
 		case 7: //"Accel Z"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.accel.z;
-			var.decodedPtr = &riList[index]->mn.decoded.accel.z;
+			var.rawGenPtr = &poList[index]->mn.accel.z;
+			var.decodedPtr = &poList[index]->mn.decoded.accel.z;
 			break;
 		case 8: //"Gyro X"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.gyro.x;
-			var.decodedPtr = &riList[index]->mn.decoded.gyro.x;
+			var.rawGenPtr = &poList[index]->mn.gyro.x;
+			var.decodedPtr = &poList[index]->mn.decoded.gyro.x;
 			break;
 		case 9: //"Gyro Y"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.gyro.y;
-			var.decodedPtr = &riList[index]->mn.decoded.gyro.y;
+			var.rawGenPtr = &poList[index]->mn.gyro.y;
+			var.decodedPtr = &poList[index]->mn.decoded.gyro.y;
 			break;
 		case 10: //"Gyro Z"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.gyro.z;
-			var.decodedPtr = &riList[index]->mn.decoded.gyro.z;
+			var.rawGenPtr = &poList[index]->mn.gyro.z;
+			var.decodedPtr = &poList[index]->mn.decoded.gyro.z;
 			break;
-		case 11: //"Joint Angle"
+
+		case 11: //"Joint Angle 0"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = riList[index]->ex.joint_ang;
+			var.rawGenPtr = poList[index]->ex[0].joint_ang;
 			var.decodedPtr = nullptr;
 			break;
-		case 12: //"Joint Velocity"
+		case 12: //"Joint Velocity 0"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = riList[index]->ex.joint_ang_vel;
+			var.rawGenPtr = poList[index]->ex[0].joint_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
-		case 13: //"Joint Angle From Motor"
+		case 13: //"Joint Angle From Motor 0"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = riList[index]->ex.joint_ang_from_mot;
+			var.rawGenPtr = poList[index]->ex[0].joint_ang_from_mot;
 			var.decodedPtr = nullptr;
 			break;
-		case 14: //"Motor Angle"
+		case 14: //"Motor Angle 0"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = riList[index]->ex.enc_ang;
+			var.rawGenPtr = poList[index]->ex[0].enc_ang;
 			var.decodedPtr = nullptr;
 			break;
-		case 15: //"Motor Velocity"
+		case 15: //"Motor Velocity 0"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = riList[index]->ex.enc_ang_vel;
+			var.rawGenPtr = poList[index]->ex[0].enc_ang_vel;
 			var.decodedPtr = nullptr;
 			break;
-		case 16: //"Motor Acceleration"
+		case 16: //"Motor Acceleration 0"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->ex.mot_acc;
+			var.rawGenPtr = &poList[index]->ex[0].mot_acc;
 			var.decodedPtr = nullptr;
 			break;
-		case 17: //"Motor Current Setpoint"
+		case 17: //"Motor Current Setpoint 0"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->ex.ctrl.current.setpoint_val;
+			var.rawGenPtr = &poList[index]->ex[0].ctrl.current.setpoint_val;
 			var.decodedPtr = nullptr;
 			break;
-		case 18: //"Motor current"
+		case 18: //"Motor current 0"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->ex.mot_current;
+			var.rawGenPtr = &poList[index]->ex[0].mot_current;
 			var.decodedPtr = nullptr;
 			break;
-		case 19: //"Motor Voltage"
+		case 19: //"Motor Voltage 0"
 			var.format = FORMAT_32S;
-			var.rawGenPtr = &riList[index]->ex.mot_volt;
+			var.rawGenPtr = &poList[index]->ex[0].mot_volt;
 			var.decodedPtr = nullptr;
 			break;
-		case 20: //"Walking State"
+
+		case 20: //"Joint Angle 1"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = poList[index]->ex[1].joint_ang;
+			var.decodedPtr = nullptr;
+			break;
+		case 21: //"Joint Velocity 1"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = poList[index]->ex[1].joint_ang_vel;
+			var.decodedPtr = nullptr;
+			break;
+		case 22: //"Joint Angle From Motor 1"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = poList[index]->ex[1].joint_ang_from_mot;
+			var.decodedPtr = nullptr;
+			break;
+		case 23: //"Motor Angle 1"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = poList[index]->ex[1].enc_ang;
+			var.decodedPtr = nullptr;
+			break;
+		case 24: //"Motor Velocity 1"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = poList[index]->ex[1].enc_ang_vel;
+			var.decodedPtr = nullptr;
+			break;
+		case 25: //"Motor Acceleration 1"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &poList[index]->ex[1].mot_acc;
+			var.decodedPtr = nullptr;
+			break;
+		case 26: //"Motor Current Setpoint 1"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &poList[index]->ex[1].ctrl.current.setpoint_val;
+			var.decodedPtr = nullptr;
+			break;
+		case 27: //"Motor current 1"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &poList[index]->ex[1].mot_current;
+			var.decodedPtr = nullptr;
+			break;
+		case 28: //"Motor Voltage 1"
+			var.format = FORMAT_32S;
+			var.rawGenPtr = &poList[index]->ex[1].mot_volt;
+			var.decodedPtr = nullptr;
+			break;
+
+		case 29: //"Walking State"
 			var.format = FORMAT_8S;
-			var.rawGenPtr = &riList[index]->ctrl.walkingState;
+			var.rawGenPtr = &poList[index]->ctrl.walkingState;
 			var.decodedPtr = nullptr;
 			break;
-		case 21: //"Gait State"
+		case 30: //"Gait State"
 			var.format = FORMAT_8S;
-			var.rawGenPtr = &riList[index]->ctrl.gaitState;
+			var.rawGenPtr = &poList[index]->ctrl.gaitState;
 			var.decodedPtr = nullptr;
 			break;
-		case 22: //"+VB"
+		case 31: //"+VB"
 			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->re.vb;
+			var.rawGenPtr = &poList[index]->re.vb;
 			var.decodedPtr = nullptr;
 			break;
-		case 23: //"+VG"
+		case 32: //"+VG"
 			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->re.vg;
+			var.rawGenPtr = &poList[index]->re.vg;
 			var.decodedPtr = nullptr;
 			break;
-		case 24: //"+5V"
+		case 33: //"+5V"
 			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->re.v5;
+			var.rawGenPtr = &poList[index]->re.v5;
 			var.decodedPtr = nullptr;
 			break;
-		case 25: //"Battery Current"
+		case 34: //"Battery Current"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->re.current;
+			var.rawGenPtr = &poList[index]->re.current;
 			var.decodedPtr = nullptr;
 			break;
-		case 26: //"Temperature"
+		case 35: //"Temperature"
 			var.format = FORMAT_8S;
-			var.rawGenPtr = &riList[index]->re.temp;
+			var.rawGenPtr = &poList[index]->re.temp;
 			var.decodedPtr = nullptr;
 			break;
-		case 27: //"Strain"
+		case 36: //"Strain"
 			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->ex.strain;
+			var.rawGenPtr = &poList[index]->ex[0].strain;
 			var.decodedPtr = nullptr;
 			break;
-		case 28: //"Analog 0"
+		case 37: //"Strain"
 			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->mn.analog[0];
+			var.rawGenPtr = &poList[index]->ex[1].strain;
 			var.decodedPtr = nullptr;
 			break;
-		case 29: //"Analog 1"
+		case 38: //"Analog 0"
 			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->mn.analog[1];
+			var.rawGenPtr = &poList[index]->mn.analog[0];
 			var.decodedPtr = nullptr;
 			break;
-		case 30: //"Analog 2"
+		case 39: //"Analog 1"
 			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->mn.analog[2];
+			var.rawGenPtr = &poList[index]->mn.analog[1];
 			var.decodedPtr = nullptr;
 			break;
-		case 31: //"Analog 3"
+		case 40: //"Analog 2"
 			var.format = FORMAT_16U;
-			var.rawGenPtr = &riList[index]->mn.analog[3];
+			var.rawGenPtr = &poList[index]->mn.analog[2];
 			var.decodedPtr = nullptr;
 			break;
-		case 32: //"genVar[0]"
-			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[0];
+		case 41: //"Analog 3"
+			var.format = FORMAT_16U;
+			var.rawGenPtr = &poList[index]->mn.analog[3];
 			var.decodedPtr = nullptr;
 			break;
-		case 33: //"genVar[1]"
+		case 42: //"genVar[0]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[1];
+			var.rawGenPtr = &poList[index]->mn.genVar[0];
 			var.decodedPtr = nullptr;
 			break;
-		case 34: //"genVar[2]"
+		case 43: //"genVar[1]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[2];
+			var.rawGenPtr = &poList[index]->mn.genVar[1];
 			var.decodedPtr = nullptr;
 			break;
-		case 35: //"genVar[3]"
+		case 44: //"genVar[2]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[3];
+			var.rawGenPtr = &poList[index]->mn.genVar[2];
 			var.decodedPtr = nullptr;
 			break;
-		case 36: //"genVar[4]"
+		case 45: //"genVar[3]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[4];
+			var.rawGenPtr = &poList[index]->mn.genVar[3];
 			var.decodedPtr = nullptr;
 			break;
-		case 37: //"genVar[5]"
+		case 46: //"genVar[4]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[5];
+			var.rawGenPtr = &poList[index]->mn.genVar[4];
 			var.decodedPtr = nullptr;
 			break;
-		case 38: //"genVar[6]"
+		case 47: //"genVar[5]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[6];
+			var.rawGenPtr = &poList[index]->mn.genVar[5];
 			var.decodedPtr = nullptr;
 			break;
-		case 39: //"genVar[7]"
+		case 48: //"genVar[6]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[7];
+			var.rawGenPtr = &poList[index]->mn.genVar[6];
 			var.decodedPtr = nullptr;
 			break;
-		case 40: //"genVar[8]"
+		case 49: //"genVar[7]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[8];
+			var.rawGenPtr = &poList[index]->mn.genVar[7];
 			var.decodedPtr = nullptr;
 			break;
-		case 41: //"genVar[9]"
+		case 50: //"genVar[8]"
 			var.format = FORMAT_16S;
-			var.rawGenPtr = &riList[index]->mn.genVar[9];
+			var.rawGenPtr = &poList[index]->mn.genVar[8];
+			var.decodedPtr = nullptr;
+			break;
+		case 51: //"genVar[9]"
+			var.format = FORMAT_16S;
+			var.rawGenPtr = &poList[index]->mn.genVar[9];
 			var.decodedPtr = nullptr;
 			break;
 		default:
@@ -557,7 +661,7 @@ struct std_variable PocketDevice::getSerializedVar(int headerIndex, int index)
 void PocketDevice::clear(void)
 {
 	FlexseaDevice::clear();
-	riList.clear();
+	poList.clear();
 	ownershipList.clear();
 	timeStamp.clear();
 	eventFlags.clear();
@@ -567,31 +671,37 @@ void PocketDevice::appendEmptyElement(void)
 {
 	timeStamp.append(TimeStamp());
 
-	rigid_s *emptyStruct = new rigid_s();
-	emptyStruct->ex.enc_ang = new int32_t();
-	emptyStruct->ex.enc_ang_vel = new int32_t();
-	emptyStruct->ex.joint_ang = new int16_t();
-	emptyStruct->ex.joint_ang_vel = new int16_t();
-	emptyStruct->ex.joint_ang_from_mot = new int16_t();
+	pocket_s *emptyStruct = new pocket_s();
+	emptyStruct->ex[0].enc_ang = new int32_t();
+	emptyStruct->ex[0].enc_ang_vel = new int32_t();
+	emptyStruct->ex[0].joint_ang = new int16_t();
+	emptyStruct->ex[0].joint_ang_vel = new int16_t();
+	emptyStruct->ex[0].joint_ang_from_mot = new int16_t();
+
+	emptyStruct->ex[1].enc_ang = new int32_t();
+	emptyStruct->ex[1].enc_ang_vel = new int32_t();
+	emptyStruct->ex[1].joint_ang = new int16_t();
+	emptyStruct->ex[1].joint_ang_vel = new int16_t();
+	emptyStruct->ex[1].joint_ang_from_mot = new int16_t();
 
 	emptyStruct->ctrl.ank_ang_deg = new int16_t();
 	emptyStruct->ctrl.ank_ang_from_mot = new int16_t();
 
-	riList.append(emptyStruct);
+	poList.append(emptyStruct);
 	ownershipList.append(true); // we own this struct, so we must delete it in destructor
 	eventFlags.append(0);
 }
 
 void PocketDevice::decodeLastElement(void)
 {
-	decode(riList.last());
+	decode(poList.last());
 }
 
 void PocketDevice::decodeAllElement(void)
 {
-	for(int i = 0; i < riList.size(); ++i)
+	for(int i = 0; i < poList.size(); ++i)
 	{
-		decode(riList[i]);
+		decode(poList[i]);
 	}
 }
 
@@ -602,7 +712,7 @@ QString PocketDevice::getStatusStr(int index)
 	return QString("No decoding available for this board");
 }
 
-void PocketDevice::decode(struct rigid_s *riPtr)
+void PocketDevice::decode(struct pocket_s *riPtr)
 {
 	//Accel in mG
 	riPtr->mn.decoded.accel.x = (1000*riPtr->mn.accel.x)/8192;

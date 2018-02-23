@@ -46,7 +46,7 @@ class PocketDevice : public FlexseaDevice
 public:
 	// Constructor & Destructor
 	explicit PocketDevice(void);
-	explicit PocketDevice(rigid_s *devicePtr);
+	explicit PocketDevice(pocket_s *devicePtr);
 	virtual ~PocketDevice();
 
 	// Interface implementation
@@ -57,16 +57,16 @@ public:
 	void appendSerializedStr(QStringList *splitLine);
 	void decodeLastElement(void);
 	void decodeAllElement(void);
-	int length(void) {return riList.length();}
+	int length(void) {return poList.length();}
 	void clear(void);
 	void appendEmptyElement(void);
 
 	// Class Function
 	QString getStatusStr(int index);
-	static void decode(struct rigid_s *riPtr);
+	static void decode(struct pocket_s *poPtr);
 
 	// Class Variable
-	QList<struct rigid_s *> riList;
+	QList<struct pocket_s *> poList;
 	QList<bool> ownershipList;
 
 private:
