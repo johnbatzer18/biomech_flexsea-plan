@@ -39,10 +39,17 @@
 #include "counter.h"
 #include "flexsea_generic.h"
 #include "cmd-ActPack.h"
+#include "qtimer.h"
 
 //****************************************************************************
 // Namespace & Class Definition:
 //****************************************************************************
+
+//Data in status indicator:
+#define BELT_STATUS_GREY	0
+#define BELT_STATUS_GREEN	1
+#define BELT_STATUS_YELLOW	2
+#define BELT_STATUS_RED		3
 
 namespace Ui {
 class W_Calibration;
@@ -71,15 +78,25 @@ private slots:
 
 	void on_comboBoxActPackFSM2_currentIndexChanged(int index);
 
+	void on_pbCancelPoles_clicked();
+
+	void on_pbCalibrateBelt_clicked();
+
+	void on_pbSavePoles_clicked();
+
 private:
 	//Variables & Objects:
 	Ui::W_Calibration *ui;
 	int active_slave, active_slave_index;
 	int calibration = 1;
 	struct ActPack_s ActPack;
+	QTimer *findPoleTimer;
+	int findPoleTimePassed, findPoleTimeout;
 
 	//Function(s):
 	void init(void);
+	void setBeltStatus(int status);
+	void findPoleTimerUpdate();
 	void sendActPack();
 	void initActPack();
 };
