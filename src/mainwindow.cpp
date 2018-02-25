@@ -913,6 +913,9 @@ void MainWindow::createConfig(void)
 		connect(comManager[objectCount], &ComManager::openStatus, \
 				myViewConfig[objectCount],&W_Config::on_openStatusUpdate);
 
+		connect(myViewConfig[objectCount], &W_Config::openCancelRequest,
+				comManager[objectCount], &ComManager::openCancelRequest, Qt::DirectConnection);
+
 		connect(myViewConfig[objectCount],&W_Config::closeCom, \
 				comManager[objectCount], &ComManager::close);
 

@@ -116,11 +116,12 @@ void W_Config::on_openStatusUpdate(SerialPortStatus status, int nbTries)
 		dataSourceState = LiveCOM;
 		emit updateDataSourceStatus(dataSourceState, nullptr);
 
-		ui->openComButton->setDisabled(true);
-		ui->closeComButton->setDisabled(false);
-		ui->comPortComboBox->setDisabled(true);
+		ui->openComButton->setEnabled(false);
+		ui->closeComButton->setEnabled(true);
+		ui->comPortComboBox->setEnabled(false);
+		ui->cancelComButton->setEnabled(false);
 
-		ui->pbLoadLogFile->setDisabled(true);
+		ui->pbLoadLogFile->setEnabled(false);
 
 		//Enable Bluetooth button:
 		ui->pbBTmode->setEnabled(true);
@@ -129,9 +130,15 @@ void W_Config::on_openStatusUpdate(SerialPortStatus status, int nbTries)
 			PortClosed)
 	{
 		openProgressTimer->stop();
+
+		ui->openComButton->setEnabled(true);
+		ui->closeComButton->setEnabled(false);
+		ui->comPortComboBox->setEnabled(true);
+		ui->cancelComButton->setEnabled(false);
+
 		ui->comProgressBar->setValue(0);
 		dataSourceState = None;
-		ui->pbLoadLogFile->setDisabled(false);
+		ui->pbLoadLogFile->setEnabled(true);
 	}
 	else
 	{
@@ -167,6 +174,7 @@ void W_Config::initCom(void)
 	ui->btProgressBar->setValue(0);
 	ui->btProgressBar->setDisabled(true);
 	ui->openComButton->setDisabled(false);
+	ui->cancelComButton->setDisabled(true);
 	ui->closeComButton->setDisabled(true);
 	ui->pbLoadLogFile->setDisabled(false);
 	ui->pbCloseLogFile->setDisabled(true);
@@ -455,6 +463,10 @@ void W_Config::on_openComButton_clicked()
 		// Disable the log button during the port opening
 		ui->pbLoadLogFile->setDisabled(true);
 		openProgressTimer->start((int)((BT_DELAY_MS/COM_BAR_RES)));
+
+		ui->openComButton->setEnabled(false);
+		ui->cancelComButton->setEnabled(true);
+		ui->comPortComboBox->setEnabled(false);
 	}
 }
 
@@ -649,4 +661,9 @@ void W_Config::progressUpdate()
 		ui->comProgressBar->update();
 		progressCnt++;
 	}
+}
+
+void W_Config::on_cancelComButton_clicked()
+{
+	emit openCancelRequest();
 }

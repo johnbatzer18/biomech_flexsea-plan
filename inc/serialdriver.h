@@ -80,6 +80,7 @@ public slots:
 
 	void open(QString name, int tries, int delay, bool* success);
 	void close(void);
+	void openCancelRequest(void);
 	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
 	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);
 	void flush(void);
@@ -95,6 +96,7 @@ private:
 	unsigned char usb_rx[256];
 	uint8_t largeRxBuffer[MAX_SERIAL_RX_LEN];
 	uint16_t timerCount;
+	bool openCancelRequestFlag;
 
 	std::vector<FlexseaDevice*> devices;
 	FlexseaDevice* getDeviceByIdCmd(uint8_t slaveId, int cmd);

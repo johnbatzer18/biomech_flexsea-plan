@@ -58,6 +58,7 @@ public slots:
 	void onComPortClosing();
 
 	void open(QString name, int tries, int delay, bool* success);
+	void openCancelRequest(void);
 	void close(void);
 	void tryReadWrite(uint8_t bytes_to_send, uint8_t *serial_tx_data, int timeout);
 	int write(uint8_t bytes_to_send, uint8_t *serial_tx_data);

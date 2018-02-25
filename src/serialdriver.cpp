@@ -56,6 +56,8 @@ SerialDriver::SerialDriver(QObject *parent) : QObject(parent)
 
 	USBSerialPort = new QSerialPort(this);
 
+	openCancelRequestFlag = false;
+
 	// Used to register the custom type for the signal/slot function using it.
 	qRegisterMetaType<SerialPortStatus>();
 }
@@ -93,8 +95,9 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 
 	//Start timer:
 	timerCount = 0;
+	openCancelRequestFlag = false;
 
-	while(isPortOpen == false && cnt < tries)
+	while(isPortOpen == false && cnt < tries && openCancelRequestFlag == false)
 	{
 		isPortOpen = USBSerialPort->open(QIODevice::ReadWrite);  //returns true if successful
 		cnt++;
@@ -106,8 +109,6 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 						USBSerialPort->errorString() << ".\n";
 			emit openStatus(WhileOpening, cnt);
 		}
-
-		usleep(delay);
 	}
 
 	if (!isPortOpen)
@@ -130,6 +131,7 @@ void SerialDriver::open(QString name, int tries, int delay, bool *success)
 
 		*success = true;
 	}
+
 }
 
 //Close port
@@ -150,6 +152,11 @@ void SerialDriver::close(void)
 
 	USBSerialPort->clear((QSerialPort::AllDirections));
 	USBSerialPort->close();
+}
+
+void SerialDriver::openCancelRequest(void)
+{
+	openCancelRequestFlag = true;
 }
 
 int SerialDriver::write(uint8_t bytes_to_send, uint8_t *serial_tx_data)

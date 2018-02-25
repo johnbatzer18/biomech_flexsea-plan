@@ -99,6 +99,8 @@ private slots:
 	void on_pbBTfast_clicked();
 	void on_checkBoxFavoritePort_clicked();
 
+	void on_cancelComButton_clicked();
+
 public slots:
 	void on_openStatusUpdate(SerialPortStatus status, int nbTries);
 	void refreshComTimeout();
@@ -134,6 +136,7 @@ private:
 signals:
 	void openCom(QString name, int tries, int delay, bool *success);
 	void closeCom(void);
+	void openCancelRequest(void);
 	void openReadingFile(bool *, FlexseaDevice **);
 	void createLogKeypad(DataSource, FlexseaDevice *);
 	void closeReadingFile(void);

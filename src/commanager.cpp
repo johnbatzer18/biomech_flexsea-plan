@@ -230,6 +230,11 @@ void ComManager::open(QString name, int tries, int delay, bool* success)
 	mySerialDriver->open(name, tries, delay, success);
 }
 
+void ComManager::openCancelRequest(void)
+{
+	mySerialDriver->openCancelRequest();
+}
+
 void ComManager::close(void)
 {
 	mySerialDriver->close();
