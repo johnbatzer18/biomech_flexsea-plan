@@ -176,7 +176,7 @@ void W_SlaveComm::receiveComPortStatus(SerialPortStatus status,int nbTries)
 
 void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs, QString uNotes)
 {
-	on_off_pb_ptr[0]->setChecked(true);
+    on_off_pb_ptr[0]->setChecked(true);
 
 	//We set a few things based on what we received
 	comboBoxRefreshPtr[0]->setCurrentIndex(r);
@@ -190,7 +190,7 @@ void W_SlaveComm::startExperiment(int r, bool log, bool autoSample, QString offs
 
 void W_SlaveComm::stopExperiment(void)
 {
-	on_off_pb_ptr[0]->setChecked(false);
+    on_off_pb_ptr[0]->setChecked(false);
 	managePushButton(0, false);
 }
 
@@ -225,7 +225,7 @@ void W_SlaveComm::mapSerializedPointers(void)
 	comboBoxSlavePtr[1] = ui->comboBoxSlave2;
 	comboBoxSlavePtr[2] = ui->comboBoxSlave3;
 	comboBoxSlavePtr[3] = ui->comboBoxSlave4;
-	comboBoxExpPtr[0] = ui->comboBoxExp1;
+    comboBoxExpPtr[0] = ui->comboBoxExp1;
 	comboBoxExpPtr[1] = ui->comboBoxExp2;
 	comboBoxExpPtr[2] = ui->comboBoxExp3;
 	comboBoxExpPtr[3] = ui->comboBoxExp4;

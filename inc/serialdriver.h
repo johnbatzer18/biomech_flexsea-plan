@@ -65,6 +65,7 @@ typedef enum SerialPortStatus {
 	PortClosed = 3
 }SerialPortStatus;
 Q_DECLARE_METATYPE(SerialPortStatus)
+extern SerialPortStatus comPortStatus;
 
 class SerialDriver : public QObject
 {
@@ -74,7 +75,7 @@ class SerialDriver : public QObject
 
 public:
 	explicit SerialDriver(QObject *parent = 0);
-	virtual ~SerialDriver();
+    virtual ~SerialDriver();
 
 public slots:
 

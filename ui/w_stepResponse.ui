@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>633</width>
-    <height>768</height>
+    <height>782</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,7 +31,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,13,3,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,13,3,0,0,0,0">
    <item>
     <layout class="QGridLayout" name="gridLayout_4" columnstretch="1,0,0,0,0">
      <item row="0" column="2">
@@ -106,7 +106,7 @@
      <item row="0" column="0" colspan="2">
       <widget class="QComboBox" name="comboBox_ctrl_list">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -134,7 +134,7 @@
      <item row="1" column="0" colspan="4">
       <widget class="QLabel" name="statusController">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -260,6 +260,103 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Gains:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="2" column="0" alignment="Qt::AlignHCenter">
+      <widget class="QLabel" name="label_Gain2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Gain 2</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" alignment="Qt::AlignHCenter">
+      <widget class="QLabel" name="label_Gain1">
+       <property name="text">
+        <string>Gain 1</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" alignment="Qt::AlignHCenter">
+      <widget class="QLabel" name="label_Gain0">
+       <property name="text">
+        <string>Gain 0</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEdit_Gain2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEdit_Gain1">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEdit_Gain0">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_CurrentGains">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLabel{color: Orange}</string>
+       </property>
+       <property name="text">
+        <string>Current Control Gains:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="pushButton_UpdateGains">
+       <property name="text">
+        <string>Update Gains</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QTabWidget" name="Slider">
      <property name="currentIndex">
       <number>0</number>
@@ -270,30 +367,34 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <layout class="QGridLayout" name="gridLayout_2" rowstretch="1,0,0,0,0,0,0,0,0" columnstretch="1,0,0">
-         <item row="8" column="1">
-          <widget class="QPushButton" name="pushButton_Run">
+        <layout class="QGridLayout" name="gridLayout_2" rowstretch="1,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0">
+         <item row="0" column="2" rowspan="3">
+          <widget class="QPushButton" name="pushButton_Stop">
+           <property name="styleSheet">
+            <string notr="true">QPushButton{color: red}</string>
+           </property>
            <property name="text">
-            <string>Run Test</string>
+            <string>STOP</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="control_slider_max">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+         <item row="10" column="0" colspan="2">
+          <widget class="QSlider" name="slider_Freq">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QLineEdit" name="lineEdit_MinFreq"/>
+         </item>
+         <item row="9" column="1">
+          <widget class="QLineEdit" name="lineEdit_MaxFreq"/>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_MaxFreq">
+           <property name="text">
+            <string>Frequency Max (hz)</string>
            </property>
           </widget>
          </item>
@@ -329,25 +430,6 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_59">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Min (mV):</string>
-           </property>
-          </widget>
-         </item>
          <item row="6" column="0">
           <widget class="QLabel" name="label_7">
            <property name="sizePolicy">
@@ -361,10 +443,17 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="2">
+         <item row="11" column="2">
           <widget class="QPushButton" name="pushButton_RunLog">
            <property name="text">
             <string>Run + Log</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="2">
+          <widget class="QCheckBox" name="checkBox_Freq">
+           <property name="text">
+            <string>Enable Frequency Control</string>
            </property>
           </widget>
          </item>
@@ -387,7 +476,7 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
+         <item row="11" column="0">
           <widget class="QPushButton" name="pushButton_UpdateSlider">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -411,6 +500,9 @@
             <string>Update Values</string>
            </property>
           </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="step_sliderTime"/>
          </item>
          <item row="3" column="2">
           <widget class="QLabel" name="disp_slider">
@@ -452,6 +544,9 @@
            </property>
           </widget>
          </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="step_sliderNumSteps"/>
+         </item>
          <item row="3" column="0" colspan="2">
           <widget class="QSlider" name="hSlider_Ctrl">
            <property name="sizePolicy">
@@ -477,19 +572,78 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="step_sliderTime"/>
+         <item row="11" column="1">
+          <widget class="QPushButton" name="pushButton_Run">
+           <property name="text">
+            <string>Run Test</string>
+           </property>
+          </widget>
          </item>
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="step_sliderNumSteps"/>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="control_slider_max">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
          </item>
-         <item row="0" column="2" rowspan="3">
-          <widget class="QPushButton" name="pushButton_Stop">
-           <property name="styleSheet">
-            <string notr="true">QPushButton{color: red}</string>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_MinFreq">
+           <property name="text">
+            <string>Frequency Min (hz)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_59">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
            </property>
            <property name="text">
-            <string>STOP</string>
+            <string>Min (mV):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="2">
+          <widget class="QLabel" name="label_Freq">
+           <property name="frameShape">
+            <enum>QFrame::Box</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>Default</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -510,7 +664,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0" columnstretch="0,0,0">
+        <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0" columnstretch="0,0">
          <item row="1" column="1">
           <widget class="QLineEdit" name="step_setp_a">
            <property name="sizePolicy">

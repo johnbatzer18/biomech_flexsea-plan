@@ -186,7 +186,6 @@ private:
 
 	FlexseaDevice* currentFlexLog;
 
-	SerialPortStatus comPortStatus;
 	QString activeSlaveNameStreaming;
 
 	// Sub-Windows

@@ -42,11 +42,13 @@
 #include <QTextStream>
 #include <flexsea_system.h>
 #include "cmd-Rigid.h"
+#include "serialdriver.h"
 #include <unistd.h>
 
 //****************************************************************************
 // Constructor & Destructor:
 //****************************************************************************
+SerialPortStatus comPortStatus;
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -215,7 +217,7 @@ void MainWindow::initMenus(void)
 	ui->menuTools->addAction("Calibration", this, &MainWindow::createCalib);
 	ui->menuTools->addAction("Communication Test", this, &MainWindow::createViewCommTest);
 	ui->menuTools->addAction("Converter", this, &MainWindow::createConverter);
-    ui->menuTools->addAction("Step Respone Test", this, &MainWindow::createViewStep);
+    ui->menuTools->addAction("Step Response Test", this, &MainWindow::createViewStep);
 
 
 	//Help:
@@ -711,7 +713,13 @@ void MainWindow::createViewStep(void)
     //Limited number of windows:
     if(objectCount < (STEP_RESPONSE_WINDOWS_MAX))
     {
-        myViewStep[objectCount] = new W_StepResponse(this);
+        if (W_StepResponse::howManyInstance() < 1) {
+            createView2DPlot();
+        }
+        if (W_SlaveComm::howManyInstance() < 1) {
+            createSlaveComm();
+        }
+        myViewStep[objectCount] = new W_StepResponse(this, myView2DPlot[0], myViewSlaveComm[0]);
         mdiState[STEP_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewStep[objectCount]);
         mdiState[STEP_WINDOWS_ID][objectCount].open = true;
         myViewStep[objectCount]->show();
