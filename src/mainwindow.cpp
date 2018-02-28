@@ -2029,12 +2029,11 @@ void MainWindow::applyLoadedConfig(void)
 
 		if(on == 1)
 		{
-			if((id != CONFIG_WINDOWS_ID || (id == CONFIG_WINDOWS_ID && obj > 0)) &&
-			   id != SLAVECOMM_WINDOWS_ID)
+			if(!mdiState[id][obj].open)
 			{
-				//Create any extra windows:
 				(this->*mdiCreateWinPtr[id])();	//Create window
 			}
+
 			setWinGeo(id, obj, x, y, w, h);	//Position it
 		}
 	}
