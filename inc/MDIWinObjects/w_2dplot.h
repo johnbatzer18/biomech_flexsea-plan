@@ -40,7 +40,8 @@
 #include "counter.h"
 #include <QTimer>
 #include <QtCharts>
-#include <QtCharts/QChartView>
+#include <betterchart.h>
+#include <betterchartview.h>
 #include "flexsea_generic.h"
 #include "flexseaDevice.h"
 #include <QtCharts/QXYSeries>
@@ -210,8 +211,8 @@ private:
 	FlexseaDevice* selectedDevList[VAR_NUM];
 
 	Ui::W_2DPlot *ui;
-	QChart *chart;
-	QChartView *chartView;
+	BetterChart *chart;
+	BetterChartView *chartView;
 	QLineSeries *qlsChart[VAR_NUM];
 	QVector<QPointF> vDataBuffer[VAR_NUM];
 	QDateTime *timerRefreshDisplay, *timerRefreshData;

@@ -349,7 +349,7 @@ void W_2DPlot::initChart(void)
 	initData();
 
 	//Chart:
-	chart = new QChart();
+	chart = new BetterChart();
 	chart->legend()->hide();
 
 	for(int i = 0; i < VAR_NUM; ++i)
@@ -386,7 +386,7 @@ void W_2DPlot::initChart(void)
 	}
 
 	//Chart view:
-	chartView = new QChartView(chart);
+	chartView = new BetterChartView(chart);
 	ui->gridLayout_test->addWidget(chartView, 0,0);
 	chartView->setRenderHint(QPainter::Antialiasing);
 	chartView->setBaseSize(600,300);

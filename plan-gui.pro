@@ -123,7 +123,9 @@ SOURCES += src/main.cpp \
 				src/MDIWinObjects/w_gaitstats.cpp \
 				src/MDIWinObjects/w_status.cpp \
     src/MDIWinObjects/w_pocket.cpp \
-    src/FlexSEADevice/pocketDevice.cpp
+    src/FlexSEADevice/pocketDevice.cpp \
+    src/betterchartview.cpp \
+    src/betterchart.cpp
 
 HEADERS += inc/main.h \
 				inc/mainwindow.h \
@@ -215,7 +217,9 @@ HEADERS += inc/main.h \
 				inc/MDIWinObjects/w_gaitstats.h \
 				inc/MDIWinObjects/w_status.h \
     inc/MDIWinObjects/w_pocket.h \
-    inc/FlexSEADevice/pocketDevice.h
+    inc/FlexSEADevice/pocketDevice.h \
+    inc/betterchartview.h \
+    inc/betterchart.h
 
 FORMS += ui/mainwindow.ui \
 				ui/w_execute.ui \
