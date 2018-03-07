@@ -560,7 +560,7 @@ void W_StepResponse::on_pushButton_RunLog_clicked() {
                         + QString::number(step_lastMin) + QString(" to ") + QString::number(step_lastMax);
                 dataLogging = 1;
                 //6 for 100Hz log, 7 for 200Hz
-                pslaveComm->startExperiment(6, true, false, "o=0,1,2,3;", testString);
+                pslaveComm->startExperiment(10, true, false, "o=0,1,2,3;", testString);
                 on_pushButton_Run_clicked();
             } else {
                 qDebug() << "Specify valid test parameters.";
