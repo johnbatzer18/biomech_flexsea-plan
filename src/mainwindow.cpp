@@ -98,7 +98,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_InControl::setMaxWindow(INCONTROL_WINDOWS_MAX);
 	W_Event::setMaxWindow(EVENT_WINDOWS_MAX);
 	W_Rigid::setMaxWindow(RIGID_WINDOWS_MAX);
-    W_StepResponse::setMaxWindow(STEP_WINDOWS_ID);
+    W_StepResponse::setMaxWindow(STEP_RESPONSE_WINDOWS_MAX);
+    W_GainsCommand::setMaxWindow(GAINS_WINDOWS_MAX);
 
 	W_Execute::setDescription("Execute");
 	W_Manage::setDescription("Manage - Barebone");
@@ -120,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	W_Event::setDescription("Event Flag");
 	W_Rigid::setDescription("FlexSEA-Rigid");
     W_StepResponse::setDescription("Step Response Test");
+    W_GainsCommand::setDescription("FSM Gains Tuning");
 
 	initFlexSeaDeviceObject();
 	comManager = new ComManager();
@@ -206,6 +208,7 @@ void MainWindow::initMenus(void)
 	ui->menuControl->addAction("Control Loop", this, &MainWindow::createControlControl);
 	ui->menuControl->addAction("In Control Tool", this, &MainWindow::createInControl);
 	ui->menuControl->addAction("Any Command", this, &MainWindow::createAnyCommand);
+    ui->menuControl->addAction("FSM Gains", this, &MainWindow::createGainsCommand);
 
 	//User:
 	ui->menuUser->addAction("Event Flags", this, &MainWindow::createToolEvent);
@@ -713,7 +716,7 @@ void MainWindow::createViewStep(void)
     //Limited number of windows:
     if(objectCount < (STEP_RESPONSE_WINDOWS_MAX))
     {
-        if (W_StepResponse::howManyInstance() < 1) {
+        if (W_2DPlot::howManyInstance() < 1) {
             createView2DPlot();
         }
         if (W_SlaveComm::howManyInstance() < 1) {
@@ -746,6 +749,49 @@ void MainWindow::closeViewStep(void)
 {
     sendCloseWindowMsg(W_StepResponse::getDescription());
     mdiState[STEP_WINDOWS_ID][0].open = false; //ToDo wrong, shouldn't be 0!
+}
+
+//Creates a new FSM Gains Command window
+void MainWindow::createGainsCommand(void) {
+    int objectCount = W_GainsCommand::howManyInstance();
+
+    //Limited number of windows:
+    if(objectCount < (GAINS_WINDOWS_MAX))
+    {
+        myViewGainsCommand[objectCount] = new W_GainsCommand(this,
+                                               currentFlexLog,
+                                               &rigidLog,
+                                               getDisplayMode(),
+                                               &rigidDevList);
+        mdiState[GAINS_WINDOWS_ID][objectCount].winPtr = ui->mdiArea->addSubWindow(myViewGainsCommand[objectCount]);
+        mdiState[GAINS_WINDOWS_ID][objectCount].open = true;
+        myViewGainsCommand[objectCount]->show();
+
+        sendWindowCreatedMsg(W_GainsCommand::getDescription(), objectCount,
+                             W_GainsCommand::getMaxWindow() - 1);
+
+        //Link ComManager and Rigid:
+        connect(comManager,				&ComManager::newDataReady, \
+                myViewGainsCommand[objectCount],	&W_GainsCommand::refreshAllVals);
+
+        //Link to SlaveComm to send commands:
+        connect(myViewGainsCommand[objectCount], &W_GainsCommand::writeCommand, \
+                comManager,						&ComManager::enqueueCommand);
+
+        //Link to MainWindow for the close signal:
+        connect(myViewGainsCommand[objectCount],	&W_GainsCommand::windowClosed, \
+                this,						&MainWindow::closeGainsCommand);
+    }
+    else
+    {
+        sendWindowCreatedFailedMsg(W_GainsCommand::getDescription(),
+                                   W_GainsCommand::getMaxWindow());
+    }
+}
+
+void MainWindow::closeGainsCommand(void) {
+    sendCloseWindowMsg(W_GainsCommand::getDescription());
+    mdiState[GAINS_WINDOWS_ID][0].open = false;	//ToDo wrong, shouldn't be 0!
 }
 
 

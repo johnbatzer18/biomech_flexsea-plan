@@ -513,7 +513,7 @@ void W_StepResponse::on_comboBox_slave_currentIndexChanged(int index)
 
 	qDebug() << "Changed active slave";
 	active_slave_index = ui->comboBox_slave->currentIndex();
-	active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_EX, active_slave_index);
+    active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_EX, active_slave_index);
 }
 
 void W_StepResponse::on_pushButton_updateTime_clicked() {

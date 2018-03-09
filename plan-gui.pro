@@ -23,12 +23,13 @@ INCLUDEPATH += inc \
 	#flexsea-system/test \
 	flexsea-shared/unity \
 	flexsea-shared/inc \
-	flexsea-projects/inc \
+	biomech_flexsea-projects/inc \
 	#flexsea-user/test \
-	flexsea-projects/Rigid/inc \
-	flexsea-projects/MIT_2DoF_Ankle_v1/inc \
-	flexsea-projects/RICNU_Knee_v1/inc \
-	flexsea-projects/ActPack/inc
+	biomech_flexsea-projects/Rigid/inc \
+	biomech_flexsea-projects/MIT_2DoF_Ankle_v1/inc \
+	biomech_flexsea-projects/RICNU_Knee_v1/inc \
+	biomech_flexsea-projects/ActPack/inc \
+	biomech_flexsea-projects/MIT_DLEG/inc
 
 SOURCES += src/main.cpp \
 	src/mainwindow.cpp \
@@ -67,11 +68,11 @@ SOURCES += src/main.cpp \
 	src/MDIWinObjects/w_event.cpp \
 	src/MDIWinObjects/w_commtest.cpp \
 	flexsea-shared/unity/unity.c \
-	flexsea-projects/src/flexsea_cmd_user.c \
-	flexsea-projects/src/dynamic_user_structs_plan.c \
-	flexsea-projects/src/flexsea_user_structs.c \
-	flexsea-projects/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
-	flexsea-projects/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
+	biomech_flexsea-projects/src/flexsea_cmd_user.c \
+	biomech_flexsea-projects/src/dynamic_user_structs_plan.c \
+	biomech_flexsea-projects/src/flexsea_user_structs.c \
+	biomech_flexsea-projects/MIT_2DoF_Ankle_v1/src/cmd-MIT_2DoF_Ankle_v1.c \
+	biomech_flexsea-projects/RICNU_Knee_v1/src/cmd-RICNU_Knee_v1.c \
 	#flexsea-user/test/flexsea-user_test-all.c \
 	#flexsea-user/test/test-cmd_user.c \
 	flexsea-comm/src/flexsea.c \
@@ -102,21 +103,24 @@ SOURCES += src/main.cpp \
 	#flexsea-system/test/test-flexsea_cmd_sensors.c \
 	#flexsea-system/test/test-flexsea_cmd_control_1.c \
 	#flexsea-system/test/test-flexsea_cmd_control_2.c \
-	flexsea-projects/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
-	flexsea-projects/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
-	flexsea-projects/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
-	flexsea-projects/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
-	flexsea-projects/ActPack/src/cmd-ActPack.c \
-	flexsea-projects/src/user-ex.c \
-	flexsea-projects/src/user-mn.c \
+	biomech_flexsea-projects/MIT_2DoF_Ankle_v1/src/user-ex-MIT_2DoF_Ankle_v1.c \
+	biomech_flexsea-projects/MIT_2DoF_Ankle_v1/src/user-mn-MIT_2DoF_Ankle_v1.c \
+	biomech_flexsea-projects/RICNU_Knee_v1/src/user-ex-RICNU_Knee_v1.c \
+	biomech_flexsea-projects/RICNU_Knee_v1/src/user-mn-RICNU_Knee_v1.c \
+	biomech_flexsea-projects/ActPack/src/cmd-ActPack.c \
+	biomech_flexsea-projects/src/user-ex.c \
+	biomech_flexsea-projects/src/user-mn.c \
 	src/FlexSEADevice/rigidDevice.cpp \
 	src/MDIWinObjects/w_rigid.cpp \
-	flexsea-projects/Rigid/src/cmd-Rigid.c \
+	biomech_flexsea-projects/Rigid/src/cmd-Rigid.c \
 	#flexsea-system/test/test-flexsea_cmd_tools.c \
 	src/dynamicuserdatamanager.cpp \
-	flexsea-projects/src/flexsea_cmd_angle_torque_profile.c \
-	flexsea-projects/src/dynamic_user_structs_common.c \
-    src/MDIWinObjects/w_stepResponse.cpp
+	biomech_flexsea-projects/src/flexsea_cmd_angle_torque_profile.c \
+	biomech_flexsea-projects/src/dynamic_user_structs_common.c \
+	biomech_flexsea-projects/MIT_DLEG/src/cmd-DLeg.c \
+	biomech_flexsea-projects/MIT_DLEG/src/state_machine.c \
+    src/MDIWinObjects/w_stepResponse.cpp \
+    src/MDIWinObjects/w_gainsCommand.cpp
 
 HEADERS += inc/main.h \
 	inc/mainwindow.h \
@@ -159,12 +163,12 @@ HEADERS += inc/main.h \
 	inc/MDIWinObjects/w_commtest.h \
 	flexsea-shared/unity/unity.h \
 	flexsea-shared/unity/unity_internals.h \
-	flexsea-projects/inc/flexsea_cmd_user.h \
-	flexsea-projects/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
-	flexsea-projects/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
+	biomech_flexsea-projects/inc/flexsea_cmd_user.h \
+	biomech_flexsea-projects/MIT_2DoF_Ankle_v1/inc/cmd-MIT_2DoF_Ankle_v1.h \
+	biomech_flexsea-projects/RICNU_Knee_v1/inc/cmd-RICNU_Knee_v1.h \
 	#flexsea-user/test/flexsea-user_test-all.h \
-	flexsea-projects/inc/flexsea_user_structs.h \
-	flexsea-projects/inc/dynamic_user_structs.h \
+	biomech_flexsea-projects/inc/flexsea_user_structs.h \
+	biomech_flexsea-projects/inc/dynamic_user_structs.h \
 	flexsea-comm/inc/flexsea.h \
 	flexsea-comm/inc/flexsea_comm_def.h \
 	flexsea-comm/inc/flexsea_buffers.h \
@@ -184,15 +188,19 @@ HEADERS += inc/main.h \
 	flexsea-system/inc/flexsea_cmd_tools.h \
 	flexsea-system/inc/flexsea_cmd_in_control.h \
 	inc/MDIWinObjects/w_rigid.h \
-	flexsea-projects/Rigid/inc/cmd-Rigid.h \
+	biomech_flexsea-projects/Rigid/inc/cmd-Rigid.h \
 	inc/MDIWinObjects/w_event.h \
 	flexsea-system/inc/flexsea_cmd_stream.h \
 	flexsea-system/inc/flexsea_dataformats.h \
 	inc/dynamicuserdatamanager.h \
-	flexsea-projects/ActPack/inc/cmd-ActPack.h \
-	flexsea-projects/inc/flexsea_cmd_angle_torque_profile.h \
+	biomech_flexsea-projects/ActPack/inc/cmd-ActPack.h \
+	biomech_flexsea-projects/inc/flexsea_cmd_angle_torque_profile.h \
+	biomech_flexsea-projects/MIT_DLEG/inc/cmd-DLeg.h \
+	biomech_flexsea-projects/MIT_DLEG/inc/state_machine.h \
+	biomech_flexsea-projects/MIT_DLEG/inc/state_variables.h \
 	flexsea-system/test/flexsea-system_test-all.h \
-    inc/MDIWinObjects/w_stepResponse.h
+    inc/MDIWinObjects/w_stepResponse.h \
+    inc/MDIWinObjects/w_gainsCommand.h
 
 FORMS += ui/mainwindow.ui \
 	ui/w_execute.ui \
@@ -214,7 +222,8 @@ FORMS += ui/mainwindow.ui \
 	ui/w_incontrol.ui \
 	ui/w_rigid.ui \
 	ui/w_event.ui \
-    ui/w_stepResponse.ui
+    ui/w_stepResponse.ui \
+    ui/w_gainsCommand.ui
 
 RESOURCES += \
 	misc/icons.qrc
@@ -227,9 +236,9 @@ QMAKE_CFLAGS = $$QMAKE_CFLAGS -Wno-unused-but-set-variable
 #QMAKE_CXXFLAGS = $$QMAKE_CXXFLAGS -E
 
 DISTFILES += \
-	flexsea-projects/flexsea.gitignore \
-	flexsea-projects/GPL-3.0.txt \
-	flexsea-projects/README.md \
+	biomech_flexsea-projects/flexsea.gitignore \
+	biomech_flexsea-projects/GPL-3.0.txt \
+	biomech_flexsea-projects/README.md \
 	flexsea-comm/flexsea.gitignore \
 	flexsea-comm/GPL-3.0.txt \
 	flexsea-shared/unity/readme.txt \

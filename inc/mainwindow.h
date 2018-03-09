@@ -54,6 +54,7 @@
 #include "w_incontrol.h"
 #include "w_event.h"
 #include "w_stepResponse.h"
+#include "w_gainsCommand.h"
 
 #include "w_rigid.h"
 #include "flexseaDevice.h"
@@ -93,8 +94,9 @@ class MainWindow;
 #define RICNU_VIEW_WINDOWS_ID		17
 #define TESTBENCH_WINDOWS_ID		18
 #define RIGID_WINDOWS_ID			19
-#define STEP_WINDOWS_ID            20
-#define WINDOWS_TYPES				21 //(has to match the list above)
+#define STEP_WINDOWS_ID             20
+#define GAINS_WINDOWS_ID            21
+#define WINDOWS_TYPES				22 //(has to match the list above)
 #define WINDOWS_MAX_INSTANCES		5
 
 //MDI Objects: set maximums # of child
@@ -114,6 +116,7 @@ class MainWindow;
 #define STRAIN_WINDOWS_MAX			2
 #define USERRW_WINDOWS_MAX			1
 #define STEP_RESPONSE_WINDOWS_MAX	1
+#define GAINS_WINDOWS_MAX           1
 
 #define COMMTEST_WINDOWS_MAX		1
 #define INCONTROL_WINDOWS_MAX		1
@@ -209,6 +212,7 @@ private:
 	W_Event *myEvent[EVENT_WINDOWS_MAX];
 	W_Rigid *myViewRigid[RIGID_WINDOWS_MAX];
     W_StepResponse *myViewStep[STEP_RESPONSE_WINDOWS_MAX];
+    W_GainsCommand *myViewGainsCommand[GAINS_WINDOWS_MAX];
 
 	//MDI state:
 	mdiState_s mdiState[WINDOWS_TYPES][WINDOWS_MAX_INSTANCES];
@@ -267,6 +271,7 @@ public slots:
 	void createToolEvent(void);
 	void createViewRigid(void);
     void createViewStep(void);
+    void createGainsCommand(void);
 
 	//MDI Windows (closed):
 	void closeViewExecute(void);
@@ -289,6 +294,7 @@ public slots:
 	void closeInControl(void);
 	void closeViewRigid(void);
     void closeViewStep(void);
+    void closeGainsCommand(void);
 	void saveConfig(void);
 	void loadConfig(void);
 	void defaultConfig(void);
