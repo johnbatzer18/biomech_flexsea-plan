@@ -14,3 +14,6 @@
 	path = flexsea-projects
 	url = https://github.com/DephyInc/flexsea-projects.git
 	branch = master
+[submodule "biomech_flexsea-projects"]
+	path = biomech_flexsea-projects
+	url = https://github.com/mitmedialab/biomech_flexsea-projects.git
