@@ -96,6 +96,7 @@ void W_GainsCommand::refreshAllVals(void) {
     refreshLswVals();
     refreshEstVals();
     refreshLstPVals();
+    updateSysVals();
     updateState();
 }
 
@@ -177,6 +178,51 @@ void W_GainsCommand::refreshLstPVals(void) {
     ui->label_lstPk2->setText(QString::number(lstPowerGains.k2));
     ui->label_lstPb->setText(QString::number(lstPowerGains.b));
     ui->label_lstPThetaEq->setText(QString::number(lstPowerGains.thetaDes));
+}
+
+void W_GainsCommand::updateSysVals(void) {
+    ui->label_jointAngle->setText(QString::number(act1.jointAngleDegrees));
+    ui->label_jointVelocity->setText(QString::number(act1.jointVelDegrees));
+    ui->label_momentArm->setText(QString::number(act1.linkageMomentArm));
+    ui->label_axialForce->setText(QString::number(act1.axialForce));
+    ui->label_jointTorque->setText(QString::number(act1.jointTorque));
+    ui->label_reflectMotor->setText(QString::number(act1.tauMeas));
+    ui->label_desMotor->setText(QString::number(act1.tauDes));
+    ui->label_desCurrent->setText(QString::number(act1.desiredCurrent));
+    ui->label_currentOpLimit->setText(QString::number(act1.currentOpLimit));
+
+    QString safeMessage;
+    ui->label_safetyFlag->setStyleSheet("QLabel { background-color : red; color : white; }");
+
+    switch(act1.safetyFlag) {
+
+        case 0:
+            safeMessage = "OK";
+            ui->label_safetyFlag->setStyleSheet("QLabel { background-color : green; color : white; }");
+        break;
+
+        case 1:
+            safeMessage = ">ANGLE!";
+        break;
+
+        case 2:
+            safeMessage = ">TORQUE!";
+        break;
+
+        case 3:
+            safeMessage = ">TEMP!";
+        break;
+
+        case 4:
+            safeMessage = ">TEMP!";
+        break;
+
+        default:
+            safeMessage = "ERROR";
+        break;
+    }
+
+    ui->label_safetyFlag->setText(safeMessage);
 }
 
 void W_GainsCommand::updateState(void) {

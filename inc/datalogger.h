@@ -79,7 +79,7 @@ public:
 						StrainDevice *strainInitPtr = nullptr,
 						RicnuProject *ricnuInitPtr = nullptr,
 						Ankle2DofProject *ankle2DofInitPtr = nullptr,
-						RigidDevice *rigidInitPtr = nullptr);
+                        RigidDevice *rigidInitPtr = nullptr);
 
 public slots:
 	void openRecordingFile(FlexseaDevice *devicePtr);
@@ -113,7 +113,7 @@ private:
 	StrainDevice *strainDevPtr;
 	RicnuProject *ricnuDevPtr;
 	Ankle2DofProject *ankle2DofDevPtr;
-	RigidDevice *rigidDevPtr;
+    RigidDevice *rigidDevPtr;
 
 	QString planGUIRootPath;
 	QString logFolder;

@@ -134,7 +134,8 @@ MainWindow::MainWindow(QWidget *parent) :
 								  &strainLog,
 								  &ricnuLog,
 								  &ankle2DofLog,
-								  &rigidLog);
+                                  &rigidLog);
+
 
 	initSerialComm();
 	userDataManager = new DynamicUserDataManager(this);

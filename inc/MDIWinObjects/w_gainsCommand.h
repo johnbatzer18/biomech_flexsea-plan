@@ -53,6 +53,27 @@ public:
 
     void initWindow(void);
 
+    //Structure copied from user-mn-MIT-DLeg-2dof
+    typedef struct act_s
+    {
+        float jointAngle;
+        float jointAngleDegrees;
+        float jointVel;
+        float jointVelDegrees;
+        float jointAcc;
+        float linkageMomentArm;
+        float axialForce;
+        float jointTorque;
+        int32_t motorVel;		// motor velocity [rad/s]
+        int32_t motorAcc;		// motor acceleration [rad/s/s]
+        int16_t regTemp;		// regulate temperature
+        int16_t motTemp;		// motor temperature
+        int32_t motCurr;		// motor current
+        int32_t desiredCurrent; // desired current from getMotorCurrent()
+        int32_t currentOpLimit; // current throttling limit
+        int8_t safetyFlag;		// todo: consider if necessary
+    } Act_s;
+
 public slots:
     void refreshAllVals(void);
     void on_comboBox_stateSelect_currentIndexChanged(int index);
@@ -81,6 +102,7 @@ private:
     void refreshLswVals(void);
     void refreshEstVals(void);
     void refreshLstPVals(void);
+    void updateSysVals(void);
     void updateState(void);
 };
 

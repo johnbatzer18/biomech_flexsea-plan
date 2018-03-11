@@ -63,7 +63,8 @@ DataLogger::DataLogger(QWidget *parent,
 					   StrainDevice *strainInitPtr,
 					   RicnuProject *ricnuInitPtr,
 					   Ankle2DofProject *ankle2DofInitPtr,
-					   RigidDevice *rigidInitPtr) :
+                       RigidDevice *rigidInitPtr
+                       ) :
 	QWidget(parent)
 {
 	executeDevPtr = executeInitPtr;
@@ -73,7 +74,7 @@ DataLogger::DataLogger(QWidget *parent,
 	strainDevPtr = strainInitPtr;
 	ricnuDevPtr = ricnuInitPtr;
 	ankle2DofDevPtr = ankle2DofInitPtr;
-	rigidDevPtr = rigidInitPtr;
+    rigidDevPtr = rigidInitPtr;
 
 	planGUIRootPath = QDir::currentPath();
 
