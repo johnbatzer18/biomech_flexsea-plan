@@ -24,6 +24,8 @@
 #include <QWidget>
 #include "counter.h"
 #include "rigidDevice.h"
+#include "state_machine.h"
+#include "state_variables.h"
 #include "define.h"
 
 //****************************************************************************
@@ -50,7 +52,6 @@ public:
 	//Function(s):
 
     void initWindow(void);
-
 
 public slots:
     void refreshAllVals(void);

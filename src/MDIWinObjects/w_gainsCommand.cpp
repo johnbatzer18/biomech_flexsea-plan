@@ -24,6 +24,7 @@
 #include "flexsea_generic.h"
 #include "flexsea_system.h"
 #include "flexsea_board.h"
+#include "flexsea_user_structs.h"
 #include "flexsea.h"
 #include "cmd-DLeg.h"
 #include "state_machine.h"
@@ -109,6 +110,11 @@ void W_GainsCommand::on_pushButton_updateParams_clicked() {
     //update gains on Plan
     int stateIndex = ui->comboBox_stateSelect->currentIndex();
 
+    uint16_t oldk1 = stateGains[stateIndex]->k1;
+    uint16_t oldk2 = stateGains[stateIndex]->k2;
+    uint16_t oldb = stateGains[stateIndex]->b;
+    uint16_t oldThetaDes = stateGains[stateIndex]->thetaDes;
+
     stateGains[stateIndex]->k1 = ui->lineEdit_k1->text().toFloat();
     stateGains[stateIndex]->k2 = ui->lineEdit_k2->text().toFloat();
     stateGains[stateIndex]->b = ui->lineEdit_b->text().toFloat();
@@ -120,11 +126,13 @@ void W_GainsCommand::on_pushButton_updateParams_clicked() {
 
     tx_cmd_dleg_rw(TX_N_DEFAULT, stateIndex);
 
-    //If Manage side update not successful, refresh will show -1
-    stateGains[stateIndex]->k1 = -1;
-    stateGains[stateIndex]->k2 = -1;
-    stateGains[stateIndex]->b = -1;
-    stateGains[stateIndex]->thetaDes = -1;
+    //If Manage side update not successful, refresh will show old values
+    stateGains[stateIndex]->k1 = oldk1;
+    stateGains[stateIndex]->k2 = oldk2;
+    stateGains[stateIndex]->b = oldb;
+    stateGains[stateIndex]->thetaDes = oldThetaDes;
+
+    refreshAllVals();
 
     pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
     emit writeCommand(numb, comm_str_usb, WRITE);
@@ -176,6 +184,7 @@ void W_GainsCommand::updateState(void) {
 
     switch (stateMachine.current_state) {
 
+        qDebug() << QString::number(stateMachine.current_state);
         case STATE_IDLE:
 
             ui->label_currentState->setText("Idle");

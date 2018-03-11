@@ -144,8 +144,7 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->dispGV5->setText(QString::number(ri->mn.genVar[5]));
 	ui->dispGV6->setText(QString::number(ri->mn.genVar[6]));
 	ui->dispGV7->setText(QString::number(ri->mn.genVar[7]));
-	ui->dispGV8->setText(QString::number(ri->mn.genVar[8]));
-    ui->dispGV8->setText(QString::number(stateMachine.current_state));
+    ui->dispGV8->setText(QString::number(ri->mn.genVar[8]));
 
 	//Raw values - Execute:
 	//=====================
