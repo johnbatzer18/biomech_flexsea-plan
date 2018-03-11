@@ -770,7 +770,7 @@ void MainWindow::createGainsCommand(void) {
         sendWindowCreatedMsg(W_GainsCommand::getDescription(), objectCount,
                              W_GainsCommand::getMaxWindow() - 1);
 
-        //Link ComManager and Rigid:
+        //Link ComManager and GainsCommand:
         connect(comManager,				&ComManager::newDataReady, \
                 myViewGainsCommand[objectCount],	&W_GainsCommand::refreshAllVals);
 

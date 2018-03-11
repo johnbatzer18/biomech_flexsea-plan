@@ -119,6 +119,13 @@ void W_GainsCommand::on_pushButton_updateParams_clicked() {
     uint16_t numb = 0;
 
     tx_cmd_dleg_rw(TX_N_DEFAULT, stateIndex);
+
+    //If Manage side update not successful, refresh will show -1
+    stateGains[stateIndex]->k1 = -1;
+    stateGains[stateIndex]->k2 = -1;
+    stateGains[stateIndex]->b = -1;
+    stateGains[stateIndex]->thetaDes = -1;
+
     pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
     emit writeCommand(numb, comm_str_usb, WRITE);
 }
@@ -129,6 +136,8 @@ void W_GainsCommand::on_comboBox_slave_currentIndexChanged(int index) {
     qDebug() << "Changed FSM gains active slave";
     active_slave_index = ui->comboBox_slave->currentIndex();
     active_slave = FlexSEA_Generic::getSlaveID(SL_BASE_EX, active_slave_index);
+
+    refreshAllVals();
 }
 //****************************************************************************
 // Private function(s):

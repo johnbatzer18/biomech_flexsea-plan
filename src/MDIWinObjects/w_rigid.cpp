@@ -22,6 +22,7 @@
 #include "w_rigid.h"
 #include "ui_w_rigid.h"
 #include "flexsea_cmd_user.h"
+#include "state_machine.h"
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -144,6 +145,7 @@ void W_Rigid::display(RigidDevice *devicePtr, int index)
 	ui->dispGV6->setText(QString::number(ri->mn.genVar[6]));
 	ui->dispGV7->setText(QString::number(ri->mn.genVar[7]));
 	ui->dispGV8->setText(QString::number(ri->mn.genVar[8]));
+    ui->dispGV8->setText(QString::number(stateMachine.current_state));
 
 	//Raw values - Execute:
 	//=====================
