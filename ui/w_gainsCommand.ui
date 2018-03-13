@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>936</width>
-    <height>398</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1130,6 +1130,23 @@
             <string>TextLabel</string>
            </property>
           </widget>
+         </item>
+         <item row="12" column="0">
+          <widget class="QPushButton" name="pushButton_findPoles">
+           <property name="text">
+            <string>Find Poles</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QPushButton" name="pushButton_currentScalar">
+           <property name="text">
+            <string>Scale Current</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="1">
+          <widget class="QLineEdit" name="lineEdit_currentScalar"/>
          </item>
         </layout>
        </widget>
