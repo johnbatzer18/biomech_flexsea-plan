@@ -28,7 +28,9 @@
 #include "flexsea.h"
 #include "cmd-DLeg.h"
 #include "state_machine.h"
+#include "state_variables.h"
 #include <QDebug>
+#include <QTimer>
 
 //****************************************************************************
 // Constructor & Destructor:
@@ -87,16 +89,22 @@ void W_GainsCommand::initWindow(void) {
     //populate view gains window with current gains
     refreshAllVals();
 
+    //create timer for value refresh
+    pupdateTimer = new QTimer(this);
+    connect(pupdateTimer, SIGNAL(timeout()), this, SLOT(updateSysVals()));
+    //ms update time
+    pupdateTimer->start(200);
+
 }
 //****************************************************************************
 // Public slot(s):
 //****************************************************************************
 void W_GainsCommand::refreshAllVals(void) {
+
     refreshEswVals();
     refreshLswVals();
     refreshEstVals();
     refreshLstPVals();
-    updateSysVals();
     updateState();
 }
 
@@ -148,6 +156,43 @@ void W_GainsCommand::on_comboBox_slave_currentIndexChanged(int index) {
 
     refreshAllVals();
 }
+
+void W_GainsCommand::on_pushButton_currentScalar_clicked() {
+    float oldScalar = currentScalarPlan;
+    currentScalarPlan = ui->lineEdit_currentScalar->text().toFloat();
+
+    //set limits
+    if (currentScalarPlan > 1) {
+        currentScalarPlan = 1;
+    } else if (currentScalarPlan < 0) {
+        currentScalarPlan = 0;
+    }
+
+    uint8_t info[2] = {PORT_USB, PORT_USB};
+    uint16_t numb = 0;
+
+    uint8_t stateIndex = 0;
+    tx_cmd_dleg_rw(TX_N_DEFAULT, stateIndex);
+    pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+    emit writeCommand(numb, comm_str_usb, WRITE);
+
+    // this will update upon reply from manage
+    currentScalarPlan = oldScalar;
+}
+
+void W_GainsCommand::on_pushButton_findPoles_clicked() {
+    fsm1StatePlan = -1;
+
+    uint8_t info[2] = {PORT_USB, PORT_USB};
+    uint16_t numb = 0;
+
+    uint8_t stateIndex = 0;
+    tx_cmd_dleg_rw(TX_N_DEFAULT, stateIndex);
+    pack(P_AND_S_DEFAULT, active_slave, info, &numb, comm_str_usb);
+    emit writeCommand(numb, comm_str_usb, WRITE);
+}
+
+
 //****************************************************************************
 // Private function(s):
 //****************************************************************************
@@ -181,14 +226,14 @@ void W_GainsCommand::refreshLstPVals(void) {
 }
 
 void W_GainsCommand::updateSysVals(void) {
-    ui->label_jointAngle->setText(QString::number(act1.jointAngleDegrees));
-    ui->label_jointVelocity->setText(QString::number(act1.jointVelDegrees));
-    ui->label_momentArm->setText(QString::number(act1.linkageMomentArm));
-    ui->label_axialForce->setText(QString::number(act1.axialForce));
-    ui->label_jointTorque->setText(QString::number(act1.jointTorque));
-    ui->label_reflectMotor->setText(QString::number(act1.tauMeas));
-    ui->label_desMotor->setText(QString::number(act1.tauDes));
-    ui->label_desCurrent->setText(QString::number(act1.desiredCurrent));
+    ui->label_jointAngle->setText(QString::number(act1.jointAngleDegrees, 'f', 2));
+    ui->label_jointVelocity->setText(QString::number(act1.jointVelDegrees, 'f', 2));
+    ui->label_momentArm->setText(QString::number(act1.linkageMomentArm, 'f', 2));
+    ui->label_axialForce->setText(QString::number(act1.axialForce, 'f', 2));
+    ui->label_jointTorque->setText(QString::number(act1.jointTorque, 'f', 2));
+    ui->label_reflectMotor->setText(QString::number(act1.tauMeas, 'f', 2));
+    ui->label_desMotor->setText(QString::number(act1.tauDes, 'f', 0));
+    ui->label_desCurrent->setText(QString::number(act1.desiredCurrent, 'f', 0));
     ui->label_currentOpLimit->setText(QString::number(act1.currentOpLimit));
 
     QString safeMessage;

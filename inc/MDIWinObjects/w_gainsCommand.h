@@ -22,6 +22,7 @@
 //****************************************************************************
 
 #include <QWidget>
+#include <QTimer>
 #include "counter.h"
 #include "rigidDevice.h"
 #include "state_machine.h"
@@ -76,9 +77,12 @@ public:
 
 public slots:
     void refreshAllVals(void);
+    void updateSysVals(void);
     void on_comboBox_stateSelect_currentIndexChanged(int index);
     void on_pushButton_updateParams_clicked();
     void on_comboBox_slave_currentIndexChanged(int index);
+    void on_pushButton_currentScalar_clicked();
+    void on_pushButton_findPoles_clicked();
 
 signals:
 	void windowClosed(void);
@@ -89,6 +93,7 @@ private:
     Ui::W_GainsCommand *ui;
 
 	DisplayMode displayMode;
+    QTimer* pupdateTimer;
 
 	QList<RigidDevice> *deviceList;
     QStringList var_list_states;
@@ -102,7 +107,6 @@ private:
     void refreshLswVals(void);
     void refreshEstVals(void);
     void refreshLstPVals(void);
-    void updateSysVals(void);
     void updateState(void);
 };
 
