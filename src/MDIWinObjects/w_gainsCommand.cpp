@@ -181,7 +181,7 @@ void W_GainsCommand::on_pushButton_currentScalar_clicked() {
 }
 
 void W_GainsCommand::on_pushButton_findPoles_clicked() {
-    fsm1StatePlan = -1;
+    fsm1StatePlan = -1; //user MIT DLeg state for findPoles()
 
     uint8_t info[2] = {PORT_USB, PORT_USB};
     uint16_t numb = 0;
@@ -263,7 +263,7 @@ void W_GainsCommand::updateSysVals(void) {
         break;
 
         default:
-            safeMessage = "ERROR";
+            safeMessage = "COMM ERROR";
         break;
     }
 
