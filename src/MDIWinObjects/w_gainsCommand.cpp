@@ -80,7 +80,8 @@ void W_GainsCommand::initWindow(void) {
 
     //populate drop down selector
     var_list_states << "Early Swing" << "Late Swing" << "Early Stance" \
-                    << "Late Stance" << "Late Stance Power";
+                    << "Late Stance" << "Late Stance Power" << "EMG Stand" \
+                    << "EMG Free";
     for(int index = 0; index < var_list_states.count(); index++)
     {
         ui->comboBox_stateSelect->addItem(var_list_states.at(index));
@@ -105,6 +106,8 @@ void W_GainsCommand::refreshAllVals(void) {
     refreshLswVals();
     refreshEstVals();
     refreshLstPVals();
+    refreshEmgStandVals();
+    refreshEmgFreeVals();
     updateState();
 }
 
@@ -225,6 +228,22 @@ void W_GainsCommand::refreshLstPVals(void) {
     ui->label_lstPThetaEq->setText(QString::number(lstPowerGains.thetaDes));
 }
 
+void W_GainsCommand::refreshEmgStandVals(void) {
+    ui->label_emgSk1->setText(QString::number(emgStandGains.k1));
+    ui->label_emgSk2->setText(QString::number(emgStandGains.k2));
+    ui->label_emgSb->setText(QString::number(emgStandGains.b));
+    ui->label_emgSThetaEq->setText(QString::number(emgStandGains.thetaDes)); //sets display var
+    ui->lineEdit_thetaEq->setText(QString::number(emgStandGains.thetaDes)); //sets line edit var
+}
+
+void W_GainsCommand::refreshEmgFreeVals(void) {
+    ui->label_emgFk1->setText(QString::number(emgFreeGains.k1));
+    ui->label_emgFk2->setText(QString::number(emgFreeGains.k2));
+    ui->label_emgFb->setText(QString::number(emgFreeGains.b));
+    ui->label_emgFThetaEq->setText(QString::number(emgFreeGains.thetaDes));
+    ui->lineEdit_thetaEq->setText(QString::number(emgFreeGains.thetaDes));
+}
+
 void W_GainsCommand::updateSysVals(void) {
     ui->label_jointAngle->setText(QString::number(act1.jointAngleDegrees, 'f', 2));
     ui->label_jointVelocity->setText(QString::number(act1.jointVelDegrees, 'f', 2));
@@ -318,10 +337,24 @@ void W_GainsCommand::updateState(void) {
 
             break;
 
-        case STATE_LATE_STANCE_POWER :
+        case STATE_LATE_STANCE_POWER:
 
             ui->label_currentState->setText("Late Stance Power");
             pal.setColor(QPalette::Background, Qt::red);
+
+            break;
+
+        case STATE_EMG_STAND_ON_TOE:
+
+            ui->label_currentState->setText("EMG Stand");
+            pal.setColor(QPalette::Background, Qt::darkRed);
+
+            break;
+
+        case STATE_LSW_EMG:
+
+            ui->label_currentState->setText("EMG Free");
+            pal.setColor(QPalette::Background, Qt::darkBlue);
 
             break;
 

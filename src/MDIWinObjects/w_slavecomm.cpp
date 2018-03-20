@@ -408,7 +408,7 @@ void W_SlaveComm::initSlaveCom(void)
 
 	//Default command line settings, RIC/NU & Rigid:
 	emit setOffsetParameter(QList<int>({0, 1}), QList<int>({0, 1}), 0, 0);
-    defaultCmdLineText = "o=0,1,2,3,5;";
+    defaultCmdLineText = "o=0,1,2,3,5,6;";
 	//We start with Rigid, so we enable the CL:
 	ui->lineEdit->setEnabled(true);
 	ui->lineEdit->setText(defaultCmdLineText);

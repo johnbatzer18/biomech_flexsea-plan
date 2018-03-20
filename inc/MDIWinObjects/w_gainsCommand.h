@@ -107,6 +107,8 @@ private:
     void refreshLswVals(void);
     void refreshEstVals(void);
     void refreshLstPVals(void);
+    void refreshEmgStandVals(void);
+    void refreshEmgFreeVals(void);
     void updateState(void);
 };
 
