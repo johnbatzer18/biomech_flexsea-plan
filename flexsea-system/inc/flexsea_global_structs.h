@@ -369,7 +369,7 @@ struct in_control_s
 struct user_data_s
 {
 	int32_t r[4];
-	int32_t w[4];
+    int32_t w[10];
 };
 
 //IMU data & config
