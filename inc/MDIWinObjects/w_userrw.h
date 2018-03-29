@@ -74,6 +74,12 @@ private slots:
 	void on_pushButton_w1_clicked();
 	void on_pushButton_w2_clicked();
 	void on_pushButton_w3_clicked();
+    void on_pushButton_w4_clicked();
+    void on_pushButton_w5_clicked();
+    void on_pushButton_w6_clicked();
+    void on_pushButton_w7_clicked();
+    void on_pushButton_w8_clicked();
+    void on_pushButton_w9_clicked();
 	void on_pushButton_refresh_clicked();
 	void on_pushButton_hide_clicked();
 	void refreshDisplay(void);

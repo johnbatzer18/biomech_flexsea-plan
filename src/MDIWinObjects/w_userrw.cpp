@@ -96,6 +96,12 @@ void W_UserRW::init(void)
 	ui->w1->setText("0");
 	ui->w2->setText("0");
 	ui->w3->setText("0");
+    ui->w4->setText("0");
+    ui->w5->setText("0");
+    ui->w6->setText("0");
+    ui->w7->setText("0");
+    ui->w8->setText("0");
+    ui->w9->setText("0");
 
 	//All R boxes to 0:
 	ui->r0->setText("0");
@@ -137,6 +143,12 @@ void W_UserRW::writeUserData(uint8_t index)
 	user_data_1.w[1] = (int16_t)ui->w1->text().toInt();
 	user_data_1.w[2] = (int16_t)ui->w2->text().toInt();
 	user_data_1.w[3] = (int16_t)ui->w3->text().toInt();
+    user_data_1.w[4] = (int16_t)ui->w4->text().toInt();
+    user_data_1.w[5] = (int16_t)ui->w5->text().toInt();
+    user_data_1.w[6] = (int16_t)ui->w6->text().toInt();
+    user_data_1.w[7] = (int16_t)ui->w7->text().toInt();
+    user_data_1.w[8] = (int16_t)ui->w8->text().toInt();
+    user_data_1.w[9] = (int16_t)ui->w9->text().toInt();
 
 	//qDebug() << "Write user data" << index << ":" << user_data_1.w[index];
 
@@ -262,6 +274,36 @@ void W_UserRW::on_pushButton_w2_clicked()
 void W_UserRW::on_pushButton_w3_clicked()
 {
 	writeUserData(3);
+}
+
+void W_UserRW::on_pushButton_w4_clicked()
+{
+    writeUserData(4);
+}
+
+void W_UserRW::on_pushButton_w5_clicked()
+{
+    writeUserData(5);
+}
+
+void W_UserRW::on_pushButton_w6_clicked()
+{
+    writeUserData(6);
+}
+
+void W_UserRW::on_pushButton_w7_clicked()
+{
+    writeUserData(7);
+}
+
+void W_UserRW::on_pushButton_w8_clicked()
+{
+    writeUserData(8);
+}
+
+void W_UserRW::on_pushButton_w9_clicked()
+{
+    writeUserData(9);
 }
 
 void W_UserRW::on_pushButton_refresh_clicked()
