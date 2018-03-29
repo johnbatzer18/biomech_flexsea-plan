@@ -171,8 +171,7 @@ HEADERS += inc/main.h \
 				inc/MDIWinObjects/w_rigid.h \
 				flexsea-projects/Rigid/inc/cmd-Rigid.h \
 				inc/MDIWinObjects/w_event.h \
-				flexsea-system/inc/flexsea_cmd_stream.h \
-				flexsea-system/inc/flexsea_dataformats.h \
+                                flexsea-system/inc/flexsea_cmd_stream.h \
 				inc/dynamicuserdatamanager.h \
 				flexsea-projects/ActPack/inc/cmd-ActPack.h \
 				flexsea-system/test/flexsea-system_test-all.h \

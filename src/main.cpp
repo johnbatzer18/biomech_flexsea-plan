@@ -32,7 +32,7 @@
 // Include(s)
 //****************************************************************************
 
-#include <flexsea_global_structs.h>
+//#include <flexsea_global_structs.h>
 #include <stdio.h>
 #include "main.h"
 #include <peripherals.h>
